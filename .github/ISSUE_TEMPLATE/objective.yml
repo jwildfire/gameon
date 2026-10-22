@@ -1,0 +1,30 @@
+name: Objective
+description: A goal for the project, filed by a person. Tasks hang under it as sub-issues.
+title: "{goal}"
+labels: ["objective"]
+body:
+  - type: textarea
+    id: intent
+    attributes:
+      label: Intent
+      description: "What we want and why, in plain words."
+    validations:
+      required: true
+
+  - type: textarea
+    id: definition_of_done
+    attributes:
+      label: Definition of done
+      description: "What is true when the whole objective is done, and how anyone can check it. Write it so it can fail."
+      placeholder: |
+        - End state:
+        - Proof:
+    validations:
+      required: true
+
+  - type: textarea
+    id: tasks
+    attributes:
+      label: Tasks
+      description: "The task issues under it, one line each, in the order they should happen. Filled in as tasks are filed."
+      placeholder: "_Tasks will be listed here as they are filed._"

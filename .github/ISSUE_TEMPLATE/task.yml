@@ -1,0 +1,32 @@
+name: Task
+description: One pull request's worth of work under an objective, with its definition of done.
+title: "{verb} {what}"
+labels: ["task"]
+body:
+  - type: input
+    id: objective
+    attributes:
+      label: Objective
+      description: "The objective this task belongs to. Also link it as a sub-issue."
+      placeholder: "#N"
+    validations:
+      required: true
+
+  - type: textarea
+    id: what_changes
+    attributes:
+      label: What changes
+      description: "Two or three sentences: the change, which files or game folder it touches, and what it must not change."
+    validations:
+      required: true
+
+  - type: textarea
+    id: definition_of_done
+    attributes:
+      label: Definition of done
+      description: "End state and proof (a URL and what it shows, a command and what it prints, a screenshot). Write it so it can fail."
+      placeholder: |
+        - End state:
+        - Proof:
+    validations:
+      required: true
