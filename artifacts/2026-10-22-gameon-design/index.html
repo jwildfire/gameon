@@ -1,0 +1,350 @@
+<title>GameOn Blueprint</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Draft design for GameOn: one home for the kids' AI-made games, a one-hour workflow for new ones, and a path to the iPhone. Eight questions to react to.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:ital,wght@0,500;0,700;0,800;1,500&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: one reading column with wide inserts (tables, option rows), sunny GameOn yellow
+   used only as highlight and the question markers. */
+:root {
+  --paper: #fffcf2;
+  --ink: #1d1a2f;
+  --muted: #5e5872;
+  --rule: #e7e0cc;
+  --sun: #ffd23f;
+  --sun-soft: #fff1b8;
+  --pop: #e2502f;
+  --card: #ffffff;
+  --code-bg: #f6f1e1;
+  --display: "Lilita One", "Arial Rounded MT Bold", "Trebuchet MS", sans-serif;
+  --body: "Nunito", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #17151f; --ink: #f4efe1; --muted: #b3acc4; --rule: #34303f;
+    --sun: #ffd23f; --sun-soft: #3a3320; --pop: #ff7a5c; --card: #201d2a; --code-bg: #26222f;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #17151f; --ink: #f4efe1; --muted: #b3acc4; --rule: #34303f;
+  --sun: #ffd23f; --sun-soft: #3a3320; --pop: #ff7a5c; --card: #201d2a; --code-bg: #26222f;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 500 17px/1.6 var(--body);
+}
+.page {
+  max-width: 820px;
+  margin: 0 auto;
+  padding-block: 40px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid;
+  gap: 52px;
+}
+section { display: grid; gap: 16px; min-width: 0; }
+h1, h2, h3 { margin: 0; text-wrap: balance; font-weight: 400; }
+h1 { font: 400 clamp(44px, 9vw, 72px)/0.95 var(--display); }
+h1 span { color: var(--pop); }
+h2 { font: 400 30px/1.1 var(--display); }
+h3 { font: 800 18px/1.3 var(--body); }
+p { margin: 0; max-width: 65ch; }
+.eyebrow { font: 800 12px/1 var(--body); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.lede { font-size: 20px; line-height: 1.5; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 14px; color: var(--muted); }
+a { color: inherit; text-decoration-color: var(--pop); text-underline-offset: 3px; }
+mark { background: var(--sun-soft); color: inherit; padding: 0 3px; border-radius: 3px; }
+code { font: 500 0.88em/1 var(--mono); background: var(--code-bg); padding: 2px 5px; border-radius: 4px; }
+pre { margin: 0; padding: 16px; background: var(--code-bg); border-radius: 10px; overflow-x: auto; font: 500 13.5px/1.55 var(--mono); }
+pre code { background: none; padding: 0; font-size: inherit; }
+ul.plain { margin: 0; padding-left: 20px; display: grid; gap: 6px; max-width: 65ch; }
+
+.bet {
+  border-left: 6px solid var(--sun);
+  padding: 4px 0 4px 18px;
+  font: 400 24px/1.25 var(--display);
+  max-width: 30ch;
+}
+
+.status { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 12px; }
+.status div { padding: 14px 16px; border: 1px solid var(--rule); border-radius: 12px; background: var(--card); display: grid; gap: 4px; align-content: start; }
+.status b { font: 400 20px/1.1 var(--display); }
+.status span { font-size: 14px; color: var(--muted); }
+
+.table-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 12px; background: var(--card); }
+table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 14.5px; }
+th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--rule); }
+th { font: 800 12px/1.2 var(--body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+tr:last-child td { border-bottom: 0; }
+td:first-child { font-weight: 800; white-space: nowrap; }
+.yes { color: var(--ink); }
+.no { color: var(--pop); font-weight: 800; }
+
+.callout { padding: 14px 18px; background: var(--sun-soft); border-radius: 12px; display: grid; gap: 8px; }
+
+.pieces { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 12px; }
+.piece { padding: 16px; border-radius: 14px; border: 2px solid var(--ink); background: var(--card); display: grid; gap: 6px; align-content: start; }
+.piece b { font: 400 22px/1 var(--display); }
+.piece span { font-size: 15px; color: var(--muted); }
+
+.options { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 12px; }
+.opt { padding: 16px; border: 1px solid var(--rule); border-radius: 12px; background: var(--card); display: grid; gap: 8px; align-content: start; }
+.opt.rec { border: 2px solid var(--ink); box-shadow: 4px 4px 0 var(--sun); }
+.opt h3 { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.chip { font: 800 11px/1 var(--body); letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 8px; border-radius: 999px; background: var(--ink); color: var(--paper); }
+.opt p, .opt li { font-size: 15px; }
+.opt ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+.cost { font: 500 13px/1.3 var(--mono); color: var(--muted); }
+
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.steps li { display: grid; grid-template-columns: 74px 1fr; gap: 14px; padding: 14px 0; border-top: 1px solid var(--rule); }
+.steps li:last-child { border-bottom: 1px solid var(--rule); }
+.clock { font: 500 15px/1.4 var(--mono); color: var(--pop); font-variant-numeric: tabular-nums; }
+.steps b { display: block; font-weight: 800; }
+.steps span { font-size: 15.5px; color: var(--muted); }
+
+.phases { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: 12px; counter-reset: ph; }
+.phase { padding: 14px 16px; border-top: 5px solid var(--sun); background: var(--card); border-radius: 0 0 12px 12px; display: grid; gap: 6px; align-content: start; }
+.phase b { font: 400 21px/1 var(--display); }
+.phase span { font-size: 14.5px; color: var(--muted); }
+
+.qs { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; counter-reset: q; }
+.qs li { counter-increment: q; display: grid; grid-template-columns: 44px 1fr; gap: 14px; align-items: start; }
+.qs li::before {
+  content: "Q" counter(q);
+  display: grid; place-items: center;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--sun); color: #1d1a2f;
+  font: 400 17px/1 var(--display);
+}
+.qs b { display: block; font-weight: 800; }
+.qs span { font-size: 15.5px; color: var(--muted); }
+.qs em { font-style: normal; font-weight: 800; color: var(--ink); }
+
+.decided { padding: 18px; border: 2px solid var(--ink); border-radius: 14px; background: var(--sun-soft); display: grid; gap: 10px; }
+.decided .chip { justify-self: start; }
+.arch { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 14px; }
+.box { padding: 16px; border: 1px solid var(--rule); border-radius: 12px; background: var(--card); display: grid; gap: 10px; align-content: start; min-width: 0; }
+.box h3 { font: 400 22px/1 var(--display); }
+.box ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 15px; }
+.considered { font-size: 15px; color: var(--muted); }
+
+footer { font-size: 14px; color: var(--muted); border-top: 1px solid var(--rule); padding-top: 18px; }
+</style>
+
+<main class="page">
+
+  <header style="display:grid;gap:14px">
+    <div class="eyebrow">Draft for Jeremy to react to</div>
+    <h1>Game<span>On</span> Blueprint</h1>
+    <p class="lede">One home for the games the kids dream up, a workflow that turns a kid's idea into a playable game in about an hour, and a path onto the iPhone.</p>
+    <div class="meta"><span>22 October 2026, revised the same night: games stay in their own repos</span><span>Task: <a href="https://github.com/jwildfire/gameon/issues/1">Draft the GameOn design (gameon#1)</a></span><span>Reply by question number, at the end</span></div>
+  </header>
+
+  <section>
+    <div class="eyebrow">The bet</div>
+    <p class="bet">AI can make a fun game in an hour. Not in real time, but in an hour.</p>
+    <p>So the product is the hour: a reliable path from a kid saying "I want a game where…" to that kid playing it, plus one place where every game can be found and played. Roblox gives kids a toolbox. GameOn gives them a game studio that takes dictation.</p>
+  </section>
+
+  <section>
+    <h2>Where things stand tonight</h2>
+    <div class="status">
+      <div><b>Six games, all live</b><span>Each in its own repo on GitHub Pages. The three from yesterday went public today.</span></div>
+      <div><b>Arcade v0 on dev</b><span>One page that plays all six, with a switcher, at <a href="https://jwildfire.github.io/gameon/dev/">/gameon/dev/</a>. Goes to /gameon/ with the release PR (gameon#17).</span></div>
+      <div><b>dev and main deploys</b><span>Every merge deploys on its own: dev to /gameon/dev/, main to /gameon/.</span></div>
+      <div><b>A shared rulebook</b><span>AGENTS.md works for Claude Code and Codex: claim, branch, PR into dev, release to main with an approval.</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>What the six games have in common</h2>
+    <p>I opened every repo. They are closer to a platform than they look: all are plain browser games, and half were born as Claude chat artifacts.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Game</th><th>Born as</th><th>Shape</th><th>Saves</th><th>Plays offline</th></tr></thead>
+        <tbody>
+          <tr><td>Trampoline Battle</td><td>Claude artifact</td><td>1 file, 98 KB</td><td>Settings</td><td class="yes">Yes</td></tr>
+          <tr><td>Princess Lady Drive</td><td>Claude artifact</td><td>Source + build script, 160 KB</td><td>Balloons, pets, decorations</td><td class="yes">Yes</td></tr>
+          <tr><td>Stretcher Bearer</td><td>Claude artifact</td><td>1 file, 130 KB</td><td>Best score</td><td class="yes">Yes</td></tr>
+          <tr><td>Angry Dudes</td><td>Repo</td><td>Multi-file, data packs, sprite builder, native iOS port started</td><td>Campaign</td><td class="yes">Yes</td></tr>
+          <tr><td>Magic Friends</td><td>Repo</td><td>Source + build script</td><td>Progress, mute</td><td class="yes">Yes</td></tr>
+          <tr><td>Timed Out</td><td>Repo</td><td>3 files</td><td>A setting</td><td class="no">No, pulls Wikipedia live</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <p><b>Two things to get right early.</b> All six run from one web address, jwildfire.github.io, so they share one browser save area. Their save names don't collide today, but that's luck. A rule fixes it: every save key starts with the game's name. And "offline" above means "apart from fonts": every game pulls Google Fonts, which fall back to system fonts in an offline app.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Decision 1</div>
+    <h2>Where do the games live?</h2>
+    <div class="decided">
+      <span class="chip">Decided 22 Oct</span>
+      <p><b>Each game lives in its own repo.</b> GameOn is the list of links, the arcade, and the skills for building games. When there's an app, GameOn also holds the build that packages the games for the App Store.</p>
+    </div>
+    <p>Why it fits: each game stays a small project a kid owns, agents working on different games can't collide, and a game can live in anyone's GitHub account, so a friend's family can make games and still appear in the arcade.</p>
+    <p class="considered">Also considered: copying every game into one repo (simpler app bundling, but one crowded place for every agent), and a mix of the two (two kinds of game to support forever).</p>
+  </section>
+
+  <section>
+    <h2>How the pieces fit</h2>
+    <div class="arch">
+      <div class="box">
+        <h3>GameOn repo</h3>
+        <ul>
+          <li><b>The list</b>: <code>games.json</code>, one line per game naming its repo and the release that's in the arcade.</li>
+          <li><b>The arcade</b>: reads the list, then each game's own card file, and plays the game in a frame.</li>
+          <li><b>The kit</b>: the skills for making, importing, testing and shipping games, plus a link to the template repo.</li>
+          <li><b>The app build</b> (later): fetches each listed release and packages them.</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h3>Each game repo</h3>
+        <ul>
+          <li>The game, deployed to its own address on GitHub Pages.</li>
+          <li>Its card file, <code>gameon.json</code>, and a cover picture, at the root.</li>
+          <li>A README that keeps the kid's idea word for word.</li>
+          <li>Release tags (<code>v1</code>, <code>v2</code>…) cut when a version is ready for the arcade.</li>
+          <li>A short AGENTS.md from the template that points at GameOn's skills.</li>
+        </ul>
+      </div>
+    </div>
+    <p>A game shows up at its own address the moment it's pushed. It shows up in the arcade when its line is added to the list, on dev first and on main after a release.</p>
+  </section>
+
+  <section>
+    <div class="eyebrow">Decision 2</div>
+    <h2>The game contract</h2>
+    <p>What every game repo needs to be in GameOn. Short enough for an agent to check in a minute, and it's what lets the arcade and the app build treat every game the same way.</p>
+    <ul class="plain">
+      <li><code>index.html</code> at the root runs with no server and no internet.</li>
+      <li>Works with touch and with a keyboard, and says whether it wants to be played sideways.</li>
+      <li>Every saved value is named <code>gameon.&lt;name&gt;.…</code>. On the web all the games share one save area, so this matters even with separate repos.</li>
+      <li><code>gameon.json</code> and <code>cover.jpg</code> at the root, for the arcade.</li>
+      <li>A README that keeps the kid's original idea, word for word.</li>
+      <li>A release tag for each version that goes into the arcade or the app.</li>
+    </ul>
+<pre><code>// gameon.json, in the game's repo
+{
+  "name": "trampoline-battle",
+  "title": "Trampoline Battle",
+  "tagline": "Drop fighters onto a trampoline and bounce the other team off.",
+  "credit": "Designed with my kids",
+  "idea": "the kid's pitch, word for word",
+  "made": "2026-10-21",
+  "built_with": "Claude Opus 5.5",
+  "minutes_to_first_play": 15,
+  "players": "1-2",
+  "sideways": true,
+  "needs_internet": false
+}
+
+// games.json, in GameOn
+[
+  { "repo": "jwildfire/trampoline-battle", "release": "v1" },
+  { "repo": "jwildfire/princess-lady-drive", "release": "v1" }
+]</code></pre>
+    <p class="considered">The list could build itself from every repo tagged with a <code>gameon</code> topic on GitHub. I'd keep it hand-written, because it's also where we choose which release of each game the arcade and the app use.</p>
+  </section>
+
+  <section>
+    <div class="eyebrow">Decision 3</div>
+    <h2>The hour</h2>
+    <p>How a new game gets made, written as the steps the skills will follow. The times are targets, not measurements yet.</p>
+    <ol class="steps">
+      <li><span class="clock">0:00</span><div><b>Pitch</b><span>The kid says what they want. It goes into a "Game idea" issue on GameOn, word for word, before any grown-up edits.</span></div></li>
+      <li><span class="clock">0:05</span><div><b>First playable</b><span>An agent makes a new repo from the template and builds version zero: title screen, controls for touch and keyboard, saving already wired up. It's playable at its own address straight away.</span></div></li>
+      <li><span class="clock">0:20</span><div><b>Play and fix</b><span>The kid plays and says what's wrong or what's next. A grown-up steers. Each round is one commit, so a bad idea is easy to undo.</span></div></li>
+      <li><span class="clock">0:50</span><div><b>Ship</b><span>Card file, cover, README, a <code>v1</code> tag, and a one-line PR adding it to the list. It's in the arcade at /gameon/dev/ that night; a grown-up releases it to the main arcade.</span></div></li>
+    </ol>
+    <p>The kit, written once in GameOn and used from inside any game repo:</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Piece</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td>Template repo</td><td><code>gameon-template</code>: the starter game, the Pages deploy, a blank card file, and an AGENTS.md that points at the skills. Every new game starts as a copy.</td></tr>
+          <tr><td><code>new-game</code></td><td>Turns a pitch into a new repo from the template, turns on Pages, and builds the first playable version.</td></tr>
+          <tr><td><code>import-game</code></td><td>Turns a game made as a Claude chat artifact into its own repo that meets the contract. Three of the six were made this way.</td></tr>
+          <tr><td><code>playtest</code></td><td>Opens the game in a browser at phone and laptop sizes, checks for errors, takes the screenshots for the PR.</td></tr>
+          <tr><td><code>ship-game</code></td><td>Checks the contract, writes the card file and cover, tags the release, and opens the PR that adds or bumps the game in GameOn's list.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>The catch with separate repos is that agents build games in the game repos while the skills live in GameOn. Each tool gets them a different way:</p>
+    <ul class="plain">
+      <li><b>Claude Code</b>: GameOn doubles as a Claude Code plugin, like the <code>scaffold</code> marketplace, so the skills load in any repo once it's installed.</li>
+      <li><b>Codex and ChatGPT</b>: the template's AGENTS.md links to the skill files in GameOn and says when to follow each one.</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="eyebrow">Decision 4</div>
+    <h2>Getting onto the iPhone</h2>
+    <div class="options">
+      <div class="opt rec">
+        <h3>Home-screen app first <span class="chip">Recommended</span></h3>
+        <p>Make the arcade installable from Safari's Share menu, with an icon, full screen, and the games saved for offline play. Works with games in separate repos as-is, because they all share one web address.</p>
+        <ul><li>No App Store, no developer account</li><li>Every release reaches the phone on its own</li></ul>
+        <span class="cost">A few hours</span>
+      </div>
+      <div class="opt">
+        <h3>A real app</h3>
+        <p>A small iPhone app that shows the arcade with every game bundled inside. A build in GameOn fetches each game's listed release, checks it against the contract, and packages the lot for TestFlight or the App Store.</p>
+        <ul><li>Feels like a real app; works on a plane</li><li>Needs the $99/year Apple developer account</li><li>Pinned releases mean a half-finished change never ships</li><li>App Store review is a separate question for later</li></ul>
+        <span class="cost">A day or two for the app, plus the build</span>
+      </div>
+      <div class="opt">
+        <h3>Native ports</h3>
+        <p>Rebuild a game in Swift, the way Angry Dudes has started to.</p>
+        <ul><li>Best feel</li><li>Days per game, so it can't keep up with an hour per game</li><li>Only for a breakout favorite</li></ul>
+        <span class="cost">Days per game</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Later, maybe</div>
+    <h2>Order a game tonight, play it at breakfast</h2>
+    <p>The natural end of "an hour, but not real time": a kid dictates an idea into the app at bedtime, it becomes a game-idea issue, an agent builds it overnight, and in the morning a grown-up checks it at /dev/ and releases it. Not for now, but the steps above are built so this needs no new machinery, only a way to start the agent.</p>
+  </section>
+
+  <section>
+    <h2>A possible order</h2>
+    <p>These could become the first objectives once you've reacted.</p>
+    <div class="phases">
+      <div class="phase"><b>Gather</b><span>Give each of the six repos a card file, cover and <code>v1</code> tag. The arcade reads them from the list.</span></div>
+      <div class="phase"><b>Kit</b><span>The template repo, the plugin, the four skills. Make game seven with them and time it.</span></div>
+      <div class="phase"><b>Pocket</b><span>Home-screen app with offline play. Then decide on a real app and its build.</span></div>
+      <div class="phase"><b>Order a game</b><span>Ideas from the app turn into issues an agent picks up.</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Questions for you</h2>
+    <ol class="qs">
+      <li><div><b>What are new game repos called?</b><span>Plain names like <code>trampoline-battle</code>, or prefixed like <code>gameon-trampoline-battle</code>? <em>I'd keep plain names, which match the six you have, and mark them with a <code>gameon</code> topic.</em></span></div></li>
+      <li><div><b>How should kids be credited?</b><span>No names (as Stretcher Bearer now does), first names, or ages like "designed by a 4-year-old"? <em>I'd use no names, with ages where you like.</em></span></div></li>
+      <li><div><b>Is everything public?</b><span>Every game and the arcade are on public GitHub Pages now. Is there any game the kids would rather keep in the family?</span></div></li>
+      <li><div><b>Home-screen app or a real app first?</b><span>And do you already have an Apple developer account? <em>I'd start with the home-screen app.</em></span></div></li>
+      <li><div><b>Where do new games get built?</b><span>Keep starting them in Claude chat as artifacts and importing, or build them straight in a new repo with Claude Code or Codex? <em>I'd support both, since the chat path is what's working.</em></span></div></li>
+      <li><div><b>Is your friend's family making games too?</b><span>If so, their games can stay in their own account and join the list. Should the arcade show who made what?</span></div></li>
+      <li><div><b>Does Timed Out belong?</b><span>It needs the internet and is more history quiz than kid game. Keep it, mark it, or leave it on your projects page only?</span></div></li>
+      <li><div><b>What does "an hour" measure?</b><span>Pitch to first playable, or pitch to shipped? I'd record it in each card file so we can see whether the kit makes it faster.</span></div></li>
+    </ol>
+  </section>
+
+  <footer>
+    Drafted by Claude Code (Opus 5.5) from the six game repos, the GameOn repo and the conversation that set it up. Decision 1 is settled; the rest waits on your answers to the questions above.
+  </footer>
+
+</main>

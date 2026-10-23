@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GameOn Arcade</title>
+<meta name="description" content="Little games made with AI, designed by kids. Pick one and play.">
+<meta name="theme-color" content="#ffd23f">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;800&display=swap">
+<style>
+/* Toy shelf: a sunny wall of chunky, outlined cartridges. One look on purpose, so it
+   reads the same in light and dark. */
+:root {
+  --wall: #ffd23f;
+  --ink: #1d1a2f;
+  --card: #fffdf6;
+  --muted: #5b5670;
+  --pop: #ff6b4a;
+  --bar: #1d1a2f;
+  --bar-fg: #fffdf6;
+  --display: "Lilita One", "Arial Rounded MT Bold", "Trebuchet MS", sans-serif;
+  --body: "Nunito", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --line: 3px solid var(--ink);
+  --lift: 5px 5px 0 var(--ink);
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--wall);
+  color: var(--ink);
+  font: 600 16px/1.45 var(--body);
+  -webkit-tap-highlight-color: transparent;
+}
+[hidden] { display: none !important; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--pop); outline-offset: 3px; }
+
+/* ---------- Home ---------- */
+.home {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding-block: max(28px, env(safe-area-inset-top, 0px)) max(40px, env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid;
+  gap: 28px;
+}
+.masthead { display: grid; gap: 6px; }
+.wordmark {
+  margin: 0;
+  font: 400 clamp(56px, 12vw, 104px)/0.9 var(--display);
+  letter-spacing: 0.01em;
+  color: var(--card);
+  -webkit-text-stroke: 3px var(--ink);
+  paint-order: stroke fill;
+  text-shadow: 5px 5px 0 var(--ink);
+}
+.wordmark span { color: var(--pop); }
+.lede { margin: 0; font-size: clamp(17px, 2.4vw, 21px); font-weight: 800; max-width: 34ch; text-wrap: balance; }
+
+.shelf {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: 24px;
+}
+.cart {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: 100%;
+  background: var(--card);
+  border: var(--line);
+  border-radius: 18px;
+  box-shadow: var(--lift);
+  overflow: hidden;
+  text-decoration: none;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.cart:hover { transform: translate(-2px, -2px); box-shadow: 7px 7px 0 var(--ink); }
+.cart:active { transform: translate(3px, 3px); box-shadow: 2px 2px 0 var(--ink); }
+.cover {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  max-width: 100%;
+  border-bottom: var(--line);
+  background: var(--tint, var(--pop));
+}
+.cover img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.play-badge {
+  position: absolute;
+  right: 12px;
+  bottom: -22px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--tint, var(--pop));
+  border: var(--line);
+  display: grid;
+  place-items: center;
+}
+.play-badge svg { width: 20px; height: 20px; margin-left: 3px; fill: var(--card); stroke: var(--ink); stroke-width: 2; }
+.cart-body { display: grid; align-content: start; gap: 8px; padding: 16px 18px 18px; }
+.cart h2 { margin: 0; padding-right: 56px; font: 400 26px/1.05 var(--display); text-wrap: balance; }
+.cart p { margin: 0; color: var(--muted); font-size: 15px; }
+.credit { font-size: 13px; font-weight: 800; color: var(--ink); }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.tag {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--card);
+}
+.tag.new { background: var(--ink); color: var(--wall); }
+
+.foot { margin: 0; font-size: 14px; color: var(--ink); }
+.foot a { font-weight: 800; }
+
+/* ---------- Player ---------- */
+.player { position: fixed; inset: 0; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr; background: var(--ink); }
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-left: max(8px, env(safe-area-inset-left, 0px));
+  padding-right: max(8px, env(safe-area-inset-right, 0px));
+  background: var(--bar);
+  color: var(--bar-fg);
+  border-bottom: 3px solid var(--wall);
+}
+.bar-title { flex: 1; min-width: 0; font: 400 19px/1 var(--display); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 12px;
+  border: 2px solid var(--wall);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--bar-fg);
+  font: 800 14px/1 var(--body);
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn.primary { background: var(--wall); color: var(--ink); }
+.btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.frame { width: 100%; height: 100%; border: 0; display: block; background: #000; }
+
+/* Game switcher */
+.switcher {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  background: rgba(29, 26, 47, 0.72);
+  padding-block: calc(56px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  overflow-y: auto;
+}
+.switch-panel {
+  width: min(100%, 760px);
+  background: var(--wall);
+  border: var(--line);
+  border-radius: 18px;
+  box-shadow: var(--lift);
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+}
+.switch-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.switch-head h2 { margin: 0; font: 400 26px/1 var(--display); }
+.switch-head .btn { color: var(--ink); border-color: var(--ink); }
+.switch-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 12px; }
+.mini {
+  display: grid;
+  gap: 6px;
+  padding: 6px 6px 10px;
+  background: var(--card);
+  border: var(--line);
+  border-radius: 12px;
+  text-decoration: none;
+  font: 400 16px/1.1 var(--display);
+  text-align: center;
+}
+.mini img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 7px; border: 2px solid var(--ink); }
+.mini[aria-current="true"] { background: var(--ink); color: var(--wall); }
+
+@media (max-width: 520px) {
+  .btn .label { display: none; }
+  .btn { padding: 0 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cart, .cart:hover, .cart:active { transition: none; transform: none; }
+}
+</style>
+</head>
+<body>
+
+<main class="home" id="home">
+  <header class="masthead">
+    <h1 class="wordmark">Game<span>On</span></h1>
+    <p class="lede">Games our kids dreamed up and AI built. Pick one and play.</p>
+  </header>
+  <ul class="shelf" id="shelf" aria-label="Games"></ul>
+  <p class="foot">Every game here started as a kid's idea, dictated out loud and built in an evening. <a href="https://github.com/jwildfire/gameon">How we make them</a></p>
+</main>
+
+<section class="player" id="player" hidden aria-label="Now playing">
+  <div class="bar">
+    <a class="btn" href="#" id="home-btn" aria-label="All games">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg><span class="label">Arcade</span>
+    </a>
+    <div class="bar-title" id="bar-title"></div>
+    <button class="btn primary" type="button" id="switch-btn" aria-haspopup="dialog">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg><span class="label">Games</span>
+    </button>
+    <button class="btn" type="button" id="fs-btn" aria-label="Full screen" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+    </button>
+    <a class="btn" id="own-btn" target="_blank" rel="noopener" aria-label="Open in its own tab">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>
+    </a>
+  </div>
+  <iframe class="frame" id="frame" title="Game" allow="fullscreen; autoplay; gamepad" allowfullscreen></iframe>
+</section>
+
+<div class="switcher" id="switcher" hidden role="dialog" aria-modal="true" aria-labelledby="switch-title">
+  <div class="switch-panel">
+    <div class="switch-head">
+      <h2 id="switch-title">Pick a game</h2>
+      <button class="btn" type="button" id="close-switch">Close</button>
+    </div>
+    <ul class="switch-grid" id="switch-grid"></ul>
+  </div>
+</div>
+
+<script>
+(function () {
+  var games = [];
+  var shelf = document.getElementById("shelf");
+  var home = document.getElementById("home");
+  var player = document.getElementById("player");
+  var frame = document.getElementById("frame");
+  var barTitle = document.getElementById("bar-title");
+  var ownBtn = document.getElementById("own-btn");
+  var fsBtn = document.getElementById("fs-btn");
+  var switcher = document.getElementById("switcher");
+  var switchGrid = document.getElementById("switch-grid");
+  var current = null;
+
+  function el(tag, attrs, kids) {
+    var n = document.createElement(tag);
+    for (var k in attrs || {}) {
+      if (k === "text") n.textContent = attrs[k];
+      else n.setAttribute(k, attrs[k]);
+    }
+    (kids || []).forEach(function (c) { n.appendChild(c); });
+    return n;
+  }
+  function cover(g) { return "assets/covers/" + g.slug + ".jpg"; }
+
+  function renderShelf() {
+    games.forEach(function (g) {
+      var badge = el("span", { "class": "play-badge", "aria-hidden": "true" });
+      badge.innerHTML = '<svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg>';
+      var tags = el("div", { "class": "tags" }, (g.tags || []).map(function (t) {
+        return el("span", { "class": "tag" + (t === "New" ? " new" : ""), text: t });
+      }));
+      var body = el("div", { "class": "cart-body" }, [el("h2", { text: g.title }), el("p", { text: g.tagline })]);
+      if (g.credit) body.appendChild(el("span", { "class": "credit", text: g.credit }));
+      body.appendChild(tags);
+      var link = el("a", { "class": "cart", href: "#" + g.slug, style: "--tint:" + g.color }, [
+        el("div", { "class": "cover" }, [el("img", { src: cover(g), alt: "", loading: "lazy", width: "800", height: "450" }), badge]),
+        body
+      ]);
+      shelf.appendChild(el("li", {}, [link]));
+
+      var mini = el("a", { "class": "mini", href: "#" + g.slug, "data-slug": g.slug }, [
+        el("img", { src: cover(g), alt: "", loading: "lazy" }),
+        el("span", { text: g.title })
+      ]);
+      switchGrid.appendChild(el("li", {}, [mini]));
+    });
+  }
+
+  function openSwitcher() {
+    switchGrid.querySelectorAll(".mini").forEach(function (m) {
+      m.setAttribute("aria-current", current && m.dataset.slug === current.slug ? "true" : "false");
+    });
+    switcher.hidden = false;
+    document.getElementById("close-switch").focus();
+  }
+  function closeSwitcher() {
+    switcher.hidden = true;
+    if (current) focusGame();
+  }
+  function focusGame() {
+    try { frame.contentWindow.focus(); } catch (e) { frame.focus(); }
+  }
+
+  function route() {
+    var slug = decodeURIComponent(location.hash.replace(/^#/, ""));
+    var g = games.filter(function (x) { return x.slug === slug; })[0];
+    switcher.hidden = true;
+    if (!g) {
+      current = null;
+      player.hidden = true;
+      home.hidden = false;
+      frame.removeAttribute("src");
+      document.title = "GameOn Arcade";
+      return;
+    }
+    if (!current || current.slug !== g.slug) {
+      current = g;
+      frame.src = g.url;
+      barTitle.textContent = g.title;
+      ownBtn.href = g.url;
+      document.title = g.title + " · GameOn";
+    }
+    home.hidden = true;
+    player.hidden = false;
+    window.scrollTo(0, 0);
+  }
+
+  frame.addEventListener("load", focusGame);
+  document.getElementById("switch-btn").addEventListener("click", openSwitcher);
+  document.getElementById("close-switch").addEventListener("click", closeSwitcher);
+  switcher.addEventListener("click", function (e) { if (e.target === switcher) closeSwitcher(); });
+  switchGrid.addEventListener("click", function (e) {
+    var a = e.target.closest(".mini");
+    if (a && current && a.dataset.slug === current.slug) { e.preventDefault(); closeSwitcher(); }
+  });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !switcher.hidden) closeSwitcher(); });
+
+  if (frame.requestFullscreen) {
+    fsBtn.hidden = false;
+    fsBtn.addEventListener("click", function () {
+      frame.requestFullscreen().then(focusGame).catch(function () {});
+    });
+  }
+
+  window.addEventListener("hashchange", route);
+  fetch("games.json")
+    .then(function (r) { return r.json(); })
+    .then(function (list) { games = list; renderShelf(); route(); })
+    .catch(function () {
+      shelf.appendChild(el("li", { text: "The game list didn't load. Check your connection and refresh." }));
+    });
+})();
+</script>
+</body>
+</html>

@@ -18,16 +18,18 @@ workflow that gets from a kid's prompt to a playable game.
 | [Angry Dudes](https://jwildfire.github.io/angry-dudes/) | Pixel-art slingshot siege through history: 10 armies, 37 real battles | [angry-dudes](https://github.com/jwildfire/angry-dudes) | Live (has an early `ios/` wrapper) |
 | [Magic Friends, Up We Go!](https://jwildfire.github.io/magic-friends/) | Climbing game: a mermaid, a fairy and a unicorn vs. a grumpy witch, 60 levels | [magic-friends](https://github.com/jwildfire/magic-friends) | Live |
 | [Timed Out](https://jwildfire.github.io/timedout/) | Put Wikipedia events in order on a timeline; three strikes and you're out | [timedout](https://github.com/jwildfire/timedout) | Live |
-| Stretcher Bearer | A WWI medic game | [stretcher-bearer](https://github.com/jwildfire/stretcher-bearer) | Repo created, private, not deployed |
-| Princess Lady Drive | Drive around Queen Rosie's town, where everything is free (designed by a 4-year-old) | [princess-lady-drive](https://github.com/jwildfire/princess-lady-drive) | Repo created, private, not deployed |
-| Trampoline Battle | Two-player ragdoll brawl on a trampoline | [trampoline-battle](https://github.com/jwildfire/trampoline-battle) | Repo created, private, not deployed |
+| [Stretcher Bearer](https://jwildfire.github.io/stretcher-bearer/) | A WWI medic carrying the wounded in from the trenches, 1914 to 1918 | [stretcher-bearer](https://github.com/jwildfire/stretcher-bearer) | Live |
+| [Princess Lady Drive](https://jwildfire.github.io/princess-lady-drive/) | Drive around Queen Rosie's town, where everything is free (designed by a 4-year-old) | [princess-lady-drive](https://github.com/jwildfire/princess-lady-drive) | Live |
+| [Trampoline Battle](https://jwildfire.github.io/trampoline-battle/) | Two-player ragdoll brawl on a trampoline | [trampoline-battle](https://github.com/jwildfire/trampoline-battle) | Live |
 
-All six are static HTML/JavaScript, no server.
+All six are static HTML/JavaScript with no server, and each is deployed from its own repo with GitHub Pages.
 
 ## How we work
 
 Work is tracked in GitHub issues: objectives (the big goals) broken into tasks (one pull
-request each). Every change happens on its own branch and lands through a pull request.
+request each). Every change happens on its own branch and lands in `dev` through a pull
+request, then reaches `main` in an approved release. Both deploy automatically: `main` to
+https://jwildfire.github.io/gameon/ and `dev` to https://jwildfire.github.io/gameon/dev/.
 Two of us work here, with Claude Code and ChatGPT/Codex. [AGENTS.md](AGENTS.md) has the
 rules every agent follows so nobody's work gets stepped on.
 
