@@ -27,7 +27,9 @@ All six are static HTML/JavaScript, no server.
 ## How we work
 
 Work is tracked in GitHub issues: objectives (the big goals) broken into tasks (one pull
-request each). Every change happens on its own branch and lands through a pull request.
+request each). Every change happens on its own branch and lands in `dev` through a pull
+request, then reaches `main` in an approved release. Both deploy automatically: `main` to
+https://jwildfire.github.io/gameon/ and `dev` to https://jwildfire.github.io/gameon/dev/.
 Two of us work here, with Claude Code and ChatGPT/Codex. [AGENTS.md](AGENTS.md) has the
 rules every agent follows so nobody's work gets stepped on.
 

@@ -43,6 +43,23 @@ Objective  (label: objective)   a goal, e.g. "Bring all six games into the repo"
 - When you talk to a person, say what an issue is before you give its number: "the
   trampoline physics task (#12)", never just "#12".
 
+## Branches and deploys
+
+| Branch | What it is | Live at | How work gets in |
+|---|---|---|---|
+| `main` | What the kids play | https://jwildfire.github.io/gameon/ | A release PR from `dev`, with one approving review |
+| `dev` | Where finished tasks land first | https://jwildfire.github.io/gameon/dev/ | A task PR from a task branch |
+| `<issue>-<slug>` | One task in progress | not deployed | Commits from the agent working the task |
+
+- Deploys are automatic. Every push to `main` or `dev` runs
+  [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml), which builds both branches
+  into one site, `main` at the root and `dev` under `/dev/`. Never deploy by hand, and don't
+  change the Pages settings.
+- After your task PR merges into `dev`, check your change at the `/dev/` URL once the
+  deploy finishes, and post that link on the task.
+- A release is a PR from `dev` into `main`. Its body lists a `Closes #N` line for every
+  task it ships, since `Closes` lines on PRs into `dev` don't close anything.
+
 ## Not stepping on each other
 
 This is the most important section.
@@ -50,12 +67,12 @@ This is the most important section.
 1. **Claim before you start.** Assign the task to whoever is steering you (`gh issue edit
    <n> --add-assignee <login>`) and post a comment: "Starting: <one-line plan>". If a task
    is already assigned to someone else, or has an open PR, leave it alone and pick another.
-2. **One task, one branch, one PR.** Branch off a fresh `main`, named
+2. **One task, one branch, one PR.** Branch off a fresh `dev`, named
    `<issue-number>-<short-slug>` (e.g. `12-trampoline-physics`). Never commit straight to
-   `main`. Never push to someone else's branch.
+   `dev` or `main`. Never push to someone else's branch.
 3. **Use a worktree, not a branch switch.** Other sessions may share the same checkout, so
    never `git checkout` another branch in the main folder:
-   - Claude Code: `git worktree add .claude/worktrees/<branch> -b <branch> origin/main`
+   - Claude Code: `git worktree add .claude/worktrees/<branch> -b <branch> origin/dev`
      (that folder is git-ignored and auto-approved).
    - Codex cloud and ChatGPT already work in their own copy, so just name the branch as
      above.
@@ -63,7 +80,7 @@ This is the most important section.
    one game, don't edit another game's folder. Changes to shared files (this file,
    `README.md`, templates, shared tooling) get their own task, so two agents aren't editing
    them at once.
-5. **Keep up with `main`.** Before you open the PR, merge or rebase onto the latest `main`
+5. **Keep up with `dev`.** Before you open the PR, merge or rebase onto the latest `dev`
    and fix any conflicts on your branch.
 6. **Don't delete or rewrite.** No force-pushes to shared branches, no deleting branches,
    issues or files you didn't create, unless a person tells you to.
@@ -72,11 +89,13 @@ This is the most important section.
 
 - Small commits, one change each, message in the imperative ("Add trampoline bounce").
   Include whatever co-author trailer your tool adds.
-- Open the PR against `main` with the template in
+- Open the PR against `dev` with the template in
   [`.github/pull_request_template.md`](.github/pull_request_template.md): a one-sentence
   summary, `Closes #<task>`, and the evidence the definition of done asked for.
-- A person merges. Agents don't merge their own PRs unless the person steering them says
-  so in that session.
+- A person merges. Task PRs into `dev` need no review. The release PR from `dev` into
+  `main` needs one approving review. Agents never approve a PR, never merge, and never use
+  the admin bypass. GitHub won't let anyone approve their own PR, so for now a repo admin
+  may merge their own release with the bypass on the PR page.
 - When the PR merges, remove your worktree (`git worktree remove .claude/worktrees/<branch>`).
 
 ## Comments
