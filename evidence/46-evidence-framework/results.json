@@ -1,0 +1,97 @@
+{
+  "spec": "46-evidence-framework",
+  "passed": true,
+  "headline": "PASS: 4 of 4 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-23T11:14:46.354Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "efd71bd",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/46-evidence-framework.spec.mjs",
+  "checks": [
+    {
+      "check": "the arcade home shows one card per game in games.json",
+      "notes": [
+        "desktop: 7 cards, one for each game in games.json",
+        "phone: 7 cards, one for each game in games.json"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "home-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "home-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "MazeAThon plays inside the arcade frame",
+      "notes": [
+        "desktop: clock reads 0:01 after starting",
+        "phone: clock reads 0:01 after starting"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "game-title-desktop.jpg",
+          "game-playing-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "game-title-phone.jpg",
+          "game-playing-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the switcher opens from a game and changes to another game",
+      "notes": [],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "switcher-desktop.jpg",
+          "switched-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "switcher-phone.jpg",
+          "switched-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "nothing scrolls sideways and the player buttons stay on screen",
+      "notes": [
+        "desktop: 1280px wide, bar buttons with words",
+        "phone: 375px wide, bar buttons icon-only"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "player-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "player-phone.jpg"
+        ],
+        "error": null
+      }
+    }
+  ]
+}
