@@ -89,7 +89,7 @@ async function goTo(p,target){
         state=await snapshot(p);if(!state.keys.includes(id))await goTo(p,state.world.shapes.find(s=>s.id===id));
         assert.ok((await snapshot(p)).keys.includes(id),'shape '+id+' collected through keyboard movement');
         if(section===0){
-          const r=(await snapshot(p)).world.rooms[id];await goTo(p,{x:r.door.x-.5,y:r.door.y+.5});await p.clock.runFor(32);
+          const r=(await snapshot(p)).world.rooms[id];await goTo(p,r.entry||{x:r.door.x-.5,y:r.door.y+.5});await p.clock.runFor(32);
           assert.ok((await snapshot(p)).world.rooms[id].opened,'matching room opens');
           await goTo(p,r);state=await snapshot(p);assert.ok(state.world.rooms[id].readyAt>0,'boost '+r.boost+' activates');
           if(r.boost==='map')assert.equal(state.mapped,true);else assert.ok(state.effects[r.boost]>0);

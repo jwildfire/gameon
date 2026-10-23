@@ -176,7 +176,7 @@
   function drawMap(c,w,h){
     const sx=w/W,sy=h/H;c.clearRect(0,0,w,h);c.fillStyle='#112f31';c.fillRect(0,0,w,h);
     for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x;if(!game.discovered[i]&&!game.mapped)continue;c.fillStyle=game.world.cells[i]?'#386154':'#b4bda1';c.fillRect(x*sx,y*sy,sx+.2,sy+.2);}
-    for(const r of game.world.rooms){if(!game.discovered[Math.floor(r.y)*W+Math.floor(r.x)]&&!game.mapped)continue;c.fillStyle=r.opened?'#c5e7b7':'#6e9d81';c.fillRect((r.door.x-.1)*sx,r.door.y*sy,1.2*sx,sy);}
+    for(const r of game.world.rooms){if(!game.discovered[r.door.y*W+r.door.x]&&!game.mapped)continue;c.fillStyle=r.opened?'#c5e7b7':'#6e9d81';c.fillRect((r.door.x+.1)*sx,(r.door.y+.1)*sy,.8*sx,.8*sy);}
     for(const s of game.world.shapes)if(!game.keys.includes(s.id)&&(game.mapped||game.discovered[Math.floor(s.y)*W+Math.floor(s.x)])){c.fillStyle='#f1977c';c.beginPath();c.arc(s.x*sx,s.y*sy,Math.max(1.7,sx*.36),0,Math.PI*2);c.fill();}
     const e=game.world.exit;if(game.mapped||game.discovered[Math.floor(e.y)*W+Math.floor(e.x)]){c.fillStyle='#efdc9a';c.fillRect((e.x-.4)*sx,(e.y-.4)*sy,sx*.8,sy*.8);}
     c.fillStyle='#ffe6a0';c.strokeStyle='#173e39';c.lineWidth=Math.max(1,sx*.15);c.beginPath();c.arc(game.player.x*sx,game.player.y*sy,Math.max(2.5,sx*.44),0,Math.PI*2);c.fill();c.stroke();
