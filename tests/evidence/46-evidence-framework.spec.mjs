@@ -1,4 +1,5 @@
-// Evidence for the evidence framework task (#46): what the arcade on dev does today.
+// Evidence for the evidence framework task (#46): what the arcade and the New Game page on
+// dev do today.
 // Run: npm run evidence -- 46-evidence-framework
 import { test, expect, games } from "./evidence.mjs";
 
@@ -84,4 +85,33 @@ test("nothing scrolls sideways and the player buttons stay on screen", async ({ 
   else await expect(page.locator("#switch-btn .label")).toBeVisible();
   note(`${width}px wide, bar buttons ${phone ? "icon-only" : "with words"}`);
   await shot("player");
+});
+
+test("the New Game page turns a typed idea into a Game idea form for a grown-up", async ({ page, shot, note, browserErrors }) => {
+  // Record where Send would go instead of opening GitHub.
+  await page.addInitScript(() => { window.open = url => { window.__opened = url; return null; }; });
+  await page.goto("new/");
+  await expect(page.getByRole("heading", { name: "What's your game?" })).toBeVisible();
+  await expect(page.locator("#send")).toBeDisabled();
+  const { scroll, width } = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, width: window.innerWidth }));
+  expect(scroll, "page is wider than the screen").toBeLessThanOrEqual(width);
+  await shot("new-game");
+
+  const idea = "A game where a penguin delivers pizza across a frozen lake and dodges seals";
+  await page.locator("#tab-type").click();
+  await page.locator("#idea").fill(idea);
+  await page.locator("#maker").fill("Tester");
+  await expect(page.locator("#send")).toBeEnabled();
+  await page.locator("#send").click();
+
+  await expect(page.locator("#handoff")).toBeVisible();
+  const opened = new URL(await page.evaluate(() => window.__opened));
+  expect(opened.origin + opened.pathname).toBe("https://github.com/jwildfire/gameon/issues/new");
+  expect(Object.fromEntries(opened.searchParams)).toEqual({
+    template: "game-idea.yml", title: "Game idea from Tester", idea, maker: "Tester", told_by: "typing"
+  });
+  await expect(page.locator("#issue-link")).toHaveAttribute("href", opened.href);
+  note("Send opens the Game idea form with the idea, the nickname and told_by=typing filled in");
+  await shot("new-game-sent");
+  expect(browserErrors).toEqual([]);
 });
