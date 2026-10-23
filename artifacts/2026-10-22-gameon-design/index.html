@@ -128,6 +128,14 @@ td:first-child { font-weight: 800; white-space: nowrap; }
 .qs span { font-size: 15.5px; color: var(--muted); }
 .qs em { font-style: normal; font-weight: 800; color: var(--ink); }
 
+.decided { padding: 18px; border: 2px solid var(--ink); border-radius: 14px; background: var(--sun-soft); display: grid; gap: 10px; }
+.decided .chip { justify-self: start; }
+.arch { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 14px; }
+.box { padding: 16px; border: 1px solid var(--rule); border-radius: 12px; background: var(--card); display: grid; gap: 10px; align-content: start; min-width: 0; }
+.box h3 { font: 400 22px/1 var(--display); }
+.box ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 15px; }
+.considered { font-size: 15px; color: var(--muted); }
+
 footer { font-size: 14px; color: var(--muted); border-top: 1px solid var(--rule); padding-top: 18px; }
 </style>
 
@@ -137,22 +145,22 @@ footer { font-size: 14px; color: var(--muted); border-top: 1px solid var(--rule)
     <div class="eyebrow">Draft for Jeremy to react to</div>
     <h1>Game<span>On</span> Blueprint</h1>
     <p class="lede">One home for the games the kids dream up, a workflow that turns a kid's idea into a playable game in about an hour, and a path onto the iPhone.</p>
-    <div class="meta"><span>22 October 2026</span><span>Task: <a href="https://github.com/jwildfire/gameon/issues/1">Draft the GameOn design (gameon#1)</a></span><span>Reply by question number, at the end</span></div>
+    <div class="meta"><span>22 October 2026, revised the same night: games stay in their own repos</span><span>Task: <a href="https://github.com/jwildfire/gameon/issues/1">Draft the GameOn design (gameon#1)</a></span><span>Reply by question number, at the end</span></div>
   </header>
 
   <section>
     <div class="eyebrow">The bet</div>
     <p class="bet">AI can make a fun game in an hour. Not in real time, but in an hour.</p>
-    <p>So the product is the hour: a reliable path from a kid saying "I want a game where…" to that kid playing it, plus one place where every game lives and stays playable. Roblox gives kids a toolbox. GameOn gives them a game studio that takes dictation.</p>
+    <p>So the product is the hour: a reliable path from a kid saying "I want a game where…" to that kid playing it, plus one place where every game can be found and played. Roblox gives kids a toolbox. GameOn gives them a game studio that takes dictation.</p>
   </section>
 
   <section>
     <h2>Where things stand tonight</h2>
     <div class="status">
       <div><b>Six games, all live</b><span>Each in its own repo on GitHub Pages. The three from yesterday went public today.</span></div>
-      <div><b>Arcade v0</b><span>One page that plays all six, with a switcher. Waiting in the arcade PR (gameon#5).</span></div>
-      <div><b>dev and main deploys</b><span>dev to /gameon/dev/, main to /gameon/. Waiting in the auto-deploy PR (gameon#9).</span></div>
-      <div><b>A shared rulebook</b><span>AGENTS.md works for Claude Code and Codex: claim, branch, PR into dev, release with approval.</span></div>
+      <div><b>Arcade v0 on dev</b><span>One page that plays all six, with a switcher, at <a href="https://jwildfire.github.io/gameon/dev/">/gameon/dev/</a>. Goes to /gameon/ with the release PR (gameon#17).</span></div>
+      <div><b>dev and main deploys</b><span>Every merge deploys on its own: dev to /gameon/dev/, main to /gameon/.</span></div>
+      <div><b>A shared rulebook</b><span>AGENTS.md works for Claude Code and Codex: claim, branch, PR into dev, release to main with an approval.</span></div>
     </div>
   </section>
 
@@ -178,51 +186,56 @@ footer { font-size: 14px; color: var(--muted); border-top: 1px solid var(--rule)
   </section>
 
   <section>
-    <h2>Three things to build</h2>
-    <div class="pieces">
-      <div class="piece"><b>The Arcade</b><span>One place to find and play every game. v0 exists. Next: read each game's own card file instead of a hand-kept list.</span></div>
-      <div class="piece"><b>The Game Kit</b><span>The hour, written down: a starter, a game contract, and agent skills that both Claude Code and Codex can follow.</span></div>
-      <div class="piece"><b>The Pocket</b><span>Getting the arcade onto the kids' iPhones and iPads, first as a home-screen app, later maybe as a real one.</span></div>
+    <div class="eyebrow">Decision 1</div>
+    <h2>Where do the games live?</h2>
+    <div class="decided">
+      <span class="chip">Decided 22 Oct</span>
+      <p><b>Each game lives in its own repo.</b> GameOn is the list of links, the arcade, and the skills for building games. When there's an app, GameOn also holds the build that packages the games for the App Store.</p>
     </div>
+    <p>Why it fits: each game stays a small project a kid owns, agents working on different games can't collide, and a game can live in anyone's GitHub account, so a friend's family can make games and still appear in the arcade.</p>
+    <p class="considered">Also considered: copying every game into one repo (simpler app bundling, but one crowded place for every agent), and a mix of the two (two kinds of game to support forever).</p>
   </section>
 
   <section>
-    <div class="eyebrow">Decision 1</div>
-    <h2>Where do the games live?</h2>
-    <div class="options">
-      <div class="opt rec">
-        <h3>One repo <span class="chip">Recommended</span></h3>
-        <p>Copy each game into <code>games/&lt;name&gt;/</code> here, keeping its git history. Old repos stay up so old links still work.</p>
-        <ul><li>One place for agents and skills to work</li><li>The phone app can bundle everything in one build</li><li>"Add a game" becomes "add a folder"</li></ul>
-        <span class="cost">About an hour per game to move, mostly checking it still plays</span>
+    <h2>How the pieces fit</h2>
+    <div class="arch">
+      <div class="box">
+        <h3>GameOn repo</h3>
+        <ul>
+          <li><b>The list</b>: <code>games.json</code>, one line per game naming its repo and the release that's in the arcade.</li>
+          <li><b>The arcade</b>: reads the list, then each game's own card file, and plays the game in a frame.</li>
+          <li><b>The kit</b>: the skills for making, importing, testing and shipping games, plus a link to the template repo.</li>
+          <li><b>The app build</b> (later): fetches each listed release and packages them.</li>
+        </ul>
       </div>
-      <div class="opt">
-        <h3>A list of links</h3>
-        <p>Games stay in their own repos; GameOn only keeps the list and the arcade. This is how arcade v0 works.</p>
-        <ul><li>Nothing moves</li><li>Every new game still needs its own repo and Pages setup</li><li>Harder to bundle for the phone</li></ul>
-        <span class="cost">Done today</span>
-      </div>
-      <div class="opt">
-        <h3>Mixed</h3>
-        <p>New games are born in <code>games/</code>; the first six stay where they are until there is a reason to move them.</p>
-        <ul><li>No migration now</li><li>Two kinds of game to support forever</li></ul>
-        <span class="cost">No upfront cost; ongoing friction</span>
+      <div class="box">
+        <h3>Each game repo</h3>
+        <ul>
+          <li>The game, deployed to its own address on GitHub Pages.</li>
+          <li>Its card file, <code>gameon.json</code>, and a cover picture, at the root.</li>
+          <li>A README that keeps the kid's idea word for word.</li>
+          <li>Release tags (<code>v1</code>, <code>v2</code>…) cut when a version is ready for the arcade.</li>
+          <li>A short AGENTS.md from the template that points at GameOn's skills.</li>
+        </ul>
       </div>
     </div>
+    <p>A game shows up at its own address the moment it's pushed. It shows up in the arcade when its line is added to the list, on dev first and on main after a release.</p>
   </section>
 
   <section>
     <div class="eyebrow">Decision 2</div>
     <h2>The game contract</h2>
-    <p>What makes something a GameOn game. Short enough for an agent to check in a minute, and it's what lets the arcade and the phone app treat every game the same way.</p>
+    <p>What every game repo needs to be in GameOn. Short enough for an agent to check in a minute, and it's what lets the arcade and the app build treat every game the same way.</p>
     <ul class="plain">
-      <li>A folder, <code>games/&lt;name&gt;/</code>, whose <code>index.html</code> runs with no server and no internet.</li>
+      <li><code>index.html</code> at the root runs with no server and no internet.</li>
       <li>Works with touch and with a keyboard, and says whether it wants to be played sideways.</li>
-      <li>Every saved value is named <code>gameon.&lt;name&gt;.…</code>.</li>
-      <li>A cover picture and a card file, <code>game.json</code>, that the arcade reads.</li>
+      <li>Every saved value is named <code>gameon.&lt;name&gt;.…</code>. On the web all the games share one save area, so this matters even with separate repos.</li>
+      <li><code>gameon.json</code> and <code>cover.jpg</code> at the root, for the arcade.</li>
       <li>A README that keeps the kid's original idea, word for word.</li>
+      <li>A release tag for each version that goes into the arcade or the app.</li>
     </ul>
-<pre><code>{
+<pre><code>// gameon.json, in the game's repo
+{
   "name": "trampoline-battle",
   "title": "Trampoline Battle",
   "tagline": "Drop fighters onto a trampoline and bounce the other team off.",
@@ -234,7 +247,14 @@ footer { font-size: 14px; color: var(--muted); border-top: 1px solid var(--rule)
   "players": "1-2",
   "sideways": true,
   "needs_internet": false
-}</code></pre>
+}
+
+// games.json, in GameOn
+[
+  { "repo": "jwildfire/trampoline-battle", "release": "v1" },
+  { "repo": "jwildfire/princess-lady-drive", "release": "v1" }
+]</code></pre>
+    <p class="considered">The list could build itself from every repo tagged with a <code>gameon</code> topic on GitHub. I'd keep it hand-written, because it's also where we choose which release of each game the arcade and the app use.</p>
   </section>
 
   <section>
@@ -242,23 +262,29 @@ footer { font-size: 14px; color: var(--muted); border-top: 1px solid var(--rule)
     <h2>The hour</h2>
     <p>How a new game gets made, written as the steps the skills will follow. The times are targets, not measurements yet.</p>
     <ol class="steps">
-      <li><span class="clock">0:00</span><div><b>Pitch</b><span>The kid says what they want. It goes into a "Game idea" issue word for word, before any grown-up edits.</span></div></li>
-      <li><span class="clock">0:05</span><div><b>First playable</b><span>An agent builds version zero from the kit's starter: title screen, controls for touch and keyboard, saving already wired up.</span></div></li>
+      <li><span class="clock">0:00</span><div><b>Pitch</b><span>The kid says what they want. It goes into a "Game idea" issue on GameOn, word for word, before any grown-up edits.</span></div></li>
+      <li><span class="clock">0:05</span><div><b>First playable</b><span>An agent makes a new repo from the template and builds version zero: title screen, controls for touch and keyboard, saving already wired up. It's playable at its own address straight away.</span></div></li>
       <li><span class="clock">0:20</span><div><b>Play and fix</b><span>The kid plays and says what's wrong or what's next. A grown-up steers. Each round is one commit, so a bad idea is easy to undo.</span></div></li>
-      <li><span class="clock">0:50</span><div><b>Ship</b><span>Card file, cover, README, a PR into dev. It shows up at /gameon/dev/ that night; a grown-up releases it to the main arcade.</span></div></li>
+      <li><span class="clock">0:50</span><div><b>Ship</b><span>Card file, cover, README, a <code>v1</code> tag, and a one-line PR adding it to the list. It's in the arcade at /gameon/dev/ that night; a grown-up releases it to the main arcade.</span></div></li>
     </ol>
-    <p>The skills, written once and used by both tools (Claude Code loads them as skills, and Codex is pointed at the same files from AGENTS.md):</p>
+    <p>The kit, written once in GameOn and used from inside any game repo:</p>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Skill</th><th>What it does</th></tr></thead>
+        <thead><tr><th>Piece</th><th>What it does</th></tr></thead>
         <tbody>
-          <tr><td><code>new-game</code></td><td>Turns a pitch into a game folder and a first playable version from the starter.</td></tr>
-          <tr><td><code>import-game</code></td><td>Brings a game made as a Claude chat artifact into <code>games/</code> and makes it meet the contract. Three of the six were made this way.</td></tr>
+          <tr><td>Template repo</td><td><code>gameon-template</code>: the starter game, the Pages deploy, a blank card file, and an AGENTS.md that points at the skills. Every new game starts as a copy.</td></tr>
+          <tr><td><code>new-game</code></td><td>Turns a pitch into a new repo from the template, turns on Pages, and builds the first playable version.</td></tr>
+          <tr><td><code>import-game</code></td><td>Turns a game made as a Claude chat artifact into its own repo that meets the contract. Three of the six were made this way.</td></tr>
           <tr><td><code>playtest</code></td><td>Opens the game in a browser at phone and laptop sizes, checks for errors, takes the screenshots for the PR.</td></tr>
-          <tr><td><code>ship-game</code></td><td>Writes the card file and cover, checks the contract, opens the PR into dev.</td></tr>
+          <tr><td><code>ship-game</code></td><td>Checks the contract, writes the card file and cover, tags the release, and opens the PR that adds or bumps the game in GameOn's list.</td></tr>
         </tbody>
       </table>
     </div>
+    <p>The catch with separate repos is that agents build games in the game repos while the skills live in GameOn. Each tool gets them a different way:</p>
+    <ul class="plain">
+      <li><b>Claude Code</b>: GameOn doubles as a Claude Code plugin, like the <code>scaffold</code> marketplace, so the skills load in any repo once it's installed.</li>
+      <li><b>Codex and ChatGPT</b>: the template's AGENTS.md links to the skill files in GameOn and says when to follow each one.</li>
+    </ul>
   </section>
 
   <section>
@@ -267,15 +293,15 @@ footer { font-size: 14px; color: var(--muted); border-top: 1px solid var(--rule)
     <div class="options">
       <div class="opt rec">
         <h3>Home-screen app first <span class="chip">Recommended</span></h3>
-        <p>Make the arcade installable from Safari's Share menu, with an icon, full screen, and the games saved for offline play.</p>
+        <p>Make the arcade installable from Safari's Share menu, with an icon, full screen, and the games saved for offline play. Works with games in separate repos as-is, because they all share one web address.</p>
         <ul><li>No App Store, no developer account</li><li>Every release reaches the phone on its own</li></ul>
         <span class="cost">A few hours</span>
       </div>
       <div class="opt">
         <h3>A real app</h3>
-        <p>A small iPhone app that bundles the <code>games/</code> folders and shows the arcade. Shared with friends' families through TestFlight.</p>
-        <ul><li>Feels like a real app; works on a plane</li><li>Needs the $99/year Apple developer account</li><li>App Store review is a separate question for later</li></ul>
-        <span class="cost">A day or two once games live in one repo</span>
+        <p>A small iPhone app that shows the arcade with every game bundled inside. A build in GameOn fetches each game's listed release, checks it against the contract, and packages the lot for TestFlight or the App Store.</p>
+        <ul><li>Feels like a real app; works on a plane</li><li>Needs the $99/year Apple developer account</li><li>Pinned releases mean a half-finished change never ships</li><li>App Store review is a separate question for later</li></ul>
+        <span class="cost">A day or two for the app, plus the build</span>
       </div>
       <div class="opt">
         <h3>Native ports</h3>
@@ -296,9 +322,9 @@ footer { font-size: 14px; color: var(--muted); border-top: 1px solid var(--rule)
     <h2>A possible order</h2>
     <p>These could become the first objectives once you've reacted.</p>
     <div class="phases">
-      <div class="phase"><b>Gather</b><span>Move the six games in, give each a card file, arcade reads them. Release to main.</span></div>
-      <div class="phase"><b>Kit</b><span>The starter, the contract, the four skills. Make game seven with them and time it.</span></div>
-      <div class="phase"><b>Pocket</b><span>Home-screen app with offline play. Then decide on a real app.</span></div>
+      <div class="phase"><b>Gather</b><span>Give each of the six repos a card file, cover and <code>v1</code> tag. The arcade reads them from the list.</span></div>
+      <div class="phase"><b>Kit</b><span>The template repo, the plugin, the four skills. Make game seven with them and time it.</span></div>
+      <div class="phase"><b>Pocket</b><span>Home-screen app with offline play. Then decide on a real app and its build.</span></div>
       <div class="phase"><b>Order a game</b><span>Ideas from the app turn into issues an agent picks up.</span></div>
     </div>
   </section>
@@ -306,19 +332,19 @@ footer { font-size: 14px; color: var(--muted); border-top: 1px solid var(--rule)
   <section>
     <h2>Questions for you</h2>
     <ol class="qs">
-      <li><div><b>One repo or a list of links?</b><span>Move all six into <code>games/</code> here, keeping the old repos live, or leave them where they are? <em>I'd move them.</em></span></div></li>
+      <li><div><b>What are new game repos called?</b><span>Plain names like <code>trampoline-battle</code>, or prefixed like <code>gameon-trampoline-battle</code>? <em>I'd keep plain names, which match the six you have, and mark them with a <code>gameon</code> topic.</em></span></div></li>
       <li><div><b>How should kids be credited?</b><span>No names (as Stretcher Bearer now does), first names, or ages like "designed by a 4-year-old"? <em>I'd use no names, with ages where you like.</em></span></div></li>
       <li><div><b>Is everything public?</b><span>Every game and the arcade are on public GitHub Pages now. Is there any game the kids would rather keep in the family?</span></div></li>
       <li><div><b>Home-screen app or a real app first?</b><span>And do you already have an Apple developer account? <em>I'd start with the home-screen app.</em></span></div></li>
-      <li><div><b>Where do new games get built?</b><span>Keep starting them in Claude chat as artifacts and importing, or build them straight in the repo with Claude Code or Codex? <em>I'd support both, since the chat path is what's working.</em></span></div></li>
-      <li><div><b>Is your friend's family making games too?</b><span>If so, the arcade may want a "made by" filter, and credits by family.</span></div></li>
+      <li><div><b>Where do new games get built?</b><span>Keep starting them in Claude chat as artifacts and importing, or build them straight in a new repo with Claude Code or Codex? <em>I'd support both, since the chat path is what's working.</em></span></div></li>
+      <li><div><b>Is your friend's family making games too?</b><span>If so, their games can stay in their own account and join the list. Should the arcade show who made what?</span></div></li>
       <li><div><b>Does Timed Out belong?</b><span>It needs the internet and is more history quiz than kid game. Keep it, mark it, or leave it on your projects page only?</span></div></li>
       <li><div><b>What does "an hour" measure?</b><span>Pitch to first playable, or pitch to shipped? I'd record it in each card file so we can see whether the kit makes it faster.</span></div></li>
     </ol>
   </section>
 
   <footer>
-    Drafted by Claude Code (Opus 5.5) from the six game repos, the GameOn repo and the conversation that set it up. Nothing here is decided until you answer the questions above.
+    Drafted by Claude Code (Opus 5.5) from the six game repos, the GameOn repo and the conversation that set it up. Decision 1 is settled; the rest waits on your answers to the questions above.
   </footer>
 
 </main>
