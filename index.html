@@ -122,6 +122,28 @@ a { color: inherit; }
 }
 .tag.new { background: var(--ink); color: var(--wall); }
 
+.make {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 14px 22px;
+  background: var(--pop);
+  color: var(--card);
+  border: var(--line);
+  border-radius: 18px;
+  box-shadow: var(--lift);
+  font: 400 clamp(22px, 3.4vw, 28px)/1 var(--display);
+  text-decoration: none;
+  -webkit-text-stroke: 1px var(--ink);
+  paint-order: stroke fill;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.make:hover { transform: translate(-2px, -2px); box-shadow: 7px 7px 0 var(--ink); }
+.make:active { transform: translate(3px, 3px); box-shadow: 2px 2px 0 var(--ink); }
+.make svg { width: 26px; height: 26px; fill: var(--card); stroke: var(--ink); stroke-width: 1.5; }
+@media (prefers-reduced-motion: reduce) { .make, .make:hover, .make:active { transition: none; transform: none; } }
 .foot { margin: 0; font-size: 14px; color: var(--ink); }
 .foot a { font-weight: 800; }
 
@@ -216,6 +238,7 @@ a { color: inherit; }
   <header class="masthead">
     <h1 class="wordmark">Game<span>On</span></h1>
     <p class="lede">Games our kids dreamed up and AI built. Pick one and play.</p>
+    <a class="make" id="make-btn" href="new/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.6 6.3L21 9l-5 4.4L17.5 20 12 16.6 6.5 20 8 13.4 3 9l6.4-.7z"/></svg>Make a new game</a>
   </header>
   <ul class="shelf" id="shelf" aria-label="Games"></ul>
   <p class="foot">Every game here started as a kid's idea, dictated out loud and built in an evening. <a href="https://github.com/jwildfire/gameon">How we make them</a></p>
