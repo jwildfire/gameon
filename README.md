@@ -1,50 +1,70 @@
 # GameOn
 
-Little games made with AI, designed by kids.
+Games our kids dream up out loud, built by AI.
 
-The kids dictate an idea, a grown-up steers a bit, and an AI coding agent builds the game in
-about an hour. We've made seven so far and the kids have played them for hours. GameOn is
-where they come together: one mini-games repo, a repeatable workflow (and agent skills) for
-adding a new game, and maybe an iPhone app on top. Think Roblox, but the games are made
-with AI.
+## [Play the GameOn arcade](https://jwildfire.github.io/gameon/)
 
-The bet: AI can make a fun game in an hour, just not in real time. So the product is the
-workflow that gets from a kid's prompt to a playable game.
+It runs in the browser on a phone, a tablet or a laptop. Nothing to install, no accounts,
+no ads.
 
-## The games so far
+A kid describes a game: who's in it, what you do, what makes it funny. A grown-up hands
+that idea to an AI coding agent, and about an hour later there's a game the kid can play.
+GameOn is where those games live together, and where we're working out how to make the
+next one even easier.
 
-| Game | What it is | Repo | Status |
-|---|---|---|---|
-| [MazeAThon](https://jwildfire.github.io/gameon/dev/#mazeathon) | Find twelve shape keys across three mazes, unlock boost rooms, and escape some very cute monsters | [games/mazeathon](games/mazeathon/) in this shared repo | Playable on dev |
-| [Angry Dudes](https://jwildfire.github.io/angry-dudes/) | Pixel-art slingshot siege through history: 10 armies, 37 real battles | [angry-dudes](https://github.com/jwildfire/angry-dudes) | Live (has an early `ios/` wrapper) |
-| [Magic Friends, Up We Go!](https://jwildfire.github.io/magic-friends/) | Climbing game: a mermaid, a fairy and a unicorn vs. a grumpy witch, 60 levels | [magic-friends](https://github.com/jwildfire/magic-friends) | Live |
-| [Timed Out](https://jwildfire.github.io/timedout/) | Put Wikipedia events in order on a timeline; three strikes and you're out | [timedout](https://github.com/jwildfire/timedout) | Live |
-| [Stretcher Bearer](https://jwildfire.github.io/stretcher-bearer/) | A WWI medic carrying the wounded in from the trenches, 1914 to 1918 | [stretcher-bearer](https://github.com/jwildfire/stretcher-bearer) | Live |
-| [Princess Lady Drive](https://jwildfire.github.io/princess-lady-drive/) | Drive around Queen Rosie's town, where everything is free (designed by a 4-year-old) | [princess-lady-drive](https://github.com/jwildfire/princess-lady-drive) | Live |
-| [Trampoline Battle](https://jwildfire.github.io/trampoline-battle/) | Two-player ragdoll brawl on a trampoline | [trampoline-battle](https://github.com/jwildfire/trampoline-battle) | Live |
+## The games
 
-All seven are static HTML/JavaScript with no server. **MazeAThon lives inside this shared
-repository**, at [`games/mazeathon/`](games/mazeathon/), and deploys with GameOn. Its relative
-arcade URL follows the current branch: `games/mazeathon/` on production, or
-`dev/games/mazeathon/` on development. The six existing games remain deployed from their
-own repositories with GitHub Pages; adding MazeAThon does not move or change them.
-Future MazeAThon changes belong in `games/mazeathon/` and follow the shared task, dev, and reviewed-release workflow.
+- **[MazeAThon](https://jwildfire.github.io/gameon/#mazeathon)**, designed with Ryan.
+  Find twelve shape keys across three mazes, open boost rooms, and escape some very cute
+  monsters.
+- **[Trampoline Battle](https://jwildfire.github.io/gameon/#trampoline-battle)**, designed
+  with Jeremy's kids. Drop fighters onto a trampoline and bounce the other team off. Cow
+  drops and chicken attacks included.
+- **[Princess Lady Drive](https://jwildfire.github.io/gameon/#princess-lady-drive)**,
+  designed by a 4-year-old. Drive Queen Rosie around a town where everything is free.
+- **[Stretcher Bearer](https://jwildfire.github.io/gameon/#stretcher-bearer)**, designed
+  with Jeremy's kids. Carry the wounded in from the trenches as a WWI medic, 1914 to 1918.
+- **[Angry Dudes](https://jwildfire.github.io/gameon/#angry-dudes)**. Sling troops, fire
+  cannons and call in air strikes across 37 real battles from history.
+- **[Magic Friends, Up We Go!](https://jwildfire.github.io/gameon/#magic-friends)**,
+  designed with a 5-year-old. A mermaid, a fairy and a unicorn climb 60 levels to bring
+  back the sunrise.
+- **[Timed Out](https://jwildfire.github.io/gameon/#timedout)**. Put real events from
+  Wikipedia in order. Three wrong guesses and you're timed out.
 
-## How we work
+## How a game gets made
 
-Work is tracked in GitHub issues: objectives (the big goals) broken into tasks (one pull
-request each). Every change happens on its own branch and lands in `dev` through a pull
-request, then reaches `main` in an approved release. Both deploy automatically: `main` to
-https://jwildfire.github.io/gameon/ and `dev` to https://jwildfire.github.io/gameon/dev/.
-Two of us work here, with Claude Code and ChatGPT/Codex. [AGENTS.md](AGENTS.md) has the
-rules every agent follows so nobody's work gets stepped on.
+1. **A kid has an idea.** Usually said out loud, in one breath. MazeAThon started as
+   "you collect shapes in a maze that fit different keyholes" and kept going from there.
+2. **An AI agent builds it.** A grown-up passes the idea to a coding agent (Claude Code or
+   ChatGPT/Codex) and steers a little. The kid's names, rules and silly ideas stay in.
+3. **It goes in the arcade.** The agent plays the game in a browser to check it works. It
+   shows up in a test copy of the arcade first, and a grown-up approves it before it
+   reaches the real one.
 
-## Layout
+**Coming next: Make a New Game.** A button in the arcade where a kid can say or type an
+idea and then watch it move along ("Got your idea!", "Being built", "Play it now!"), with
+a grown-up approving every step that matters. Read the
+[Make a New Game design](https://jwildfire.github.io/gameon/dev/artifacts/2026-10-23-new-game-pipeline/);
+the first, simplest version is being built now.
 
-| Path | What's there |
-|---|---|
-| [`AGENTS.md`](AGENTS.md) | Instructions for every AI agent (Codex reads it directly; Claude Code reads it via `CLAUDE.md`) |
-| [`CLAUDE.md`](CLAUDE.md) | Claude Code entry point, points at `AGENTS.md` |
-| [`artifacts/`](artifacts/) | Reports, designs, screenshots and other outputs worth keeping |
-| [`games/mazeathon/`](games/mazeathon/) | The complete in-repo MazeAThon game, its original idea, instructions, and gameplay checks |
-| [`.github/`](.github/) | Issue and pull request templates |
+## Who's behind it
+
+Jeremy ([@jwildfire](https://github.com/jwildfire)) and his friend Ryan
+([@killjoy00](https://github.com/killjoy00)), their kids, who do all the designing, and a
+few AI agents, who do the building. It's a for-fun project. Someday it might be an iPhone
+app too.
+
+## For builders
+
+The technical side lives in **[docs/](docs/README.md)**:
+
+- [How the repo is laid out](docs/layout.md)
+- [Branches and deploys](docs/branches-and-deploys.md): `dev`, `main` and the automatic
+  GitHub Pages deploy
+- [Adding a game to the arcade](docs/adding-a-game.md): `games.json`, covers and URLs
+- [Designs and artifacts](docs/designs-and-artifacts.md): every design, playtest and report
+  we've kept
+
+Agents (and people) working here follow [AGENTS.md](AGENTS.md). Work is tracked in
+[GitHub issues](https://github.com/jwildfire/gameon/issues).

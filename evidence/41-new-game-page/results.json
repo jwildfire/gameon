@@ -1,0 +1,132 @@
+[
+  {
+    "name": "phone: Talk is the default",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "phone: spoken words are read back in the idea box",
+    "ok": true,
+    "detail": "a game where you're a penguin delivering…"
+  },
+  {
+    "name": "phone: Send is enabled with an idea and a nickname",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "phone: Send opens the Game idea form",
+    "ok": true,
+    "detail": "https://github.com/jwildfire/gameon/issues/new?template=game-idea.yml&title=Game…"
+  },
+  {
+    "name": "phone: address carries idea, maker, told_by and title",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "phone: grown-up hand-off shows with a fallback link",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "phone: no sideways scroll",
+    "ok": true,
+    "detail": "375px"
+  },
+  {
+    "name": "phone: no console errors",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "phone: without speech recognition it opens on Type",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "phone: Talk explains it isn't available",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "phone: a too-short idea asks what happens instead of sending",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "phone: over 1,000 characters disables Send",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "phone: typed ideas are marked told_by=typing",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "desktop: Talk is the default",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "desktop: spoken words are read back in the idea box",
+    "ok": true,
+    "detail": "a game where you're a penguin delivering…"
+  },
+  {
+    "name": "desktop: Send is enabled with an idea and a nickname",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "desktop: Send opens the Game idea form",
+    "ok": true,
+    "detail": "https://github.com/jwildfire/gameon/issues/new?template=game-idea.yml&title=Game…"
+  },
+  {
+    "name": "desktop: address carries idea, maker, told_by and title",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "desktop: grown-up hand-off shows with a fallback link",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "desktop: no sideways scroll",
+    "ok": true,
+    "detail": "1280px"
+  },
+  {
+    "name": "desktop: no console errors",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "desktop: without speech recognition it opens on Type",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "desktop: Talk explains it isn't available",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "desktop: a too-short idea asks what happens instead of sending",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "desktop: over 1,000 characters disables Send",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "desktop: typed ideas are marked told_by=typing",
+    "ok": true,
+    "detail": ""
+  }
+]
