@@ -1,0 +1,13 @@
+{
+  "name": "gameon-arcade",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:registry": "node --test tests/registry.test.mjs",
+    "test:browser": "playwright test",
+    "test": "npm run test:registry && npm run test:browser"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1"
+  }
+}

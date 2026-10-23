@@ -38,6 +38,8 @@ jobs:
           rsync -a --exclude='.git' --exclude='.github' --exclude='.claude' main/ _site/
           rsync -a --exclude='.git' --exclude='.github' --exclude='.claude' dev/ _site/dev/
           touch _site/.nojekyll
+          printf '%s\n' "$(git -C main rev-parse HEAD)" > _site/revision.txt
+          printf '%s\n' "$(git -C dev rev-parse HEAD)" > _site/dev/revision.txt
           echo "main $(git -C main rev-parse --short HEAD), dev $(git -C dev rev-parse --short HEAD)"
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
@@ -45,3 +47,42 @@ jobs:
           path: _site
       - id: deployment
         uses: actions/deploy-pages@v4
+      - name: Verify published main and dev
+        shell: bash
+        run: |
+          set -euo pipefail
+          for branch in main dev; do
+            if [[ "$branch" == "main" ]]; then
+              site="https://jwildfire.github.io/gameon/"
+            else
+              site="https://jwildfire.github.io/gameon/dev/"
+            fi
+            expected="$(git -C "$branch" rev-parse HEAD)"
+            revision_url="$site"revision.txt
+            observed=""
+            for attempt in $(seq 1 12); do
+              observed="$(curl -fsSL --max-time 15 "$revision_url?sha=$expected&attempt=$attempt" || true)"
+              if [[ "$observed" == "$expected" ]]; then break; fi
+              echo "Waiting for $branch deploy ($attempt/12): expected $expected, saw $observed"
+              sleep 5
+            done
+            if [[ "$observed" != "$expected" ]]; then
+              echo "::error::Stale $branch site: expected $expected, saw $observed"
+              exit 1
+            fi
+
+            curl -fsSL --max-time 20 "$site"index.html -o "$RUNNER_TEMP/$branch-index.html"
+            grep -q '<title>GameOn Arcade</title>' "$RUNNER_TEMP/$branch-index.html"
+            curl -fsSL --max-time 20 "$site"games.json -o "$RUNNER_TEMP/$branch-games.json"
+            cmp "$branch/games.json" "$RUNNER_TEMP/$branch-games.json"
+
+            node -e 'const fs=require("fs"); for(const g of JSON.parse(fs.readFileSync(process.argv[1],"utf8"))) console.log(g.slug+"\t"+g.url)' "$branch/games.json" > "$RUNNER_TEMP/$branch-links.tsv"
+            while IFS=\t' read -r slug game_url; do
+              curl -fsSL --max-time 20 --head "$site"assets/covers/"$slug".jpg -o /dev/null
+              # Check each game host once (on dev), not twice on every deploy.
+              if [[ "$branch" == "dev" ]]; then
+                curl -fsSL --max-time 25 --retry 2 --retry-delay 2 "$game_url" -o /dev/null
+              fi
+            done < "$RUNNER_TEMP/$branch-links.tsv"
+            echo "Verified $branch at $site ($expected), game registry, covers and links."
+          done
