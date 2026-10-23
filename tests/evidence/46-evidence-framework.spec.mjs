@@ -108,7 +108,10 @@ test("the New Game page turns a typed idea into a Game idea form for a grown-up"
   const opened = new URL(await page.evaluate(() => window.__opened));
   expect(opened.origin + opened.pathname).toBe("https://github.com/jwildfire/gameon/issues/new");
   expect(Object.fromEntries(opened.searchParams)).toEqual({
-    template: "game-idea.yml", title: "Game idea from Tester", idea, maker: "Tester", told_by: "typing"
+    template: "game-idea.yml", title: "Game idea from Tester", idea, maker: "Tester", told_by: "typing",
+    // The fallback when GitHub opens a blank issue instead of the form (#100)
+    body: `### The idea, word for word\n\n${idea}\n\n### Made by\n\nTester\n\n### Told by\n\ntyping\n`,
+    labels: "game-idea,status: submitted"
   });
   await expect(page.locator("#issue-link")).toHaveAttribute("href", opened.href);
   note("Send opens the Game idea form with the idea, the nickname and told_by=typing filled in");
