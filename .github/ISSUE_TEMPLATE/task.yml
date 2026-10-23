@@ -7,8 +7,8 @@ body:
     id: objective
     attributes:
       label: Objective
-      description: "The objective this task belongs to. Also link it as a sub-issue."
-      placeholder: "#N"
+      description: "The objective this task belongs to (also link it as a sub-issue). If there isn't one yet, say who asked and when: _None yet. Jeremy asked for this in chat on 2026-10-23._"
+      placeholder: "#N (what the objective is)"
     validations:
       required: true
 
@@ -16,7 +16,7 @@ body:
     id: what_changes
     attributes:
       label: What changes
-      description: "Two or three sentences: the change, which files or game folder it touches, and what it must not change."
+      description: "Two or three sentences: the change, which files or game folder it touches (your claim), and what it must not change."
     validations:
       required: true
 
@@ -24,7 +24,7 @@ body:
     id: definition_of_done
     attributes:
       label: Definition of done
-      description: "End state and proof (a URL and what it shows, a command and what it prints, a screenshot). Write it so it can fail."
+      description: "End state and proof (a URL and what it shows, a command and what it prints, screenshots). UI changes: Playwright screenshots at phone and desktop widths, per docs/evidence.md. Write it so it can fail."
       placeholder: |
         - End state:
         - Proof:
