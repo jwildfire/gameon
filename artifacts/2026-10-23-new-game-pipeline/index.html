@@ -1,0 +1,455 @@
+<title>Make a New Game</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Design for GameOn's Make a new game button: from a kid's spoken idea to a GitHub issue, an AI score and go/no-go, a guarded build, an agent review on dev, and a grown-up's publish to main.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:ital,wght@0,500;0,700;0,800;1,500&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: one reading column, a seven-stop track down the side of each step, and a phone
+   mock of the New Game screen in the arcade's own yellow toy-box look. */
+:root {
+  --paper: #fffcf2;
+  --ink: #1d1a2f;
+  --muted: #5e5872;
+  --rule: #e7e0cc;
+  --sun: #ffd23f;
+  --sun-soft: #fff1b8;
+  --pop: #e2502f;
+  --card: #ffffff;
+  --code-bg: #f6f1e1;
+  --ok: #1f8a4c;
+  --wait: #b7791f;
+  --stop: #c0392b;
+  --display: "Lilita One", "Arial Rounded MT Bold", "Trebuchet MS", sans-serif;
+  --body: "Nunito", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #17151f; --ink: #f4efe1; --muted: #b3acc4; --rule: #34303f;
+    --sun-soft: #3a3320; --pop: #ff7a5c; --card: #201d2a; --code-bg: #26222f;
+    --ok: #4cc27f; --wait: #e8b04a; --stop: #ff6b5b;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #17151f; --ink: #f4efe1; --muted: #b3acc4; --rule: #34303f;
+  --sun-soft: #3a3320; --pop: #ff7a5c; --card: #201d2a; --code-bg: #26222f;
+  --ok: #4cc27f; --wait: #e8b04a; --stop: #ff6b5b;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 500 17px/1.6 var(--body); }
+.page {
+  max-width: 860px; margin: 0 auto;
+  padding-block: 40px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 56px;
+}
+section { display: grid; gap: 16px; min-width: 0; }
+h1, h2, h3 { margin: 0; text-wrap: balance; font-weight: 400; }
+h1 { font: 400 clamp(44px, 9vw, 72px)/0.95 var(--display); }
+h1 span { color: var(--pop); }
+h2 { font: 400 30px/1.1 var(--display); }
+h3 { font: 800 18px/1.3 var(--body); }
+p { margin: 0; max-width: 65ch; }
+a { color: inherit; text-decoration-color: var(--pop); text-underline-offset: 3px; }
+code { font: 500 0.86em/1 var(--mono); background: var(--code-bg); padding: 2px 5px; border-radius: 4px; }
+pre { margin: 0; padding: 16px; background: var(--code-bg); border-radius: 10px; overflow-x: auto; font: 500 13px/1.55 var(--mono); }
+pre code { background: none; padding: 0; font-size: inherit; }
+ul.plain { margin: 0; padding-left: 20px; display: grid; gap: 6px; max-width: 65ch; }
+.eyebrow { font: 800 12px/1 var(--body); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.lede { font-size: 20px; line-height: 1.5; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 14px; color: var(--muted); }
+.note { font-size: 15px; color: var(--muted); }
+.callout { padding: 14px 18px; background: var(--sun-soft); border-radius: 12px; display: grid; gap: 8px; }
+
+/* The seven-stop flow */
+.flow { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 108px), 1fr)); gap: 8px; }
+.flow li { display: grid; gap: 4px; align-content: start; padding: 12px 10px; border-radius: 12px; background: var(--card); border: 1px solid var(--rule); }
+.flow b { font: 400 18px/1 var(--display); }
+.flow span { font-size: 13px; color: var(--muted); line-height: 1.35; }
+.flow .who { font: 800 11px/1.2 var(--body); letter-spacing: 0.06em; text-transform: uppercase; color: var(--pop); }
+.flow a { text-decoration: none; display: grid; gap: 4px; }
+
+.step-head { display: grid; grid-template-columns: 52px 1fr; gap: 14px; align-items: center; }
+.num { width: 52px; height: 52px; border-radius: 50%; background: var(--sun); color: #1d1a2f; display: grid; place-items: center; font: 400 24px/1 var(--display); }
+.step-head p { font-size: 15px; color: var(--muted); }
+
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 22px; align-items: start; }
+.two > * { min-width: 0; }
+
+/* Status ladder */
+.table-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 12px; background: var(--card); }
+table { border-collapse: collapse; width: 100%; min-width: 620px; font-size: 14.5px; }
+th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--rule); }
+th { font: 800 12px/1.2 var(--body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+tr:last-child td { border-bottom: 0; }
+.chip { display: inline-block; font: 800 12px/1 var(--body); padding: 5px 9px; border-radius: 999px; border: 2px solid currentColor; white-space: nowrap; }
+.c-new { color: var(--muted); }
+.c-think { color: var(--wait); }
+.c-wait { color: var(--wait); }
+.c-go { color: var(--ok); }
+.c-build { color: var(--pop); }
+.c-check { color: var(--pop); }
+.c-dev { color: var(--ok); }
+.c-live { color: var(--ink); background: var(--sun); border-color: var(--sun); }
+.c-live-ink { color: #1d1a2f; }
+.c-stop { color: var(--stop); }
+
+/* Phone mock: the arcade's own look, fixed colors on purpose */
+.phone {
+  width: min(100%, 340px); justify-self: center;
+  border: 10px solid #1d1a2f; border-radius: 34px; overflow: hidden;
+  background: #ffd23f; color: #1d1a2f; font-family: var(--body);
+  box-shadow: 6px 6px 0 rgba(29,26,47,0.25);
+}
+.m-bar { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px 4px; font: 800 13px/1 var(--body); }
+.m-bar b { font: 400 22px/1 var(--display); color: #fffdf6; -webkit-text-stroke: 1.5px #1d1a2f; paint-order: stroke fill; }
+.m-body { padding: 8px 14px 16px; display: grid; gap: 12px; }
+.m-title { font: 400 26px/1 var(--display); }
+.m-tabs { display: grid; grid-template-columns: 1fr 1fr; background: #fffdf6; border: 2.5px solid #1d1a2f; border-radius: 999px; padding: 3px; }
+.m-tabs button { font: 800 14px/1 var(--body); border: 0; border-radius: 999px; padding: 8px; background: transparent; color: #1d1a2f; cursor: pointer; }
+.m-tabs button[aria-pressed="true"] { background: #1d1a2f; color: #ffd23f; }
+.m-card { background: #fffdf6; border: 2.5px solid #1d1a2f; border-radius: 16px; padding: 14px; display: grid; gap: 10px; box-shadow: 4px 4px 0 #1d1a2f; }
+.mic { justify-self: center; width: 92px; height: 92px; border-radius: 50%; border: 3px solid #1d1a2f; background: #ff6b4a; display: grid; place-items: center; cursor: pointer; box-shadow: 0 4px 0 #1d1a2f; }
+.mic svg { width: 38px; height: 38px; fill: #fffdf6; }
+.mic.on { animation: pulse 1.2s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { box-shadow: 0 4px 0 #1d1a2f, 0 0 0 0 rgba(255,107,74,0.55); } 50% { box-shadow: 0 4px 0 #1d1a2f, 0 0 0 14px rgba(255,107,74,0); } }
+@media (prefers-reduced-motion: reduce) { .mic.on { animation: none; } }
+.m-hint { text-align: center; font-size: 13px; color: #5b5670; }
+.transcript { font-size: 15px; line-height: 1.45; min-height: 64px; }
+.transcript em { color: #5b5670; }
+.m-input { width: 100%; min-height: 96px; resize: vertical; border: 2px solid #1d1a2f; border-radius: 10px; padding: 10px; font: 600 15px/1.4 var(--body); background: #fff; color: #1d1a2f; }
+.m-who { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; font-size: 13px; font-weight: 800; }
+.m-who span { padding: 4px 10px; border: 2px solid #1d1a2f; border-radius: 999px; background: #fff; }
+.m-who span.sel { background: #1d1a2f; color: #ffd23f; }
+.m-send { font: 400 20px/1 var(--display); border: 3px solid #1d1a2f; border-radius: 14px; background: #1d1a2f; color: #ffd23f; padding: 12px; cursor: pointer; }
+.m-q { display: grid; gap: 8px; }
+.m-q h4 { margin: 0; font: 400 19px/1 var(--display); }
+.qi { background: #fffdf6; border: 2px solid #1d1a2f; border-radius: 12px; padding: 10px 12px; display: grid; gap: 6px; }
+.qi-top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.qi-top b { font: 400 17px/1.1 var(--display); }
+.qi p { font-size: 13px; line-height: 1.35; color: #5b5670; }
+.qi .by { font-size: 12px; font-weight: 800; color: #1d1a2f; }
+.dots { display: flex; gap: 4px; }
+.dots i { width: 100%; height: 6px; border-radius: 3px; background: #e9dfb8; }
+.dots i.d { background: #1d1a2f; }
+.dots i.now { background: #ff6b4a; }
+.qchip { font: 800 11px/1 var(--body); padding: 4px 8px; border-radius: 999px; white-space: nowrap; border: 2px solid #1d1a2f; background: #fff; }
+.qchip.live { background: #1d1a2f; color: #ffd23f; }
+
+/* Rubric */
+.rubric td:nth-child(2), .rubric td:nth-child(3) { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.bar { height: 8px; background: var(--rule); border-radius: 4px; min-width: 60px; }
+.bar i { display: block; height: 100%; border-radius: 4px; background: var(--sun); }
+
+.decide { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 12px; }
+.lane { padding: 16px; border-radius: 12px; background: var(--card); border: 1px solid var(--rule); display: grid; gap: 8px; align-content: start; }
+.lane h3 { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+.checks { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: 10px; }
+.check { padding: 12px 14px; border-radius: 10px; background: var(--card); border: 1px solid var(--rule); display: grid; gap: 4px; }
+.check b { font-size: 15px; }
+.check span { font-size: 14px; color: var(--muted); }
+
+.arch { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)); gap: 10px; }
+.node { padding: 14px; border-radius: 12px; border: 2px solid var(--ink); background: var(--card); display: grid; gap: 6px; align-content: start; }
+.node b { font: 400 19px/1.05 var(--display); }
+.node span { font-size: 14px; color: var(--muted); }
+.node.new { border-style: dashed; }
+
+.qs { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; counter-reset: q; }
+.qs li { counter-increment: q; display: grid; grid-template-columns: 44px 1fr; gap: 14px; align-items: start; }
+.qs li::before { content: "Q" counter(q); display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--sun); color: #1d1a2f; font: 400 17px/1 var(--display); }
+.qs b { display: block; font-weight: 800; }
+.qs span { font-size: 15.5px; color: var(--muted); }
+.qs em { font-style: normal; font-weight: 800; color: var(--ink); }
+footer { font-size: 14px; color: var(--muted); border-top: 1px solid var(--rule); padding-top: 18px; }
+:focus-visible { outline: 3px solid var(--pop); outline-offset: 2px; }
+</style>
+
+<main class="page">
+
+  <header style="display:grid;gap:14px">
+    <div class="eyebrow">GameOn design · for Jeremy and Ryan to react to</div>
+    <h1>Make a <span>New Game</span></h1>
+    <p class="lede">What happens between a kid tapping one button and that kid playing their game in the arcade. Seven steps, a status a kid can read at every one, and a grown-up at the gate before anything goes live.</p>
+    <div class="meta"><span>23 October 2026</span><span>Task: <a href="https://github.com/jwildfire/gameon/issues/32">Design the Make a new game pipeline (gameon#32)</a></span><span>Questions at the end, numbered</span></div>
+  </header>
+
+  <section>
+    <h2>The whole trip</h2>
+    <ol class="flow">
+      <li><a href="#s1"><span class="who">Kid</span><b>Submit</b><span>Talk or type an idea</span></a></li>
+      <li><a href="#s2"><span class="who">Intake</span><b>File</b><span>Becomes a GitHub issue</span></a></li>
+      <li><a href="#s3"><span class="who">AI</span><b>Eval</b><span>Score, then Opus go/no-go</span></a></li>
+      <li><a href="#s4"><span class="who">Rules</span><b>Triage</b><span>Known: build. Unknown: ask a grown-up</span></a></li>
+      <li><a href="#s5"><span class="who">Builder</span><b>Build</b><span>A guarded agent makes the game</span></a></li>
+      <li><a href="#s6"><span class="who">Reviewer</span><b>Check</b><span>Security and play checks, then dev</span></a></li>
+      <li><a href="#s7"><span class="who">Jeremy or Ryan</span><b>Publish</b><span>Approve, and it's in the arcade</span></a></li>
+    </ol>
+    <p>The kid only ever sees step 1 and the queue. Everything after is agents and grown-ups, and the queue tells the kid where their idea is in plain words.</p>
+  </section>
+
+  <section>
+    <h2>What the queue says at each step</h2>
+    <p>One status per idea, stored as a single <code>status:</code> label on its issue and moved by whoever finishes a step, the same way the obot tracker works. The queue shows the kid's version; maintainers see the label.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Kid sees</th><th>Label</th><th>Set by</th><th>Set when</th></tr></thead>
+        <tbody>
+          <tr><td><span class="chip c-new">Got your idea!</span></td><td><code>status: submitted</code></td><td>Intake</td><td>The issue is created</td></tr>
+          <tr><td><span class="chip c-think">Thinking about it</span></td><td><code>status: evaluating</code></td><td>Eval agent</td><td>It picks the idea up</td></tr>
+          <tr><td><span class="chip c-wait">Waiting for a grown-up</span></td><td><code>status: needs approval</code></td><td>Triage</td><td>Unknown submitter, or the eval says stop</td></tr>
+          <tr><td><span class="chip c-go">In line to be built</span></td><td><code>status: approved</code></td><td>Triage or a maintainer</td><td>Cleared to build</td></tr>
+          <tr><td><span class="chip c-build">Being built</span></td><td><code>status: building</code></td><td>Build agent</td><td>It starts</td></tr>
+          <tr><td><span class="chip c-check">Getting checked</span></td><td><code>status: checking</code></td><td>Review agent</td><td>The build's PR is open</td></tr>
+          <tr><td><span class="chip c-dev">Almost ready</span></td><td><code>status: on dev</code></td><td>Review agent</td><td>Merged into dev; a maintainer is asked to look</td></tr>
+          <tr><td><span class="chip c-live">Play it now!</span></td><td><code>status: published</code></td><td>Maintainer</td><td>The release reaches main</td></tr>
+          <tr><td><span class="chip c-stop">Not this time</span></td><td><code>status: not built</code></td><td>A maintainer</td><td>Declined, with a kind one-line reason the kid can read</td></tr>
+          <tr><td><span class="chip c-wait">Tell us more</span></td><td><code>status: needs more</code></td><td>Eval agent</td><td>The idea is too thin to build; the queue shows one question</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="s1">
+    <div class="step-head"><div class="num">1</div><div><h2>Submit</h2><p>The New Game screen: say it or type it, then see where every idea is.</p></div></div>
+    <div class="two">
+      <div class="phone" aria-label="Mock of the New Game screen">
+        <div class="m-bar"><span>‹ Arcade</span><b>GameOn</b><span></span></div>
+        <div class="m-body">
+          <div class="m-title">What's your game?</div>
+          <div class="m-tabs" role="group" aria-label="How to tell us">
+            <button type="button" id="tab-talk" aria-pressed="true">Talk</button>
+            <button type="button" id="tab-type" aria-pressed="false">Type</button>
+          </div>
+          <div class="m-card" id="talk-pane">
+            <button type="button" class="mic" id="mic" aria-label="Tap to talk"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12h-2z"/></svg></button>
+            <div class="m-hint" id="mic-hint">Tap and tell us your game</div>
+            <div class="transcript" id="transcript"><em>Your words show up here as you talk.</em></div>
+          </div>
+          <div class="m-card" id="type-pane" hidden>
+            <label for="m-idea" class="m-hint" style="text-align:left">Type your game idea</label>
+            <textarea class="m-input" id="m-idea">a game where you're a penguin delivering pizza on a sled and the toppings fall off if you go too fast</textarea>
+          </div>
+          <div class="m-who"><span>Who's making it?</span><span class="sel">Rocket</span><span>Bean</span><span>+</span></div>
+          <button type="button" class="m-send">Send my idea</button>
+          <div class="m-q">
+            <h4>The idea line</h4>
+            <div class="qi"><div class="qi-top"><b>Penguin Pizza Sled</b><span class="qchip">Being built</span></div><p>Race a sled downhill delivering pizzas before the toppings slide off.</p><div class="dots"><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="now"></i><i></i><i></i></div><span class="by">Rocket · 20 min ago</span></div>
+            <div class="qi"><div class="qi-top"><b>Dino Bake-Off</b><span class="qchip">Thinking about it</span></div><p>Just sent. A short description shows up once it's been read.</p><div class="dots"><i class="d"></i><i class="d"></i><i class="now"></i><i></i><i></i><i></i><i></i></div><span class="by">Bean · just now</span></div>
+            <div class="qi"><div class="qi-top"><b>MazeAThon</b><span class="qchip live">Play it now!</span></div><p>Collect shapes, unlock rooms, outsmart very cute monsters.</p><div class="dots"><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i></div><span class="by">Ryan's crew · yesterday</span></div>
+          </div>
+        </div>
+      </div>
+      <div style="display:grid;gap:14px">
+        <h3>1a.1 · Talk or type</h3>
+        <ul class="plain">
+          <li><b>Talk is the default.</b> One big button. Words appear as the kid speaks, using the browser's built-in speech recognition (Safari and Chrome both have it). Type is one tap away and is the fallback wherever speech isn't available.</li>
+          <li><b>We keep the words, not the voice.</b> No audio is stored or sent to us; only the final text is submitted.</li>
+          <li><b>Read it back before sending.</b> "Here's your idea" with a Fix it button, so a garbled transcript gets corrected by the kid, not guessed at by the builder.</li>
+          <li><b>Who's making it</b> is a nickname picked from the family's list, never a real name. It's how credit and "known" are decided (step 4).</li>
+          <li>Ideas between about 5 and 1,000 words. Under that, the screen asks "What happens in your game?" before it sends.</li>
+        </ul>
+        <h3>1a.2 · Later: the idea builder</h3>
+        <p class="note">For kids who can't read yet: a few big picture choices (who's the hero, where are they, what do you do, what's the twist), then the screen reads the idea aloud with the browser's speech voice and the kid taps Yes, that's it. It produces the same text a typed idea does, so nothing downstream changes.</p>
+        <h3>1b · The idea line</h3>
+        <ul class="plain">
+          <li>Every idea, newest first, with the AI's short title and one-line description, the kid-readable status, seven progress dots, and who made it.</li>
+          <li>Before the eval has read an idea, it shows "Just sent" instead of the kid's raw words, so nothing unreviewed is shown publicly.</li>
+          <li>Finished games link straight to the arcade. "Not this time" ideas show their kind reason, then drop off after a week.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="s2">
+    <div class="step-head"><div class="num">2</div><div><h2>File</h2><p>Send turns the idea into a GitHub issue, because that's where agents already work.</p></div></div>
+    <p>The arcade is a static site, so it can't hold a GitHub key. Sending needs one small piece of server: an <b>intake service</b>, a few dozen lines on something like a Cloudflare Worker. It holds the only key, and it does three things:</p>
+    <ul class="plain">
+      <li><code>POST /ideas</code>: check the family code and size limits, then create the issue from a <b>Game idea</b> template.</li>
+      <li><code>GET /queue</code>: return the idea line (titles, descriptions, statuses, nicknames) for step 1b, cached for a minute.</li>
+      <li>Rate limits: a few ideas per family per day, fewer for anyone without a code.</li>
+    </ul>
+<pre><code>Title:  Game idea from Rocket
+Labels: game-idea, status: submitted, submitter: known
+
+### The idea, word for word
+a game where you're a penguin delivering pizza on a sled and the
+toppings fall off if you go too fast
+
+### Details
+- Made by: Rocket (family: wildfire)
+- Told by: talking (speech-to-text), checked by the kid before sending
+- Sent: 2026-10-23 18:04 from the GameOn arcade</code></pre>
+    <div class="callout"><p><b>Where the issue lives matters.</b> gameon is public, so ideas filed there are public the moment they're sent, including anything a kid blurts into the microphone. I'd file into a small private repo, <code>gameon-ideas</code>, and let the queue show only what the eval has read and rewritten (Q2).</p></div>
+  </section>
+
+  <section id="s3">
+    <div class="step-head"><div class="num">3</div><div><h2>Eval</h2><p>Two passes: a fast score for every idea, then an Opus 5.5 go/no-go that becomes the build brief.</p></div></div>
+    <p>Both run in the long-running pipeline session. For now that's a Claude Code session like last night's watch, checking for new ideas every few minutes. Later it can become a cloud routine or a GitHub Action that fires when an idea is filed.</p>
+    <h3>Pass A · the score (seconds, a smaller model)</h3>
+    <p>Each factor 1 to 5, weighted to a score out of 100. Safety isn't weighted: it's a gate. Following your experience that Opus 5.5 at high effort can build almost anything with a good scaffold, feasibility counts for little, and the score mostly decides queue order and what gets a closer look.</p>
+    <div class="table-wrap rubric">
+      <table>
+        <thead><tr><th>Factor</th><th>Weight</th><th>Example</th><th></th><th>What it asks</th></tr></thead>
+        <tbody>
+          <tr><td>Fun</td><td>30%</td><td>5</td><td><div class="bar"><i style="width:100%"></i></div></td><td>Would a kid want to play it twice? Is there a clear thing to do, and a reason to keep doing it?</td></tr>
+          <tr><td>Kid's own idea</td><td>20%</td><td>5</td><td><div class="bar"><i style="width:100%"></i></div></td><td>Is it specific and theirs (penguin, pizza, toppings slide off) rather than a generic "a racing game"?</td></tr>
+          <tr><td>Clear enough to build</td><td>15%</td><td>4</td><td><div class="bar"><i style="width:80%"></i></div></td><td>Can a builder tell what the player does? If not, step 3 asks one question (Tell us more).</td></tr>
+          <tr><td>Fits one session</td><td>15%</td><td>4</td><td><div class="bar"><i style="width:80%"></i></div></td><td>Can a good first version land in about an hour, with a scope cut named if not?</td></tr>
+          <tr><td>Works on a phone</td><td>10%</td><td>4</td><td><div class="bar"><i style="width:80%"></i></div></td><td>Touch and keyboard controls that make sense; no hard need for a mouse or a big screen.</td></tr>
+          <tr><td>New to the arcade</td><td>10%</td><td>5</td><td><div class="bar"><i style="width:100%"></i></div></td><td>Different from the games already in the list.</td></tr>
+          <tr><td>Safe and kind</td><td>gate</td><td>pass</td><td></td><td>No real people targeted, nothing scary beyond the kid's age, no personal details. Fail stops the idea at step 4.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Example total for the penguin idea: 0.30·5 + 0.20·5 + 0.15·4 + 0.15·4 + 0.10·4 + 0.10·5 = 4.6 of 5, so 92 of 100. You mentioned jev for the scoring; I couldn't find it, so this is a stand-in until you point me at it (Q1).</p>
+    <h3>Pass B · the go/no-go (minutes, Opus 5.5)</h3>
+    <p>Runs on every idea that passes the safety gate. It reads the idea, the score and the current arcade, and posts one comment with:</p>
+    <ul class="plain">
+      <li><b>Go, or no-go</b> with the reason. No-go is rare and means "this shouldn't be built", not "this is hard".</li>
+      <li><b>The title and one-liner</b> the idea line shows (step 1b).</li>
+      <li><b>The build brief</b>: what the player does, the core loop, controls, the first-version scope and what's cut, and the kid's words quoted exactly. Step 5's builder starts from this, so this is where the kid's idea gets turned into something buildable.</li>
+    </ul>
+<pre><code>&lt;!-- gameon-eval {"score": 92, "gate": "pass", "verdict": "go",
+  "title": "Penguin Pizza Sled",
+  "one_liner": "Race a sled downhill delivering pizzas before the toppings slide off.",
+  "model": "claude-opus-5-5"} --&gt;
+**Go.** Score 92 / 100. Fun 5 · Kid's own idea 5 · Clear 4 · One session 4 · Phone 4 · New 5 · Safety pass
+...the build brief follows</code></pre>
+    <p class="note">The hidden JSON line at the top is what the intake service reads to fill the idea line, so the comment stays readable for people.</p>
+  </section>
+
+  <section id="s4">
+    <div class="step-head"><div class="num">4</div><div><h2>Triage</h2><p>A rule, not a judgement: who sent it, and what the eval said.</p></div></div>
+    <div class="decide">
+      <div class="lane">
+        <h3>Known family <span class="chip c-go">Builds</span></h3>
+        <p class="note">A nickname under a family code we issued (yours and Ryan's to start). Goes straight to <b>In line to be built</b> unless the safety gate failed or Opus said no-go.</p>
+      </div>
+      <div class="lane">
+        <h3>Unknown <span class="chip c-wait">Asks first</span></h3>
+        <p class="note">No family code. Always waits for a grown-up, however good the score. You or Ryan approve with a <code>/approve</code> comment or by moving the label.</p>
+      </div>
+      <div class="lane">
+        <h3>Stopped <span class="chip c-stop">Asks first</span></h3>
+        <p class="note">Safety gate failed or no-go, from anyone. A maintainer decides: build anyway, send back with a question, or Not this time with a kind reason.</p>
+      </div>
+    </div>
+    <p class="note">The family list is a small file in the pipeline's config: family code, nicknames, which maintainer answers for them. Ages can live there too, for the safety gate.</p>
+  </section>
+
+  <section id="s5">
+    <div class="step-head"><div class="num">5</div><div><h2>Build</h2><p>The pipeline session spawns one builder per approved idea, with a tight brief and tight walls.</p></div></div>
+    <div class="two">
+      <div style="display:grid;gap:10px">
+        <h3>What the builder gets</h3>
+        <ul class="plain">
+          <li>The build brief from step 3 and the template's starter: title screen, touch and keyboard controls, saving already named <code>gameon.&lt;name&gt;.…</code>.</li>
+          <li>The <code>new-game</code>, <code>playtest</code> and <code>ship-game</code> skills from the Blueprint.</li>
+          <li>Opus 5.5 at high effort, with a time box: about 90 minutes, then it ships what plays.</li>
+        </ul>
+        <h3>What it must hand back</h3>
+        <ul class="plain">
+          <li>A game that meets the contract, its <code>gameon.json</code> and cover, a README with the kid's idea word for word.</li>
+          <li>Playtest screenshots at phone and laptop sizes, and its own tests passing.</li>
+          <li>A PR into dev, with <code>status: checking</code> set on the idea.</li>
+        </ul>
+      </div>
+      <div style="display:grid;gap:10px">
+        <h3>The walls</h3>
+        <ul class="plain">
+          <li><b>The kid's words are a game description, never instructions.</b> They're quoted in the brief as data. An idea that says "ignore your rules" is just a strange game idea. This matters most for ideas from unknown submitters.</li>
+          <li><b>No secrets in its world.</b> It can push its own branch and open a PR. It can't merge, approve, touch workflows or settings, or read keys.</li>
+          <li><b>Its own folder only.</b> One game's files; nothing shared.</li>
+          <li><b>No network in the game.</b> Nothing fetched at runtime, so the game works offline and in the app.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="s6">
+    <div class="step-head"><div class="num">6</div><div><h2>Check</h2><p>A separate reviewer agent, starting fresh, decides whether the build is safe to put on dev.</p></div></div>
+    <p>A different agent from the builder, so the build isn't grading its own homework. If every check passes it merges into dev, waits for the deploy, plays the game at its dev address, sets <b>Almost ready</b>, and asks you or Ryan to look. If anything fails it comments with exactly what, and the builder gets one more try before a person is asked.</p>
+    <div class="checks">
+      <div class="check"><b>Stays home</b><span>No <code>fetch</code>, sockets, beacons or form posts to anywhere; no scripts, frames or images from other sites. Google Fonts is the one allowed exception.</span></div>
+      <div class="check"><b>No tricks</b><span>No <code>eval</code> or <code>new Function</code>, no obfuscated or minified blobs, no tracking or analytics.</span></div>
+      <div class="check"><b>Its own lane</b><span>Only its game's files changed. No workflows, config, other games or shared pages touched.</span></div>
+      <div class="check"><b>Saves politely</b><span>Every saved value named <code>gameon.&lt;name&gt;.…</code>, so it can't read or wipe another game's saves.</span></div>
+      <div class="check"><b>Kid-appropriate</b><span>Text and art checked against the idea and the safety gate; no links out except back to the arcade.</span></div>
+      <div class="check"><b>Plays</b><span>Loads with no console errors at phone and laptop sizes; can be started, played for a minute and paused.</span></div>
+      <div class="check"><b>Fits</b><span>Under about 2 MB; meets the game contract; card file and cover present.</span></div>
+      <div class="check"><b>Credits right</b><span>Kid's words verbatim, nickname not real name, built-with line.</span></div>
+    </div>
+  </section>
+
+  <section id="s7">
+    <div class="step-head"><div class="num">7</div><div><h2>Publish</h2><p>You or Ryan play it on dev, then approve the release. The kid's queue flips to Play it now!</p></div></div>
+    <ul class="plain">
+      <li>The review agent keeps one open release PR from dev to main, listing every game waiting there with its dev link. Approving it publishes them together; a game you don't want yet goes back to <b>Getting checked</b> first.</li>
+      <li>Merge with a merge commit, so dev and main stay in step (last night's lesson).</li>
+      <li>After the main deploy, the pipeline sets <code>status: published</code> and comments the arcade link on the idea.</li>
+    </ul>
+    <div class="callout"><p><b>One thing to fix before this runs unattended:</b> the pipeline needs its own GitHub identity. If its PRs go out under your account, you can't approve them; if under Ryan's, he can't. A small GitHub App, say gameon-bot, solves both, and either of you can approve anything it opens (Q4).</p></div>
+  </section>
+
+  <section>
+    <h2>The moving parts</h2>
+    <div class="arch">
+      <div class="node"><b>Arcade</b><span>Static site. Adds the New Game screen and the idea line. Holds no keys.</span></div>
+      <div class="node new"><b>Intake service</b><span>New. Creates idea issues, serves the queue, checks family codes, rate-limits. The only thing holding a key.</span></div>
+      <div class="node"><b>GitHub</b><span>Idea issues, status labels, PRs into dev and main. The record of everything.</span></div>
+      <div class="node new"><b>Pipeline session</b><span>New. Scores, runs the Opus eval, applies triage, spawns builders and the reviewer. A Claude Code session for now.</span></div>
+      <div class="node"><b>Deploys</b><span>Already working: dev on every merge, main on every release.</span></div>
+    </div>
+    <p class="note">Dashed boxes are new. Everything else exists today.</p>
+  </section>
+
+  <section>
+    <h2>Questions for you</h2>
+    <ol class="qs">
+      <li><div><b>What's jev?</b><span>I couldn't find it in your repos or Ryan's. If it's a scoring method you've used, point me at it and step 3's score uses it; otherwise the rubric above stands in.</span></div></li>
+      <li><div><b>Public or private ideas?</b><span>File ideas in public gameon, or in a private <code>gameon-ideas</code> repo with only the eval's rewrite shown in the queue? <em>I'd go private: kids say things into microphones.</em></span></div></li>
+      <li><div><b>Who counts as known?</b><span>Family codes we hand out (simple, works for kids without GitHub accounts), or GitHub sign-in for grown-ups? <em>I'd use family codes.</em></span></div></li>
+      <li><div><b>A bot identity for the pipeline?</b><span>A small GitHub App, so its PRs can be approved by either of you and no one's approving their own work. <em>I'd set it up before the pipeline runs on its own.</em></span></div></li>
+      <li><div><b>Where do pipeline-built games live?</b><span>Decision 1 says each game gets its own repo, but MazeAThon went into <code>games/</code> and the pipeline is much simpler that way: one PR, one deploy, no repo to create per idea. Worth revisiting for pipeline games at least.</span></div></li>
+      <li><div><b>How many builds a day?</b><span>Each build is up to 90 minutes of Opus at high effort. A cap per family per day keeps cost and review load sane. <em>I'd start at two per family, one for unknowns.</em></span></div></li>
+      <li><div><b>How does the kid find out it's ready?</b><span>The idea line only, or also a note to the parent who owns the family code?</span></div></li>
+      <li><div><b>Are unknown submitters in scope yet?</b><span>Everything about unknown users can wait if, for now, only your two families have codes. That removes most of the risk in step 2 and step 5.</span></div></li>
+    </ol>
+  </section>
+
+  <footer>
+    Drafted by Claude Code (Opus 5.5) from Jeremy's seven-step outline on 2026-10-23, the GameOn Blueprint and last night's MazeAThon run. The phone mock is a picture of the idea, not working code: its buttons only toggle the mock.
+  </footer>
+</main>
+
+<script>
+(function () {
+  var talk = document.getElementById("tab-talk"), type = document.getElementById("tab-type");
+  var tp = document.getElementById("talk-pane"), yp = document.getElementById("type-pane");
+  function pick(isTalk) {
+    talk.setAttribute("aria-pressed", String(isTalk));
+    type.setAttribute("aria-pressed", String(!isTalk));
+    tp.hidden = !isTalk; yp.hidden = isTalk;
+  }
+  talk.addEventListener("click", function () { pick(true); });
+  type.addEventListener("click", function () { pick(false); });
+  var mic = document.getElementById("mic"), hint = document.getElementById("mic-hint"), tr = document.getElementById("transcript");
+  var words = "a game where you're a penguin delivering pizza on a sled and the toppings fall off if you go too fast".split(" ");
+  var timer = null;
+  mic.addEventListener("click", function () {
+    if (timer) { clearInterval(timer); timer = null; mic.classList.remove("on"); hint.textContent = "Tap to talk again, or Send"; return; }
+    mic.classList.add("on"); hint.textContent = "Listening… tap to stop";
+    var i = 0; tr.textContent = "";
+    timer = setInterval(function () {
+      if (i >= words.length) { clearInterval(timer); timer = null; mic.classList.remove("on"); hint.textContent = "Here's your idea. Fix it or Send."; return; }
+      tr.textContent += (i ? " " : "") + words[i++];
+    }, 160);
+  });
+})();
+</script>
