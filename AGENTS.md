@@ -114,7 +114,8 @@ work at the same time, and none of them can see each other except through GitHub
 4. **Shared files get their own task.** `AGENTS.md`, `CLAUDE.md`, `README.md`, `docs/`,
    `index.html`, `games.json`, `.github/` (templates and workflows), `.claude/skills/` and
    `artifacts/README.md` are edited only by a task that's about them. Keep those tasks
-   small and merge them quickly, since they block everyone else.
+   small and merge them quickly, since they block everyone else. The one exception is a
+   pipeline build, which adds its own entry to `games.json` as the build skill says.
 5. **Don't pick up someone else's work.** If another agent has started, leave its branch
    and PR alone: don't push to it, rebase it or "finish it off". If it looks stalled,
    comment on the task asking its owner, and take over only when the owner or their person
@@ -219,7 +220,8 @@ turns every deploy red.
 - **Game code** (anything a game runs in the browser):
   - No network calls: no `fetch`, XHR, WebSockets or analytics. Games run offline and
     inside the app.
-  - No remote scripts, styles, fonts or images. Put what the game needs in its own folder.
+  - No remote scripts, styles or images. Put what the game needs in its own folder. A
+    web font from Google Fonts is tolerated, as long as the game works without it.
   - No `eval` or `new Function` on text.
   - Every saved value is named `gameon.<name>.…` (e.g. `gameon.mazeathon.progress`).
     All the games share one browser save area.
@@ -234,8 +236,10 @@ turns every deploy red.
 - Where games live is Decision 1 in the Blueprint (each game in its own repo). MazeAThon is
   in `games/mazeathon/`, and question 5 of the [Make a New Game
   design](artifacts/2026-10-23-new-game-pipeline/index.html) asks whether pipeline games
-  should be too. Until that's settled, putting a new game in this repo is a conflict to
-  raise as described [above](#decisions-and-instructions-that-conflict-with-them).
+  should be too. While that's open, Phase 0 pipeline builds go in `games/<slug>/` as the
+  build skill says, self-contained so they can move later. Any other request to start a
+  game in this repo is a conflict to raise as described
+  [above](#decisions-and-instructions-that-conflict-with-them).
 - Before you call a game done, play it in a browser and check it loads with no console
   errors.
 
