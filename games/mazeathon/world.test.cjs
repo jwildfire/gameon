@@ -13,6 +13,7 @@ function reachable(world){
   return seen;
 }
 const key=p=>Math.floor(p.x)+','+Math.floor(p.y);
+const entry=r=>r.entry||{x:r.door.x+.5+Math.sign(r.door.x+.5-r.x),y:r.door.y+.5+Math.sign(r.door.y+.5-r.y)};
 
 test('150 generated sections have reachable keys/exits, four genuinely locked rooms, and exactly one guardian',()=>{
   for(let seed=1;seed<=50;seed++)for(let section=0;section<TOTAL;section++){
@@ -95,8 +96,60 @@ test('legacy adventures retain identical layouts and key positions; new saves re
     assert.deepEqual(legacy.keys,[0]);assert.equal(legacy.world.rooms[0].opened,true);
     assert.equal(new Game(seed,legacy.save()).layoutVersion,1);
     const fresh=new Game(seed),restored=new Game(seed,fresh.save());
-    assert.equal(restored.layoutVersion,2);assert.deepEqual(restored.world,fresh.world);
+    assert.equal(restored.layoutVersion,3);assert.deepEqual(restored.world,fresh.world);
     assert.deepEqual(generate(seed,1,1),generate(seed,1,2),'later sections stay unchanged');
+  }
+});
+
+test('900 scattered-room sections stay connected, spread out, enclosed, and independently unlockable',()=>{
+  const positions=[new Set(),new Set(),new Set(),new Set()],quadrants=positions.map(()=>new Set());
+  for(let seed=0;seed<300;seed++)for(let section=0;section<TOTAL;section++){
+    const w=generate(seed,section),seen=reachable(w),inside=new Set(),orientations=new Set();
+    assert.equal(w.rooms.length,4);
+    const xs=w.rooms.map(r=>r.x),ys=w.rooms.map(r=>r.y);
+    assert.ok(Math.max(...xs)-Math.min(...xs)>=12&&Math.max(...ys)-Math.min(...ys)>=8,`rooms clustered: ${seed}/${section}`);
+    assert.ok(xs.some(x=>x<W/2)&&xs.some(x=>x>W/2)&&ys.some(y=>y<H/2)&&ys.some(y=>y>H/2));
+    for(const [i,r] of w.rooms.entries()){
+      assert.equal(r.shape,i);assert.equal(r.boost,['xray','map','shield','speed'][i]);
+      assert.ok(seen.has(key(r.entry)),'the outside entrance must be reachable while locked');
+      const cx=Math.floor(r.x),cy=Math.floor(r.y);
+      orientations.add(Math.sign(r.door.x-cx)+','+Math.sign(r.door.y-cy));
+      positions[i].add(key(r));quadrants[i].add((r.x<W/2?'L':'R')+(r.y<H/2?'T':'B'));
+      for(let y=cy-2;y<=cy+2;y++)for(let x=cx-2;x<=cx+2;x++){
+        if(Math.abs(x-cx)<2&&Math.abs(y-cy)<2){
+          inside.add(x+','+y);assert.equal(w.cells[y*W+x],0);assert.ok(!seen.has(x+','+y),'a locked room must have no back entrance');
+        }else if(x!==r.door.x||y!==r.door.y)assert.equal(w.cells[y*W+x],1,'a room needs intact enclosing walls');
+      }
+      r.opened=true;const unlocked=reachable(w);
+      assert.ok(unlocked.has(key(r)),'each room must unlock without opening any other room');
+      assert.equal(unlocked.size,seen.size+10,'only its door and nine interior cells should become accessible');
+      r.opened=false;
+    }
+    assert.equal(orientations.size,4,'entrances should face different sides');
+    for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+      if(x===0||y===0||x===W-1||y===H-1)assert.equal(w.cells[y*W+x],1,'the outer boundary must stay closed');
+      if(x%2===1&&y%2===1)assert.equal(w.cells[y*W+x],0,'carving should visit every corridor node across the full map');
+      if(isOpen(w,x,y)&&!inside.has(x+','+y))assert.ok(seen.has(x+','+y),'no isolated corridors outside the rooms');
+    }
+    for(const p of [...w.shapes,...w.monsters,w.exit])assert.ok(seen.has(key(p)),'keys, monsters, and exit must stay outside locked rooms');
+  }
+  for(let i=0;i<4;i++){assert.ok(positions[i].size>50,'room locations should vary with the seed');assert.equal(quadrants[i].size,4,'each boost should appear in every part of the maze across seeds');}
+});
+
+test('both earlier layout versions preserve their exact worlds and continued progress',()=>{
+  const hashes=[
+    ['b7862a65f749290f12c6db7a93bca35ae0801b17fd8eceeba12bd22c453a3b1a','5646df33f8e88bb78d91aaef55e56d26668cd7d1c3013e45f90eb2285d6231b3','b0a86f43c44773d675592286d908c1ad68615b48af7aa907a266f07599d99d87'],
+    ['f46d8e611858ca98caba84a1632e8cd06b549e6a7c85de63d85d958ca13decfa','5646df33f8e88bb78d91aaef55e56d26668cd7d1c3013e45f90eb2285d6231b3','b0a86f43c44773d675592286d908c1ad68615b48af7aa907a266f07599d99d87']
+  ];
+  for(const layoutVersion of [1,2])for(let section=0;section<TOTAL;section++){
+    const original=generate(2026,section,layoutVersion);
+    assert.equal(createHash('sha256').update(JSON.stringify(original)).digest('hex'),hashes[layoutVersion-1][section]);
+    const saved={...new Game(2026).save(),layoutVersion,section,keys:[0,1],opened:[true,true,false,false],player:{...original.shapes[2]},time:123,catches:4};
+    const g=new Game(2026,saved),again=new Game(2026,g.save());
+    assert.equal(again.layoutVersion,layoutVersion);assert.deepEqual(again.world.cells,original.cells);
+    assert.deepEqual(again.world.shapes,original.shapes);assert.deepEqual(again.world.exit,original.exit);
+    assert.deepEqual(again.keys,[0,1]);assert.deepEqual(again.player,saved.player);assert.equal(again.time,123);assert.equal(again.catches,4);
+    assert.deepEqual(again.world.rooms.map(r=>r.opened),saved.opened);
   }
 });
 
@@ -105,7 +158,7 @@ test('matching reusable keys open boost rooms and all four boosts do something d
   for(const s of g.world.shapes){g.player={x:s.x,y:s.y};g.step(0);}
   assert.equal(g.keys.length,4);
   for(const r of g.world.rooms){
-    g.player={x:r.door.x-.5,y:r.door.y+.5};g.step(0);assert.equal(r.opened,true);
+    g.player={...entry(r)};assert.ok(g.canStand(g.player.x,g.player.y));g.step(0);assert.equal(r.opened,true);
     g.player={x:r.x,y:r.y};g.step(0);assert.equal(r.readyAt,30);
     if(r.boost==='map'){assert.equal(g.mapped,true);assert.ok(g.discovered.every(v=>v===1));}
     else{assert.equal(g.effects[r.boost],14);g.step(0);assert.equal(g.effects[r.boost],14,'standing on a shrine must not stack it every frame');}
@@ -114,7 +167,7 @@ test('matching reusable keys open boost rooms and all four boosts do something d
 });
 
 test('a wrong shape cannot open a door, and a catch preserves progress at a safe section start',()=>{
-  const g=new Game(12),r=g.world.rooms[0];g.player={x:r.door.x-.5,y:r.door.y+.5};g.step(0);assert.equal(r.opened,false);
+  const g=new Game(12),r=g.world.rooms[0];g.player={...entry(r)};g.step(0);assert.equal(r.opened,false);
   g.keys=[0];g.step(0);assert.equal(r.opened,true);
   const m=g.world.monsters[0];g.player={x:m.x,y:m.y};g.respawn=0;g.step(0);
   assert.equal(g.catches,1);assert.deepEqual(g.player,{x:1.5,y:1.5});assert.deepEqual(g.keys,[0]);assert.equal(r.opened,true);assert.ok(g.respawn>0);

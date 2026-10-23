@@ -35,7 +35,7 @@ test('a new adventure has early choices that work with keyboard and phone contro
   await page.goto(url);
   await page.locator('#begin').click();
   const initial = await snapshot(page);
-  expect(initial.layoutVersion).toBe(2);
+  expect(initial.layoutVersion).toBe(3);
   expect(initial.world.cells[W + 2]).toBe(0);
   expect(initial.world.cells[2 * W + 1]).toBe(0);
   const phone = testInfo.project.name === 'phone';
@@ -74,7 +74,7 @@ test('hugging a wall keeps its face visible and the floor behind it hidden, incl
   await page.reload();
   await page.locator('#continue').click();
   expect((await snapshot(page)).player).toEqual(after.player);
-  expect((await snapshot(page)).layoutVersion).toBe(2);
+  expect((await snapshot(page)).layoutVersion).toBe(3);
   expect((await snapshot(page)).discovered[2 * W + 2]).toBe(1);
   note('Controlled save fixture beside the opening pillar; pushing into it stops at the collision boundary. The adjacent wall is discovered and the occluded floor stays undiscovered. Continue retains the layout.');
   expect(browserErrors).toEqual([]);

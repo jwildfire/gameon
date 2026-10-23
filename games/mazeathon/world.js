@@ -58,19 +58,43 @@
     }
     return true;
   }
-  function generate(seed,section,layoutVersion=2) {
+  function placeRooms(world,rng,section){
+    const options=[],placed=[],reserved=new Set();
+    for(let y=4;y<=H-5;y+=2)for(let x=4;x<=W-5;x+=2){
+      if(section===0&&x<=8&&y<=8)continue; // Keep the opening's choices clear.
+      options.push({x,y});
+    }
+    shuffle(options,rng);
+    for(let i=0;i<4;i++){
+      const available=options.filter(p=>placed.every(q=>Math.abs(p.x-q.x)>=6||Math.abs(p.y-q.y)>=6));
+      // Start anywhere, then favour separated rooms with enough jitter that the
+      // same four landmarks do not repeat from one adventure to the next.
+      const p=i===0?available[0]:available.map(p=>({p,score:Math.min(...placed.map(q=>distance(p,q)))+rng()*4})).sort((a,b)=>b.score-a.score)[0].p;
+      placed.push(p);
+      for(let y=p.y-2;y<=p.y+2;y++)for(let x=p.x-2;x<=p.x+2;x++)reserved.add(y*W+x);
+    }
+    const entrances=shuffle([...dirs],rng);
+    shuffle(placed,rng).forEach((p,i)=>{
+      const [dx,dy]=entrances[i];
+      world.rooms.push({shape:i,boost:BOOSTS[i],door:{x:p.x+dx*2,y:p.y+dy*2},entry:{x:p.x+dx*3+.5,y:p.y+dy*3+.5},x:p.x+.5,y:p.y+.5,opened:false,readyAt:0});
+    });
+    return reserved;
+  }
+  function generate(seed,section,layoutVersion=3) {
     const rng=random((seed+Math.imul(section+1,2654435761))>>>0), cells=Array(W*H).fill(1);
     const world={cells,rooms:[],shapes:[],monsters:[],exit:null,section};
+    const scattered=layoutVersion>=3,extent=scattered?W-2:MAIN;
+    const reserved=scattered?placeRooms(world,rng,section):new Set();
     const stack=[{x:1,y:1}];cells[W+1]=0;
     while(stack.length){
       const p=stack[stack.length-1];
-      const next=shuffle(dirs.map(([dx,dy])=>({x:p.x+dx*2,y:p.y+dy*2,dx,dy})),rng).find(q=>q.x>0&&q.x<=MAIN&&q.y>0&&q.y<H-1&&cells[q.y*W+q.x]===1);
+      const next=shuffle(dirs.map(([dx,dy])=>({x:p.x+dx*2,y:p.y+dy*2,dx,dy})),rng).find(q=>q.x>0&&q.x<=extent&&q.y>0&&q.y<H-1&&cells[q.y*W+q.x]===1&&!reserved.has(q.y*W+q.x)&&!reserved.has((p.y+q.dy)*W+p.x+q.dx));
       if(!next){stack.pop();continue;}
       cells[(p.y+next.dy)*W+p.x+next.dx]=0;cells[next.y*W+next.x]=0;stack.push(next);
     }
-    // Loops give players alternate escape routes; rooms sit outside this connected maze.
-    for(let y=1;y<H-1;y++)for(let x=1;x<MAIN;x++){
-      if(cells[y*W+x]===1&&((x%2===0&&y%2===1)||(x%2===1&&y%2===0))&&rng()<.15)cells[y*W+x]=0;
+    // Loops give alternate escape routes without punching through a room wall.
+    for(let y=1;y<H-1;y++)for(let x=1;x<extent;x++){
+      if(cells[y*W+x]===1&&!reserved.has(y*W+x)&&((x%2===0&&y%2===1)||(x%2===1&&y%2===0))&&rng()<.15)cells[y*W+x]=0;
     }
     if(section===0&&layoutVersion>=2){
       // A small loop and a cross-link offer choices immediately at camp. Both
@@ -78,14 +102,20 @@
       for(let n=1;n<=5;n++){cells[W+n]=0;cells[5*W+n]=0;cells[n*W+1]=0;cells[n*W+5]=0;cells[3*W+n]=0;}
       cells[2*W+3]=0;cells[4*W+3]=0;cells[W+6]=0;cells[6*W+1]=0;
     }
-    [4,10,16,22].forEach((y,i)=>{
+    if(scattered)for(const r of world.rooms){
+      const x=Math.floor(r.x),y=Math.floor(r.y);
+      for(let yy=y-1;yy<=y+1;yy++)for(let xx=x-1;xx<=x+1;xx++)cells[yy*W+xx]=0;
+      cells[r.door.y*W+r.door.x]=0;
+      cells[Math.floor(r.entry.y)*W+Math.floor(r.entry.x)]=0;
+    }
+    else [4,10,16,22].forEach((y,i)=>{
       for(let xx=23;xx<=26;xx++)cells[y*W+xx]=0;
       for(let yy=y-1;yy<=y+1;yy++)for(let xx=27;xx<=29;xx++)cells[yy*W+xx]=0;
       world.rooms.push({shape:i,boost:BOOSTS[i],door:{x:26,y},x:28.5,y:y+.5,opened:false,readyAt:0});
     });
     const start={x:1.5,y:1.5};
     const candidates=[];
-    for(let y=1;y<H-1;y+=2)for(let x=1;x<=MAIN;x+=2)candidates.push({x:x+.5,y:y+.5});
+    for(let y=1;y<H-1;y+=2)for(let x=1;x<=extent;x+=2)if(!reserved.has(y*W+x))candidates.push({x:x+.5,y:y+.5});
     const lengths=new Map(candidates.map(p=>[p,findPath(world,start,p).length]));
     world.exit={...candidates.reduce((a,b)=>lengths.get(a)>lengths.get(b)?a:b)};
     const chosen=[start,world.exit];
@@ -106,11 +136,11 @@
   function makeMonster(p,big,id){return {...p,home:{...p},big,id,state:'idle',timer:0,cooldown:1.5,path:[],repath:0,look:1};}
   class Game {
     constructor(seed,saved){
-      this.seed=seed>>>0;this.layoutVersion=2;this.section=0;this.keys=[];this.time=0;this.catches=0;this.status='playing';this.effects={xray:0,shield:0,speed:0};this.mapped=false;this.hint=0;this.events=[];this.rng=random(this.seed^1234);
+      this.seed=seed>>>0;this.layoutVersion=3;this.section=0;this.keys=[];this.time=0;this.catches=0;this.status='playing';this.effects={xray:0,shield:0,speed:0};this.mapped=false;this.hint=0;this.events=[];this.rng=random(this.seed^1234);
       if(saved){
         if(saved.version!==1||!Number.isInteger(saved.seed)||!Number.isInteger(saved.section)||saved.section<0||saved.section>=TOTAL||!Array.isArray(saved.keys)||saved.keys.some(k=>!Number.isInteger(k)||k<0||k>3)||new Set(saved.keys).size!==saved.keys.length||!Number.isFinite(saved.time)||saved.time<0)throw new Error('Invalid saved game');
         this.seed=saved.seed>>>0;this.section=saved.section;this.keys=saved.keys;this.time=saved.time;this.catches=Number.isInteger(saved.catches)&&saved.catches>=0?saved.catches:0;
-        this.layoutVersion=saved.layoutVersion===2?2:1;
+        this.layoutVersion=[2,3].includes(saved.layoutVersion)?saved.layoutVersion:1;
       }
       this.loadSection();
       if(saved){
