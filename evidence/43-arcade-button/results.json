@@ -1,0 +1,62 @@
+[
+  {
+    "name": "local phone: the button is visible in the first screen",
+    "ok": true,
+    "detail": "top 150px, 253×60"
+  },
+  {
+    "name": "local phone: arcade still shows all its games",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "local phone: no sideways scroll",
+    "ok": true,
+    "detail": "375px"
+  },
+  {
+    "name": "local phone: tapping it opens the New Game page",
+    "ok": true,
+    "detail": "/new/"
+  },
+  {
+    "name": "local phone: the New Game page's Arcade link comes back",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "local phone: no console errors",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "local desktop: the button is visible in the first screen",
+    "ok": true,
+    "detail": "top 204px, 299×62"
+  },
+  {
+    "name": "local desktop: arcade still shows all its games",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "local desktop: no sideways scroll",
+    "ok": true,
+    "detail": "1280px"
+  },
+  {
+    "name": "local desktop: tapping it opens the New Game page",
+    "ok": true,
+    "detail": "/new/"
+  },
+  {
+    "name": "local desktop: the New Game page's Arcade link comes back",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "local desktop: no console errors",
+    "ok": true,
+    "detail": ""
+  }
+]
