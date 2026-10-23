@@ -2,9 +2,9 @@
   "spec": "46-evidence-framework",
   "passed": true,
   "headline": "PASS: 5 of 5 checks pass at desktop and phone widths.",
-  "generatedAt": "2026-10-23T11:17:38.061Z",
+  "generatedAt": "2026-10-23T11:19:19.804Z",
   "target": "local server (python3 -m http.server) on this branch",
-  "commit": "a0422b9",
+  "commit": "d6b68ad",
   "playwright": "1.61.1",
   "specFile": "tests/evidence/46-evidence-framework.spec.mjs",
   "checks": [

@@ -45,6 +45,10 @@ export const test = base.extend({
   page: async ({ page }, use) => {
     if (!LIVE) {
       await page.route("**/favicon.ico", route => route.fulfill({ status: 204, body: "" }));
+      // The GitHub API (the New Game page's idea line) answers with an empty list, so a
+      // rate limit can't fail a check. A spec that needs data routes it again itself:
+      // the route registered last wins.
+      await page.route("https://api.github.com/**", route => route.fulfill({ status: 200, contentType: "application/json", body: "[]" }));
       for (const game of externalGames) {
         await page.route(url => url.href.startsWith(game.url), route =>
           route.fulfill({ status: 200, contentType: "text/html", body: standIn(game) }));

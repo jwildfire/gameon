@@ -62,7 +62,8 @@ test("the arcade home shows one card per game", async ({ page, shot, note, brows
 - Do something, assert it, then `shot()` it. A screenshot without an assertion proves nothing.
 - `page.frameLocator("#frame")` reaches inside a game in the arcade.
 - In local runs, games hosted outside this repo are swapped for a stand-in page, so a slow
-  site elsewhere can't fail your check. Games in `games/` load for real.
+  site elsewhere can't fail your check. Games in `games/` load for real. GitHub API calls get
+  an empty list; route `https://api.github.com/**` yourself in the spec if you need data.
 - Keep it to a few screenshots per task. They're small JPEGs, but they add up.
 - Specs from earlier tasks keep running on every PR, so they double as regression checks.
   If you deliberately change something an old spec checks, update that spec in your PR and
