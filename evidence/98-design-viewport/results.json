@@ -1,0 +1,54 @@
+{
+  "spec": "98-design-viewport",
+  "passed": true,
+  "headline": "PASS: 2 of 2 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-23T11:32:02.686Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "28ba28b",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/98-design-viewport.spec.mjs",
+  "checks": [
+    {
+      "check": "the GameOn Blueprint page has a viewport tag and fits the screen",
+      "notes": [
+        "desktop: 1280px wide, nothing scrolls sideways",
+        "phone: 375px wide, nothing scrolls sideways"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "blueprint-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "blueprint-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the Make a New Game page has a viewport tag and fits the screen",
+      "notes": [
+        "desktop: 1280px wide, nothing scrolls sideways",
+        "phone: 375px wide, nothing scrolls sideways"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "pipeline-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "pipeline-phone.jpg"
+        ],
+        "error": null
+      }
+    }
+  ]
+}
