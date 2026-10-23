@@ -54,13 +54,19 @@ jobs:
           for f in evidence/"$n"-*/results.json; do
             [ -e "$f" ] || continue
             found=1
-            if node -e 'process.exit(JSON.parse(require("fs").readFileSync(process.argv[1], "utf8")).passed ? 0 : 1)' "$f"; then
-              echo "Committed evidence passes: $f"
-              echo "Committed evidence: \`$(dirname "$f")/README.md\` passes." >> "$GITHUB_STEP_SUMMARY"
-            else
-              echo "::error file=$f::Committed evidence for task $n records a failing check. Fix it and rerun npm run evidence."
-              exit 1
-            fi
+            # passed is true or false in results.json written by npm run evidence; older
+            # hand-made folders don't have it and are only noted.
+            verdict=$(node -e 'const r = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8")); console.log(r.passed === true ? "pass" : r.passed === false ? "fail" : "unknown")' "$f")
+            case "$verdict" in
+              pass)
+                echo "Committed evidence passes: $f"
+                echo "Committed evidence: \`$(dirname "$f")/README.md\` passes." >> "$GITHUB_STEP_SUMMARY" ;;
+              fail)
+                echo "::error file=$f::Committed evidence for task $n records a failing check. Fix it and rerun npm run evidence."
+                exit 1 ;;
+              *)
+                echo "::notice file=$f::Not written by npm run evidence, so not checked." ;;
+            esac
           done
           if [ "$found" = 0 ]; then
             echo "::notice::No evidence/$n-*/ folder on this branch. Tasks that change what people see need one (docs/evidence.md)."
