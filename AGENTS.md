@@ -55,8 +55,6 @@ Objective  (label: objective)   a goal, e.g. "Bring all six games into the repo"
   [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml), which builds both branches
   into one site, `main` at the root and `dev` under `/dev/`. Never deploy by hand, and don't
   change the Pages settings.
-- After your task PR merges into `dev`, check your change at the `/dev/` URL once the
-  deploy finishes, and post that link on the task.
 - A release is a PR from `dev` into `main`. Its body lists a `Closes #N` line for every
   task it ships, since `Closes` lines on PRs into `dev` don't close anything.
 
@@ -92,10 +90,13 @@ This is the most important section.
 - Open the PR against `dev` with the template in
   [`.github/pull_request_template.md`](.github/pull_request_template.md): a one-sentence
   summary, `Closes #<task>`, and the evidence the definition of done asked for.
-- A person merges. Task PRs into `dev` need no review. The release PR from `dev` into
-  `main` needs one approving review. Agents never approve a PR, never merge, and never use
-  the admin bypass. GitHub won't let anyone approve their own PR, so for now a repo admin
-  may merge their own release with the bypass on the PR page.
+- Merging into `dev`: once your task PR carries its evidence, merge it yourself (squash),
+  then check the change at https://jwildfire.github.io/gameon/dev/ after the deploy and post
+  that link on the task. No review is needed.
+- Merging into `main`: only a person, through the release PR from `dev`, with one approving
+  review. Agents never approve a PR, never merge into `main`, and never use the admin
+  bypass. GitHub won't let anyone approve their own PR, so for now a repo admin may merge
+  their own release with the bypass on the PR page.
 - When the PR merges, remove your worktree (`git worktree remove .claude/worktrees/<branch>`).
 
 ## Comments
