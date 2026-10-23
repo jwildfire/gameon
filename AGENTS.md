@@ -75,8 +75,10 @@ This is the most important section.
 - Open the PR against `main` with the template in
   [`.github/pull_request_template.md`](.github/pull_request_template.md): a one-sentence
   summary, `Closes #<task>`, and the evidence the definition of done asked for.
-- A person merges. Agents don't merge their own PRs unless the person steering them says
-  so in that session.
+- `main` requires a pull request with one approving review. A person approves and merges.
+  Agents never approve a PR, never merge, and never use the admin bypass. GitHub won't let
+  anyone approve their own PR, so for now a repo admin may merge their own PR with the
+  bypass on the PR page.
 - When the PR merges, remove your worktree (`git worktree remove .claude/worktrees/<branch>`).
 
 ## Comments
