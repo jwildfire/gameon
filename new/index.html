@@ -294,6 +294,11 @@ input[type="text"] { width: 100%; border: 2.5px solid var(--ink); border-radius:
     p.set("idea", text);
     p.set("maker", nick);
     p.set("told_by", how);
+    // If GitHub opens a blank issue instead of the form (the form only works once it's on
+    // main), the body and labels still arrive. Same layout as the form, so the idea line
+    // reads the nickname either way.
+    p.set("body", "### The idea, word for word\n\n" + text + "\n\n### Made by\n\n" + nick + "\n\n### Told by\n\n" + how + "\n");
+    p.set("labels", "game-idea,status: submitted");
     return REPO + "/issues/new?" + p.toString();
   }
   window.gameonIssueUrl = issueUrl; // used by the evidence tests
