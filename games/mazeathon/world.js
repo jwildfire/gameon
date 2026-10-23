@@ -38,12 +38,27 @@
     const path=[];for(let n=end;;n=prev[n]){path.push(center({x:n%W,y:Math.floor(n/W)}));if(n===start)break;}
     return path.reverse();
   }
-  function hasSight(world,a,b) {
-    const d=distance(a,b), steps=Math.ceil(d*12);
-    for(let i=1;i<steps;i++){const t=i/steps,x=Math.floor(a.x+(b.x-a.x)*t),y=Math.floor(a.y+(b.y-a.y)*t);if(!isOpen(world,x,y))return false;}
+  function hasSight(world,a,b,wallFace=false) {
+    // Traverse every crossed tile. Only vision may see the blocking destination
+    // itself; monsters and floor visibility must have a clear ray all the way.
+    let {x,y}=tile(a);const end=tile(b),dx=b.x-a.x,dy=b.y-a.y;
+    if(!isOpen(world,x,y))return false;
+    const sx=Math.sign(dx),sy=Math.sign(dy),tx=dx?1/Math.abs(dx):Infinity,ty=dy?1/Math.abs(dy):Infinity;
+    let nextX=dx?(sx>0?x+1-a.x:a.x-x)*tx:Infinity;
+    let nextY=dy?(sy>0?y+1-a.y:a.y-y)*ty:Infinity;
+    while(x!==end.x||y!==end.y){
+      if(Math.abs(nextX-nextY)<1e-9){
+        // A ray cannot squeeze through a solid corner between two corridors.
+        if(!isOpen(world,x+sx,y)||!isOpen(world,x,y+sy))return false;
+        x+=sx;y+=sy;nextX+=tx;nextY+=ty;
+      }else if(nextX<nextY){x+=sx;nextX+=tx;}
+      else{y+=sy;nextY+=ty;}
+      if(x===end.x&&y===end.y)return wallFace||isOpen(world,x,y);
+      if(!isOpen(world,x,y))return false;
+    }
     return true;
   }
-  function generate(seed,section) {
+  function generate(seed,section,layoutVersion=2) {
     const rng=random((seed+Math.imul(section+1,2654435761))>>>0), cells=Array(W*H).fill(1);
     const world={cells,rooms:[],shapes:[],monsters:[],exit:null,section};
     const stack=[{x:1,y:1}];cells[W+1]=0;
@@ -56,6 +71,12 @@
     // Loops give players alternate escape routes; rooms sit outside this connected maze.
     for(let y=1;y<H-1;y++)for(let x=1;x<MAIN;x++){
       if(cells[y*W+x]===1&&((x%2===0&&y%2===1)||(x%2===1&&y%2===0))&&rng()<.15)cells[y*W+x]=0;
+    }
+    if(section===0&&layoutVersion>=2){
+      // A small loop and a cross-link offer choices immediately at camp. Both
+      // sides also connect into the wider maze, rather than ending in cul-de-sacs.
+      for(let n=1;n<=5;n++){cells[W+n]=0;cells[5*W+n]=0;cells[n*W+1]=0;cells[n*W+5]=0;cells[3*W+n]=0;}
+      cells[2*W+3]=0;cells[4*W+3]=0;cells[W+6]=0;cells[6*W+1]=0;
     }
     [4,10,16,22].forEach((y,i)=>{
       for(let xx=23;xx<=26;xx++)cells[y*W+xx]=0;
@@ -85,10 +106,11 @@
   function makeMonster(p,big,id){return {...p,home:{...p},big,id,state:'idle',timer:0,cooldown:1.5,path:[],repath:0,look:1};}
   class Game {
     constructor(seed,saved){
-      this.seed=seed>>>0;this.section=0;this.keys=[];this.time=0;this.catches=0;this.status='playing';this.effects={xray:0,shield:0,speed:0};this.mapped=false;this.hint=0;this.events=[];this.rng=random(this.seed^1234);
+      this.seed=seed>>>0;this.layoutVersion=2;this.section=0;this.keys=[];this.time=0;this.catches=0;this.status='playing';this.effects={xray:0,shield:0,speed:0};this.mapped=false;this.hint=0;this.events=[];this.rng=random(this.seed^1234);
       if(saved){
         if(saved.version!==1||!Number.isInteger(saved.seed)||!Number.isInteger(saved.section)||saved.section<0||saved.section>=TOTAL||!Array.isArray(saved.keys)||saved.keys.some(k=>!Number.isInteger(k)||k<0||k>3)||new Set(saved.keys).size!==saved.keys.length||!Number.isFinite(saved.time)||saved.time<0)throw new Error('Invalid saved game');
         this.seed=saved.seed>>>0;this.section=saved.section;this.keys=saved.keys;this.time=saved.time;this.catches=Number.isInteger(saved.catches)&&saved.catches>=0?saved.catches:0;
+        this.layoutVersion=saved.layoutVersion===2?2:1;
       }
       this.loadSection();
       if(saved){
@@ -104,7 +126,7 @@
       }
     }
     loadSection(){
-      this.world=generate(this.seed,this.section);this.player={x:1.5,y:1.5};this.keys=[];this.discovered=Array(W*H).fill(0);this.visible=Array(W*H).fill(0);this.effects={xray:0,shield:0,speed:0};this.mapped=false;this.respawn=2.5;this.caughtPause=0;this.visionAt=0;this.doorMessageAt=0;this.hint=0;this.updateVision();
+      this.world=generate(this.seed,this.section,this.layoutVersion);this.player={x:1.5,y:1.5};this.keys=[];this.discovered=Array(W*H).fill(0);this.visible=Array(W*H).fill(0);this.effects={xray:0,shield:0,speed:0};this.mapped=false;this.respawn=2.5;this.caughtPause=0;this.visionAt=0;this.doorMessageAt=0;this.hint=0;this.updateVision();
     }
     emit(type,data={}){this.events.push({type,...data});}
     drainEvents(){const a=this.events;this.events=[];return a;}
@@ -142,8 +164,9 @@
     updateMonster(m,dt){
       m.cooldown=Math.max(0,m.cooldown-dt);m.timer=Math.max(0,m.timer-dt);m.repath-=dt;
       const d=distance(m,this.player),sees=d<(m.big?3.4:5.5)&&hasSight(this.world,m,this.player);
-      if(m.state==='idle'&&m.cooldown===0&&sees){m.state=m.big?'windup':'chase';m.timer=m.big?.8:3.8;m.lastSeen={...this.player};m.path=[];m.repath=0;this.emit('spotted',{big:m.big});}
-      if(m.state==='windup'&&m.timer===0){m.state='chase';m.timer=1.8;m.repath=0;}
+      if(m.state==='idle'&&m.cooldown===0&&sees){m.state='windup';m.timer=m.big?1.2:.75;m.lastSeen={...this.player};m.path=[];m.repath=0;this.emit('spotted',{big:m.big});}
+      if(m.state==='windup'&&sees)m.lastSeen={...this.player};
+      if(m.state==='windup'&&m.timer===0){m.state='chase';m.timer=m.big?1.8:3.8;m.repath=0;}
       if(m.state==='chase'&&m.timer===0){m.state='return';m.cooldown=m.big?5:3;m.repath=0;}
       let target;
       if(m.state==='chase'){
@@ -162,7 +185,7 @@
         while(m.path.length&&distance(m,m.path[0])<.07)m.path.shift();
         const p=m.path[0];if(p){const diff=distance(m,p),speed=m.state==='chase'?(m.big?3.8:2.05):(m.big?1.7:1.05),step=Math.min(diff,speed*dt);m.x+=(p.x-m.x)/diff*step;m.y+=(p.y-m.y)/diff*step;m.look=p.x>=m.x?1:-1;}
       }
-      if(this.respawn===0&&this.effects.shield===0&&distance(m,this.player)<(m.big?.65:.5))this.catchPlayer();
+      if(m.state!=='windup'&&this.respawn===0&&this.effects.shield===0&&distance(m,this.player)<(m.big?.65:.5))this.catchPlayer();
     }
     catchPlayer(){
       this.catches++;this.player={x:1.5,y:1.5};this.respawn=3;this.caughtPause=.5;
@@ -176,8 +199,7 @@
       for(let y=Math.max(0,a.y-6);y<=Math.min(H-1,a.y+6);y++)for(let x=Math.max(0,a.x-6);x<=Math.min(W-1,a.x+6);x++){
         if(distance(this.player,center({x,y}))<6.2){
           // A wall face can be seen; anything beyond that wall cannot.
-          const b=center({x,y}),d=distance(this.player,b),near={x:b.x-(b.x-this.player.x)/Math.max(1,d)*.55,y:b.y-(b.y-this.player.y)/Math.max(1,d)*.55};
-          if(hasSight(this.world,this.player,near)){this.visible[y*W+x]=1;this.discovered[y*W+x]=1;}
+          if(hasSight(this.world,this.player,center({x,y}),true)){this.visible[y*W+x]=1;this.discovered[y*W+x]=1;}
         }
       }
     }
@@ -185,7 +207,7 @@
       const targets=this.world.shapes.filter(s=>!this.keys.includes(s.id));if(!targets.length)targets.push(this.world.exit);
       return targets.map(t=>findPath(this.world,this.player,t)).filter(p=>p.length).sort((a,b)=>a.length-b.length)[0]||[];
     }
-    save(){return {version:1,seed:this.seed,section:this.section,keys:[...this.keys],time:this.time,catches:this.catches,player:{...this.player},opened:this.world.rooms.map(r=>r.opened),readyAt:this.world.rooms.map(r=>r.readyAt),discovered:[...this.discovered],mapped:this.mapped,effects:{...this.effects},status:this.status};}
+    save(){return {version:1,layoutVersion:this.layoutVersion,seed:this.seed,section:this.section,keys:[...this.keys],time:this.time,catches:this.catches,player:{...this.player},opened:this.world.rooms.map(r=>r.opened),readyAt:this.world.rooms.map(r=>r.readyAt),discovered:[...this.discovered],mapped:this.mapped,effects:{...this.effects},status:this.status};}
   }
   return {W,H,MAIN,TOTAL,SHAPES,BOOSTS,THEMES,random,generate,findPath,hasSight,isOpen,Game};
 });
