@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Evidence 95-github-links</title>
+<style>
+:root { color-scheme: light dark; --ok: #1a7f37; --bad: #cf222e; }
+body { margin: 0 auto; max-width: 1100px; padding: 16px; font: 16px/1.45 system-ui, sans-serif; background: Canvas; color: CanvasText; }
+h1 { font-size: 24px; margin: 0 0 4px; } h2 { font-size: 19px; margin: 28px 0 6px; }
+.head { font-weight: 700; color: var(--ok); }
+.meta { font-size: 14px; opacity: .75; }
+.s { display: inline-block; padding: 1px 8px; border-radius: 999px; border: 1px solid currentColor; font-size: 13px; margin: 2px 4px 2px 0; }
+.s.ok { color: var(--ok); } .s.bad { color: var(--bad); }
+.pair { display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap; margin: 8px 0; }
+.pair img { display: block; max-width: 100%; border: 1px solid #8886; border-radius: 6px; }
+.pair img.desktop { width: 640px; } .pair img.phone { width: 220px; }
+</style></head><body>
+<h1>Evidence: 95-github-links</h1>
+<p class="head">PASS: 4 of 4 checks pass at desktop and phone widths.</p>
+<p class="meta">Against the local server (python3 -m http.server) on this branch, from commit b1625e7, 2026-10-23 11:23 UTC. Spec: tests/evidence/95-github-links.spec.mjs.</p>
+<section><h2>1. the arcade home links to the GameOn repo</h2><p><span class="s ok">Desktop 1280: pass</span> <span class="s ok">Phone 375: pass</span></p><ul><li>desktop: GitHub link → https://github.com/jwildfire/gameon</li><li>phone: GitHub link → https://github.com/jwildfire/gameon</li></ul><div class="pair"><a href="home-desktop.jpg"><img class="desktop" src="home-desktop.jpg" alt="the arcade home links to the GameOn repo: home-desktop.jpg" loading="lazy"></a><a href="home-phone.jpg"><img class="phone" src="home-phone.jpg" alt="the arcade home links to the GameOn repo: home-phone.jpg" loading="lazy"></a></div></section>
+<section><h2>2. the player's GitHub button opens the current game's code</h2><p><span class="s ok">Desktop 1280: pass</span> <span class="s ok">Phone 375: pass</span></p><ul><li>desktop: Trampoline Battle → https://github.com/jwildfire/trampoline-battle; after switching, MazeAThon → https://github.com/jwildfire/gameon/tree/main/games/mazeathon</li><li>phone: Trampoline Battle → https://github.com/jwildfire/trampoline-battle; after switching, MazeAThon → https://github.com/jwildfire/gameon/tree/main/games/mazeathon</li></ul><div class="pair"><a href="player-hosted-desktop.jpg"><img class="desktop" src="player-hosted-desktop.jpg" alt="the player's GitHub button opens the current game's code: player-hosted-desktop.jpg" loading="lazy"></a><a href="player-hosted-phone.jpg"><img class="phone" src="player-hosted-phone.jpg" alt="the player's GitHub button opens the current game's code: player-hosted-phone.jpg" loading="lazy"></a></div><div class="pair"><a href="player-in-repo-desktop.jpg"><img class="desktop" src="player-in-repo-desktop.jpg" alt="the player's GitHub button opens the current game's code: player-in-repo-desktop.jpg" loading="lazy"></a><a href="player-in-repo-phone.jpg"><img class="phone" src="player-in-repo-phone.jpg" alt="the player's GitHub button opens the current game's code: player-in-repo-phone.jpg" loading="lazy"></a></div></section>
+<section><h2>3. every game's GitHub button points at its own code</h2><p><span class="s ok">Desktop 1280: pass</span> <span class="s ok">Phone 375: pass</span></p><ul><li>desktop: 7 of 7 games link to their code</li><li>phone: 7 of 7 games link to their code</li></ul></section>
+<section><h2>4. the New Game page links to the GameOn repo</h2><p><span class="s ok">Desktop 1280: pass</span> <span class="s ok">Phone 375: pass</span></p><div class="pair"><a href="new-game-desktop.jpg"><img class="desktop" src="new-game-desktop.jpg" alt="the New Game page links to the GameOn repo: new-game-desktop.jpg" loading="lazy"></a><a href="new-game-phone.jpg"><img class="phone" src="new-game-phone.jpg" alt="the New Game page links to the GameOn repo: new-game-phone.jpg" loading="lazy"></a></div></section>
+</body></html>

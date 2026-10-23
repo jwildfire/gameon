@@ -1,0 +1,91 @@
+{
+  "spec": "95-github-links",
+  "passed": true,
+  "headline": "PASS: 4 of 4 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-23T11:23:26.370Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "b1625e7",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/95-github-links.spec.mjs",
+  "checks": [
+    {
+      "check": "the arcade home links to the GameOn repo",
+      "notes": [
+        "desktop: GitHub link → https://github.com/jwildfire/gameon",
+        "phone: GitHub link → https://github.com/jwildfire/gameon"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "home-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "home-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the player's GitHub button opens the current game's code",
+      "notes": [
+        "desktop: Trampoline Battle → https://github.com/jwildfire/trampoline-battle; after switching, MazeAThon → https://github.com/jwildfire/gameon/tree/main/games/mazeathon",
+        "phone: Trampoline Battle → https://github.com/jwildfire/trampoline-battle; after switching, MazeAThon → https://github.com/jwildfire/gameon/tree/main/games/mazeathon"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "player-hosted-desktop.jpg",
+          "player-in-repo-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "player-hosted-phone.jpg",
+          "player-in-repo-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "every game's GitHub button points at its own code",
+      "notes": [
+        "desktop: 7 of 7 games link to their code",
+        "phone: 7 of 7 games link to their code"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "the New Game page links to the GameOn repo",
+      "notes": [],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "new-game-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "new-game-phone.jpg"
+        ],
+        "error": null
+      }
+    }
+  ]
+}
