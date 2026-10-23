@@ -1,0 +1,11 @@
+{
+  "name": "mazeathon",
+  "title": "MazeAThon",
+  "tagline": "A pocketful of shapes. Three curious mazes. Some very cute monsters.",
+  "credit": "Designed with Ryan",
+  "idea": "you collect shapes in a maze that fit different keyholes. you have to collect them all to escape. you can unlock different rooms. in the rooms, you get boosts that give xray vision, reveal map, invulnerability, fast speed. there are relatively slow monsters that will chase you for a short time when they have line of sight. and one big monster per main chunk that will attack if you get near (but they are all cute)",
+  "players": "1",
+  "sideways": false,
+  "needs_internet": false,
+  "path": "games/mazeathon/"
+}
