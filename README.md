@@ -28,6 +28,7 @@ repository**, at [`games/mazeathon/`](games/mazeathon/), and deploys with GameOn
 arcade URL follows the current branch: `games/mazeathon/` on production, or
 `dev/games/mazeathon/` on development. The six existing games remain deployed from their
 own repositories with GitHub Pages; adding MazeAThon does not move or change them.
+Future MazeAThon changes belong in `games/mazeathon/` and follow the shared task, dev, and reviewed-release workflow.
 
 ## How we work
 
