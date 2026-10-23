@@ -1,5 +1,15 @@
 [
   {
+    "slug": "fancy-food-fight",
+    "title": "Fancy Food Fight",
+    "tagline": "Splat the fanciest party in town with pies and spaghetti. Messiest wins!",
+    "credit": "Designed by Jeremy",
+    "url": "games/fancy-food-fight/",
+    "repo": "https://github.com/jwildfire/gameon",
+    "color": "#ff6f9c",
+    "tags": ["New", "1 player", "Turn sideways"]
+  },
+  {
     "slug": "mazeathon",
     "title": "MazeAThon",
     "tagline": "A pocketful of shapes. Three curious mazes. Some very cute monsters.",
