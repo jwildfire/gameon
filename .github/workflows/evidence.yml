@@ -1,0 +1,82 @@
+# Runs every evidence spec in tests/evidence/ at desktop and phone widths and uploads the
+# screenshots, so a reviewer can see the change working. Rules: docs/evidence.md.
+#
+# On a pull request it serves the branch locally. From the Actions tab you can instead
+# point it at the live site, e.g. https://jwildfire.github.io/gameon/dev/ after a merge.
+name: Evidence
+
+on:
+  pull_request:
+    branches: [dev, main]
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Live site to check, e.g. https://jwildfire.github.io/gameon/dev/ (empty: serve this branch locally)"
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: evidence-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      EVIDENCE_BASE_URL: ${{ inputs.base_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Install the pinned Playwright
+        run: npm ci --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run every evidence spec
+        run: npm run evidence:check
+      - name: Check the task's committed evidence
+        if: github.event_name == 'pull_request'
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          n="${HEAD_REF%%-*}"
+          case "$n" in
+            ''|*[!0-9]*) echo "Not a task branch ($HEAD_REF), nothing to check."; exit 0 ;;
+          esac
+          found=0
+          for f in evidence/"$n"-*/results.json; do
+            [ -e "$f" ] || continue
+            found=1
+            # passed is true or false in results.json written by npm run evidence; older
+            # hand-made folders don't have it and are only noted.
+            verdict=$(node -e 'const r = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8")); console.log(r.passed === true ? "pass" : r.passed === false ? "fail" : "unknown")' "$f")
+            case "$verdict" in
+              pass)
+                echo "Committed evidence passes: $f"
+                echo "Committed evidence: \`$(dirname "$f")/README.md\` passes." >> "$GITHUB_STEP_SUMMARY" ;;
+              fail)
+                echo "::error file=$f::Committed evidence for task $n records a failing check. Fix it and rerun npm run evidence."
+                exit 1 ;;
+              *)
+                echo "::notice file=$f::Not written by npm run evidence, so not checked." ;;
+            esac
+          done
+          if [ "$found" = 0 ]; then
+            echo "::notice::No evidence/$n-*/ folder on this branch. Tasks that change what people see need one (docs/evidence.md)."
+          fi
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidence
+          include-hidden-files: true
+          path: node_modules/.cache/gameon-evidence/
+          if-no-files-found: ignore
+          retention-days: 30
