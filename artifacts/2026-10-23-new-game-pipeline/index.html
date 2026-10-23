@@ -184,7 +184,7 @@ footer { font-size: 14px; color: var(--muted); border-top: 1px solid var(--rule)
     <ol class="flow">
       <li><a href="#s1"><span class="who">Kid</span><b>Submit</b><span>Talk or type an idea</span></a></li>
       <li><a href="#s2"><span class="who">Intake</span><b>File</b><span>Becomes a GitHub issue</span></a></li>
-      <li><a href="#s3"><span class="who">AI</span><b>Eval</b><span>Score, then Opus go/no-go</span></a></li>
+      <li><a href="#s3"><span class="who">AI</span><b>Eval</b><span>Jev score, then Opus go/no-go</span></a></li>
       <li><a href="#s4"><span class="who">Rules</span><b>Triage</b><span>Known: build. Unknown: ask a grown-up</span></a></li>
       <li><a href="#s5"><span class="who">Builder</span><b>Build</b><span>A guarded agent makes the game</span></a></li>
       <li><a href="#s6"><span class="who">Reviewer</span><b>Check</b><span>Security and play checks, then dev</span></a></li>
@@ -289,10 +289,11 @@ toppings fall off if you go too fast
   </section>
 
   <section id="s3">
-    <div class="step-head"><div class="num">3</div><div><h2>Eval</h2><p>Two passes: a fast score for every idea, then an Opus 5.5 go/no-go that becomes the build brief.</p></div></div>
+    <div class="step-head"><div class="num">3</div><div><h2>Eval</h2><p>Two passes: a fast Jev score for every idea, then an Opus 5.5 go/no-go that becomes the build brief.</p></div></div>
     <p>Both run in the long-running pipeline session. For now that's a Claude Code session like last night's watch, checking for new ideas every few minutes. Later it can become a cloud routine or a GitHub Action that fires when an idea is filed.</p>
-    <h3>Pass A · the score (seconds, a smaller model)</h3>
-    <p>Each factor 1 to 5, weighted to a score out of 100. Safety isn't weighted: it's a gate. Following your experience that Opus 5.5 at high effort can build almost anything with a good scaffold, feasibility counts for little, and the score mostly decides queue order and what gets a closer look.</p>
+    <h3>Pass A · the score (under a second, Jev)</h3>
+    <p><a href="https://typesafe.ai/blog/introducing-system-one-models-and-jev">Jev</a> is built for exactly this kind of call: unstructured text in, typed answers out, each with a calibrated probability. We define the answers up front: every factor is a level from 1 to 5, and safety is pass or fail. Jev returns how likely each level is. Ordinary code then turns that into the score, so the weights stay ours and easy to change.</p>
+    <p>Safety isn't weighted: it's a gate. Following your experience that Opus 5.5 at high effort can build almost anything with a good scaffold, feasibility counts for little, and the score mostly decides queue order and what gets a closer look.</p>
     <div class="table-wrap rubric">
       <table>
         <thead><tr><th>Factor</th><th>Weight</th><th>Example</th><th></th><th>What it asks</th></tr></thead>
@@ -307,9 +308,26 @@ toppings fall off if you go too fast
         </tbody>
       </table>
     </div>
-    <p class="note">Example total for the penguin idea: 0.30·5 + 0.20·5 + 0.15·4 + 0.15·4 + 0.10·4 + 0.10·5 = 4.6 of 5, so 92 of 100. You mentioned jev for the scoring; I couldn't find it, so this is a stand-in until you point me at it (Q1).</p>
+    <p class="note">Example total for the penguin idea, using the most likely level of each factor: 0.30·5 + 0.20·5 + 0.15·4 + 0.15·4 + 0.10·4 + 0.10·5 = 4.6 of 5, so 92 of 100.</p>
+<pre><code>// The typed question we ask Jev for each idea (shape, not exact API)
+{
+  "fun":           { "choices": [1, 2, 3, 4, 5] },
+  "kids_own_idea": { "choices": [1, 2, 3, 4, 5] },
+  "clear":         { "choices": [1, 2, 3, 4, 5] },
+  "one_session":   { "choices": [1, 2, 3, 4, 5] },
+  "phone":         { "choices": [1, 2, 3, 4, 5] },
+  "new_to_arcade": { "choices": [1, 2, 3, 4, 5] },
+  "safe_and_kind": { "choices": ["pass", "fail"] }
+}
+// Jev answers each with a probability, e.g. fun: {5: 0.71, 4: 0.22, 3: 0.07}</code></pre>
+    <p>Calibrated probabilities buy us two things a plain score can't:</p>
+    <ul class="plain">
+      <li><b>An expected score.</b> Each factor counts as the probability-weighted average of its levels, not just the top one, so a toss-up between 3 and 5 lands near 4 instead of being rounded either way.</li>
+      <li><b>Knowing when it isn't sure.</b> If the safety gate comes back below about 95% pass, or any factor is spread thin, the idea goes to Opus with a "look closely" flag, and for unknown submitters straight to a grown-up. A confident fail on safety stops the idea at step 4 without spending an Opus call.</li>
+    </ul>
+    <p class="note">Cost is close to nothing: TypeSafe lists $0.042 per million input tokens with output free, and an idea is a few hundred tokens. Jev is in early access, so until we have a key, Pass A runs as a short Opus or Sonnet prompt with the same schema and the same weights. Nothing downstream changes when we switch (Q1).</p>
     <h3>Pass B · the go/no-go (minutes, Opus 5.5)</h3>
-    <p>Runs on every idea that passes the safety gate. It reads the idea, the score and the current arcade, and posts one comment with:</p>
+    <p>Runs on every idea that passes the safety gate, with Jev's score and any "look closely" flags in hand. It reads the idea, the score and the current arcade, and posts one comment with:</p>
     <ul class="plain">
       <li><b>Go, or no-go</b> with the reason. No-go is rare and means "this shouldn't be built", not "this is hard".</li>
       <li><b>The title and one-liner</b> the idea line shows (step 1b).</li>
@@ -318,7 +336,7 @@ toppings fall off if you go too fast
 <pre><code>&lt;!-- gameon-eval {"score": 92, "gate": "pass", "verdict": "go",
   "title": "Penguin Pizza Sled",
   "one_liner": "Race a sled downhill delivering pizzas before the toppings slide off.",
-  "model": "claude-opus-5-5"} --&gt;
+  "scored_by": "jev", "judged_by": "claude-opus-5-5"} --&gt;
 **Go.** Score 92 / 100. Fun 5 · Kid's own idea 5 · Clear 4 · One session 4 · Phone 4 · New 5 · Safety pass
 ...the build brief follows</code></pre>
     <p class="note">The hidden JSON line at the top is what the intake service reads to fill the idea line, so the comment stays readable for people.</p>
@@ -412,7 +430,7 @@ toppings fall off if you go too fast
   <section>
     <h2>Questions for you</h2>
     <ol class="qs">
-      <li><div><b>What's jev?</b><span>I couldn't find it in your repos or Ryan's. If it's a scoring method you've used, point me at it and step 3's score uses it; otherwise the rubric above stands in.</span></div></li>
+      <li><div><b>Do we have Jev access?</b><span>Jev is in early access from a waitlist. If you or Ryan already have a key, Pass A uses it from day one; if not, it starts on Claude with the same schema and switches over when access comes. Should we also use Jev for the safety check on intake and for step 6's kid-appropriate check?</span></div></li>
       <li><div><b>Public or private ideas?</b><span>File ideas in public gameon, or in a private <code>gameon-ideas</code> repo with only the eval's rewrite shown in the queue? <em>I'd go private: kids say things into microphones.</em></span></div></li>
       <li><div><b>Who counts as known?</b><span>Family codes we hand out (simple, works for kids without GitHub accounts), or GitHub sign-in for grown-ups? <em>I'd use family codes.</em></span></div></li>
       <li><div><b>A bot identity for the pipeline?</b><span>A small GitHub App, so its PRs can be approved by either of you and no one's approving their own work. <em>I'd set it up before the pipeline runs on its own.</em></span></div></li>
