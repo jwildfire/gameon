@@ -1,0 +1,122 @@
+[
+  {
+    "name": "phone: shows the six real ideas, newest first, hiding test items and PRs",
+    "ok": true,
+    "detail": "A new idea, Penguin Pizza Sled, Space Thing, Dino Bake-Off, Scary Night, MazeAThon"
+  },
+  {
+    "name": "phone: before an eval, it says Just sent and hides the kid's raw words",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "phone: an evaluated idea shows the eval's title and one-liner",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "phone: progress dots match the step (Being built = 3 done, 4th now)",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "phone: Tell us more shows the eval's one question",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "phone: Not this time shows the kind reason and no dots",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "phone: a published game says Play it now! and links to the arcade",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "phone: nickname and time shown",
+    "ok": true,
+    "detail": "Rocket · 20 min ago"
+  },
+  {
+    "name": "phone: no sideways scroll",
+    "ok": true,
+    "detail": "375px"
+  },
+  {
+    "name": "phone: no console errors",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "phone: rate limit shows a readable message",
+    "ok": true,
+    "detail": "GitHub needs a short break. Try again in a few minutes."
+  },
+  {
+    "name": "phone: offline shows a readable message",
+    "ok": true,
+    "detail": "Can't reach GitHub right now. Check the internet and tap Refresh."
+  },
+  {
+    "name": "desktop: shows the six real ideas, newest first, hiding test items and PRs",
+    "ok": true,
+    "detail": "A new idea, Penguin Pizza Sled, Space Thing, Dino Bake-Off, Scary Night, MazeAThon"
+  },
+  {
+    "name": "desktop: before an eval, it says Just sent and hides the kid's raw words",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "desktop: an evaluated idea shows the eval's title and one-liner",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "desktop: progress dots match the step (Being built = 3 done, 4th now)",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "desktop: Tell us more shows the eval's one question",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "desktop: Not this time shows the kind reason and no dots",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "desktop: a published game says Play it now! and links to the arcade",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "desktop: nickname and time shown",
+    "ok": true,
+    "detail": "Rocket · 20 min ago"
+  },
+  {
+    "name": "desktop: no sideways scroll",
+    "ok": true,
+    "detail": "1280px"
+  },
+  {
+    "name": "desktop: no console errors",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "desktop: rate limit shows a readable message",
+    "ok": true,
+    "detail": "GitHub needs a short break. Try again in a few minutes."
+  },
+  {
+    "name": "desktop: offline shows a readable message",
+    "ok": true,
+    "detail": "Can't reach GitHub right now. Check the internet and tap Refresh."
+  }
+]

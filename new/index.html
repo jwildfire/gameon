@@ -85,6 +85,24 @@ input[type="text"] { width: 100%; border: 2.5px solid var(--ink); border-radius:
 .side h2 { margin: 0; font: 400 26px/1 var(--display); }
 .side p { margin: 0; color: var(--ink); }
 .steps { margin: 0; padding-left: 22px; display: grid; gap: 6px; }
+
+.side-col { display: grid; gap: 24px; }
+.line-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.line-msg { color: var(--muted); font-weight: 800; }
+.ideas { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.idea { border: 2.5px solid var(--ink); border-radius: 14px; background: #fff; padding: 12px 14px; display: grid; gap: 7px; }
+.idea-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.idea-top b { font: 400 19px/1.1 var(--display); min-width: 0; overflow-wrap: anywhere; }
+.idea p { margin: 0; font-size: 14px; color: var(--muted); }
+.idea .by { font-size: 13px; font-weight: 800; }
+.idea a.play { justify-self: start; font: 400 16px/1 var(--display); text-decoration: none; background: var(--ink); color: var(--wall); border-radius: 10px; padding: 8px 12px; }
+.status { flex-shrink: 0; font: 800 12px/1 var(--body); padding: 5px 9px; border-radius: 999px; border: 2px solid var(--ink); background: var(--card); white-space: nowrap; }
+.status.live { background: var(--ink); color: var(--wall); }
+.status.stop { background: #ffe2dc; }
+.dots { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.dots i { height: 7px; border-radius: 4px; background: var(--soft); }
+.dots i.d { background: var(--ink); }
+.dots i.now { background: var(--pop); }
 </style>
 </head>
 <body>
@@ -135,6 +153,12 @@ input[type="text"] { width: 100%; border: 2.5px solid var(--ink); border-radius:
       </div>
     </section>
 
+    <div class="side-col">
+    <section class="side card" id="line" aria-labelledby="line-title">
+      <div class="line-head"><h2 id="line-title">The idea line</h2><button type="button" class="chip" id="refresh">Refresh</button></div>
+      <p class="line-msg" id="line-msg">Loading ideas…</p>
+      <ol class="ideas" id="ideas"></ol>
+    </section>
     <aside class="side card" aria-label="How it works">
       <h2>How it works</h2>
       <ol class="steps">
@@ -146,6 +170,7 @@ input[type="text"] { width: 100%; border: 2.5px solid var(--ink); border-radius:
       </ol>
       <p style="color:var(--muted)">For grown-ups: Send opens GitHub's Game idea form with everything filled in. Read it, take out anything private, and press Submit. Then tell your agent "Evaluate game idea #N".</p>
     </aside>
+    </div>
   </div>
 </main>
 
@@ -288,7 +313,130 @@ input[type="text"] { width: 100%; border: 2.5px solid var(--ink); border-radius:
     setMode(Recognition ? "talk" : "type"); update(); idea.blur();
   });
 
+  // ---------- The idea line ----------
+  // Reads public game-idea issues and their eval comments. Two API calls, cached for a minute.
+  var API = "https://api.github.com/repos/jwildfire/gameon";
+  var CACHE_KEY = "gameon.arcade.ideas";
+  var STATUS = {
+    "status: submitted":      { words: "Got your idea!",         step: 1 },
+    "status: evaluating":     { words: "Thinking about it",      step: 2 },
+    "status: needs more":     { words: "Tell us more",           step: 2 },
+    "status: needs approval": { words: "Waiting for a grown-up", step: 3 },
+    "status: approved":       { words: "In line to be built",    step: 3 },
+    "status: building":       { words: "Being built",            step: 4 },
+    "status: checking":       { words: "Getting checked",        step: 5 },
+    "status: on dev":         { words: "Almost ready",           step: 6 },
+    "status: published":      { words: "Play it now!",           step: 7 },
+    "status: not built":      { words: "Not this time",          step: 0 }
+  };
+  var ideasEl = $("ideas"), lineMsg = $("line-msg");
+
+  function evalFrom(body) {
+    var m = /^<!-- gameon-eval (\{.*?\}) -->/.exec(body || "");
+    if (!m) return null;
+    try { return JSON.parse(m[1]); } catch (e) { return null; }
+  }
+  function makerFrom(body) {
+    var m = /###\s*Made by\s*\n+\s*([^\n]+)/.exec(body || "");
+    return m ? m[1].trim().slice(0, 20) : "Someone";
+  }
+  function slugify(s) { return (s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
+  function ago(iso) {
+    var s = (Date.now() - new Date(iso).getTime()) / 1000;
+    if (s < 90) return "just now";
+    if (s < 3600) return Math.round(s / 60) + " min ago";
+    if (s < 86400) return Math.round(s / 3600) + " hr ago";
+    var d = Math.round(s / 86400);
+    return d === 1 ? "yesterday" : d + " days ago";
+  }
+
+  function getJSON(url) {
+    return fetch(url, { headers: { "Accept": "application/vnd.github+json" } }).then(function (r) {
+      if (r.status === 403 || r.status === 429) { var e = new Error("limit"); e.kind = "limit"; throw e; }
+      if (!r.ok) { var e2 = new Error("http " + r.status); e2.kind = "http"; throw e2; }
+      return r.json();
+    });
+  }
+
+  function loadIdeas(force) {
+    try {
+      var c = JSON.parse(sessionStorage.getItem(CACHE_KEY) || "null");
+      if (!force && c && Date.now() - c.at < 60000) return Promise.resolve(c.data);
+    } catch (e) {}
+    return Promise.all([
+      getJSON(API + "/issues?labels=game-idea&state=all&sort=created&direction=desc&per_page=30"),
+      getJSON(API + "/issues/comments?sort=created&direction=desc&per_page=100")
+    ]).then(function (res) {
+      var evals = {};
+      res[1].forEach(function (c) {
+        var ev = evalFrom(c.body);
+        var n = (c.issue_url || "").split("/").pop();
+        if (ev && !evals[n]) evals[n] = ev;          // newest first, so the first one wins
+      });
+      var data = res[0].filter(function (i) {
+        var names = (i.labels || []).map(function (l) { return l.name; });
+        return !i.pull_request && names.indexOf("test") === -1;
+      }).map(function (i) {
+        var names = i.labels.map(function (l) { return l.name; });
+        var st = names.filter(function (n) { return STATUS[n]; })[0] || "status: submitted";
+        return { number: i.number, created: i.created_at, maker: makerFrom(i.body), status: st, ev: evals[String(i.number)] || null };
+      });
+      try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ at: Date.now(), data: data })); } catch (e) {}
+      return data;
+    });
+  }
+
+  function renderIdeas(list) {
+    ideasEl.innerHTML = "";
+    if (!list.length) { lineMsg.textContent = "No ideas yet. Yours could be the first!"; lineMsg.hidden = false; return; }
+    lineMsg.hidden = true;
+    list.slice(0, 12).forEach(function (it) {
+      var s = STATUS[it.status], ev = it.ev;
+      var li = document.createElement("li"); li.className = "idea";
+      var top = document.createElement("div"); top.className = "idea-top";
+      var b = document.createElement("b"); b.textContent = ev && ev.title ? ev.title : "A new idea";
+      var chip = document.createElement("span");
+      chip.className = "status" + (it.status === "status: published" ? " live" : it.status === "status: not built" ? " stop" : "");
+      chip.textContent = s.words;
+      top.appendChild(b); top.appendChild(chip); li.appendChild(top);
+
+      var p = document.createElement("p");
+      if (it.status === "status: needs more" && ev && ev.question) p.textContent = ev.question;
+      else if (it.status === "status: not built" && ev && ev.reason) p.textContent = ev.reason;
+      else p.textContent = ev && ev.one_liner ? ev.one_liner : "Just sent. A short description shows up once it's been read.";
+      li.appendChild(p);
+
+      if (s.step > 0) {
+        var dots = document.createElement("div"); dots.className = "dots"; dots.setAttribute("aria-hidden", "true");
+        for (var k = 1; k <= 7; k++) { var dot = document.createElement("i"); if (k < s.step || (k === s.step && s.step === 7)) dot.className = "d"; else if (k === s.step) dot.className = "now"; dots.appendChild(dot); }
+        li.appendChild(dots);
+      }
+      if (it.status === "status: published" && ev && ev.title) {
+        var a = document.createElement("a"); a.className = "play"; a.href = "../#" + slugify(ev.title); a.textContent = "Play it";
+        li.appendChild(a);
+      }
+      var by = document.createElement("span"); by.className = "by"; by.textContent = it.maker + " · " + ago(it.created);
+      li.appendChild(by);
+      ideasEl.appendChild(li);
+    });
+  }
+
+  function showIdeas(force) {
+    lineMsg.hidden = false;
+    if (!ideasEl.children.length) lineMsg.textContent = "Loading ideas…";
+    loadIdeas(force).then(renderIdeas).catch(function (e) {
+      ideasEl.innerHTML = "";
+      lineMsg.hidden = false;
+      lineMsg.textContent = e && e.kind === "limit"
+        ? "GitHub needs a short break. Try again in a few minutes."
+        : "Can't reach GitHub right now. Check the internet and tap Refresh.";
+    });
+  }
+  $("refresh").addEventListener("click", function () { showIdeas(true); });
+  window.gameonShowIdeas = showIdeas; // used by the evidence tests
+
   // ---------- Start ----------
+  showIdeas(false);
   var last = loadNicks()[0];
   if (last) maker.value = last;
   renderChips();
