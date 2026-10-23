@@ -4,7 +4,7 @@
 import { test, expect, games } from "./evidence.mjs";
 
 const home = "./";
-const local = games.find(g => !/^https?:/.test(g.url)); // MazeAThon, served from this repo
+const local = games.find(g => g.slug === "mazeathon"); // served from this repo; its checks use MazeAThon's own screens
 
 test("the arcade home shows one card per game in games.json", async ({ page, shot, note, browserErrors }) => {
   await page.goto(home);
