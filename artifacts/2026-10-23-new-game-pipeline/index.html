@@ -176,7 +176,7 @@ footer { font-size: 14px; color: var(--muted); border-top: 1px solid var(--rule)
     <div class="eyebrow">GameOn design · for Jeremy and Ryan to react to</div>
     <h1>Make a <span>New Game</span></h1>
     <p class="lede">What happens between a kid tapping one button and that kid playing their game in the arcade. Seven steps, a status a kid can read at every one, and a grown-up at the gate before anything goes live.</p>
-    <div class="meta"><span>23 October 2026</span><span>Task: <a href="https://github.com/jwildfire/gameon/issues/32">Design the Make a new game pipeline (gameon#32)</a></span><span>Questions at the end, numbered</span></div>
+    <div class="meta"><span>23 October 2026</span><span><a href="#phase0">Start with Phase 0</a></span><span>Task: <a href="https://github.com/jwildfire/gameon/issues/32">Design the Make a new game pipeline (gameon#32)</a></span><span>Questions at the end, numbered</span></div>
   </header>
 
   <section>
@@ -191,6 +191,65 @@ footer { font-size: 14px; color: var(--muted); border-top: 1px solid var(--rule)
       <li><a href="#s7"><span class="who">Jeremy or Ryan</span><b>Publish</b><span>Approve, and it's in the arcade</span></a></li>
     </ol>
     <p>The kid only ever sees step 1 and the queue. Everything after is agents and grown-ups, and the queue tells the kid where their idea is in plain words.</p>
+  </section>
+
+  <section id="phase0">
+    <div class="eyebrow">Build this first</div>
+    <h2>Phase 0: the address-bar prototype</h2>
+    <p>No new services. The New Game screen is one more page on GitHub Pages. When a kid sends an idea, the page opens GitHub's new-issue form with the idea already filled in, passed through the address bar. Jeremy or Ryan is signed in to GitHub in that browser and presses Submit. Then each of you tells your own agent to run the next step. Everything after Submit is the same seven steps, run by hand.</p>
+    <div class="two">
+      <div style="display:grid;gap:10px">
+        <h3>What the page sends</h3>
+<pre><code>https://github.com/jwildfire/gameon/issues/new
+  ?template=game-idea.yml
+  &amp;title=Game+idea+from+Rocket
+  &amp;idea=a+game+where+you%27re+a+penguin+delivering+pizza...
+  &amp;maker=Rocket
+  &amp;told_by=talking</code></pre>
+        <p class="note">GitHub fills an issue form's fields from address-bar values named after the field ids, and the template adds the <code>game-idea</code> and <code>status: submitted</code> labels. Addresses top out around 8,000 characters, so Phase 0 caps an idea at about 1,000 characters, which is plenty for a dictated pitch.</p>
+        <h3>What the queue reads</h3>
+        <p class="note">The idea line calls GitHub's public API for open and closed <code>game-idea</code> issues and their <code>status:</code> labels. No key is needed, and the free limit of 60 calls an hour per device is fine for two families.</p>
+      </div>
+      <div style="display:grid;gap:10px">
+        <h3>What you tell your agent</h3>
+        <div class="table-wrap">
+          <table style="min-width:0">
+            <thead><tr><th>Step</th><th>You say</th></tr></thead>
+            <tbody>
+              <tr><td>3 Eval</td><td>"Evaluate game idea #41"</td></tr>
+              <tr><td>4 Triage</td><td>You decide, or "go ahead and build it"</td></tr>
+              <tr><td>5 Build</td><td>"Build game idea #41"</td></tr>
+              <tr><td>6 Check</td><td>"Check the build for #41", in a fresh session</td></tr>
+              <tr><td>7 Publish</td><td>Approve the release PR on GitHub</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note">Each step is a short skill file in the repo that Claude Code and Codex both follow, so the eval comment, the labels and the build rules come out the same whoever runs them. The claim rule in AGENTS.md (assign yourself, comment "Starting") keeps both agents from building the same idea.</p>
+      </div>
+    </div>
+    <h3>What Phase 0 skips, and why that's fine for now</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Full design</th><th>Phase 0</th><th>Why it's safe enough</th></tr></thead>
+        <tbody>
+          <tr><td>Intake service holding a key</td><td>Your own GitHub login, in your browser</td><td>Nothing on the site holds a key; nothing gets filed without one of you pressing Submit.</td></tr>
+          <tr><td>Family codes, known and unknown</td><td>Only your two households</td><td>The grown-up at Submit is the gate. There are no unknown submitters.</td></tr>
+          <tr><td>Private ideas repo</td><td>Ideas in public gameon</td><td>You read every idea on GitHub's form before it's filed, and can fix or drop it.</td></tr>
+          <tr><td>Always-on pipeline session</td><td>You tell your agent each step</td><td>Slower, but you see every step while we learn what the eval and build need.</td></tr>
+          <tr><td>Jev score</td><td>Claude, with the same schema and weights</td><td>Swaps in later without changing the comment or labels.</td></tr>
+          <tr><td>A pipeline bot identity</td><td>PRs under whoever ran the agent</td><td>You approve Ryan's builds and he approves yours, or the admin bypass for your own.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>The Phase 0 tasks</h3>
+    <ul class="plain">
+      <li>A <b>Game idea</b> issue form with fields <code>idea</code>, <code>maker</code> and <code>told_by</code>, and the ten <code>status:</code> labels.</li>
+      <li>The <b>New Game page</b> at <code>/gameon/new/</code>: talk or type, read-back, nickname, and a "Send to a grown-up" button that opens the filled-in form.</li>
+      <li>The <b>idea line</b> on the same page, from the public API.</li>
+      <li>A <b>Make a new game</b> button on the arcade home.</li>
+      <li>Three <b>skill files</b> for evaluate, build and check, written for both Claude Code and Codex.</li>
+    </ul>
+    <div class="callout"><p><b>When to harden.</b> Move to the full design when kids want to send ideas without a grown-up there to press Submit, when other families join, or when you two get tired of saying "build #41". The skill files, labels, eval comment and build rules all carry over unchanged; only the front door and the trigger change.</p></div>
   </section>
 
   <section>
@@ -268,7 +327,8 @@ footer { font-size: 14px; color: var(--muted); border-top: 1px solid var(--rule)
 
   <section id="s2">
     <div class="step-head"><div class="num">2</div><div><h2>File</h2><p>Send turns the idea into a GitHub issue, because that's where agents already work.</p></div></div>
-    <p>The arcade is a static site, so it can't hold a GitHub key. Sending needs one small piece of server: an <b>intake service</b>, a few dozen lines on something like a Cloudflare Worker. It holds the only key, and it does three things:</p>
+    <p class="note">In <a href="#phase0">Phase 0</a> this step is your browser and your own GitHub login. The rest of this section is the hardened version.</p>
+    <p>The arcade is a static site, so it can't hold a GitHub key. Sending without a grown-up needs one small piece of server: an <b>intake service</b>, a few dozen lines on something like a Cloudflare Worker. It holds the only key, and it does three things:</p>
     <ul class="plain">
       <li><code>POST /ideas</code>: check the family code and size limits, then create the issue from a <b>Game idea</b> template.</li>
       <li><code>GET /queue</code>: return the idea line (titles, descriptions, statuses, nicknames) for step 1b, cached for a minute.</li>
@@ -424,7 +484,7 @@ toppings fall off if you go too fast
       <div class="node new"><b>Pipeline session</b><span>New. Scores, runs the Opus eval, applies triage, spawns builders and the reviewer. A Claude Code session for now.</span></div>
       <div class="node"><b>Deploys</b><span>Already working: dev on every merge, main on every release.</span></div>
     </div>
-    <p class="note">Dashed boxes are new. Everything else exists today.</p>
+    <p class="note">Dashed boxes are new. Everything else exists today. Phase 0 needs neither dashed box: your browser stands in for the intake service, and you and your agents stand in for the pipeline session.</p>
   </section>
 
   <section>
@@ -437,7 +497,7 @@ toppings fall off if you go too fast
       <li><div><b>Where do pipeline-built games live?</b><span>Decision 1 says each game gets its own repo, but MazeAThon went into <code>games/</code> and the pipeline is much simpler that way: one PR, one deploy, no repo to create per idea. Worth revisiting for pipeline games at least.</span></div></li>
       <li><div><b>How many builds a day?</b><span>Each build is up to 90 minutes of Opus at high effort. A cap per family per day keeps cost and review load sane. <em>I'd start at two per family, one for unknowns.</em></span></div></li>
       <li><div><b>How does the kid find out it's ready?</b><span>The idea line only, or also a note to the parent who owns the family code?</span></div></li>
-      <li><div><b>Are unknown submitters in scope yet?</b><span>Everything about unknown users can wait if, for now, only your two families have codes. That removes most of the risk in step 2 and step 5.</span></div></li>
+      <li><div><b>Are unknown submitters in scope yet?</b><span>Phase 0 assumes not: only your two households, with one of you pressing Submit. Everything about unknown users waits for the hardened version.</span></div></li>
     </ol>
   </section>
 
