@@ -1,111 +1,55 @@
 # MazeAThon
 
-Game 7 for GameOn. A top-down maze escape game with shape keys, boost rooms, and cute monsters.
+Game 7 for GameOn. A complete top-down maze escape game with shape keys, boost rooms, and cute monsters.
 
-Status: design captured; gameplay implementation has not started.
-Design task: [Capture the MazeAThon Game 7 design (#23)](https://github.com/jwildfire/gameon/issues/23).
+**Home:** [`games/mazeathon/`](../../games/mazeathon/) inside this shared GameOn repository. Ryan explicitly requested this location; the earlier suggestion to create a separate MazeAThon repository is superseded. No separate repository or setup is needed.
+
+[Play in the development arcade](https://jwildfire.github.io/gameon/dev/#mazeathon) · [Game instructions and source](../../games/mazeathon/README.md) · [Playtest evidence](../2026-10-22-mazeathon-playtest/README.md)
 
 ## The designer's idea
 
 > you collect shapes in a maze that fit different keyholes. you have to collect them all to escape. you can unlock different rooms. in the rooms, you get boosts that give xray vision, reveal map, invulnerability, fast speed. there are relatively slow monsters that will chase you for a short time when they have line of sight. and one big monster per main chunk that will attack if you get near (but they are all cute)
 
-Follow-up decisions from Ryan:
+Ryan confirmed the name **MazeAThon**, a **top-down view**, and **return to the current section's start when caught**. He then requested the full game in the shared repository and its addition to GameOn.
 
-- The name is **MazeAThon**, with this capitalization.
-- The view is **top down**.
-- When a monster catches you, it **sends you back to the section start**.
+## The complete adventure
 
-## Core loop
+Explore three themed maze sections: the Mossy Meadows, the Lavender Library, and the Moonlit Conservatory. Each has a circle, triangle, diamond, and star key. All four open that section's exit; all twelve are required to finish the adventure.
 
-Explore the maze, collect shapes, use matching keyholes to unlock rooms, find boosts, and avoid monsters. Collect every required shape to escape.
+The world is generated from a seed. New adventures get new layouts; a seed reproduces the same three sections. Required shapes and exits are placed in the connected main maze, outside locked boost rooms, so keys never depend on opening their own locks. Alternate passages let players escape pursuing monsters.
 
-The maze has multiple main sections (the designer's "main chunks"). Each section has a start location used when the player is caught. The number, size, and layout of those sections are still open.
+### Shape keys and boosts
 
-## Confirmed rules
+Keys are reusable. Walk into a matching door to unlock its room, then touch the boost inside to activate it. Rooms recharge after 30 seconds of active play.
 
-### Shapes and rooms
+| Key | Room boost | Effect |
+| --- | --- | --- |
+| Circle | X-ray vision | See shapes and monsters through walls for 14 seconds |
+| Triangle | Reveal map | Reveal the complete current section on the map |
+| Diamond | Invulnerability | Pass safely through monsters for 14 seconds |
+| Star | Fast speed | Move faster for 14 seconds |
 
-- Collect shapes in the maze.
-- Different keyholes fit different shapes.
-- Shapes let the player unlock different rooms.
-- Rooms contain boosts.
-- Escaping requires collecting all required shapes.
+Timed boosts can stack up to 24 seconds. The explored map remains available without a boost; reveal map uncovers the entire section, while x-ray reveals otherwise hidden entities in the main view.
 
-The exact door dependencies and exit interaction have not been decided. Do not assume that using a shape consumes it.
+### Monsters and catches
 
-### Boosts
+Small cute monsters patrol slowly, begin a short 3.8-second chase when they have line of sight, and then return. Walls block sight; after losing the player they search the last seen position. Each section has exactly one larger cute monster with a warning before its short proximity-triggered attack.
 
-All four of these belong in the game:
+Being caught sends the player to that section's camp. Collected shapes, opened doors, and map discoveries are retained. A short safety shield prevents an immediate repeat catch. There are no limited lives.
 
-| Boost | Confirmed ability |
-| --- | --- |
-| X-ray vision | See through walls |
-| Reveal map | Reveal the maze map |
-| Invulnerability | Protection from monsters |
-| Fast speed | Move faster |
+### Controls and game screens
 
-Duration, strength, collection/activation behavior, and stacking are open. X-ray vision and map reveal should have distinct purposes; what each reveals still needs a decision.
+- Keyboard arrows or WASD, plus touch arrows on phones/tablets.
+- Map, short hint trail, help, sound toggle, and pause/resume.
+- Automatic pause on tab changes and progress saving in the current browser.
+- Continue, confirmed fresh start, section transitions, completion statistics, best finish, and replay.
+- Original canvas/SVG artwork and locally generated sound, with no external assets, fonts, network calls, or backend.
+- Direct-file/offline play; blocked storage falls back to play without saving.
 
-### Small monsters
+## Verification
 
-- Move relatively slowly.
-- Start a short chase when they have line of sight to the player.
-- Walls must block the sight check.
-- A catch sends the player back to the current section's start.
+Nine model checks pass, including an independent reachability audit of 150 generated sections. A full keyboard-driven browser playthrough collects all twelve keys, activates all four boosts, survives normal catches, and reaches the completion screen without altering game state. Phone touch controls, portrait/landscape layouts, a small phone layout, save recovery, offline play, and blocked-storage handling pass without console errors.
 
-The chase duration and what happens after sight is lost are still open.
+The [game playtest report](../2026-10-22-mazeathon-playtest/README.md) contains reproducible commands and screenshots. The [arcade integration report](../2026-10-22-mazeathon-integration/README.md) covers launching, switching, returning home, and production/development URL handling.
 
-### Big monsters
-
-- Exactly one big monster per main section.
-- Attacks when the player gets near.
-- A catch uses the same section-start reset.
-- Big monsters are cute too.
-
-Attack range, warning cues, movement, and recovery behavior remain open.
-
-### Appearance and controls
-
-- Use a top-down view.
-- All monsters are cute, including the big ones.
-- Follow GameOn's browser-game requirements: plain HTML/JavaScript, no server, and playable on a phone or tablet as well as a laptop.
-- The exact character designs and control layout are not yet chosen.
-
-## Open decisions
-
-| Decision | What still needs choosing |
-| --- | --- |
-| Key reuse | Do shapes stay in the inventory after opening a door, or remain in their keyholes? |
-| Catch progress | Are collected shapes, unlocked doors, and map discoveries kept after returning to the section start? |
-| Visibility | How much of the maze is normally visible, and how do x-ray vision and map reveal differ? |
-| Boost rules | Are boosts automatic or activated by the player, how long do they last, and can they stack? |
-| Maze structure | How many sections and shapes, fixed or generated layouts, and how are sections connected? |
-| Monster timing | Chase length, sight-loss behavior, big-monster attack range, and any warning or recovery time. |
-
-## Suggestions for the first version
-
-These are proposals, not additional confirmed rules:
-
-- Keep collected shapes and opened doors after a catch so the penalty is lost travel time.
-- Reuse shapes as keys so a boost room cannot spend a shape needed for the exit.
-- Put section starts in safe positions so a reset cannot immediately trigger another catch.
-- Show a clear warning before a big monster attacks.
-- Make doors and keys recognizable by their shape, even without relying on color.
-
-Any final implementation must guarantee that all required shapes and the exit are reachable, with no circular lock dependency.
-
-## Implementation checks
-
-When a build exists, verify these in a browser at laptop and phone sizes:
-
-- A player can collect every required shape and escape.
-- Matching shapes open the intended keyholes.
-- Each of the four boosts has a visible, usable effect.
-- A small monster cannot spot the player through a wall and its chase is brief.
-- There is one big monster per main section, activated by proximity.
-- Being caught returns the player to the correct section start.
-- Controls work on touch and keyboard, with no console errors.
-
-## Repository home
-
-GameOn's current approach keeps games in their own repositories and links them from the arcade. MazeAThon's own repository, playable URL, and arcade entry have not been created by this design task.
+Tracking: the design capture task (#23), the game implementation task (#25), and the shared arcade integration task (#26).

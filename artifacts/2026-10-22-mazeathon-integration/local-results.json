@@ -1,0 +1,50 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "root": "http://127.0.0.1:38089/gameon/",
+      "width": 1280,
+      "games": 7,
+      "gameURL": "http://127.0.0.1:38089/gameon/games/mazeathon/",
+      "launch": true,
+      "movement": true,
+      "switch": true,
+      "home": true,
+      "covers": true
+    },
+    {
+      "root": "http://127.0.0.1:38089/gameon/",
+      "width": 375,
+      "games": 7,
+      "gameURL": "http://127.0.0.1:38089/gameon/games/mazeathon/",
+      "launch": true,
+      "movement": true,
+      "switch": true,
+      "home": true,
+      "covers": true
+    },
+    {
+      "root": "http://127.0.0.1:38089/gameon/dev/",
+      "width": 1280,
+      "games": 7,
+      "gameURL": "http://127.0.0.1:38089/gameon/dev/games/mazeathon/",
+      "launch": true,
+      "movement": true,
+      "switch": true,
+      "home": true,
+      "covers": true
+    },
+    {
+      "root": "http://127.0.0.1:38089/gameon/dev/",
+      "width": 375,
+      "games": 7,
+      "gameURL": "http://127.0.0.1:38089/gameon/dev/games/mazeathon/",
+      "launch": true,
+      "movement": true,
+      "switch": true,
+      "home": true,
+      "covers": true
+    }
+  ],
+  "errors": []
+}

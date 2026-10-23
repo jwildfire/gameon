@@ -1,5 +1,15 @@
 [
   {
+    "slug": "mazeathon",
+    "title": "MazeAThon",
+    "tagline": "A pocketful of shapes. Three curious mazes. Some very cute monsters.",
+    "credit": "Designed with Ryan",
+    "url": "games/mazeathon/",
+    "repo": "https://github.com/jwildfire/gameon",
+    "color": "#df715a",
+    "tags": ["New", "Maze adventure", "1 player"]
+  },
+  {
     "slug": "trampoline-battle",
     "title": "Trampoline Battle",
     "tagline": "Drop fighters onto a trampoline and bounce the other team off. Cow drops and chicken attacks included.",
