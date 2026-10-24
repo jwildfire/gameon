@@ -12,8 +12,9 @@ for how the repo is laid out. This is a for-fun project. Keep things simple, but
 rules below: two people and several agents work here at the same time.
 
 People:
-- **Jeremy** (@jwildfire) steers Claude Code. All of his agents act on GitHub as
-  @jwildfire, and he may run several sessions at once.
+- **Jeremy** (@jwildfire) steers Claude Code. His agents act on GitHub as the GameOn
+  bot, **gameon-bot[bot]** (see [Identity](#identity-jeremys-machine)), and he may run
+  several sessions at once.
 - **Ryan** (@killjoy00) steers ChatGPT/Codex agents.
 
 Both can file objectives, decide things and approve work. Agents do the rest.
@@ -140,7 +141,7 @@ work at the same time, and none of them can see each other except through GitHub
 
 | Branch | What it is | Live at | How work gets in |
 |---|---|---|---|
-| `main` | What the kids play | https://jwildfire.github.io/gameon/ | A release PR from `dev`, approved by the other person |
+| `main` | What the kids play | https://jwildfire.github.io/gameon/ | A release PR from `dev`, approved by a person |
 | `dev` | Where finished tasks land first | https://jwildfire.github.io/gameon/dev/ | A task PR from a task branch |
 | `<issue>-<slug>` | One task in progress | not deployed | Commits from the agent working the task |
 
@@ -168,14 +169,18 @@ task PRs, or one a skill tells you to merge (the pipeline's check step).
 **Release PRs from `dev` into `main`.**
 - Anyone can open one. Its body has a `Closes #N` line for every task it ships, since
   `Closes` lines on PRs into `dev` don't close anything.
-- It needs one approving review from **the other person**: Ryan approves Jeremy's
-  releases, Jeremy approves Ryan's. GitHub won't let anyone approve their own PR, and
-  every PR from Jeremy's agents counts as his.
+- It needs one approving review from **a person who didn't open it**. Release PRs from
+  Jeremy's agents are opened by the bot, so Jeremy or Ryan can approve them. If Ryan opens
+  one himself, Jeremy approves it. GitHub won't let anyone approve their own PR.
 - It merges with a **merge commit** ("Create a merge commit"), never squash or rebase.
   Why: a squash leaves `dev` without `main`'s history, so the next release conflicts (the
   repair in #30). If `dev` and `main` have drifted anyway, fix it on a task branch by
   merging `main` in, and land that with a merge commit too.
-- **A person merges it.** Agents never merge into `main`.
+- **The bot merges it, after a person approves.** Once the release PR has a person's
+  approving review on its current head and the Evidence run for that exact head passed,
+  the agent merges it as the bot (`gh pr merge <n> --merge --match-head-commit <sha>`),
+  then checks the live site, tags the release and publishes the notes. Without that
+  approval nobody merges, and no agent merges into `main` as a person.
 
 **Approvals.**
 - An agent never approves a PR on its own judgment.
@@ -190,6 +195,45 @@ task PRs, or one a skill tells you to merge (the pipeline's check step).
 never use it (no `gh pr merge --admin`).
 
 When the PR merges, remove your worktree (`git worktree remove .claude/worktrees/<branch>`).
+
+## Identity (Jeremy's machine)
+
+Jeremy's agents write to GitHub as **gameon-bot[bot]**, GameOn's GitHub App, and not as
+@jwildfire: issues, comments, labels, commits, pushes, pull requests and merges. `gh` on
+his machine is signed in as him, and he is admin, so a write with no token set would be
+recorded as his. The tooling lives outside this repo, in his workspace
+(`~/Documents/games/bin/` and `~/Documents/games/.claude/`), with its setup notes in
+`~/Documents/games/gameon-bot-setup.md`.
+
+- **Writing as the bot.** Both lines go in the same shell call:
+
+  ```
+  T=$(/Users/jwildfire/Documents/games/bin/gameon-app-token)
+  GH_TOKEN=${T:?} gh pr create ...
+  ```
+
+  `${T:?}` stops the command if minting the token failed. Every other way of setting the
+  token (`GH_TOKEN=$T`, `GH_TOKEN=$(...)`) lets `gh` fall back silently to Jeremy's login.
+- **Pushing as the bot:** `git -C <worktree> -c credential.helper= -c
+  credential.helper=/Users/jwildfire/Documents/games/bin/gameon-git-credential push
+  https://github.com/jwildfire/<repo>.git HEAD:refs/heads/<branch>`. An SSH remote would
+  push as Jeremy.
+- **Committing as the bot:** `-c user.name='gameon-bot[bot]' -c
+  user.email='<bot user id>+gameon-bot[bot]@users.noreply.github.com'`. The id is in
+  `~/Documents/games/bin/gameon-bot.conf`. Keep the `Co-Authored-By` trailer your tool adds.
+- **A guard hook** in the workspace refuses GitHub writes made any other way. It also
+  refuses three things whatever the token, because they're the people's alone:
+  - approving a pull request;
+  - `gh pr merge --admin`;
+  - changing a ruleset or branch protection.
+- **His approval in a session.** Jeremy may approve a bot-opened release PR from a prompt
+  in the session instead of on GitHub. `~/Documents/games/bin/gameon-approval-prompt
+  gameon <n>` prints the exact prompt and the one command that records his review. A
+  "yes" typed in chat is not that approval. For this, the release PR's title is `gameon
+  vX.Y-RCn`.
+
+Authorship is also on the object: the drafted-by line at the foot of every issue, PR and
+comment, and the co-author trailer on every commit.
 
 ## Workflows and tooling
 
