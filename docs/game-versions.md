@@ -28,9 +28,11 @@ Objective: [Game updates (#113)](https://github.com/jwildfire/gameon/issues/113)
 
 ## Where the files live
 
-- **First versions stay where they are:** `games/{slug}/` for in-repo games, and the game's own repo and site for the first six.
-- **Every later version lives in GameOn** at `games/{slug}/{version}/`. That includes updates and forks of a game whose first version lives in its own repo. The build copies the starting version's files there, and the original repo isn't touched.
+- **Every version lives in GameOn and is a frozen copy:** nothing outside this repo can change a version once it's in `games.json`.
+- **First versions** are at `games/{slug}/` for games built here. The first six, which also live in their own repos, have theirs at `games/{slug}/jeremy.v1/`: a copy of that repo's default branch as its site served it when the six were frozen (#124). Their saves carry over, because the copy runs on the same site with the same save keys.
+- **Every later version** is at `games/{slug}/{version}/`. The build copies the starting version's files there, and the original repo isn't touched.
 - Each version folder is a complete, standalone game: its own `index.html` and, where it changes them, its own `README.md` (with the update idea word for word under the original) and `gameon.json`.
+- **A version copied from a game's own repo records where it came from** in `source`: the repo and the commit it was copied at. The copy leaves out what the site doesn't serve (`.git`, `.github`, `ios/`, build scripts and their sources) and changes only what has to change to play from its new folder.
 
 ## `games.json`
 
@@ -54,6 +56,8 @@ An entry without `versions` is a game with one version, `{creator}.v1`, played a
 - `url` at the top always matches the default version, so anything that only reads `url` keeps working.
 - `note`: one line a kid can read, shown in the version picker.
 - `from` and `idea`: the version it started from and the idea issue that made it.
+- `source`: for a version copied from a game's own repo, `{ "repo": "jwildfire/{repo}", "commit": "{full sha}" }`, e.g. `{ "id": "jeremy.v1", "url": "games/angry-dudes/jeremy.v1/", "made": "2026-10-17", "note": "The first version", "source": { "repo": "jwildfire/angry-dudes", "commit": "f20ad5e…" } }`.
+- `repo` at the top stays the game's own repo for the first six, so the README and credits can still link to it.
 - The other fields (`tagline`, `credit`, `color`, `tags`, cover) describe the game. A creator's update may change them; a fork doesn't.
 
 ## Playing
@@ -89,6 +93,16 @@ The same three steps, with differences spelled out in the skills:
   - the task's evidence spec and folder.
 
   Everything else is out of lane.
+
+## Games that also live in their own repo
+
+The first six games (the creator table above) still have their own repos, and Jeremy may keep working on them there. A push to one of those repos doesn't change anything in GameOn. Instead:
+
+1. **Something's new** when the repo's default branch has commits newer than `source.commit` of the game's newest version that has a `source` (`gh api repos/jwildfire/{repo}/compare/{commit}...HEAD --jq .ahead_by` is more than 0).
+2. **The watcher files an update idea** for it, like any other update: titled "Update to {Game} from {creator's nickname}", with "The idea, word for word" set to **Bring in the latest from jwildfire/{repo}**, the game's slug, the game's default as the starting version, and the creator as "Made by". It files one at a time per game: not while an earlier one is still open.
+3. **Evaluate** recognises the idea and passes it straight through with a short brief: no scoring, since it's the creator's own work.
+4. **Build** brings the commits in as the creator's next version (`jeremy.v1` → `jeremy.v2`, the new default): a fresh copy of the repo at its new HEAD in `games/{slug}/{version}/`, recorded in `source`. It doesn't start from the starting version's folder, and changes in GameOn versions since the last import aren't merged in; those versions stay playable as they are.
+5. **Check** compares the version folder with the repo at that commit: the only differences allowed are what the copy leaves out and the path fixes the PR lists.
 
 ## Saves across versions
 

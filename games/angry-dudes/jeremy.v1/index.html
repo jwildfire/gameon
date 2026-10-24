@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Angry Dudes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans:wght@400;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: full-screen battlefield canvas, a slim HUD strip on top, the arsenal dock at the bottom, and menus as pixel panels on top of a live fort. One committed dark "war room" look. */
+:root{
+  color-scheme:dark;
+  --ink:#0c0f0a; --panel:#1b2116; --panel-2:#252d1d; --raised:#3a4526; --edge:#000000;
+  --fg:#f1f2e8; --muted:#aab197; --gold:#ffd23f; --red:#e0412c; --olive:#6b7a3a;
+  --font-display:"Press Start 2P", ui-monospace, monospace;
+  --font-pixel:"Pixelify Sans", ui-monospace, monospace;
+  --font-body:"Rubik", system-ui, -apple-system, sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;overflow:hidden;background:var(--ink);color:var(--fg);font:400 15px/1.45 var(--font-body);-webkit-font-smoothing:antialiased;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+#screen{position:fixed;inset:0;width:100%;height:100%;display:block;image-rendering:pixelated;touch-action:none}
+
+/* HUD */
+.hud{position:fixed;left:0;right:0;top:0;display:flex;align-items:center;gap:8px 16px;flex-wrap:wrap;
+  padding-top:max(8px, env(safe-area-inset-top, 0px));padding-bottom:8px;
+  padding-left:max(12px, env(safe-area-inset-left, 0px));padding-right:max(12px, env(safe-area-inset-right, 0px));
+  background:linear-gradient(rgba(12,15,10,.82), rgba(12,15,10,.55));border-bottom:2px solid var(--edge);pointer-events:none}
+.hud > *{pointer-events:auto}
+.hud .where{display:flex;flex-direction:column;line-height:1.1;min-width:0}
+.hud .where b{font-family:var(--font-pixel);font-weight:700;font-size:18px}
+.hud .where span{font-size:12px;color:var(--muted)}
+.hud .stat{display:flex;align-items:baseline;gap:6px;font-family:var(--font-pixel);font-size:15px}
+.hud .stat small{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+#score{font-family:var(--font-display);font-size:13px;color:var(--gold);font-variant-numeric:tabular-nums}
+.hud .grow{flex:1}
+.pxbtn{font-family:var(--font-pixel);font-weight:600;font-size:14px;padding:4px 10px;background:var(--panel-2);border:2px solid var(--edge);box-shadow:2px 2px 0 var(--edge)}
+.pxbtn:active{transform:translate(2px,2px);box-shadow:none}
+
+/* arsenal dock */
+.dock{position:fixed;left:0;right:0;bottom:0;background:var(--panel);border-top:3px solid var(--edge);
+  padding-bottom:max(8px, env(safe-area-inset-bottom, 0px))}
+.hint{margin:0;padding:6px max(12px, env(safe-area-inset-right, 0px)) 6px max(12px, env(safe-area-inset-left, 0px));
+  font-family:var(--font-pixel);font-size:15px;color:var(--gold);min-height:32px;background:var(--ink);border-bottom:2px solid var(--edge);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar{display:flex;gap:8px;overflow-x:auto;padding:8px max(12px, env(safe-area-inset-right, 0px)) 2px max(12px, env(safe-area-inset-left, 0px));scrollbar-width:thin}
+.item{flex:none;width:94px;display:grid;grid-template-rows:32px auto auto auto;justify-items:center;align-items:end;gap:1px;padding:6px 4px 5px;
+  background:var(--panel-2);border:2px solid var(--edge);box-shadow:3px 3px 0 var(--edge)}
+.item canvas{image-rendering:pixelated;align-self:center}
+.item .nm{font-family:var(--font-pixel);font-weight:600;font-size:13px;line-height:1.1;text-align:center}
+.item .ct{font-family:var(--font-display);font-size:10px;color:var(--gold)}
+.item .kd{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.item[aria-pressed="true"]{background:var(--raised);outline:3px solid var(--gold);outline-offset:-1px}
+.item:disabled{opacity:.35;cursor:default}
+
+body:not(.playing) .hud, body:not(.playing) .dock{display:none}
+
+/* overlays */
+.overlay{position:fixed;inset:0;display:grid;place-items:center;overflow:auto;background:rgba(8,10,6,.72);
+  padding-block:max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-bottom, 0px));
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+.panel{width:min(760px, 100%);background:var(--panel);border:4px solid var(--edge);box-shadow:8px 8px 0 var(--edge);padding:24px}
+.eyebrow{font-family:var(--font-pixel);font-weight:600;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0}
+.logo{font-family:var(--font-display);font-weight:400;font-size:clamp(28px, 7vw, 56px);line-height:1.15;margin:10px 0 6px;display:flex;flex-wrap:wrap;gap:.1em .4em}
+.logo span{text-shadow:-.0625em 0 var(--edge), .0625em 0 var(--edge), 0 -.0625em var(--edge), 0 .0625em var(--edge), .125em .125em 0 var(--edge)}
+.logo .a{color:#e2533e}.logo .d{color:#4a86e8}
+.lede{margin:0 0 18px;max-width:58ch;color:var(--fg)}
+.levels{display:grid;gap:10px}
+.lvl{display:grid;grid-template-columns:auto 1fr auto;grid-template-rows:auto auto;gap:2px 14px;align-items:center;text-align:left;padding:12px 14px;background:var(--panel-2);border:3px solid var(--edge);box-shadow:4px 4px 0 var(--edge)}
+.lvl:hover{background:var(--raised)}
+.lvl .n{grid-row:span 2;font-family:var(--font-display);font-size:18px;color:var(--gold);width:40px;height:40px;display:grid;place-items:center;background:var(--ink);border:2px solid var(--edge)}
+.lvl .t{display:flex;flex-direction:column;min-width:0}
+.lvl .t b{font-family:var(--font-pixel);font-size:20px;font-weight:700;line-height:1.1}
+.lvl .t small{color:var(--muted);font-size:13px}
+.lvl .stars{display:flex;gap:4px}
+.lvl .best{grid-column:2 / 4;font-size:12px;color:var(--muted)}
+.star{width:20px;height:20px;fill:#3b4330}
+.star.on{fill:var(--gold)}
+.howto{margin:20px 0 0;padding:14px 0 0;border-top:2px dashed #39412e;font-size:14px;color:var(--muted);max-width:66ch}
+.howto b{color:var(--fg);font-weight:500}
+
+.intro h2, .result h2{font-family:var(--font-display);font-weight:400;font-size:clamp(18px, 3.4vw, 26px);line-height:1.3;margin:8px 0 4px;text-wrap:balance}
+.date{color:var(--muted);margin:0 0 14px}
+.history{margin:0 0 12px;padding:12px 14px;background:var(--ink);border-left:4px solid var(--gold);max-width:62ch}
+.history b{display:block;font-family:var(--font-pixel);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
+.goal{font-family:var(--font-pixel);font-size:18px;font-weight:700;margin:14px 0 8px}
+.tip{color:var(--muted);margin:0 0 14px}
+.lists{display:grid;gap:4px 24px;margin:0 0 18px}
+.lists .lbl{margin:0 0 6px;font-family:var(--font-pixel);font-weight:600;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.ars{list-style:none;margin:0 0 10px;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.ars.foes li{background:#2a2020}
+.packs{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0 14px}
+.pack{display:flex;align-items:center;gap:10px;padding:8px 14px 8px 10px;background:var(--panel-2);border:3px solid var(--edge);box-shadow:3px 3px 0 var(--edge);text-align:left}
+.pack canvas{image-rendering:pixelated}
+.pack span{display:flex;flex-direction:column;line-height:1.15}
+.pack b{font-family:var(--font-pixel);font-size:16px;font-weight:700}
+.pack small{font-size:12px;color:var(--muted)}
+.pack[aria-pressed="true"]{background:var(--raised);outline:3px solid var(--gold);outline-offset:-1px}
+.ars li{display:flex;align-items:center;gap:8px;padding:4px 10px 4px 6px;background:var(--panel-2);border:2px solid var(--edge);font-family:var(--font-pixel);font-size:14px}
+.ars canvas{image-rendering:pixelated}
+.actions{display:flex;flex-wrap:wrap;gap:12px}
+.big{font-family:var(--font-display);font-size:13px;padding:12px 18px;background:var(--gold);color:#1d1a2b;border:3px solid var(--edge);box-shadow:4px 4px 0 var(--edge)}
+.big.alt{background:var(--panel-2);color:var(--fg)}
+.big:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--edge)}
+.result .stars{display:flex;gap:8px;margin:8px 0}
+.result .stars .star{width:44px;height:44px}
+.result .score{font-family:var(--font-display);font-size:22px;color:var(--gold);margin:6px 0}
+.result .note{color:var(--muted);margin:0 0 18px}
+
+/* campaign: a war-room map of the route, the selected mission, and your army */
+.camp-banner{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:4px 14px;width:100%;text-align:left;margin:0 0 14px;padding:12px 16px;
+  background:linear-gradient(90deg, #4a3a12, #2d2a14);border:3px solid var(--edge);box-shadow:4px 4px 0 var(--edge)}
+.camp-banner:hover{filter:brightness(1.12)}
+.camp-banner canvas{image-rendering:pixelated;grid-row:span 2}
+.camp-banner b{font-family:var(--font-pixel);font-size:20px;font-weight:700;color:var(--gold);line-height:1.1}
+.camp-banner small{grid-column:2;color:var(--fg);font-size:13px}
+.camp-banner .go{grid-row:span 2;grid-column:3;font-family:var(--font-display);font-size:11px;padding:8px 10px;background:var(--gold);color:#1d1a2b;border:2px solid var(--edge)}
+.panel.wide{width:min(1060px, 100%)}
+.camp h2{font-family:var(--font-display);font-weight:400;font-size:clamp(18px, 3.2vw, 26px);line-height:1.3;margin:8px 0 6px}
+.camp .lede{margin-bottom:14px}
+.camp-grid{display:grid;grid-template-columns:minmax(0, 2fr) minmax(230px, 1fr);gap:16px;align-items:start;margin:0 0 16px}
+@media (max-width: 760px){ .camp-grid{grid-template-columns:1fr} }
+.map-wrap{position:relative;border:4px solid var(--edge);box-shadow:5px 5px 0 var(--edge);background:#203c58;line-height:0}
+.map-wrap canvas{width:100%;height:auto;image-rendering:pixelated;display:block}
+.pins, .map-labels{position:absolute;inset:0}
+.map-labels span{position:absolute;transform:translate(-50%, -50%);font-family:var(--font-pixel);font-weight:600;font-size:clamp(9px, 1.4vw, 13px);letter-spacing:.14em;
+  text-transform:uppercase;color:rgba(241,242,232,.62);line-height:1;white-space:nowrap;pointer-events:none;text-shadow:1px 1px 0 rgba(0,0,0,.6)}
+.map-labels span.sea{color:rgba(169,220,255,.55);font-style:italic}
+.map-labels span.city{font-size:clamp(8px, 1.2vw, 11px);letter-spacing:.05em;text-transform:none;color:#f1f2e8;transform:translate(6px, -50%)}
+.pin{position:absolute;transform:translate(-50%, -50%);width:clamp(20px, 2.8vw, 28px);height:clamp(20px, 2.8vw, 28px);padding:0;display:grid;place-items:center;
+  font-family:var(--font-display);font-size:clamp(9px, 1.3vw, 12px);line-height:1;color:#1d1a2b;background:#cfd3c4;border:3px solid var(--edge);border-radius:50%;box-shadow:2px 2px 0 var(--edge)}
+.pin.done{background:var(--gold)}
+.pin.next{background:#ffffff;animation:pinPulse 1.1s steps(2, end) infinite}
+.pin.locked{background:#59604d;color:#2b3024;cursor:default}
+.pin[aria-pressed="true"]{outline:3px solid #ffffff;outline-offset:2px}
+@keyframes pinPulse{50%{box-shadow:0 0 0 5px rgba(255,210,63,.75)}}
+@media (prefers-reduced-motion: reduce){ .pin.next{animation:none;box-shadow:0 0 0 4px rgba(255,210,63,.75)} }
+.camp-side{display:grid;gap:14px}
+.mission{padding:14px;background:var(--panel-2);border:3px solid var(--edge);box-shadow:4px 4px 0 var(--edge)}
+.mission .num{margin:0;font-family:var(--font-pixel);font-weight:600;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.mission h3{margin:4px 0 2px;font-family:var(--font-pixel);font-size:22px;font-weight:700;line-height:1.1}
+.mission .when{margin:0 0 8px;color:var(--muted);font-size:13px}
+.mission .stars{display:flex;gap:4px;margin:0 0 8px}
+.mission .tough{margin:0 0 12px;font-size:14px}
+.mission .tough b{color:#ff8c6a;font-weight:500}
+.army .lbl{margin:0 0 8px;font-family:var(--font-pixel);font-weight:600;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.army .rank{color:var(--gold)}
+.perks{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.perks li{display:grid;grid-template-columns:44px 1fr;align-items:center;gap:8px;padding:5px 8px;background:var(--panel-2);border:2px solid var(--edge)}
+.perks canvas{image-rendering:pixelated;justify-self:center}
+.perks b{display:block;font-family:var(--font-pixel);font-size:15px;line-height:1.1}
+.perks small{color:var(--muted);font-size:12px;line-height:1.2}
+.perks .none{display:block;color:var(--muted);font-size:13px;background:none;border:2px dashed #39412e}
+.rewards{margin:0 0 16px}
+.rewards .lbl{margin:0 0 8px;font-family:var(--font-pixel);font-weight:600;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));gap:10px}
+.card{display:grid;justify-items:center;gap:4px;padding:12px 10px;text-align:center;background:var(--panel-2);border:3px solid var(--edge);box-shadow:4px 4px 0 var(--edge)}
+.card:hover:not(:disabled){background:var(--raised)}
+.card canvas{image-rendering:pixelated;margin-bottom:4px}
+.card b{font-family:var(--font-pixel);font-size:17px;line-height:1.1}
+.card small{color:var(--muted);font-size:13px;line-height:1.3}
+.card[aria-pressed="true"]{background:#4a3a12;outline:3px solid var(--gold);outline-offset:-1px}
+.card:disabled:not([aria-pressed="true"]){opacity:.4;cursor:default}
+.big:disabled{opacity:.45;cursor:default}
+
+.rotate{position:fixed;inset:0;display:none;place-items:center;text-align:center;padding:24px;background:var(--ink);font-family:var(--font-pixel);font-size:20px}
+@media (orientation: portrait) and (max-width: 700px){ body.playing .rotate{display:grid} }
+.boot-error{position:fixed;inset:0;display:grid;place-items:center;padding:24px;text-align:center;font-family:var(--font-pixel);font-size:18px;background:var(--ink)}
+@media (max-height: 430px){
+  .hud{padding-bottom:4px}
+  .hud .where span{display:none}
+  .hint{min-height:26px;padding-block:3px;font-size:13px}
+  .item{width:84px;grid-template-rows:28px auto auto;padding:4px 3px}
+  .item .kd{display:none}
+  .item .nm{font-size:12px}
+}
+</style>
+</head>
+<body>
+<canvas id="screen" aria-label="Battlefield"></canvas>
+
+<header class="hud" id="hud">
+  <div class="where"><b id="lvl-name">Omaha Beach</b><span id="lvl-date">June 6, 1944</span></div>
+  <div class="stat"><small>Score</small><span id="score">0</span></div>
+  <div class="stat"><small>Wind</small><span id="wind">Calm</span></div>
+  <div class="stat"><span id="foes">4 defenders left</span></div>
+  <span class="grow"></span>
+  <button class="pxbtn" id="btn-look" type="button" hidden>See fort</button>
+  <button class="pxbtn" id="btn-restart" type="button">Restart</button>
+  <button class="pxbtn" id="btn-menu" type="button">Menu</button>
+  <button class="pxbtn" id="btn-sound" type="button" aria-pressed="true">Sound on</button>
+</header>
+
+<div class="dock" id="dock">
+  <p class="hint" id="hint" aria-live="polite"></p>
+  <nav class="bar" id="bar" aria-label="Your arsenal"></nav>
+</div>
+
+<section class="overlay" id="menu" aria-labelledby="menu-title">
+  <div class="panel">
+    <p class="eyebrow">Pick a war, then a battle</p>
+    <h1 class="logo" id="menu-title" aria-label="Angry Dudes"><span class="a">ANGRY</span><span class="d">DUDES</span></h1>
+    <div class="packs" id="packs" role="group" aria-label="Battle packs"></div>
+    <p class="lede" id="pack-blurb"></p>
+    <div id="camp-banner-slot"></div>
+    <div class="levels" id="levels"></div>
+    <p class="howto"><b>How to play:</b> pick something from your arsenal at the bottom of the screen. Drag back and let go to launch troops and weapons. Tap once to send a vehicle. For planes, tap the spot you want bombed. Tap again while it's moving for its special move.</p>
+  </div>
+</section>
+
+<section class="overlay intro" id="intro" hidden aria-labelledby="intro-name">
+  <div class="panel">
+    <p class="eyebrow" id="intro-pack">Mission briefing</p>
+    <h2 id="intro-name">Omaha Beach</h2>
+    <p class="date" id="intro-date">June 6, 1944</p>
+    <p class="history"><b>Real history</b><span id="intro-history"></span></p>
+    <p class="goal" id="intro-goal">Knock out all the defenders.</p>
+    <p class="tip"><span id="intro-tip"></span></p>
+    <div class="lists">
+      <div><p class="lbl">Your arsenal</p><ul class="ars" id="intro-arsenal" aria-label="Your arsenal for this battle"></ul></div>
+      <div><p class="lbl">Defenders</p><ul class="ars foes" id="intro-foes" aria-label="Defenders in this fort"></ul></div>
+    </div>
+    <div class="actions">
+      <button class="big" id="btn-start" type="button">Start battle</button>
+      <button class="big alt" id="btn-back" type="button">Back</button>
+    </div>
+  </div>
+</section>
+
+<section class="overlay result" id="result" hidden aria-labelledby="result-title" aria-live="polite">
+  <div class="panel">
+    <p class="eyebrow">Battle report</p>
+    <h2 id="result-title">Victory!</h2>
+    <div class="stars" id="result-stars"></div>
+    <p class="score" id="result-score">0</p>
+    <p class="note" id="result-note"></p>
+    <div class="rewards" id="result-rewards" hidden>
+      <p class="lbl" id="reward-title">Pick a reward for your army</p>
+      <div class="cards" id="reward-cards" role="group" aria-labelledby="reward-title"></div>
+    </div>
+    <div class="actions">
+      <button class="big" id="btn-next" type="button">Next battle</button>
+      <button class="big alt" id="btn-retry" type="button">Play again</button>
+      <button class="big alt" id="btn-result-menu" type="button">Menu</button>
+    </div>
+  </div>
+</section>
+
+<section class="overlay camp" id="campaign" hidden aria-labelledby="camp-title">
+  <div class="panel wide">
+    <p class="eyebrow" id="camp-eyebrow">Campaign</p>
+    <h2 id="camp-title">Road to the Rhine</h2>
+    <p class="lede" id="camp-blurb"></p>
+    <div class="camp-grid">
+      <div class="map-wrap">
+        <canvas id="camp-map" width="384" height="216" role="img" aria-label="Campaign map"></canvas>
+        <div class="map-labels" id="camp-labels"></div>
+        <div class="pins" id="camp-pins" role="group" aria-label="Missions"></div>
+      </div>
+      <div class="camp-side">
+        <div class="mission" id="camp-mission" aria-live="polite">
+          <p class="num" id="cm-num">Mission 1 of 7</p>
+          <h3 id="cm-name">Omaha Beach</h3>
+          <p class="when" id="cm-date">June 6, 1944</p>
+          <div class="stars" id="cm-stars"></div>
+          <p class="tough" id="cm-tough"></p>
+          <button class="big" id="btn-camp-fight" type="button">Fight!</button>
+        </div>
+        <div class="army">
+          <p class="lbl">Your army · Rank: <span class="rank" id="camp-rank">Private</span></p>
+          <ul class="perks" id="camp-army" aria-label="Your army's upgrades"></ul>
+        </div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="big alt" id="btn-camp-back" type="button">Menu</button>
+      <button class="big alt" id="btn-camp-reset" type="button">Start over</button>
+    </div>
+  </div>
+</section>
+
+<div class="rotate" role="alert">Turn your phone sideways to play.</div>
+<div class="boot-error" id="boot-error" hidden>The physics engine didn't load. Check your internet connection, then reload the page.</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+<script src="js/sprites.js"></script>
+<script src="js/packs/rome.js"></script>
+<script src="js/packs/vikings.js"></script>
+<script src="js/packs/castle.js"></script>
+<script src="js/packs/samurai.js"></script>
+<script src="js/packs/pirates.js"></script>
+<script src="js/packs/revolution.js"></script>
+<script src="js/packs/napoleon.js"></script>
+<script src="js/packs/ww1.js"></script>
+<script src="js/packs/ww2.js"></script>
+<script src="js/packs/space.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>
