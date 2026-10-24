@@ -1,0 +1,235 @@
+{
+  "spec": "122-princess-lady-drive-jeremy-v2",
+  "passed": true,
+  "headline": "PASS: 11 of 11 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-24T03:02:53.595Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "5da59a5",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/122-princess-lady-drive-jeremy-v2.spec.mjs",
+  "checks": [
+    {
+      "check": "jeremy.v2 opens to its title screen and starts, with no new outside requests",
+      "notes": [
+        "desktop: outside hosts seen: fonts.googleapis.com, fonts.gstatic.com (Google Fonts, inherited from jeremy.v1)",
+        "phone: outside hosts seen: fonts.googleapis.com, fonts.gstatic.com (Google Fonts, inherited from jeremy.v1)"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "title-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "title-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the castle is now a Great Hall with doors to four new rooms",
+      "notes": [
+        "desktop: doors: Ballroom, Tower, Kitchen, Toy Room; throne, chest, scepter, crowns, cake, piano, bed and pool still in the hall",
+        "phone: doors: Ballroom, Tower, Kitchen, Toy Room; throne, chest, scepter, crowns, cake, piano, bed and pool still in the hall"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "great-hall-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "great-hall-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the Ballroom's floor lights up and plays, the music box stops the party, and its door goes back to the hall",
+      "notes": [
+        "desktop: 3 dance-floor tiles lit up under Rosie; the party is on",
+        "phone: 3 dance-floor tiles lit up under Rosie; the party is on"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "ballroom-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "ballroom-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the Tower's telescope looks out over the town, the flag goes up, and its stairs go back to the hall",
+      "notes": [
+        "desktop: the telescope shows the duck pond",
+        "phone: the telescope shows the duck pond"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "tower-telescope-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "tower-telescope-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the Kitchen's pot turns what Rosie puts in into a surprise treat, and its door goes back to the hall",
+      "notes": [
+        "desktop: the pot made a chocolate chip cookie",
+        "phone: the pot made a chocolate donut"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "kitchen-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "kitchen-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the Toy Room's blocks crash and rebuild, Rosie rides the rocking horse, and its door goes back to the hall",
+      "notes": [
+        "desktop: blocks knocked down and rebuilt (6); Rosie is riding the rocking horse",
+        "phone: blocks knocked down and rebuilt (6); Rosie is riding the rocking horse"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "toy-room-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "toy-room-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Go out still leaves the castle from a new room",
+      "notes": [
+        "desktop: from the Kitchen, Go out puts Rosie outside the castle door",
+        "phone: from the Kitchen, Go out puts Rosie outside the castle door"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "what stays still works: drive, get out, take free ice cream, go out and get back in",
+      "notes": [
+        "desktop: Get out → Ice Cream shop → free cone → Go out → Get in",
+        "phone: Get out → Ice Cream shop → free cone → Go out → Get in"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "ice-cream-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "ice-cream-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "a jeremy.v1 save loads: Rosie keeps her balloons, pets and castle decorations",
+      "notes": [
+        "desktop: keys: princess-lady-drive:v2; the save keeps exactly jeremy.v1's fields, so jeremy.v1 can still read it",
+        "phone: keys: princess-lady-drive:v2; the save keeps exactly jeremy.v1's fields, so jeremy.v1 can still read it"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "old-save-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "old-save-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "games.json makes jeremy.v2 the default and still points jeremy.v1 at its own site",
+      "notes": [
+        "desktop: default jeremy.v2; jeremy.v1 still at https://jwildfire.github.io/princess-lady-drive/",
+        "phone: default jeremy.v2; jeremy.v1 still at https://jwildfire.github.io/princess-lady-drive/"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "the arcade plays jeremy.v2 by default, and the version picker offers jeremy.v1",
+      "notes": [
+        "desktop: card → picker (jeremy.v2 Latest, jeremy.v1) → jeremy.v2 plays in the frame",
+        "phone: card → picker (jeremy.v2 Latest, jeremy.v1) → jeremy.v2 plays in the frame"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "arcade-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "arcade-phone.jpg"
+        ],
+        "error": null
+      }
+    }
+  ]
+}
