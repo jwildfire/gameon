@@ -222,6 +222,7 @@
   }
   function trail(v, key, x, y) {
     var l = v.last[key] || { x: x, y: y }, dx = x - l.x, dy = y - l.y, n = Math.ceil(Math.hypot(dx, dy) / 0.12);
+    if (n > 15) { l = { x: x, y: y }; dx = dy = 0; n = 1; } // jumped (a restart): don't carve a line
     for (var i = 1; i <= n; i++) eraseAt(v, l.x + dx * i / n, l.y + dy * i / n);
     v.last[key] = { x: x, y: y };
   }

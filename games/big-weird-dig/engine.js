@@ -335,7 +335,7 @@
       var m = s.moles[i], rx = m.x - d.x, ry = m.y - d.y;
       var along = rx * f[0] + ry * f[1], across = Math.abs(rx * f[1] - ry * f[0]);
       if (along > -0.2 && along < 1.9 && across < 0.75 && m.knock <= 0) {
-        m.dizzy = 3.2; m.knock = 0.3; m.knockDir = d.dir; m.burrowing = 0; hit++;
+        m.dizzy = 3.2; m.knock = 0.3; m.knockDir = d.dir; m.burrowing = 0; m.giggle = 0; hit++;
         s.events.push({ t: "shove", x: m.x, y: m.y });
       }
     }
