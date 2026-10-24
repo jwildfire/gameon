@@ -1,0 +1,491 @@
+{
+  "spec": "141-more-backgrounds",
+  "passed": true,
+  "headline": "PASS: 23 of 23 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-24T06:11:52.836Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "152f953",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/141-more-backgrounds.spec.mjs",
+  "checks": [
+    {
+      "check": "Stained Glass renders behind the arcade without flashing",
+      "notes": [
+        "desktop: 634 colours on 1280x800, 11 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.0% of the screen, mean step 0.000",
+        "phone: 607 colours on 375x812, 30 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.0% of the screen, mean step 0.000"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "bg-01-stained-glass-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "bg-01-stained-glass-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Turing Spots renders behind the arcade without flashing",
+      "notes": [
+        "desktop: 368 colours on 1280x800, 60 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.3% of the screen, mean step 0.002",
+        "phone: 302 colours on 375x812, 30 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.5% of the screen, mean step 0.003"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "bg-02-reaction-diffusion-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "bg-02-reaction-diffusion-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Mandelbrot Dive renders behind the arcade without flashing",
+      "notes": [
+        "desktop: 864 colours on 1280x800, 5 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.0% of the screen, mean step 0.002",
+        "phone: 585 colours on 375x812, 21 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.0% of the screen, mean step 0.002"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "bg-03-mandelbrot-dive-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "bg-03-mandelbrot-dive-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Neon Ridges renders behind the arcade without flashing",
+      "notes": [
+        "desktop: 436 colours on 1280x800, 56 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.0% of the screen, mean step 0.001",
+        "phone: 277 colours on 375x812, 30 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.0% of the screen, mean step 0.001"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "bg-04-neon-ridges-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "bg-04-neon-ridges-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Op-Art Warp renders behind the arcade without flashing",
+      "notes": [
+        "desktop: 204 colours on 1280x800, 43 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.5% of the screen, mean step 0.005",
+        "phone: 207 colours on 375x812, 30 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.0% of the screen, mean step 0.001"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "bg-05-op-art-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "bg-05-op-art-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Cube Field renders behind the arcade without flashing",
+      "notes": [
+        "desktop: 361 colours on 1280x800, 60 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.0% of the screen, mean step 0.002",
+        "phone: 271 colours on 375x812, 30 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.3% of the screen, mean step 0.005"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "bg-06-cube-field-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "bg-06-cube-field-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Liquid Chrome renders behind the arcade without flashing",
+      "notes": [
+        "desktop: 1855 colours on 1280x800, 26 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.0% of the screen, mean step 0.000",
+        "phone: 1338 colours on 375x812, 30 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.0% of the screen, mean step 0.000"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "bg-07-liquid-chrome-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "bg-07-liquid-chrome-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Firefly Fog renders behind the arcade without flashing",
+      "notes": [
+        "desktop: 2462 colours on 1280x800, 59 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.0% of the screen, mean step 0.001",
+        "phone: 840 colours on 375x812, 29 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.0% of the screen, mean step 0.001"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "bg-08-firefly-fog-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "bg-08-firefly-fog-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Truchet Tiles renders behind the arcade without flashing",
+      "notes": [
+        "desktop: 1223 colours on 1280x800, 55 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.0% of the screen, mean step 0.001",
+        "phone: 813 colours on 375x812, 30 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.0% of the screen, mean step 0.001"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "bg-09-truchet-tiles-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "bg-09-truchet-tiles-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Pixel Sort renders behind the arcade without flashing",
+      "notes": [
+        "desktop: 1427 colours on 1280x800, 60 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.0% of the screen, mean step 0.000",
+        "phone: 926 colours on 375x812, 30 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.0% of the screen, mean step 0.001"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "bg-10-pixel-sort-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "bg-10-pixel-sort-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Halftone Wave renders behind the arcade without flashing",
+      "notes": [
+        "desktop: 964 colours on 1280x800, 53 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.0% of the screen, mean step 0.001",
+        "phone: 636 colours on 375x812, 30 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.0% of the screen, mean step 0.000"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "bg-11-halftone-wave-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "bg-11-halftone-wave-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "ASCII Wave renders behind the arcade without flashing",
+      "notes": [
+        "desktop: 1892 colours on 1280x800, 60 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.0% of the screen, mean step 0.001",
+        "phone: 940 colours on 375x812, 29 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.0% of the screen, mean step 0.001"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "bg-12-ascii-wave-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "bg-12-ascii-wave-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Nested Squares renders behind the arcade without flashing",
+      "notes": [
+        "desktop: 424 colours on 1280x800, 57 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.0% of the screen, mean step 0.001",
+        "phone: 398 colours on 375x812, 30 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.0% of the screen, mean step 0.001"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "bg-13-nested-squares-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "bg-13-nested-squares-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Bounce House renders behind the arcade without flashing",
+      "notes": [
+        "desktop: 371 colours on 1280x800, 60 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.5% of the screen, mean step 0.010",
+        "phone: 234 colours on 375x812, 30 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.5% of the screen, mean step 0.011"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "bg-14-bounce-shapes-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "bg-14-bounce-shapes-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "VHS Dream renders behind the arcade without flashing",
+      "notes": [
+        "desktop: 698 colours on 1280x800, 48 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.0% of the screen, mean step 0.000",
+        "phone: 528 colours on 375x812, 29 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.0% of the screen, mean step 0.000"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "bg-15-vhs-dream-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "bg-15-vhs-dream-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Sprinkle Snow renders behind the arcade without flashing",
+      "notes": [
+        "desktop: 393 colours on 1280x800, 59 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.0% of the screen, mean step 0.000",
+        "phone: 142 colours on 375x812, 30 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.0% of the screen, mean step 0.000"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "bg-16-sprinkles-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "bg-16-sprinkles-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Two-Tone Goo renders behind the arcade without flashing",
+      "notes": [
+        "desktop: 115 colours on 1280x800, 47 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 1.8% of the screen, mean step 0.010",
+        "phone: 87 colours on 375x812, 30 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.0% of the screen, mean step 0.002"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "bg-17-two-tone-goo-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "bg-17-two-tone-goo-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Flow Field renders behind the arcade without flashing",
+      "notes": [
+        "desktop: 924 colours on 1280x800, 59 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.0% of the screen, mean step 0.000",
+        "phone: 380 colours on 375x812, 30 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.0% of the screen, mean step 0.000"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "bg-18-flow-field-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "bg-18-flow-field-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "String Art renders behind the arcade without flashing",
+      "notes": [
+        "desktop: 798 colours on 1280x800, 59 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.0% of the screen, mean step 0.000",
+        "phone: 409 colours on 375x812, 30 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.0% of the screen, mean step 0.000"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "bg-19-string-art-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "bg-19-string-art-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Gyro Rings renders behind the arcade without flashing",
+      "notes": [
+        "desktop: 420 colours on 1280x800, 60 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.0% of the screen, mean step 0.000",
+        "phone: 252 colours on 375x812, 29 fps live here; flash check over 3 animated seconds at 20 samples a second: flashing 0.0%, biggest 50 ms jump 0.0% of the screen, mean step 0.001"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "bg-20-gyro-rings-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "bg-20-gyro-rings-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the cycle runs through the original ten plus the new picks",
+      "notes": [
+        "desktop: 30 in the cycle (20 new) out of 40: stained-glass, neon-ridges, mandelbrot-dive, cube-field, op-art, flow-field, liquid-chrome, firefly-fog, truchet-tiles, pixel-sort, halftone-wave, string-art, nested-squares, bounce-shapes, vhs-dream, sprinkles, two-tone-goo, reaction-diffusion, gyro-rings, ascii-wave",
+        "phone: 30 in the cycle (20 new) out of 40: stained-glass, neon-ridges, mandelbrot-dive, cube-field, op-art, flow-field, liquid-chrome, firefly-fog, truchet-tiles, pixel-sort, halftone-wave, string-art, nested-squares, bounce-shapes, vhs-dream, sprinkles, two-tone-goo, reaction-diffusion, gyro-rings, ascii-wave"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "Next moves from the last original pick on to a new one",
+      "notes": [
+        "desktop: retro-sun → stained-glass",
+        "phone: retro-sun → stained-glass"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "next-to-new-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "next-to-new-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Shuffle lands on new backgrounds",
+      "notes": [
+        "desktop: shuffle visited cube-field → string-art → vhs-dream; new ones: cube-field, string-art, vhs-dream",
+        "phone: shuffle visited op-art → sprinkles → hex-disco → sprinkles; new ones: op-art, sprinkles, sprinkles"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "shuffled-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "shuffled-phone.jpg"
+        ],
+        "error": null
+      }
+    }
+  ]
+}
