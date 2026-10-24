@@ -190,6 +190,14 @@ a { color: inherit; }
   font: 800 14px/1 var(--body); text-decoration: none;
 }
 .gh-home svg { width: 18px; height: 18px; }
+/* Wide screens: one row (logo, tagline, button, then GitHub at the far right) instead of a tall stack. */
+@media (min-width: 760px) {
+  .masthead { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 28px; }
+  .wordmark { order: 1; flex: none; font-size: clamp(56px, 6.5vw, 84px); }
+  .lede { order: 2; flex: 1 1 220px; max-width: 30ch; }
+  .make { order: 3; flex: none; margin-top: 0; }
+  .gh-home { order: 4; position: static; margin-left: auto; }
+}
 .btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
 .frame { width: 100%; height: 100%; border: 0; display: block; background: #000; }
 

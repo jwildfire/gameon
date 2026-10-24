@@ -1,0 +1,66 @@
+{
+  "spec": "135-header-row",
+  "passed": true,
+  "headline": "PASS: 3 of 3 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-24T04:39:02.505Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "4194911",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/135-header-row.spec.mjs",
+  "checks": [
+    {
+      "check": "at 1600 wide the header is one row with GitHub at the right",
+      "notes": [
+        "desktop: 1600px: header 76px tall, one row"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "wide-1600-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "skipped",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "at 1280 wide the header is one row with GitHub at the right",
+      "notes": [
+        "desktop: 1280px: header 75px tall, one row"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "wide-1280-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "skipped",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "on a phone the header stacks and nothing overflows",
+      "notes": [
+        "phone: 375px: stacked, header 182px tall"
+      ],
+      "desktop": {
+        "status": "skipped",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "phone-phone.jpg"
+        ],
+        "error": null
+      }
+    }
+  ]
+}
