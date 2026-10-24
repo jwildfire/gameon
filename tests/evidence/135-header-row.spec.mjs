@@ -44,3 +44,27 @@ test("on a phone the header stacks and nothing overflows", async ({ page, shot, 
   await shot("phone");
   expect(browserErrors).toEqual([]);
 });
+
+test("the tagline rotates through Jeremy's lines and 50 more, and holds still for reduced motion", async ({ page, note, browserErrors }) => {
+  await page.goto("./");
+  const lines = await page.evaluate(() => window.gameonTaglines);
+  expect(lines.length).toBe(53);
+  expect(lines.slice(0, 2)).toEqual(["Think of a Game? Make it, play it, change it!", "Think of a Game? Make it. Then make it better."]);
+  expect(new Set(lines).size).toBe(lines.length);
+  const first = await page.locator("#tagline").textContent();
+  expect(lines).toContain(first);
+  await expect.poll(() => page.locator("#tagline").textContent(), { timeout: 9000 }).not.toBe(first);
+  const h0 = (await page.locator(".masthead").boundingBox()).height;
+  for (let k = 0; k < lines.length; k++) {
+    await page.evaluate(() => window.gameonNextTagline());
+    const h = (await page.locator(".masthead").boundingBox()).height;
+    expect(Math.abs(h - h0)).toBeLessThanOrEqual(2);
+  }
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.reload();
+  const still = await page.locator("#tagline").textContent();
+  await page.waitForTimeout(7500);
+  expect(await page.locator("#tagline").textContent()).toBe(still);
+  note(`${lines.length} taglines; the line changes on its own, the header height stays put for every line, and reduced motion holds one line`);
+  expect(browserErrors).toEqual([]);
+});

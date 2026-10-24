@@ -1,10 +1,10 @@
 {
   "spec": "135-header-row",
   "passed": true,
-  "headline": "PASS: 3 of 3 checks pass at desktop and phone widths.",
-  "generatedAt": "2026-10-24T04:39:50.914Z",
+  "headline": "PASS: 4 of 4 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-24T04:43:30.550Z",
   "target": "local server (python3 -m http.server) on this branch",
-  "commit": "edd9060",
+  "commit": "b8f5cbe",
   "playwright": "1.61.1",
   "specFile": "tests/evidence/135-header-row.spec.mjs",
   "checks": [
@@ -59,6 +59,23 @@
         "screenshots": [
           "phone-phone.jpg"
         ],
+        "error": null
+      }
+    },
+    {
+      "check": "the tagline rotates through Jeremy's lines and 50 more, and holds still for reduced motion",
+      "notes": [
+        "desktop: 53 taglines; the line changes on its own, the header height stays put for every line, and reduced motion holds one line",
+        "phone: 53 taglines; the line changes on its own, the header height stays put for every line, and reduced motion holds one line"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
         "error": null
       }
     }
