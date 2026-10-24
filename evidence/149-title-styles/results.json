@@ -2,9 +2,9 @@
   "spec": "149-title-styles",
   "passed": true,
   "headline": "PASS: 3 of 3 checks pass at desktop and phone widths.",
-  "generatedAt": "2026-10-24T10:52:40.746Z",
+  "generatedAt": "2026-10-24T11:04:18.778Z",
   "target": "local server (python3 -m http.server) on this branch",
-  "commit": "02d9858",
+  "commit": "3b3cc3e",
   "playwright": "1.61.1",
   "specFile": "tests/evidence/149-title-styles.spec.mjs",
   "checks": [
@@ -45,9 +45,9 @@
     {
       "check": "every look fits with the widest titles: one line, no sideways scroll, the header holds still",
       "notes": [
-        "desktop: 1600px: 200 title-and-look pairs (20 looks × the 10 widest titles) fit on one line with the header unmoved; widest is RocketOn in Monoton at 311px",
-        "desktop: 1280px: 200 title-and-look pairs (20 looks × the 10 widest titles) fit on one line with the header unmoved; widest is WaffleOn in Monoton at 311px",
-        "phone: 375px: 200 title-and-look pairs (20 looks × the 10 widest titles) fit on one line with the header unmoved; widest is WiggleOn in Bungee Shade at 224px"
+        "desktop: 1600px: 200 title-and-look pairs (20 looks × the 10 widest titles) fit on one line with the header unmoved; widest is SplashOn in Bungee Shade at 311px",
+        "desktop: 1280px: 200 title-and-look pairs (20 looks × the 10 widest titles) fit on one line with the header unmoved; widest is SplashOn in Bungee Shade at 311px",
+        "phone: 375px: 200 title-and-look pairs (20 looks × the 10 widest titles) fit on one line with the header unmoved; widest is BananaOn in Bungee Shade at 224px"
       ],
       "desktop": {
         "status": "pass",

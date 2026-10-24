@@ -302,10 +302,10 @@ html[data-mode="weird"] .lede.fading { opacity: 1; color: transparent; }
 @media (min-width: 760px) { html[data-mode="weird"] .lede { display: flex; align-items: center; min-height: calc(4.35em + 18px); padding: 6px 12px; } }
 @media (prefers-reduced-motion: reduce) { html[data-mode="weird"] .lede { transition: none; } }
 /* The logo's rotating titles (#145): the first word wobbles into a new one, "On" stays put. In
-   the wide row the logo keeps the widest title's width (about 4.6em), so the tagline doesn't
+   the wide row the logo has the widest title's width (4.6em), so the tagline doesn't
    shuffle sideways, and is a little smaller so that width matches Normal's "GameOn" and the
    tagline card keeps its room. */
-@media (min-width: 760px) { html[data-mode="weird"] .wordmark { min-width: 4.6em; font-size: clamp(48px, 5.3vw, 68px); } }
+@media (min-width: 760px) { html[data-mode="weird"] .wordmark { width: 4.6em; font-size: clamp(48px, 5.3vw, 68px); } }
 /* On phones GitHub sits in the logo's top-right corner, so the logo shrinks just enough for the
    widest title (about 4.6em) to stay clear of it. */
 @media (max-width: 759px) { html[data-mode="weird"] .wordmark { font-size: min(clamp(56px, 12vw, 104px), calc((100vw - 148px) / 4.65)); } }
@@ -464,7 +464,6 @@ html[data-mode="weird"] .wordmark[data-style="19"] .wm-on { color: #ffb703; }
   var FIT = 4.55; // the widest a title may be, in ems of the heading (the room the header leaves it)
   var mark = document.getElementById("wordmark");
   var word = document.getElementById("wm-word");
-  var on = mark.querySelector(".wm-on");
   var secs = parseFloat(new URLSearchParams(location.search).get("titleInterval"));
   var every = secs > 0 ? secs * 1000 : 6500;
   var i = 0, s = 0, timer = 0, swap = 0, fonts = null;
@@ -492,7 +491,9 @@ html[data-mode="weird"] .wordmark[data-style="19"] .wm-on { color: #ffb703; }
     if (!weird()) { mark.style.removeProperty("--fit"); return; }
     mark.style.setProperty("--fit", "1");
     var room = FIT * parseFloat(getComputedStyle(mark).fontSize);
-    var wide = word.offsetWidth + on.offsetWidth;
+    mark.style.width = "max-content"; // the title's own width, as laid out
+    var wide = mark.offsetWidth;
+    mark.style.width = "";
     if (wide > room) mark.style.setProperty("--fit", (room / wide).toFixed(3));
   }
   function show(n, look) {
