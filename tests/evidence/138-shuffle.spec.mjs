@@ -36,7 +36,8 @@ test("every wall is light enough for the dark text (contrast at least 7:1)", asy
   expect(ids.length).toBeGreaterThanOrEqual(10);
   const ink = luminance("rgb(29,26,47)");
   const seen = new Set();
-  for (let i = 0; i < 60 && seen.size < ids.length; i++) {
+  // Shuffle picks at random, so allow plenty of tries (60 missed a wall about one run in 15).
+  for (let i = 0; i < 400 && seen.size < ids.length; i++) {
     await page.evaluate(() => window.gameonMode.shuffle());
     const w = await wall(page);
     if (seen.has(w.id)) continue;
