@@ -1,0 +1,110 @@
+{
+  "spec": "115-arcade-versions",
+  "passed": true,
+  "headline": "PASS: 5 of 5 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-24T01:51:48.648Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "4b2e3b3",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/115-arcade-versions.spec.mjs",
+  "checks": [
+    {
+      "check": "a game with versions says how many, and asks which one when it starts",
+      "notes": [
+        "desktop: order: jeremy.v2 (Latest), jeremy.v1, then the fork notclay.v1",
+        "phone: order: jeremy.v2 (Latest), jeremy.v1, then the fork notclay.v1"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "chooser-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "chooser-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "picking a fork plays it, with the version, Update and GitHub links all following it",
+      "notes": [
+        "desktop: frame, version dropdown, Update and GitHub all point at notclay.v1",
+        "phone: frame, version dropdown, Update and GitHub all point at notclay.v1"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "playing-fork-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "playing-fork-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the player bar's dropdown switches versions",
+      "notes": [],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "switched-version-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "switched-version-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the arcade remembers the last pick, and Cancel goes back",
+      "notes": [
+        "desktop: notclay.v1 marked Last played; Cancel returned to the arcade",
+        "phone: notclay.v1 marked Last played; Cancel returned to the arcade"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "a game with one version plays straight away, and Update opens the New Game page with it picked",
+      "notes": [
+        "desktop: MazeAThon (creator ryan) is ryan.v1; Update → new/?game=mazeathon&version=ryan.v1",
+        "phone: MazeAThon (creator ryan) is ryan.v1; Update → new/?game=mazeathon&version=ryan.v1"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "one-version-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "one-version-phone.jpg"
+        ],
+        "error": null
+      }
+    }
+  ]
+}
