@@ -1,0 +1,9 @@
+{
+  "name": "princess-lady-drive",
+  "title": "Princess Lady Drive",
+  "version": "jeremy.v2",
+  "from": "jeremy.v1",
+  "updates": [
+    { "version": "jeremy.v2", "from": "jeremy.v1", "idea": "More rooms in the castle!", "by": "Jeremy", "made": "2026-10-23", "built_with": "Claude Opus 5.5", "idea_issue": 122 }
+  ]
+}

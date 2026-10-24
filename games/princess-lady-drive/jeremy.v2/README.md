@@ -24,3 +24,11 @@ Progress (balloons, pets, decorations) is saved in the browser.
 ## Editing
 
 `src/game.html` is the source. Run `./build.sh` to regenerate the standalone `index.html`.
+
+## jeremy.v2: More rooms in the castle!
+
+Update idea from Jeremy (game idea #122), word for word:
+
+> More rooms in the castle!
+
+Started from jeremy.v1. The castle's big room is now the Great Hall, with four doors in its back wall: a Ballroom (a light-up dance floor, a disco ball, a music box and dancing friends), the Tower Top (up the winding stairs, with a telescope that looks out over the town, a flag to raise and a bell), a Royal Kitchen (put strawberries, chocolate, bananas or rainbow sprinkles in the pot and stir it for a surprise treat) and a Toy Room (a rocking horse, a block tower to knock down and a little dollhouse castle). Each room's bottom door goes back to the Great Hall, and **Go out** still leaves the castle from anywhere.
