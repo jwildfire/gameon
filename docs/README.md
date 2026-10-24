@@ -10,6 +10,7 @@ to the arcade, and how to add a game. Start with the page you need.
 | [Adding a game to the arcade](adding-a-game.md) | `games.json` fields, cover images, relative and absolute play URLs |
 | [Designs and artifacts](designs-and-artifacts.md) | Every folder in `artifacts/`, with a line on each |
 | [Evidence](evidence.md) | What proof a task's pull request should carry |
+| [Game versions, updates and forks](game-versions.md) | Version names, the update and fork rules, where version files live, and how update ideas are filed |
 
 ## Working here
 
