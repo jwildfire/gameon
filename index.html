@@ -61,7 +61,9 @@ a { color: inherit; }
   text-shadow: 5px 5px 0 var(--ink);
 }
 .wordmark span { color: var(--pop); }
-.lede { margin: 0; font-size: clamp(17px, 2.4vw, 21px); font-weight: 800; max-width: 34ch; text-wrap: balance; }
+.lede { margin: 0; font-size: clamp(17px, 2.4vw, 21px); font-weight: 800; max-width: 34ch; text-wrap: balance; min-height: 2.9em; transition: opacity 350ms ease; }
+.lede.fading { opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .lede { transition: none; } }
 
 .shelf {
   list-style: none;
@@ -190,6 +192,14 @@ a { color: inherit; }
   font: 800 14px/1 var(--body); text-decoration: none;
 }
 .gh-home svg { width: 18px; height: 18px; }
+/* Wide screens: one row (logo, tagline, button, then GitHub at the far right) instead of a tall stack. */
+@media (min-width: 760px) {
+  .masthead { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 28px; }
+  .wordmark { order: 1; flex: none; font-size: clamp(56px, 6.5vw, 84px); }
+  .lede { order: 2; flex: 1 1 220px; max-width: 30ch; }
+  .make { order: 3; flex: none; margin-top: 0; }
+  .gh-home { order: 4; position: static; margin-left: auto; }
+}
 .btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
 .frame { width: 100%; height: 100%; border: 0; display: block; background: #000; }
 
@@ -270,7 +280,7 @@ a { color: inherit; }
   <header class="masthead">
     <h1 class="wordmark">Game<span>On</span></h1>
     <a class="gh-home" id="gh-home" href="https://github.com/jwildfire/gameon" target="_blank" rel="noopener"><svg class="gh" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 0-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6 0-3.2 0 0 1-.3 3.4 1.2a11.5 11.5 0 0 1 6 0C17 4.6 18 5 18 5c.6 1.6.2 2.8.1 3.2.8.8 1.3 1.9 1.3 3.1 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>GitHub</a>
-    <p class="lede">Dream up a game. Play it with your friends tonight.</p>
+    <p class="lede" id="tagline">Think of a Game? Make it, play it, change it!</p>
     <a class="make" id="make-btn" href="new/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.6 6.3L21 9l-5 4.4L17.5 20 12 16.6 6.5 20 8 13.4 3 9l6.4-.7z"/></svg>Make a game</a>
   </header>
   <ul class="shelf" id="shelf" aria-label="Games"></ul>
@@ -319,6 +329,26 @@ a { color: inherit; }
   </div>
 </div>
 
+<script>
+// Taglines: Jeremy's two lines and the Game Night line, then fifty more in the same voice.
+// One shows at a time, starting at random and changing every few seconds. With reduced
+// motion it's one line per visit.
+(function () {
+  var LINES = ["Think of a Game? Make it, play it, change it!", "Think of a Game? Make it. Then make it better.", "Dream up a game. Play it with your friends tonight.", "Say it out loud. Play it by dinner.", "Your idea. Our robots. Everyone's controller.", "Describe it. Build it. Beat your friends at it.", "Grab a controller. Grab a friend. Grab a weird idea.", "Every game here started as one sentence.", "One idea in. One game out.", "If you can say it, you can play it.", "Thought up by people. Built by robots. Played by everyone.", "Pitch a game. Hit Send. Press Start.", "Make the game you wish existed.", "Couch, snacks, friends, and a game nobody's played yet.", "Today's weird idea is tonight's game night.", "Nachos, jelly, lava, robots. Anything goes.", "Your game, your rules, your high score.", "Change the rules. Then change them again.", "Don't like the ending? Make your own version.", "Built in an hour. Played for weeks.", "Insert idea. Get game.", "Player 1, pitch your game.", "The arcade where the games take requests.", "Some people play games. You make them.", "Two controllers, one couch, endless nonsense.", "What if the floor was lava? Go find out.", "Bring an idea. Leave with a game.", "No coding. Just ideas and a big Send button.", "Remix any game. Make it yours.", "Game night, freshly baked.", "Every version stays. Every idea counts.", "From “what if” to “one more round.”", "Think it. Say it. Splat it.", "It's not cheating if you made the game.", "The best games start with “what if…”", "You bring the chaos. We'll bring the code.", "Make a game in the time it takes to get a pizza.", "Too easy? Make it harder.", "Too hard? Make it easier. It's your game.", "Every game here has a story. Add yours.", "Sauce, shapes, pies and trampolines. So far.", "Fork a game. Put your name on it.", "Imagine it on the couch. Play it on the couch.", "One more game. Then one more after that.", "Make it silly. Make it spicy. Make it yours.", "The arcade is open. The cabinets are yours.", "Ideas welcome. Controllers recommended.", "Someone's idea is about to be your favourite game.", "Got a game stuck in your head? Let it out.", "Make a game with your friends. Then beat them at it.", "Send it to the Matrix. Grab the snacks.", "Weird ideas make the best games.", "Change one rule. See what happens."];
+  var el = document.getElementById("tagline");
+  var i = Math.floor(Math.random() * LINES.length);
+  function show(n) { i = (n + LINES.length) % LINES.length; el.textContent = LINES[i]; }
+  function next() {
+    el.classList.add("fading");
+    setTimeout(function () { show(i + 1); el.classList.remove("fading"); }, 360);
+  }
+  show(i);
+  window.gameonTaglines = LINES.slice();
+  window.gameonNextTagline = function () { show(i + 1); return LINES[i]; };
+  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  setInterval(function () { if (!document.hidden) next(); }, 6500);
+})();
+</script>
 <script>
 (function () {
   var games = [];
