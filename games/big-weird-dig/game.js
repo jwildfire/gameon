@@ -113,7 +113,7 @@
     hud.style.setProperty("--fuel-w", (vw < 400 ? 84 : 130) + "px");
     hud.style.setProperty("--find-icon", (vw < 400 ? 22 : 26) + "px");
     tip.style.left = view.left + "px"; tip.style.width = bw + "px"; tip.style.top = (view.top + tile * 1.3) + "px";
-    tip.style.setProperty("--tip-font", (vw < 400 ? 16 : 19) + "px");
+    tip.style.setProperty("--tip-font", Math.round(Math.max(12, Math.min(19, tile * 0.68))) + "px");
     var ps = landscape ? Math.min(150, vh * 0.42) : Math.min(180, Math.max(132, padH - 16));
     pad.style.setProperty("--dpad", ps + "px");
     pad.style.setProperty("--blade", Math.round(ps * 0.62) + "px");
