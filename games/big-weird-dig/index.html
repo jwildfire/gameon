@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Big Weird Dig</title>
+<meta name="description" content="Drive a bulldozer underground and dig up the weirdest stuff ever buried.">
+<meta name="theme-color" content="#2a170d">
+<link rel="icon" href="data:,">
+<style>
+:root {
+  --ink: #2a160c;
+  --dozer: #ffc41f;
+  --dozer-dark: #d99a00;
+  --cream: #fff3d6;
+  --dirt: #8b5a2b;
+  --weird: #9b4dff;
+  --slime: #5fd35a;
+  --bg: #2a170d;
+  --round: ui-rounded, "Arial Rounded MT Bold", "Trebuchet MS", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--bg); overflow: hidden; touch-action: none; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+body { font-family: var(--round); color: var(--ink); background: radial-gradient(ellipse at 50% 0%, #4a2c18 0%, var(--bg) 70%); }
+[hidden] { display: none !important; }
+button { font-family: var(--round); color: var(--ink); }
+
+#stage { position: absolute; overflow: hidden; border-radius: 10px; box-shadow: 0 0 0 3px var(--ink), 0 0 0 6px var(--dozer-dark), 0 10px 30px rgba(0,0,0,0.5); background: #3b2416; touch-action: none; }
+#game { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+/* HUD */
+#hud { position: absolute; display: flex; align-items: center; gap: 6px; font-weight: 900; font-size: var(--hud-font, 15px); z-index: 3; }
+.pill { background: rgba(255, 243, 214, 0.95); border: 2.5px solid var(--ink); border-radius: 999px; padding: 2px 10px; white-space: nowrap; line-height: 1.4; }
+#hud-level { overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 0 1 auto; }
+#hud .spacer { flex: 1; }
+#fuel { position: relative; width: var(--fuel-w, 130px); height: 1.75em; flex: none; border: 2.5px solid var(--ink); border-radius: 999px; background: #7a5a46; overflow: hidden; }
+#fuel-bar { position: absolute; left: 0; top: 0; bottom: 0; width: 100%; background: linear-gradient(#ffe36b, #ffb31f); transition: background 300ms; }
+#fuel.low #fuel-bar { background: linear-gradient(#ff8a6b, #e53b1f); }
+#fuel.low { animation: lowfuel 0.6s infinite alternate; }
+@keyframes lowfuel { to { box-shadow: 0 0 0 3px #ff5a3c; } }
+#fuel-label { position: absolute; inset: 0; display: grid; place-items: center; font-size: 0.82em; color: #fff; text-shadow: 0 1.5px 0 var(--ink), 0 -1.5px 0 var(--ink), 1.5px 0 0 var(--ink), -1.5px 0 0 var(--ink); letter-spacing: 0.04em; }
+#hud-finds { display: flex; gap: 2px; padding: 1px 6px; align-items: center; }
+#hud-finds canvas { width: var(--find-icon, 26px); height: var(--find-icon, 26px); display: block; }
+.hud-btn { width: 2.1em; height: 2.1em; border-radius: 50%; border: 2.5px solid var(--ink); background: var(--cream); display: grid; place-items: center; cursor: pointer; padding: 0; flex: none; }
+.hud-btn svg { width: 55%; height: 55%; fill: var(--ink); }
+
+#tip { position: absolute; z-index: 3; text-align: center; font-weight: 900; font-size: var(--tip-font, 19px); color: var(--cream); text-shadow: 0 2px 0 var(--ink), 0 -2px 0 var(--ink), 2px 0 0 var(--ink), -2px 0 0 var(--ink), 0 4px 6px rgba(0,0,0,0.4); pointer-events: none; transition: opacity 500ms; padding: 0 12px; }
+#tip.fade { opacity: 0; }
+
+/* Touch controls */
+#pad { position: fixed; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 4; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
+#dpad { pointer-events: auto; position: relative; width: var(--dpad, 168px); height: var(--dpad, 168px); touch-action: none; }
+#dpad .arm { position: absolute; width: 36%; height: 36%; border: 3px solid var(--ink); background: rgba(255, 243, 214, 0.88); display: grid; place-items: center; box-shadow: 0 4px 0 var(--ink); border-radius: 14px; }
+#dpad .arm svg { width: 50%; height: 50%; fill: var(--ink); pointer-events: none; }
+#dpad .arm.on { background: var(--dozer); transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
+#dpad .arm[data-dir="u"] { left: 32%; top: 0; }
+#dpad .arm[data-dir="d"] { left: 32%; bottom: 0; }
+#dpad .arm[data-dir="l"] { left: 0; top: 32%; }
+#dpad .arm[data-dir="r"] { right: 0; top: 32%; }
+#dpad .hub { position: absolute; left: 34%; top: 34%; width: 32%; height: 32%; border-radius: 50%; background: rgba(42, 22, 12, 0.5); pointer-events: none; }
+#btn-blade { pointer-events: auto; width: var(--blade, 112px); height: var(--blade, 112px); border-radius: 50%; border: 3px solid var(--ink); background: rgba(255, 196, 31, 0.92); font: 900 calc(var(--blade, 112px) * 0.2) var(--round); box-shadow: 0 5px 0 var(--ink); touch-action: none; padding: 0; display: grid; place-items: center; line-height: 1; }
+#btn-blade small { display: block; font-size: 0.55em; font-weight: 800; }
+#btn-blade.on { transform: translateY(4px); box-shadow: 0 1px 0 var(--ink); background: #fff; }
+body.landscape #dpad .arm, body.landscape #btn-blade { opacity: 0.75; }
+
+/* Screens */
+.screen { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 14px; background: rgba(30, 14, 6, 0.55); overflow: auto; }
+.card { background: var(--cream); border: 4px solid var(--ink); border-radius: 24px; box-shadow: 7px 7px 0 var(--ink); padding: 18px 22px; text-align: center; width: min(540px, 100%); display: grid; gap: 12px; font-size: 17px; }
+.card p { margin: 0; }
+.logo { display: grid; justify-items: center; line-height: 0.86; }
+.logo .big { font: 900 clamp(30px, 8vw, 44px) var(--round); color: var(--dozer); -webkit-text-stroke: 2.5px var(--ink); paint-order: stroke fill; letter-spacing: 0.06em; transform: rotate(-2deg); }
+.logo .weird { font: 900 clamp(50px, 15vw, 82px) var(--round); color: var(--weird); -webkit-text-stroke: 3px var(--ink); paint-order: stroke fill; text-shadow: 4px 5px 0 var(--ink); }
+.logo .weird span { display: inline-block; }
+.logo .dig { font: 900 clamp(40px, 12vw, 64px) var(--round); color: #e9873a; -webkit-text-stroke: 3px var(--ink); paint-order: stroke fill; text-shadow: 3px 4px 0 var(--ink); letter-spacing: 0.1em; }
+#title-hero { width: 220px; height: 110px; justify-self: center; }
+.tag { font-weight: 800; font-size: 18px; }
+.muted { color: #7a5038; font-size: 14px; }
+.row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.btn { font: 900 22px var(--round); padding: 10px 22px; border-radius: 16px; border: 3px solid var(--ink); background: var(--dozer); color: var(--ink); cursor: pointer; box-shadow: 0 5px 0 var(--ink); }
+.btn.alt { background: #fff; }
+.btn.weird { background: var(--weird); color: #fff; -webkit-text-stroke: 1px var(--ink); paint-order: stroke fill; }
+.btn.small { font-size: 17px; padding: 7px 14px; }
+.btn:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--ink); }
+.btn:focus-visible { outline: 4px solid var(--weird); outline-offset: 2px; }
+.keys { font-size: 14px; color: #5a3824; line-height: 1.5; }
+kbd { font: 800 12px var(--round); background: #fff; border: 2px solid var(--ink); border-radius: 6px; padding: 0 5px; }
+h2 { margin: 0; font: 900 30px var(--round); color: var(--dozer); -webkit-text-stroke: 2px var(--ink); paint-order: stroke fill; text-shadow: 2px 3px 0 var(--ink); }
+.stars { font-size: 40px; letter-spacing: 6px; color: #c9b9a0; -webkit-text-stroke: 2px var(--ink); paint-order: stroke fill; }
+.stars .on { color: var(--dozer); }
+.stats { display: flex; justify-content: center; gap: 16px; font-weight: 800; flex-wrap: wrap; }
+.find-row { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; }
+.find-row canvas { width: 54px; height: 54px; background: #f5e0b8; border: 2.5px solid var(--ink); border-radius: 12px; }
+
+/* Reveal */
+#reveal-screen { background: radial-gradient(circle, rgba(255, 220, 90, 0.45), rgba(30, 14, 6, 0.7) 70%); }
+#reveal-screen .card { width: min(420px, 100%); animation: pop 380ms cubic-bezier(.2,1.6,.4,1); }
+@keyframes pop { from { transform: scale(0.3) rotate(-8deg); } to { transform: scale(1) rotate(0); } }
+.tada { font: 900 46px var(--round); color: var(--weird); -webkit-text-stroke: 2.5px var(--ink); paint-order: stroke fill; text-shadow: 3px 4px 0 var(--ink); transform: rotate(-4deg); }
+#reveal-art { width: 170px; height: 170px; justify-self: center; }
+#reveal-name { font: 900 26px var(--round); }
+#reveal-joke { font-weight: 700; font-size: 18px; }
+.badge { justify-self: center; background: var(--slime); border: 2.5px solid var(--ink); border-radius: 999px; padding: 2px 12px; font-weight: 900; transform: rotate(-3deg); }
+
+/* Levels and museum */
+#level-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.lvl { border: 3px solid var(--ink); border-radius: 14px; background: #fff; padding: 6px 4px; cursor: pointer; display: grid; gap: 1px; font-weight: 800; font-size: 12px; box-shadow: 0 3px 0 var(--ink); min-height: 74px; align-content: center; }
+.lvl b { font-size: 24px; font-weight: 900; }
+.lvl .st { color: var(--dozer-dark); font-size: 15px; letter-spacing: 1px; }
+.lvl.done { background: #ffeaa0; }
+.lvl:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+#museum-shelf { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; background: repeating-linear-gradient(to bottom, #f0d7a8 0, #f0d7a8 calc(var(--slot, 64px) - 8px), #a86a35 calc(var(--slot, 64px) - 8px), #a86a35 var(--slot, 64px)); border: 3px solid var(--ink); border-radius: 12px; padding: 4px 4px 0; }
+.slot { height: var(--slot, 64px); padding: 2px 2px 10px; border: none; background: none; cursor: pointer; }
+.slot canvas { width: 100%; height: 100%; display: block; }
+.slot.sel { outline: 3px solid var(--weird); outline-offset: -3px; border-radius: 10px; }
+#museum-caption { min-height: 3em; font-weight: 700; }
+#museum-caption b { font-size: 19px; }
+@media (max-width: 420px) {
+  .card { padding: 14px 12px; gap: 10px; font-size: 15px; }
+  .btn { font-size: 19px; padding: 9px 16px; }
+  #level-grid { grid-template-columns: repeat(2, 1fr); }
+  #museum-shelf { grid-template-columns: repeat(5, 1fr); }
+  .tada { font-size: 38px; }
+  #reveal-art { width: 140px; height: 140px; }
+}
+@media (max-height: 520px) {
+  .card { gap: 7px; padding: 10px 18px; }
+  #title-hero { height: 64px; width: 128px; }
+  .logo .weird { font-size: 50px; }
+  .logo .big, .logo .dig { font-size: 30px; }
+  .keys { display: none; }
+  #level-grid { grid-template-columns: repeat(4, 1fr); }
+  #reveal-art { width: 100px; height: 100px; }
+  .tada { font-size: 32px; }
+}
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="game" aria-label="Big Weird Dig, a cutaway of the ground"></canvas>
+</div>
+
+<div id="hud" hidden>
+  <span class="pill" id="hud-level">1. Backyard Topsoil</span>
+  <span class="spacer"></span>
+  <div id="fuel" title="Fuel"><div id="fuel-bar"></div><div id="fuel-label">FUEL 100</div></div>
+  <span class="pill" id="hud-finds" title="Weird things to find"></span>
+  <button class="hud-btn" id="pause-btn" aria-label="Pause"><svg viewBox="0 0 10 10"><rect x="1.5" y="1" width="2.6" height="8" rx="0.6"/><rect x="5.9" y="1" width="2.6" height="8" rx="0.6"/></svg></button>
+</div>
+<div id="tip" class="fade"></div>
+
+<div id="pad" hidden>
+  <div id="dpad" aria-label="Drive">
+    <div class="arm" data-dir="u"><svg viewBox="0 0 10 10"><path d="M1 7 L5 2 L9 7 Z"/></svg></div>
+    <div class="arm" data-dir="l"><svg viewBox="0 0 10 10"><path d="M7 1 L2 5 L7 9 Z"/></svg></div>
+    <div class="arm" data-dir="r"><svg viewBox="0 0 10 10"><path d="M3 1 L8 5 L3 9 Z"/></svg></div>
+    <div class="arm" data-dir="d"><svg viewBox="0 0 10 10"><path d="M1 3 L5 8 L9 3 Z"/></svg></div>
+    <div class="hub"></div>
+  </div>
+  <button id="btn-blade" aria-label="Blade push">PUSH<small>blade</small></button>
+</div>
+
+<!-- Title -->
+<div class="screen" id="title-screen">
+  <div class="card">
+    <div class="logo" aria-label="Big Weird Dig"><span class="big">BIG</span><span class="weird title-big"><span>W</span><span>E</span><span>I</span><span>R</span><span>D</span></span><span class="dig">DIG</span></div>
+    <canvas id="title-hero" width="440" height="220" aria-hidden="true"></canvas>
+    <p class="tag">Drive a bulldozer underground and dig up the weirdest stuff ever buried.</p>
+    <div class="row">
+      <button class="btn" id="play-btn">Dig!</button>
+      <button class="btn alt" id="levels-btn">Levels</button>
+      <button class="btn weird" id="museum-btn">Weird Museum</button>
+    </div>
+    <div class="row"><button class="btn alt small" id="sound-btn" aria-pressed="true">Sound: on</button></div>
+    <p class="keys"><kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd> or <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> drive and dig · <kbd>Space</kbd> blade push · <kbd>P</kbd> pause · <kbd>R</kbd> restart<br>On a phone or tablet: the arrow pad and PUSH button, or hold and slide on the dirt.</p>
+    <p class="muted">Designed by Jeremy · GameOn</p>
+  </div>
+</div>
+
+<!-- Level picker -->
+<div class="screen" id="levels-screen" hidden>
+  <div class="card">
+    <h2>How deep?</h2>
+    <div id="level-grid"></div>
+    <div class="row"><button class="btn alt small" id="levels-back">Back</button></div>
+  </div>
+</div>
+
+<!-- Museum -->
+<div class="screen" id="museum-screen" hidden>
+  <div class="card">
+    <h2>The Weird Museum</h2>
+    <p id="museum-count">0 of 30 weird things</p>
+    <div id="museum-shelf"></div>
+    <p id="museum-caption">Tap something on the shelf to read about it.</p>
+    <div class="row"><button class="btn alt small" id="museum-back">Back</button></div>
+  </div>
+</div>
+
+<!-- Pause -->
+<div class="screen" id="pause-screen" hidden>
+  <div class="card">
+    <h2>Paused</h2>
+    <div class="row">
+      <button class="btn" id="resume-btn">Keep digging</button>
+      <button class="btn alt" id="restart-btn">Restart level</button>
+    </div>
+    <div class="row">
+      <button class="btn alt small" id="pause-levels-btn">Levels</button>
+      <button class="btn alt small" id="pause-title-btn">Title screen</button>
+      <button class="btn alt small" id="pause-sound-btn" aria-pressed="true">Sound: on</button>
+    </div>
+  </div>
+</div>
+
+<!-- A weird find! -->
+<div class="screen" id="reveal-screen" hidden>
+  <div class="card">
+    <div class="tada">TA-DA!</div>
+    <canvas id="reveal-art" width="340" height="340" aria-hidden="true"></canvas>
+    <div id="reveal-name">Rubber Duck</div>
+    <p id="reveal-joke"></p>
+    <div class="badge" id="reveal-new">New in the Weird Museum!</div>
+    <div class="row"><button class="btn" id="reveal-btn">Keep digging</button></div>
+  </div>
+</div>
+
+<!-- Level clear -->
+<div class="screen" id="done-screen" hidden>
+  <div class="card">
+    <h2 id="done-title">Level clear!</h2>
+    <div class="stars" id="done-stars"></div>
+    <div class="find-row" id="done-finds"></div>
+    <div class="stats"><span id="done-fuel">Fuel left: 50</span><span id="done-bonks">Bonks: 0</span></div>
+    <div class="row">
+      <button class="btn" id="next-btn">Dig deeper</button>
+      <button class="btn alt" id="retry-btn">Play again</button>
+    </div>
+    <div class="row"><button class="btn weird small" id="done-museum-btn">Weird Museum</button><button class="btn alt small" id="done-levels-btn">Levels</button></div>
+  </div>
+</div>
+
+<!-- Out of fuel -->
+<div class="screen" id="empty-screen" hidden>
+  <div class="card">
+    <h2>Out of fuel!</h2>
+    <p class="tag">Sputter... putt... putt. The bulldozer needs a rest.</p>
+    <p id="empty-line">Your finds are safe in the Weird Museum.</p>
+    <div class="row">
+      <button class="btn" id="empty-retry-btn">Try again</button>
+      <button class="btn alt" id="empty-levels-btn">Levels</button>
+    </div>
+  </div>
+</div>
+
+<!-- The bottom -->
+<div class="screen" id="end-screen" hidden>
+  <div class="card">
+    <h2>You reached the bottom!</h2>
+    <canvas id="end-hero" width="340" height="340" style="width:130px;height:130px;justify-self:center" aria-hidden="true"></canvas>
+    <p class="tag">All 8 levels dug. You found the Earth's plug, and you did NOT pull it. Good choice.</p>
+    <p id="end-count">30 of 30 weird things in the museum</p>
+    <div class="row">
+      <button class="btn weird" id="end-museum-btn">Weird Museum</button>
+      <button class="btn alt" id="end-title-btn">Title screen</button>
+    </div>
+  </div>
+</div>
+
+<script src="engine.js"></script>
+<script src="bot.js"></script>
+<script src="art.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
