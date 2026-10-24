@@ -1,0 +1,208 @@
+{
+  "spec": "151-trampoline-battle-jeremy-v3",
+  "passed": true,
+  "headline": "PASS: 10 of 10 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-24T11:54:28.687Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "4f777db",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/151-trampoline-battle-jeremy-v3.spec.mjs",
+  "checks": [
+    {
+      "check": "jeremy.v3 is the repo at f0316e5: same files, byte for byte, except what the copy leaves out",
+      "notes": [
+        "desktop: 6 files match the repo's git blobs at f0316e5; README.md is the repo's plus the jeremy.v3 section; gameon.json added; .github/, .gitignore and .claude/launch.json left out; no path fixes needed",
+        "phone: 6 files match the repo's git blobs at f0316e5; README.md is the repo's plus the jeremy.v3 section; gameon.json added; .github/, .gitignore and .claude/launch.json left out; no path fixes needed"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "jeremy.v3 opens to its title screen and starts, with no new outside requests",
+      "notes": [
+        "desktop: Just Bounce: Party Levels · round 1 · Brawl (Gravity Roulette), timer at 97.5%; outside hosts: fonts.googleapis.com, fonts.gstatic.com (Google Fonts, as jeremy.v2)",
+        "phone: Just Bounce: Party Levels · round 1 · Survival (It's Raining Everything), timer at 97.4%; outside hosts: fonts.googleapis.com, fonts.gstatic.com (Google Fonts, as jeremy.v2)"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "title-desktop.jpg",
+          "party-play-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "title-phone.jpg",
+          "party-play-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "what's new: the engine picker, Pure Chaos, 100 trampoline levels on three shelves, and 20 racing and 20 climbing levels",
+      "notes": [
+        "desktop: engines: Bounce, Race, Climb, Whatever; modes add Pure Chaos; trampoline shelves 20 + 30 + 50 = 100; racing 20, climbing 20",
+        "phone: engines: Bounce, Race, Climb, Whatever; modes add Pure Chaos; trampoline shelves 20 + 30 + 50 = 100; racing 20, climbing 20"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "what's new plays: a race, Pure Chaos on the climbing tower, and the level buttons pause and play",
+      "notes": [
+        "desktop: race: Car Wash of Doom (Party Levels · round 1 · Race), paused with the play/pause button and played again; climb + Pure Chaos: The Floor Is Lava (For Real) (Pure Chaos · round 1 · Brawl)",
+        "phone: race: King of the Hump (Party Levels · round 1 · Score), paused with the play/pause button and played again; climb + Pure Chaos: The Floor Is Lava (For Real) (Pure Chaos · round 1 · Brawl)"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "race-paused-desktop.jpg",
+          "climb-chaos-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "race-paused-phone.jpg",
+          "climb-chaos-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "what stays still works: Battle drops a fighter and fights, and Esc goes back to the menu",
+      "notes": [
+        "desktop: Battle: wave 1 aim → both teams drop → fight; Esc opens the menu (pause / start over)",
+        "phone: Battle: wave 1 aim → both teams drop → fight; Esc opens the menu (pause / start over)"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "battle-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "battle-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "saves: what jeremy.v2 saved loads in jeremy.v3, with its settings and best times",
+      "notes": [
+        "desktop: jeremy.v2's tb3-settings (Zoom, vs Computer, Survival, Crayon, 2 rounds) and tb4-best (survival 42.5 s) show in jeremy.v3; saving keeps every jeremy.v2 value and adds more and engine; tb2-settings untouched; no new keys",
+        "phone: jeremy.v2's tb3-settings (Zoom, vs Computer, Survival, Crayon, 2 rounds) and tb4-best (survival 42.5 s) show in jeremy.v3; saving keeps every jeremy.v2 value and adds more and engine; tb2-settings untouched; no new keys"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "known save problem, inherited from the repo: once jeremy.v3 saves a Shuffle setting, jeremy.v2 can't start; jeremy.v1 is unaffected",
+      "notes": [
+        "desktop: jeremy.v3 saved {\"names\":[\"Red\",\"Blue\"],\"mode\":\"2p\",\"game\":\"party\",\"mini\":\"random\",\"level\":\"random\",\"rounds\":0,\"pileRounds\":0,\"target\":0,\"skin\":\"random\",\"items\":\"random\",\"more\":true,\"engine\":\"bounce\",\"v4\":true}; jeremy.v2 then logs [\"Cannot read properties of undefined (reading 'label')\"] and won't start (its code has no \"random\" skin, level or Pure Chaos); jeremy.v1 starts. Left as copied: see the PR's Notes",
+        "phone: jeremy.v3 saved {\"names\":[\"Red\",\"Blue\"],\"mode\":\"2p\",\"game\":\"party\",\"mini\":\"random\",\"level\":\"random\",\"rounds\":0,\"pileRounds\":0,\"target\":0,\"skin\":\"random\",\"items\":\"random\",\"more\":true,\"engine\":\"bounce\",\"v4\":true}; jeremy.v2 then logs [\"Cannot read properties of undefined (reading 'label')\"] and won't start (its code has no \"random\" skin, level or Pure Chaos); jeremy.v1 starts. Left as copied: see the PR's Notes"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "jeremy.v1 and jeremy.v2 still play from their folders",
+      "notes": [
+        "desktop: games/trampoline-battle/jeremy.v2/ and games/trampoline-battle/jeremy.v1/: title screen, then started, no console errors",
+        "phone: games/trampoline-battle/jeremy.v2/ and games/trampoline-battle/jeremy.v1/: title screen, then started, no console errors"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "v2-play-desktop.jpg",
+          "v1-play-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "v2-play-phone.jpg",
+          "v1-play-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "games.json makes jeremy.v3 the default, records its source, and still offers jeremy.v1 and jeremy.v2",
+      "notes": [
+        "desktop: default jeremy.v3; jeremy.v3 source jwildfire/trampoline-battle@f0316e5; jeremy.v1 and jeremy.v2 still at their urls",
+        "phone: default jeremy.v3; jeremy.v3 source jwildfire/trampoline-battle@f0316e5; jeremy.v1 and jeremy.v2 still at their urls"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "the arcade plays jeremy.v3 by default, and the version picker offers jeremy.v2 and jeremy.v1",
+      "notes": [
+        "desktop: card → picker (jeremy.v3 Latest, jeremy.v2, jeremy.v1) → jeremy.v3 plays in the frame; #trampoline-battle@jeremy.v2 and @jeremy.v1 open those versions",
+        "phone: card → picker (jeremy.v3 Latest, jeremy.v2, jeremy.v1) → jeremy.v3 plays in the frame; #trampoline-battle@jeremy.v2 and @jeremy.v1 open those versions"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "arcade-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "arcade-phone.jpg"
+        ],
+        "error": null
+      }
+    }
+  ]
+}
