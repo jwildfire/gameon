@@ -42,6 +42,7 @@
     "repo": "https://github.com/jwildfire/trampoline-battle",
     "color": "#ff6b4a",
     "tags": ["New", "1–2 players", "Turn sideways"],
+    "editorsChoice": true,
     "default": "jeremy.v2",
     "versions": [
       { "id": "jeremy.v1", "url": "games/trampoline-battle/jeremy.v1/", "made": "2026-10-22", "note": "The first version", "source": {"repo": "jwildfire/trampoline-battle", "commit": "669e7fec4eb86f0e599376a5aa5ccd832d0dae83"} },
