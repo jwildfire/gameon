@@ -1,0 +1,68 @@
+{
+  "spec": "149-title-styles",
+  "passed": true,
+  "headline": "PASS: 3 of 3 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-24T10:41:41.380Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "020df69",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/149-title-styles.spec.mjs",
+  "checks": [
+    {
+      "check": "Normal keeps the classic logo and loads none of the title fonts",
+      "notes": [
+        "desktop: Normal: GameOn in \"Lilita One\", no data-style, and no request for the 19 title fonts",
+        "phone: Normal: GameOn in \"Lilita One\", no data-style, and no request for the 19 title fonts"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "each new title in Weird mode has a different font and colors, through all 20 looks",
+      "notes": [
+        "desktop: 20 looks in order, each with a new font and two-tone colors: Classic, Bungee, Press Start 2P, Creepster, Bangers, Pacifico, Monoton, Shrikhand, Titan One, Fredericka the Great, Righteous, Lobster, Rubik Glitch, Bungee Shade, Chewy, Faster One, Rampart One, Silkscreen, Fascinate, Rubik Moonrocks; all 19 fonts loaded",
+        "phone: 20 looks in order, each with a new font and two-tone colors: Classic, Bungee, Press Start 2P, Creepster, Bangers, Pacifico, Monoton, Shrikhand, Titan One, Fredericka the Great, Righteous, Lobster, Rubik Glitch, Bungee Shade, Chewy, Faster One, Rampart One, Silkscreen, Fascinate, Rubik Moonrocks; all 19 fonts loaded"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "every look fits with the widest titles: one line, no sideways scroll, the header holds still",
+      "notes": [
+        "desktop: 1600px: 200 title-and-look pairs (20 looks × the 10 widest titles) fit on one line with the header unmoved; widest is RocketOn in Monoton at 311px",
+        "desktop: 1280px: 200 title-and-look pairs (20 looks × the 10 widest titles) fit on one line with the header unmoved; widest is WaffleOn in Monoton at 311px",
+        "phone: 375px: 200 title-and-look pairs (20 looks × the 10 widest titles) fit on one line with the header unmoved; widest is WiggleOn in Bungee Shade at 224px"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "all-20-looks-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "all-20-looks-phone.jpg"
+        ],
+        "error": null
+      }
+    }
+  ]
+}

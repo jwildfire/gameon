@@ -47,9 +47,11 @@ test("Weird mode starts on GameOn, then swaps in a new ___On title half a beat a
   expect(await title(page)).toBe(titles[1]);
   await page.clock.runFor(1000);
   expect(await title(page)).toBe(titles[2]);
-  // Still two-tone and still called GameOn for screen readers.
+  // Still two-tone and still called GameOn for screen readers. (Each title has its own look
+  // since #149, so "On" is orange only in the classic look; it always differs from the word.)
   await expect(page.locator("#wordmark .wm-on")).toHaveText("On");
-  await expect(page.locator("#wordmark .wm-on")).toHaveCSS("color", ORANGE);
+  const tones = await page.evaluate(() => [getComputedStyle(document.getElementById("wm-word")).color, getComputedStyle(document.querySelector("#wordmark .wm-on")).color]);
+  expect(tones[1]).not.toBe(tones[0]);
   await expect(page.getByRole("heading", { level: 1, name: "GameOn" })).toBeVisible();
   await page.clock.resume();
   await page.waitForTimeout(600); // let the wobble finish
