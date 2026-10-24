@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Super Sauce Boy</title>
+<meta name="description" content="Leap, wall-jump and splat through spicy kitchen levels as a tiny drop of hot sauce.">
+<meta name="theme-color" content="#3a130c">
+<link rel="icon" href="data:,">
+<style>
+:root {
+  --ink: #2b0f08;
+  --sauce: #e5281b;
+  --sauce-dark: #a3150c;
+  --mustard: #ffc531;
+  --cream: #fff4dc;
+  --bg: #3a130c;
+  --round: ui-rounded, "Arial Rounded MT Bold", "Trebuchet MS", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--bg); overflow: hidden; touch-action: none; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+body { font-family: var(--round); color: var(--ink); }
+[hidden] { display: none !important; }
+button { font-family: var(--round); }
+
+#stage { position: absolute; overflow: hidden; border-radius: 8px; box-shadow: 0 0 0 3px var(--ink), 0 0 0 6px var(--mustard); background: #ffd9a0; }
+#game { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+/* HUD */
+#hud { position: absolute; display: flex; align-items: center; gap: 8px; pointer-events: none; font-weight: 900; font-size: var(--hud-font, 16px); z-index: 3; }
+.pill { background: rgba(255, 244, 220, 0.94); border: 2.5px solid var(--ink); border-radius: 999px; padding: 2px 10px; white-space: nowrap; line-height: 1.35; }
+#hud-level { overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 0 1 auto; }
+#hud .spacer { flex: 1; }
+#hud-time { font-variant-numeric: tabular-nums; min-width: 5.2em; text-align: center; }
+.splat-pill { color: var(--sauce-dark); }
+.hud-btn { pointer-events: auto; width: 2.1em; height: 2.1em; border-radius: 50%; border: 2.5px solid var(--ink); background: var(--cream); display: grid; place-items: center; cursor: pointer; padding: 0; flex: none; }
+.hud-btn svg { width: 55%; height: 55%; fill: var(--ink); }
+
+#tip { position: absolute; z-index: 3; text-align: center; font-weight: 900; font-size: var(--tip-font, 20px); color: var(--cream); text-shadow: 0 2px 0 var(--ink), 0 -2px 0 var(--ink), 2px 0 0 var(--ink), -2px 0 0 var(--ink), 0 4px 6px rgba(0,0,0,0.4); pointer-events: none; transition: opacity 400ms; padding: 0 12px; }
+#tip.fade { opacity: 0; }
+
+/* Touch pad */
+#pad { position: fixed; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 4; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 max(14px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left)); }
+#pad .group { display: flex; gap: 12px; }
+.pad-btn { pointer-events: auto; width: var(--pad, 84px); height: var(--pad, 84px); border-radius: 26px; border: 3px solid var(--ink); background: rgba(255, 244, 220, 0.82); display: grid; place-items: center; touch-action: none; box-shadow: 0 5px 0 var(--ink); padding: 0; }
+.pad-btn svg { width: 46%; height: 46%; fill: var(--ink); pointer-events: none; }
+.pad-btn.on { transform: translateY(4px); box-shadow: 0 1px 0 var(--ink); background: var(--mustard); }
+#btn-jump { width: calc(var(--pad, 84px) * 1.45); height: calc(var(--pad, 84px) * 1.25); border-radius: 50%; background: rgba(229, 40, 27, 0.88); color: var(--cream); font: 900 calc(var(--pad, 84px) * 0.26) var(--round); }
+#btn-jump.on { background: var(--mustard); color: var(--ink); }
+body.landscape .pad-btn { opacity: 0.72; }
+
+/* Screens */
+.screen { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 14px; background: rgba(43, 15, 8, 0.6); overflow: auto; }
+.card { background: var(--cream); border: 4px solid var(--ink); border-radius: 24px; box-shadow: 7px 7px 0 var(--ink); padding: 18px 22px; text-align: center; width: min(560px, 100%); display: grid; gap: 12px; font-size: 17px; }
+.card p { margin: 0; }
+.logo { display: grid; justify-items: center; gap: 0; line-height: 0.88; }
+.logo .super { font: 900 clamp(26px, 7vw, 40px) var(--round); color: var(--mustard); -webkit-text-stroke: 2.5px var(--ink); paint-order: stroke fill; letter-spacing: 0.08em; transform: rotate(-3deg); }
+.logo .main { font: 900 clamp(44px, 13vw, 76px) var(--round); color: var(--sauce); -webkit-text-stroke: 3px var(--ink); paint-order: stroke fill; text-shadow: 4px 5px 0 var(--ink); }
+#title-hero { width: 150px; height: 120px; justify-self: center; }
+.tag { font-weight: 800; font-size: 18px; }
+.muted { color: #7a4a3a; font-size: 14px; }
+.row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.btn { font: 900 22px var(--round); padding: 10px 22px; border-radius: 16px; border: 3px solid var(--ink); background: var(--sauce); color: var(--cream); cursor: pointer; box-shadow: 0 5px 0 var(--ink); -webkit-text-stroke: 1px var(--ink); paint-order: stroke fill; }
+.btn.alt { background: var(--cream); color: var(--ink); -webkit-text-stroke: 0; }
+.btn.small { font-size: 17px; padding: 7px 14px; }
+.btn:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--ink); }
+.btn:focus-visible { outline: 4px solid var(--mustard); outline-offset: 2px; }
+.keys { font-size: 14px; color: #5a3326; line-height: 1.5; }
+kbd { font: 800 12px var(--round); background: #fff; border: 2px solid var(--ink); border-radius: 6px; padding: 0 5px; }
+h2 { margin: 0; font: 900 30px var(--round); color: var(--sauce); -webkit-text-stroke: 1.5px var(--ink); paint-order: stroke fill; }
+.big-time { font: 900 40px var(--round); font-variant-numeric: tabular-nums; }
+.new-best { display: inline-block; background: var(--mustard); border: 2.5px solid var(--ink); border-radius: 999px; padding: 2px 12px; font-weight: 900; transform: rotate(-3deg); }
+.stats { display: flex; justify-content: center; gap: 18px; font-weight: 800; flex-wrap: wrap; }
+#level-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.lvl { border: 3px solid var(--ink); border-radius: 14px; background: #fff; padding: 6px 4px; cursor: pointer; display: grid; gap: 2px; font-weight: 800; font-size: 12px; color: var(--ink); box-shadow: 0 3px 0 var(--ink); min-height: 64px; align-content: center; }
+.lvl b { font-size: 22px; font-weight: 900; }
+.lvl.done { background: #ffe9a8; }
+.lvl:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+.lvl .best { font-variant-numeric: tabular-nums; color: var(--sauce-dark); }
+@media (max-width: 420px) {
+  .card { padding: 14px 14px; gap: 10px; font-size: 15px; }
+  .btn { font-size: 19px; padding: 9px 16px; }
+  #level-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-height: 460px) {
+  .card { gap: 7px; padding: 10px 18px; }
+  #title-hero { height: 70px; width: 90px; }
+  .logo .main { font-size: 46px; }
+  .logo .super { font-size: 24px; }
+  .keys { display: none; }
+  #level-grid { grid-template-columns: repeat(6, 1fr); }
+}
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="game" aria-label="Super Sauce Boy level"></canvas>
+</div>
+
+<div id="hud" hidden>
+  <span class="pill" id="hud-level">1. First Drip</span>
+  <span class="spacer"></span>
+  <span class="pill" id="hud-time">0:00.00</span>
+  <span class="pill splat-pill" id="hud-splats" title="Splats">💥 0</span>
+  <button class="hud-btn" id="pause-btn" aria-label="Pause"><svg viewBox="0 0 10 10"><rect x="1.5" y="1" width="2.6" height="8" rx="0.6"/><rect x="5.9" y="1" width="2.6" height="8" rx="0.6"/></svg></button>
+</div>
+<div id="tip" class="fade"></div>
+
+<div id="pad" hidden>
+  <div class="group">
+    <button class="pad-btn" id="btn-left" data-pad="l" aria-label="Run left"><svg viewBox="0 0 10 10"><path d="M7 1 L2 5 L7 9 Z"/></svg></button>
+    <button class="pad-btn" id="btn-right" data-pad="r" aria-label="Run right"><svg viewBox="0 0 10 10"><path d="M3 1 L8 5 L3 9 Z"/></svg></button>
+  </div>
+  <button class="pad-btn" id="btn-jump" data-pad="j" aria-label="Jump">JUMP</button>
+</div>
+
+<!-- Title -->
+<div class="screen" id="title-screen">
+  <div class="card">
+    <div class="logo"><span class="super">SUPER</span><span class="main title-big">Sauce Boy</span></div>
+    <canvas id="title-hero" width="300" height="240" aria-hidden="true"></canvas>
+    <p class="tag">Leap, wall-jump and splat through spicy kitchen levels as a tiny drop of hot sauce.</p>
+    <div class="row">
+      <button class="btn" id="play-btn">Play!</button>
+      <button class="btn alt" id="levels-btn">Levels</button>
+      <button class="btn alt small" id="sound-btn" aria-pressed="true">Sound: on</button>
+    </div>
+    <p class="keys"><kbd>←</kbd> <kbd>→</kbd> or <kbd>A</kbd> <kbd>D</kbd> run · <kbd>Space</kbd> <kbd>↑</kbd> <kbd>W</kbd> jump (hold to go higher) · <kbd>P</kbd> pause · <kbd>R</kbd> restart<br>On a phone or tablet, use the buttons at the bottom. Sideways is roomiest.</p>
+    <p class="muted">Designed by NotClay · GameOn</p>
+  </div>
+</div>
+
+<!-- Level picker -->
+<div class="screen" id="levels-screen" hidden>
+  <div class="card">
+    <h2>Pick a level</h2>
+    <div id="level-grid"></div>
+    <div class="row"><button class="btn alt small" id="levels-back">Back</button></div>
+  </div>
+</div>
+
+<!-- Pause -->
+<div class="screen" id="pause-screen" hidden>
+  <div class="card">
+    <h2>Paused</h2>
+    <div class="row">
+      <button class="btn" id="resume-btn">Keep going</button>
+      <button class="btn alt" id="restart-btn">Restart level</button>
+    </div>
+    <div class="row">
+      <button class="btn alt small" id="pause-levels-btn">Levels</button>
+      <button class="btn alt small" id="pause-title-btn">Title screen</button>
+      <button class="btn alt small" id="pause-sound-btn" aria-pressed="true">Sound: on</button>
+    </div>
+  </div>
+</div>
+
+<!-- Level done -->
+<div class="screen" id="done-screen" hidden>
+  <div class="card">
+    <h2 id="done-title">Nachos sauced!</h2>
+    <div class="big-time" id="done-time">0:00.00</div>
+    <div id="done-best-line"></div>
+    <div class="stats"><span id="done-splats">💥 0 splats</span></div>
+    <div class="row">
+      <button class="btn" id="next-btn">Next level</button>
+      <button class="btn alt" id="retry-btn">Try for a faster time</button>
+    </div>
+    <div class="row"><button class="btn alt small" id="done-levels-btn">Levels</button></div>
+  </div>
+</div>
+
+<!-- All done -->
+<div class="screen" id="end-screen" hidden>
+  <div class="card">
+    <h2>The kitchen is SAUCED!</h2>
+    <canvas id="end-hero" width="300" height="240" style="width:150px;height:120px;justify-self:center" aria-hidden="true"></canvas>
+    <p class="tag">You beat all 12 levels. Every plate of nachos has its hot sauce.</p>
+    <div class="stats"><span id="end-time">Best times: 0:00.00</span><span id="end-splats">💥 0 splats</span></div>
+    <p class="muted">Now go back and beat your best times!</p>
+    <div class="row">
+      <button class="btn" id="end-levels-btn">Levels</button>
+      <button class="btn alt" id="end-title-btn">Title screen</button>
+    </div>
+  </div>
+</div>
+
+<script src="engine.js"></script>
+<script src="levels.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

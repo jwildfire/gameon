@@ -1,0 +1,180 @@
+{
+  "spec": "111-super-sauce-boy",
+  "passed": true,
+  "headline": "PASS: 8 of 8 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-24T01:36:38.909Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "ff0ecc3",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/111-super-sauce-boy.spec.mjs",
+  "checks": [
+    {
+      "check": "the title screen opens and level 1 starts, with nothing loaded from the internet",
+      "notes": [
+        "desktop: 12 levels, HUD shows level, timer and splats; no requests outside the site; no sideways scrolling",
+        "phone: 12 levels, HUD shows level, timer and splats; no requests outside the site; no sideways scrolling"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "title-desktop.jpg",
+          "playing-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "title-phone.jpg",
+          "playing-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Sauce Boy runs and jumps with the real controls: the keyboard on a laptop, the touch buttons on a phone",
+      "notes": [
+        "desktop: keyboard: ran from x 65 to 520 and jumped up to y 344; sauce trail on the floor",
+        "phone: touch buttons: ran from x 65 to 520 and jumped up to y 338; sauce trail on the floor"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "controls-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "controls-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "level 1 can be beaten by holding right and pressing jump in real time",
+      "notes": [
+        "desktop: nachos sauced in 0:04.83 with 3 jumps and 0 splats",
+        "phone: nachos sauced in 0:03.65 with 3 jumps and 0 splats"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "level-done-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "level-done-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "every one of the 12 levels can be beaten in the real game",
+      "notes": [
+        "desktop: won: 1 First Drip 2.43s, 2 Tall Shelves 2.39s, 3 Fork Field 2.74s, 4 Tiny Hops 2.55s, 5 Sticky Walls 2.22s, 6 Sauce Chimney 3.22s, 7 Butter Slide 2.42s, 8 Toaster Pop 2.91s, 9 Crumbly Crackers 2.47s, 10 Hot Plates 3.36s, 11 Pizza Cutters 2.7s, 12 Nacho Grande 7.83s",
+        "phone: won: 1 First Drip 2.43s, 2 Tall Shelves 2.39s, 3 Fork Field 2.74s, 4 Tiny Hops 2.55s, 5 Sticky Walls 2.22s, 6 Sauce Chimney 3.22s, 7 Butter Slide 2.42s, 8 Toaster Pop 2.91s, 9 Crumbly Crackers 2.47s, 10 Hot Plates 3.36s, 11 Pizza Cutters 2.7s, 12 Nacho Grande 7.83s"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "wall-jump-desktop.jpg",
+          "all-levels-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "wall-jump-phone.jpg",
+          "all-levels-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "running into a fork splats Sauce Boy and he pops straight back at the start",
+      "notes": [
+        "desktop: SPLAT! counter at 1, then back at the start (x 65) about a third of a second later",
+        "phone: SPLAT! counter at 1, then back at the start (x 65) about a third of a second later"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "splat-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "splat-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the game pauses, and Restart starts the level over",
+      "notes": [
+        "desktop: paused at 0.84s and the clock stayed put; Restart put Sauce Boy back at the start with a fresh clock",
+        "phone: paused at 1.57s and the clock stayed put; Restart put Sauce Boy back at the start with a fresh clock"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "paused-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "paused-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "best times are saved, only under gameon.super-sauce-boy.",
+      "notes": [
+        "desktop: keys: gameon.super-sauce-boy.best, gameon.super-sauce-boy.unlocked, gameon.super-sauce-boy.sound; level 1 best 2.43s still there after a reload",
+        "phone: keys: gameon.super-sauce-boy.best, gameon.super-sauce-boy.unlocked, gameon.super-sauce-boy.sound; level 1 best 2.43s still there after a reload"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "Super Sauce Boy has the first card in the arcade and plays in its frame",
+      "notes": [
+        "desktop: card first in the arcade with its 800x450 cover; plays inside the frame; GitHub button opens its folder",
+        "phone: card first in the arcade with its 800x450 cover; plays inside the frame; GitHub button opens its folder"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "in-arcade-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "in-arcade-phone.jpg"
+        ],
+        "error": null
+      }
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+ "1": {
+  "name": "First Drip",
+  "step": 6,
+  "time": 2.43,
+  "inputs": "RRrrRRRRRrRRrRLNRNNRrRrRlRRRNlLRrRRRRRRRRrRrRRRRR"
+ },
+ "2": {
+  "name": "Tall Shelves",
+  "step": 6,
+  "time": 2.39,
+  "inputs": "RRRNRRRRRRrLRRRRrRRRrRRRRRRRRRlLRnRRRrlnRNLnRRRR"
+ },
+ "3": {
+  "name": "Fork Field",
+  "step": 6,
+  "time": 2.74,
+  "inputs": "rrrrrrrnrRrLLRRRRrRrNRRRRRrRRLrRRRRRlRrRRRRNNNLlNrRRRRR"
+ },
+ "4": {
+  "name": "Tiny Hops",
+  "step": 6,
+  "time": 2.55,
+  "inputs": "rrrrrrrrrrrrRrLlRRlRrlnRnRnRRRRRRRRRRrRrRRRRRRRRRRR"
+ },
+ "5": {
+  "name": "Sticky Walls",
+  "step": 6,
+  "time": 2.22,
+  "inputs": "RRrRRRRRrlRRnRRRrLrNRRRRrRRRRlRRRRRNRRRRRRRRR"
+ },
+ "6": {
+  "name": "Sauce Chimney",
+  "step": 6,
+  "time": 3.22,
+  "inputs": "RrRRrRRRRrRLRRlRRRRlNLLLlLRRRRRrllRLRlLRRrRRRRRRrRrRRRRRRRRRRRRRR"
+ },
+ "7": {
+  "name": "Butter Slide",
+  "step": 6,
+  "time": 2.42,
+  "inputs": "rrrrrrrNLrNRRRRRRRRRRRLNrRrRRRRRRLLRNrLrRRRRRRRRR"
+ },
+ "8": {
+  "name": "Toaster Pop",
+  "step": 6,
+  "time": 2.91,
+  "inputs": "RRrRRRRRrLRrrRRrrrrrrrrrrRRnRRRRRRRRRRlRRRLnRRRLLNRRRRRRRRR"
+ },
+ "9": {
+  "name": "Crumbly Crackers",
+  "step": 6,
+  "time": 2.47,
+  "inputs": "RRRrRRRRRRrrrrrRrRRRRrNRrrRrRRRlRRnRRRRRRRRRRRRRRR"
+ },
+ "10": {
+  "name": "Hot Plates",
+  "step": 6,
+  "time": 3.36,
+  "inputs": "LlLnLrLLlNLlLRrRrRLRnRrRRRRrRrRRLlRrRRRrLnrRRRlRRRRRRRRRRRRRRRRRRRRR"
+ },
+ "11": {
+  "name": "Pizza Cutters",
+  "step": 6,
+  "time": 2.7,
+  "inputs": "rRrRlRRRrRrRrRRRrRrRRRRRrRrRRLRlNNrRRRRRLNrrrrrrrrrrrR"
+ },
+ "12": {
+  "name": "Nacho Grande",
+  "step": 6,
+  "time": 7.83,
+  "inputs": "LLNlRRLlLlNnlRRRnRNLrRLRLNrrRRRRRRRRrRRRLRRLrRRRrRRRnRRnRRrRRRLNLlLLLNLNnLRLNRLlNlNNLNNlNnLnNLNNLLNLLLLLLLNLLLlRrRRRRrRrRRRRRRRRRRRRrRrRRRRRRRRRRRRNRrRrRRRRR"
+ }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "super-sauce-boy",
+  "title": "Super Sauce Boy",
+  "tagline": "Leap, wall-jump and splat through spicy kitchen levels as a tiny drop of hot sauce.",
+  "credit": "Designed by NotClay",
+  "idea": "Super sauce boy. It's kinda like super meat boy, but with hot sauce.",
+  "made": "2026-10-23",
+  "built_with": "Claude Opus 5.5",
+  "players": "1",
+  "sideways": true,
+  "needs_internet": false,
+  "idea_issue": 111,
+  "path": "games/super-sauce-boy/"
+}
