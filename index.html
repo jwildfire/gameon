@@ -61,7 +61,9 @@ a { color: inherit; }
   paint-order: stroke fill;
   text-shadow: 5px 5px 0 var(--ink);
 }
-.wordmark span { color: var(--pop); }
+.wordmark { white-space: nowrap; }
+.wordmark .wm-on { color: var(--pop); }
+.wordmark .wm-word { display: inline-block; }
 .lede { margin: 0; font-size: clamp(17px, 2.4vw, 21px); font-weight: 800; max-width: 34ch; text-wrap: balance; min-height: 2.9em; transition: opacity 350ms ease; }
 .lede.fading { opacity: 0; }
 @media (prefers-reduced-motion: reduce) { .lede { transition: none; } }
@@ -299,6 +301,20 @@ html[data-mode="weird"] .lede.fading { opacity: 1; color: transparent; }
 /* In the wide header row the card leaves less room for words, so it holds three lines, centred. */
 @media (min-width: 760px) { html[data-mode="weird"] .lede { display: flex; align-items: center; min-height: calc(4.35em + 18px); padding: 6px 12px; } }
 @media (prefers-reduced-motion: reduce) { html[data-mode="weird"] .lede { transition: none; } }
+/* The logo's rotating titles (#145): the first word wobbles into a new one, "On" stays put. In
+   the wide row the logo keeps the widest title's width, so the tagline doesn't shuffle sideways. */
+@media (min-width: 760px) { html[data-mode="weird"] .wordmark { min-width: 4.6em; } }
+/* On phones GitHub sits in the logo's top-right corner, so the logo shrinks just enough for the
+   widest title (about 4.6em) to stay clear of it. */
+@media (max-width: 759px) { html[data-mode="weird"] .wordmark { font-size: min(clamp(56px, 12vw, 104px), calc((100vw - 148px) / 4.65)); } }
+.wordmark .wm-word.wobble { animation: wm-wobble 440ms ease-in-out; transform-origin: 50% 80%; }
+@keyframes wm-wobble {
+  0% { transform: none; }
+  40% { transform: rotate(-6deg) scale(0.85); }
+  70% { transform: rotate(4deg) scale(1.06); }
+  100% { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) { .wordmark .wm-word.wobble { animation: none; } }
 .home { padding-bottom: max(88px, env(safe-area-inset-bottom, 0px)); } /* room for the corner control (Shuffle, and Next in Weird) */
 </style>
 </head>
@@ -306,7 +322,7 @@ html[data-mode="weird"] .lede.fading { opacity: 1; color: transparent; }
 
 <main class="home" id="home">
   <header class="masthead">
-    <h1 class="wordmark">Game<span>On</span></h1>
+    <h1 class="wordmark" id="wordmark" aria-label="GameOn"><span class="wm-word" id="wm-word">Game</span><span class="wm-on">On</span></h1>
     <div class="corner">
       <a class="gh-home" id="gh-home" href="https://github.com/jwildfire/gameon" target="_blank" rel="noopener"><svg class="gh" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 0-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6 0-3.2 0 0 1-.3 3.4 1.2a11.5 11.5 0 0 1 6 0C17 4.6 18 5 18 5c.6 1.6.2 2.8.1 3.2.8.8 1.3 1.9 1.3 3.1 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>GitHub</a>
       <div class="mode-switch" role="group" aria-label="Arcade mode"><button type="button" data-mode-set="normal" aria-pressed="true">Normal</button><button type="button" data-mode-set="weird" aria-pressed="false">Weird</button></div>
@@ -386,6 +402,48 @@ html[data-mode="weird"] .lede.fading { opacity: 1; color: transparent; }
   }
   window.gameonTaglines = LINES.slice();
   window.gameonNextTagline = function () { show(i + 1); return LINES[i]; };
+  document.addEventListener("gameon:mode", apply);
+  apply();
+})();
+
+// Logo titles (#145): Normal mode is always "GameOn". Weird mode starts on "GameOn" and swaps
+// the first word every 6.5 s, half a beat after the tagline, so the two take turns. "On"
+// stays orange; the h1's aria-label keeps it "GameOn" for screen readers. With reduced motion
+// the word still changes, just without the wobble. ?titleInterval=<seconds> speeds it up.
+(function () {
+  var WORDS = ["Game", "Flame", "Llama", "Dream", "Glitch", "Party", "Bounce", "Noodle", "Zoom", "Jelly", "Space", "Goose", "Pizza", "Wiggle", "Beam", "Robot", "Banana", "Taco", "Dino", "Combo", "Rocket", "Bubble", "Disco", "Waffle", "Pickle", "Turbo", "Splash", "Giggle", "Sauce", "Lava", "Comet", "Pixel"];
+  var word = document.getElementById("wm-word");
+  var secs = parseFloat(new URLSearchParams(location.search).get("titleInterval"));
+  var every = secs > 0 ? secs * 1000 : 6500;
+  var i = 0, timer = 0, swap = 0;
+  function weird() { return !!window.gameonMode && window.gameonMode.get() === "weird"; }
+  function still() { return !!window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches; }
+  function show(n) { i = (n + WORDS.length) % WORDS.length; word.textContent = WORDS[i]; }
+  function next() {
+    if (still()) { show(i + 1); return; }
+    word.classList.remove("wobble");
+    void word.offsetWidth; // restart the animation
+    word.classList.add("wobble");
+    clearTimeout(swap);
+    swap = setTimeout(function () { if (weird()) show(i + 1); }, 180); // at the wobble's squeeze
+  }
+  function stop() {
+    clearTimeout(timer); clearInterval(timer); clearTimeout(swap);
+    timer = swap = 0;
+    word.classList.remove("wobble");
+  }
+  function apply() {
+    stop();
+    show(0);
+    if (!weird()) return;
+    timer = setTimeout(function () {
+      if (!document.hidden) next();
+      timer = setInterval(function () { if (!document.hidden) next(); }, every);
+    }, every / 2);
+  }
+  word.addEventListener("animationend", function () { word.classList.remove("wobble"); });
+  window.gameonTitles = WORDS.map(function (w) { return w + "On"; });
+  window.gameonNextTitle = function () { show(i + 1); return WORDS[i] + "On"; };
   document.addEventListener("gameon:mode", apply);
   apply();
 })();
