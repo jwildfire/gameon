@@ -47,6 +47,7 @@ test("on a phone the header stacks and nothing overflows", async ({ page, shot, 
 
 // Since #134 the rotation is Weird mode's; Normal mode (the default) holds the first line.
 test("the tagline holds Jeremy's line in Normal mode, rotates through 50 more in Weird mode, and holds still for reduced motion", async ({ page, note, browserErrors }) => {
+  test.setTimeout(90_000); // it waits through real tagline swaps, which outlast 30 s on a busy runner
   await page.goto("./");
   await expect(page.locator("#tagline")).toHaveText("Think of a Game? Make it, play it, change it!");
   await page.goto("./?mode=weird");
