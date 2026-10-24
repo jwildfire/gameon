@@ -63,3 +63,11 @@ Every fighter gets a random hat, face gear and back piece (capes, wings, jetpack
 ## How it was made
 
 Built with Claude (Opus 5.5) over a few evening sessions starting 2026-10-21. The kids dictated prompts and I steered. Published as a Claude artifact.
+
+## jeremy.v2: New modes, party levels, costumes, weapons and skins
+
+Update idea from Jeremy (game idea #139), word for word:
+
+> Bring in the latest from jwildfire/trampoline-battle
+
+Started from jeremy.v1. Copied from jwildfire/trampoline-battle at bdc9ea670b824b66623414bdbb59872de7bb437a, 5 commits after 669e7fec4eb86f0e599376a5aa5ccd832d0dae83. New since jeremy.v1: Party Levels, Survival, Pile-Up and Endless modes, a Solo option, costumes and weird weapons, three skins with a pixel/sticker item toggle, and the 100 level ideas page in `design/`.
