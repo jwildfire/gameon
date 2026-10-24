@@ -477,7 +477,10 @@ html[data-mode="weird"] .wordmark[data-style="19"] .wm-on { color: #ffb703; }
     link.href = "https://fonts.googleapis.com/css2?" + STYLES.slice(1).map(function (f) { return "family=" + f.replace(/ /g, "+"); }).join("&") + "&display=swap";
     fonts = new Promise(function (done) {
       link.onload = function () {
-        Promise.all(STYLES.slice(1).map(function (f) { return document.fonts.load('40px "' + f + '"').catch(function () {}); })).then(function () { fit(); done(); });
+        // Ask for every letter: some fonts (Rampart One) come in slices, and a slice that
+        // arrives after the title is measured would make it wider than its room.
+        var abc = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        Promise.all(STYLES.slice(1).map(function (f) { return document.fonts.load('40px "' + f + '"', abc).catch(function () {}); })).then(function () { fit(); done(); });
       };
       link.onerror = function () { done(); };
     });
