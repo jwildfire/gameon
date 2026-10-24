@@ -2,9 +2,9 @@
   "spec": "122-princess-lady-drive-jeremy-v2",
   "passed": true,
   "headline": "PASS: 11 of 11 checks pass at desktop and phone widths.",
-  "generatedAt": "2026-10-24T03:02:53.595Z",
+  "generatedAt": "2026-10-24T03:05:55.017Z",
   "target": "local server (python3 -m http.server) on this branch",
-  "commit": "5da59a5",
+  "commit": "555a57c",
   "playwright": "1.61.1",
   "specFile": "tests/evidence/122-princess-lady-drive-jeremy-v2.spec.mjs",
   "checks": [
@@ -95,7 +95,7 @@
     {
       "check": "the Kitchen's pot turns what Rosie puts in into a surprise treat, and its door goes back to the hall",
       "notes": [
-        "desktop: the pot made a chocolate chip cookie",
+        "desktop: the pot made a chocolate donut",
         "phone: the pot made a chocolate donut"
       ],
       "desktop": {
