@@ -48,7 +48,8 @@ test("the player's GitHub button opens the current game's code", async ({ page, 
 
 test("every game's GitHub button points at its own code", async ({ page, note }) => {
   for (const g of games) {
-    await page.goto(`./#${g.slug}`);
+    // A game with versions asks which one first; its #slug@default link plays the default straight away.
+    await page.goto(`./#${g.slug}${g.versions ? `@${g.default}` : ""}`);
     await expect(page.locator("#bar-title")).toHaveText(g.title);
     await expect(page.locator("#gh-btn")).toHaveAttribute("href", sourceOf(g));
   }
