@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Pet Wash Payback</title>
+<meta name="description" content="Scrub the pets as fast as you can, then run! Now they've got the hose.">
+<meta name="theme-color" content="#2a2140">
+<link rel="icon" href="data:,">
+<style>
+:root {
+  --ink: #2a2140;
+  --foam: #ffffff;
+  --sky: #8fd8ff;
+  --blue: #2f8cff;
+  --pink: #ff6fae;
+  --sun: #ffd23f;
+  --grass: #63c95e;
+  --cream: #fffaf0;
+  --round: ui-rounded, "Arial Rounded MT Bold", "Trebuchet MS", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: #bfe9ff; overflow: hidden; touch-action: none; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+body { font-family: var(--round); color: var(--ink); }
+[hidden] { display: none !important; }
+button { font-family: var(--round); color: var(--ink); }
+#game { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+
+/* HUD */
+#hud { position: fixed; top: 0; left: 0; right: 0; display: flex; align-items: center; gap: 6px; padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) 0 max(8px, env(safe-area-inset-left)); pointer-events: none; font-weight: 900; font-size: 15px; z-index: 3; }
+.pill { background: rgba(255, 250, 240, 0.95); border: 2.5px solid var(--ink); border-radius: 999px; padding: 3px 10px; white-space: nowrap; line-height: 1.3; }
+#hud-pet { overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 0 1 auto; }
+#hud-time { font-variant-numeric: tabular-nums; min-width: 3.4em; text-align: center; flex: none; }
+#hud-time.hurry { background: #ffd0d0; animation: throb 0.5s infinite alternate; }
+@keyframes throb { to { transform: scale(1.08); } }
+#hud-meter { flex: 1 1 90px; min-width: 70px; max-width: 260px; display: flex; align-items: center; gap: 6px; padding: 3px 8px; }
+#meter-label { font-size: 12px; flex: none; }
+.bar { flex: 1; height: 12px; border: 2px solid var(--ink); border-radius: 99px; background: #fff; overflow: hidden; }
+#meter-fill { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, #7be0ff, #2f8cff); border-radius: 99px; transition: width 120ms linear; }
+#hud-meter.wet #meter-fill { background: linear-gradient(90deg, #8fd8ff, #1b5cff); }
+#hud-meter.wet.danger { background: #ffd8e6; }
+.hud-btn { pointer-events: auto; width: 36px; height: 36px; border-radius: 50%; border: 2.5px solid var(--ink); background: var(--cream); display: grid; place-items: center; cursor: pointer; padding: 0; flex: none; }
+.hud-btn svg { width: 56%; height: 56%; fill: var(--ink); }
+.hud-btn.off svg .wave { display: none; }
+.spacer { flex: 1 1 0; }
+
+/* Tool bar */
+#tools { position: fixed; left: 0; right: 0; bottom: 0; display: flex; justify-content: center; gap: 10px; padding: 0 10px max(10px, env(safe-area-inset-bottom)); z-index: 3; pointer-events: none; }
+.tool { pointer-events: auto; width: 96px; height: 78px; border-radius: 20px; border: 3px solid var(--ink); background: var(--cream); box-shadow: 0 5px 0 var(--ink); display: grid; place-items: center; align-content: center; gap: 0; cursor: pointer; padding: 2px 0 0; font: 900 14px var(--round); touch-action: none; position: relative; }
+.tool svg { width: 42px; height: 38px; pointer-events: none; }
+.tool .k { position: absolute; top: 4px; left: 7px; font-size: 11px; opacity: 0.55; }
+.tool.on { background: var(--sun); transform: translateY(3px); box-shadow: 0 2px 0 var(--ink); }
+.tool.want:not(.on) { animation: want 0.6s infinite alternate; }
+@keyframes want { from { box-shadow: 0 5px 0 var(--ink), 0 0 0 0 rgba(255,111,174,0.9); } to { box-shadow: 0 5px 0 var(--ink), 0 0 0 7px rgba(255,111,174,0.55); } }
+
+#tip { position: fixed; left: 0; right: 0; top: 64px; z-index: 4; text-align: center; font-weight: 900; font-size: 26px; color: #fff; text-shadow: 0 3px 0 var(--ink), 0 -2px 0 var(--ink), 2px 0 0 var(--ink), -2px 0 0 var(--ink), 0 5px 8px rgba(0,0,0,0.35); pointer-events: none; transition: opacity 300ms, transform 300ms; padding: 0 16px; }
+#tip.fade { opacity: 0; transform: translateY(-10px); }
+
+/* Screens */
+.screen { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 12px; background: rgba(42, 33, 64, 0.45); overflow: auto; }
+#title-screen { background: rgba(42, 33, 64, 0.12); align-items: start; }
+#title-screen .card { width: min(500px, 100%); }
+@media (min-aspect-ratio: 5/4) { #title-screen { justify-items: start; align-items: center; padding-left: 4vw; } #title-screen .card { width: min(500px, 48vw); } }
+.card { background: var(--cream); border: 4px solid var(--ink); border-radius: 26px; box-shadow: 7px 7px 0 var(--ink); padding: 16px 20px; text-align: center; width: min(540px, 100%); display: grid; gap: 10px; font-size: 17px; }
+.card p { margin: 0; }
+.logo { display: grid; justify-items: center; line-height: 0.9; }
+.logo .a { font: 900 clamp(40px, 12vw, 64px) var(--round); color: #7fd4ff; -webkit-text-stroke: 3px var(--ink); paint-order: stroke fill; text-shadow: 4px 5px 0 var(--ink); letter-spacing: 0.01em; }
+.logo .b { font: 900 clamp(30px, 9vw, 46px) var(--round); color: var(--pink); -webkit-text-stroke: 2.5px var(--ink); paint-order: stroke fill; text-shadow: 3px 4px 0 var(--ink); transform: rotate(-4deg); margin-top: 2px; letter-spacing: 0.06em; }
+.tag { font-weight: 800; font-size: 17px; }
+.muted { color: #6a5a80; font-size: 14px; }
+.row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.btn { font: 900 22px var(--round); padding: 10px 22px; border-radius: 16px; border: 3px solid var(--ink); background: var(--blue); color: #fff; cursor: pointer; box-shadow: 0 5px 0 var(--ink); -webkit-text-stroke: 1px var(--ink); paint-order: stroke fill; }
+.btn.pink { background: var(--pink); }
+.btn.alt { background: #fff; color: var(--ink); -webkit-text-stroke: 0; }
+.btn.small { font-size: 16px; padding: 7px 14px; }
+.btn:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--ink); }
+.btn:focus-visible, .tool:focus-visible, .petcard:focus-visible { outline: 4px solid var(--sun); outline-offset: 2px; }
+.keys { font-size: 13px; color: #4a3d63; line-height: 1.55; }
+kbd { font: 800 12px var(--round); background: #fff; border: 2px solid var(--ink); border-radius: 6px; padding: 0 5px; }
+h2 { margin: 0; font: 900 30px var(--round); color: var(--pink); -webkit-text-stroke: 1.5px var(--ink); paint-order: stroke fill; line-height: 1.05; }
+h2.blue { color: #57c4ff; }
+.kicker { font-weight: 900; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: #6a5a80; }
+.stars { font-size: 44px; letter-spacing: 4px; line-height: 1; }
+.stars .on { color: var(--sun); -webkit-text-stroke: 2px var(--ink); paint-order: stroke fill; }
+.stars .off { color: #ddd5ea; -webkit-text-stroke: 2px #b4a8c8; paint-order: stroke fill; }
+.points { font: 900 26px var(--round); font-variant-numeric: tabular-nums; }
+.new-best { display: inline-block; justify-self: center; background: var(--sun); border: 2.5px solid var(--ink); border-radius: 999px; padding: 2px 12px; font-weight: 900; transform: rotate(-3deg); }
+.petpic { width: 180px; height: 150px; justify-self: center; }
+#pet-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.petcard { border: 3px solid var(--ink); border-radius: 16px; background: #fff; padding: 4px 2px 6px; cursor: pointer; display: grid; gap: 1px; font-weight: 800; font-size: 12px; box-shadow: 0 3px 0 var(--ink); justify-items: center; }
+.petcard canvas { width: 72px; height: 60px; }
+.petcard .nm { font-size: 13px; font-weight: 900; }
+.petcard .st { color: #c98a00; font-size: 12px; letter-spacing: 1px; }
+.petcard:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+table.sum { border-collapse: collapse; justify-self: center; font-weight: 800; font-size: 15px; }
+table.sum td, table.sum th { padding: 3px 8px; }
+table.sum th { font-size: 12px; color: #6a5a80; text-transform: uppercase; letter-spacing: 0.05em; }
+table.sum td.s { color: #c98a00; letter-spacing: 1px; }
+table.sum td.n { text-align: right; font-variant-numeric: tabular-nums; }
+@media (max-width: 420px) {
+  .card { padding: 14px 12px; gap: 9px; font-size: 15px; }
+  .btn { font-size: 19px; padding: 9px 16px; }
+  #pet-grid { grid-template-columns: repeat(3, 1fr); }
+  #hud { font-size: 13px; gap: 4px; }
+  .pill { padding: 3px 7px; }
+  .hud-btn { width: 32px; height: 32px; }
+  .tool { width: 88px; height: 72px; }
+  .stars { font-size: 38px; }
+}
+@media (max-height: 520px) {
+  .card { gap: 6px; padding: 10px 18px; }
+  .logo .a { font-size: 46px; }
+  .logo .b { font-size: 32px; }
+  .keys { display: none; }
+  .petpic { height: 100px; width: 120px; }
+  .tool { height: 62px; width: 84px; }
+  .tool svg { height: 30px; }
+}
+</style>
+</head>
+<body>
+<canvas id="game" aria-label="Pet Wash Payback"></canvas>
+
+<div id="hud" hidden>
+  <span class="pill" id="hud-pet">Biscuit</span>
+  <span class="pill" id="hud-time">0:40</span>
+  <span class="pill" id="hud-meter"><span id="meter-label">Clean</span><span class="bar"><i id="meter-fill"></i></span></span>
+  <span class="spacer"></span>
+  <button class="hud-btn" id="mute-btn" aria-label="Sound on or off"><svg viewBox="0 0 10 10"><path d="M1 3.6h1.8L5.3 1.5v7L2.8 6.4H1z"/><path class="wave" d="M6.4 3.2q1.3 1.8 0 3.6l.6.4q1.6-2.2 0-4.4zM7.6 2.2q2.1 2.8 0 5.6l.6.4q2.4-3.2 0-6.4z"/></svg></button>
+  <button class="hud-btn" id="pause-btn" aria-label="Pause"><svg viewBox="0 0 10 10"><rect x="1.8" y="1.2" width="2.4" height="7.6" rx="0.6"/><rect x="5.8" y="1.2" width="2.4" height="7.6" rx="0.6"/></svg></button>
+</div>
+
+<div id="tools" hidden>
+  <button class="tool on" id="tool-0" data-tool="0" aria-label="Soap (1)"><span class="k">1</span>
+    <svg viewBox="0 0 42 38"><rect x="5" y="9" width="32" height="22" rx="7" fill="#ffe36b" stroke="#2a2140" stroke-width="2.5"/><circle cx="14" cy="17" r="2.5" fill="#e0b92c"/><circle cx="25" cy="22" r="3" fill="#e0b92c"/><circle cx="31" cy="15" r="2" fill="#e0b92c"/><circle cx="8" cy="7" r="4" fill="#fff" stroke="#7fd4ff" stroke-width="1.5"/><circle cx="35" cy="5" r="3" fill="#fff" stroke="#7fd4ff" stroke-width="1.5"/></svg>Soap</button>
+  <button class="tool" id="tool-1" data-tool="1" aria-label="Rinse (2)"><span class="k">2</span>
+    <svg viewBox="0 0 42 38"><path d="M8 4h14l6 7H2z" fill="#c9d3e6" stroke="#2a2140" stroke-width="2.5" stroke-linejoin="round"/><path d="M6 16l-2 8M15 16l-1 9M24 16l1 9M33 15l3 8" stroke="#2f8cff" stroke-width="3" stroke-linecap="round"/><circle cx="9" cy="31" r="3" fill="#2f8cff"/><circle cx="21" cy="33" r="3" fill="#2f8cff"/><circle cx="32" cy="30" r="3" fill="#2f8cff"/></svg>Rinse</button>
+  <button class="tool" id="tool-2" data-tool="2" aria-label="Towel (3)"><span class="k">3</span>
+    <svg viewBox="0 0 42 38"><rect x="4" y="6" width="34" height="26" rx="5" fill="#ff8fc0" stroke="#2a2140" stroke-width="2.5"/><path d="M4 24h34" stroke="#2a2140" stroke-width="2"/><path d="M9 11h24M9 16h24" stroke="#fff" stroke-width="2" stroke-dasharray="3 3"/></svg>Towel</button>
+</div>
+
+<div id="tip" class="fade"></div>
+
+<!-- Title -->
+<div class="screen" id="title-screen">
+  <div class="card">
+    <div class="logo"><span class="a title-big">Pet Wash</span><span class="b">PAYBACK!</span></div>
+    <p class="tag">Scrub the pets as fast as you can, then run! Now they've got the hose.</p>
+    <div class="row">
+      <button class="btn" id="play-btn">Play!</button>
+      <button class="btn alt" id="pets-btn">Pick a pet</button>
+    </div>
+    <p class="muted" id="title-best"></p>
+    <p class="keys">Round 1: drag over the mud to scrub. Soap <kbd>1</kbd>, rinse <kbd>2</kbd>, towel <kbd>3</kbd>.<br>Round 2: run with <kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd> or <kbd>WASD</kbd>, or drag anywhere. <kbd>P</kbd> pause · <kbd>R</kbd> restart · <kbd>M</kbd> sound</p>
+    <p class="muted">Designed by Jeremy · GameOn</p>
+  </div>
+</div>
+
+<!-- Pet picker -->
+<div class="screen" id="pets-screen" hidden>
+  <div class="card">
+    <h2 class="blue">Pick a pet</h2>
+    <p class="muted">Start from any pet you've reached. Stars are your best wash ★ and your best dry ☂.</p>
+    <div id="pet-grid"></div>
+    <div class="row"><button class="btn alt small" id="pets-back">Back</button></div>
+  </div>
+</div>
+
+<!-- Round intro -->
+<div class="screen" id="intro-screen" hidden>
+  <div class="card">
+    <div class="kicker" id="intro-kicker">Pet 1 of 5 · Round 1</div>
+    <h2 id="intro-title">Wash Biscuit!</h2>
+    <canvas class="petpic" id="intro-pet" width="360" height="300" aria-hidden="true"></canvas>
+    <p class="tag" id="intro-tip"></p>
+    <p class="muted" id="intro-how"></p>
+    <div class="row"><button class="btn pink" id="go-btn">Go!</button></div>
+  </div>
+</div>
+
+<!-- Round result -->
+<div class="screen" id="result-screen" hidden>
+  <div class="card">
+    <div class="kicker" id="result-kicker">Biscuit · Round 1</div>
+    <h2 id="result-title">Squeaky clean!</h2>
+    <div class="stars" id="result-stars"></div>
+    <div class="points" id="result-points">0 points</div>
+    <p class="muted" id="result-line"></p>
+    <div class="row">
+      <button class="btn" id="next-btn">Next</button>
+      <button class="btn alt small" id="retry-btn">Try again</button>
+    </div>
+  </div>
+</div>
+
+<!-- Pause -->
+<div class="screen" id="pause-screen" hidden>
+  <div class="card">
+    <h2 class="blue">Paused</h2>
+    <div class="row">
+      <button class="btn" id="resume-btn">Keep going</button>
+      <button class="btn alt" id="restart-btn">Restart round</button>
+    </div>
+    <div class="row">
+      <button class="btn alt small" id="pause-title-btn">Title screen</button>
+      <button class="btn alt small" id="pause-sound-btn">Sound: on</button>
+    </div>
+  </div>
+</div>
+
+<!-- Final -->
+<div class="screen" id="final-screen" hidden>
+  <div class="card">
+    <h2>Bath time is over!</h2>
+    <p class="tag" id="final-line">Every pet is clean, and you're... mostly dry.</p>
+    <table class="sum" id="final-table"></table>
+    <div class="points" id="final-total">0 points</div>
+    <div id="final-best"></div>
+    <div class="row">
+      <button class="btn" id="again-btn">Play again</button>
+      <button class="btn alt" id="final-title-btn">Title screen</button>
+    </div>
+  </div>
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>

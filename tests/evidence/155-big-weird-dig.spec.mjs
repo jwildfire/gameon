@@ -207,7 +207,10 @@ test("Big Weird Dig has the first card after the Editor's Choice games and plays
   const card = page.locator('#shelf .cart[href="#big-weird-dig"]');
   await expect(card).toBeVisible();
   const picks = games.filter(g => g.editorsChoice === true).length;
-  await expect(page.locator("#shelf .cart").nth(picks)).toHaveAttribute("href", "#big-weird-dig");
+  // Newer pipeline games (Pet Wash Payback, #157) also go in front of it, so check it stays ahead of the games that were there before it.
+  const order = await page.locator("#shelf .cart").evaluateAll(cs => cs.map(c => c.getAttribute("href")));
+  expect(order.indexOf("#big-weird-dig")).toBeGreaterThanOrEqual(picks);
+  expect(order.indexOf("#big-weird-dig")).toBeLessThan(order.indexOf("#super-sauce-boy"));
   await expect(card.locator("h2")).toHaveText("Big Weird Dig");
   await expect(card.locator(".cover img")).toHaveJSProperty("complete", true);
   expect(await card.locator(".cover img").evaluate(img => img.naturalWidth)).toBe(800);
