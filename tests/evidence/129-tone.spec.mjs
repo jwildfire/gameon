@@ -4,7 +4,7 @@ import { test, expect, games } from "./evidence.mjs";
 
 test("the arcade reads as Game Night: tagline, button, credits, footer", async ({ page, shot, note, browserErrors }) => {
   await page.goto("./");
-  await expect(page.locator(".lede")).toHaveText("Think of a Game? Make it. Then make it better.");
+  await expect(page.locator(".lede")).toHaveText("Think of a Game? Make it, play it, change it!");
   await expect(page.locator("#make-btn")).toHaveText("Make a game");
   await expect(page.locator(".foot")).toContainText("Every game here started as someone's idea");
   const credits = await page.locator("#shelf .credit").allTextContents();
