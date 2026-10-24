@@ -830,6 +830,7 @@ const TREATS = [
 const PLAIN_TREATS = [['🍮', 'pudding'], ['🥞', 'pancake'], ['🍪', 'cookie'], ['🍦', 'ice cream']];
 const BLOCK_LETTERS = 'ROSIE!';
 let seenDoorHint = false;
+const seenSubHint = new Set(); // each room's how-to hint shows once per visit to the game
 
 function buildSub(kind) {
   const w = 960, h = kind === 'tower' ? 720 : 760, items = [];
@@ -864,11 +865,13 @@ function enterSub(d) {
   room = buildSub(d.kind); S.mode = 'inside';
   placeRosie(room.w / 2, room.h - 90);
   Sound.door();
-  const at = { x: P.x, y: P.y - 80 };
-  if (d.kind === 'ballroom') { bubble('Let’s dance!', at, 2.5); hint('Walk on the sparkly floor to play music. Touch the music box to stop or start the party.', 8); }
-  if (d.kind === 'tower') { Sound.climb(); bubble('Up, up the winding stairs!', at, 2.5); hint('Walk to the telescope to look at the town. Raise a flag! Ring the bell!', 8); }
-  if (d.kind === 'kitchen') { bubble('Let’s cook a surprise!', at, 2.5); hint('Put things in the pot, then walk up to the pot to stir it.', 8); }
-  if (d.kind === 'toyroom') { bubble('So many toys!', at, 2.5); hint('Ride the rocking horse, knock down the blocks, and say hi to the little castle.', 8); }
+  const at = { x: P.x, y: P.y - 80 }, first = !seenSubHint.has(d.kind);
+  seenSubHint.add(d.kind);
+  const hint1 = (text) => { if (first) hint(text, 7); };
+  if (d.kind === 'ballroom') { bubble('Let’s dance!', at, 2.5); hint1('Walk on the sparkly floor to play music. Touch the music box to stop or start the party.'); }
+  if (d.kind === 'tower') { Sound.climb(); bubble('Up, up the winding stairs!', at, 2.5); hint1('Walk to the telescope to look at the town. Raise a flag! Ring the bell!'); }
+  if (d.kind === 'kitchen') { bubble('Let’s cook a surprise!', at, 2.5); hint1('Put things in the pot, then walk up to the pot to stir it.'); }
+  if (d.kind === 'toyroom') { bubble('So many toys!', at, 2.5); hint1('Ride the rocking horse, knock down the blocks, and say hi to the little castle.'); }
   updateButtons();
 }
 function backToHall() {
