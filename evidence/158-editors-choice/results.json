@@ -1,0 +1,92 @@
+{
+  "spec": "158-editors-choice",
+  "passed": true,
+  "headline": "PASS: 4 of 4 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-24T13:07:12.784Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "81908a5",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/158-editors-choice.spec.mjs",
+  "checks": [
+    {
+      "check": "Trampoline Battle is the only Editor's Choice, first on the shelf, and the rest keep their order",
+      "notes": [
+        "desktop: shelf: trampoline-battle, super-sauce-boy, fancy-food-fight, mazeathon, princess-lady-drive, stretcher-bearer, angry-dudes, magic-friends, timedout",
+        "phone: shelf: trampoline-battle, super-sauce-boy, fancy-food-fight, mazeathon, princess-lady-drive, stretcher-bearer, angry-dudes, magic-friends, timedout"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "shelf-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "shelf-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "in Normal mode the starred card fits with no sideways scroll",
+      "notes": [
+        "desktop: 1280px normal: star inside the cover, 5 tags inside the card, page 1280px wide",
+        "phone: 375px normal: star inside the cover, 5 tags inside the card, page 375px wide"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "card-normal-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "card-normal-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "in Weird mode the starred card fits with no sideways scroll",
+      "notes": [
+        "desktop: 1280px weird: star inside the cover, 5 tags inside the card, page 1280px wide",
+        "phone: 375px weird: star inside the cover, 5 tags inside the card, page 375px wide"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "card-weird-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "card-weird-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the starred card, deep links and the version picker still work",
+      "notes": [
+        "desktop: card opens the version picker (jeremy.v2 first); #trampoline-battle@jeremy.v1 plays; #super-sauce-boy plays",
+        "phone: card opens the version picker (jeremy.v2 first); #trampoline-battle@jeremy.v1 plays; #super-sauce-boy plays"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    }
+  ]
+}
