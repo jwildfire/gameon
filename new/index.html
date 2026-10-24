@@ -79,6 +79,12 @@ textarea { width: 100%; min-height: 140px; resize: vertical; border: 2.5px solid
 .chip[aria-pressed="true"] { background: var(--ink); color: var(--wall); }
 input[type="text"] { width: 100%; border: 2.5px solid var(--ink); border-radius: 12px; padding: 10px 12px; font: 700 17px/1.2 var(--body); background: #fff; color: var(--ink); }
 
+/* "What are you making?": a new game, or a change to one already in the arcade */
+.making { display: grid; gap: 8px; }
+.making select { width: 100%; min-width: 0; appearance: none; -webkit-appearance: none; border: 2.5px solid var(--ink); border-radius: 12px; padding: 10px 40px 10px 12px; font: 800 17px/1.2 var(--body); color: var(--ink); cursor: pointer;
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%231d1a2f' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 12px center / 18px 18px; text-overflow: ellipsis; }
+.making .sub { font: 800 14px/1.2 var(--body); color: var(--muted); }
+
 .go { font: 400 24px/1 var(--display); border: var(--line); border-radius: 16px; background: var(--ink); color: var(--wall); padding: 16px; cursor: pointer; box-shadow: 0 5px 0 rgba(0,0,0,.25); }
 .go:disabled { opacity: .45; cursor: not-allowed; }
 .msg { padding: 12px 14px; border-radius: 12px; background: var(--wall); border: 2px solid var(--ink); font-weight: 800; }
@@ -118,10 +124,21 @@ input[type="text"] { width: 100%; border: 2.5px solid var(--ink); border-radius:
       <div class="mark" aria-hidden="true">Game<span>On</span></div>
     </div>
   </div>
-  <h1>What's your game?</h1>
+  <h1 id="heading">What's your game?</h1>
 
   <div class="cols">
     <section class="card" id="tell" aria-label="Tell us your game">
+      <div class="making">
+        <label class="lbl" for="making">What are you making?</label>
+        <select id="making">
+          <option value="" selected>A new game</option>
+        </select>
+        <div class="making" id="version-box" hidden>
+          <label class="sub" for="version">Which version should it start from?</label>
+          <select id="version"></select>
+        </div>
+      </div>
+
       <div class="tabs" role="group" aria-label="How do you want to tell us?">
         <button type="button" id="tab-talk" aria-pressed="true">Talk</button>
         <button type="button" id="tab-type" aria-pressed="false">Type</button>
@@ -196,6 +213,74 @@ input[type="text"] { width: 100%; border: 2.5px solid var(--ink); border-radius:
 
   var told = "typing";       // "talking" once any words came from the microphone
   var mode = "talk";
+  var target = null;         // null for a new game, else { slug, title, version } to update
+
+  // ---------- What are you making? ----------
+  // A new game, or a change to a game in games.json (docs/game-versions.md). An entry without
+  // `versions` has one version, {creator}.v1. `creator` defaults to jeremy until every entry
+  // has one.
+  var making = $("making"), versionBox = $("version-box"), versionSel = $("version"), heading = $("heading");
+  var gamesBySlug = {};
+  var params = new URLSearchParams(location.search);
+
+  function versionsOf(g) {
+    if (Array.isArray(g.versions) && g.versions.length) return g.versions.filter(function (v) { return v && v.id; });
+    return [{ id: (g.creator || "jeremy") + ".v1" }];
+  }
+  function changeQuestion() { return "What should change in " + target.title + "?"; }
+
+  function fillVersions(g, want) {
+    var list = versionsOf(g);
+    versionSel.innerHTML = "";
+    list.forEach(function (v) {
+      var o = document.createElement("option");
+      o.value = v.id;
+      o.textContent = v.id + (v.id === g.default ? " (the main one)" : "") + (v.note ? " · " + v.note : "");
+      versionSel.appendChild(o);
+    });
+    var ids = list.map(function (v) { return v.id; });
+    versionSel.value = ids.indexOf(want) >= 0 ? want : ids.indexOf(g.default) >= 0 ? g.default : ids[0];
+    versionBox.hidden = false;
+  }
+
+  function pickGame(slug, want) {
+    var g = gamesBySlug[slug];
+    if (!g) {
+      target = null;
+      making.value = "";
+      versionBox.hidden = true;
+      versionSel.innerHTML = "";
+    } else {
+      making.value = slug;
+      fillVersions(g, want);
+      target = { slug: g.slug, title: g.title || g.slug, version: versionSel.value };
+    }
+    heading.textContent = target ? changeQuestion() : "What's your game?";
+    tell.setAttribute("aria-label", target ? "Tell us the change" : "Tell us your game");
+    idea.placeholder = target ? "Make it so..." : "A game where...";
+    ideaLabel.textContent = target ? changeQuestion() : mode === "talk" ? "Here's your idea" : "Type your game idea";
+    if (!listening && !idea.value.trim()) micHint.textContent = idleHint();
+  }
+  making.addEventListener("change", function () { pickGame(making.value); });
+  versionSel.addEventListener("change", function () { if (target) target.version = versionSel.value; });
+
+  var gamesReady = fetch("../games.json").then(function (r) {
+    if (!r.ok) throw new Error("http " + r.status);
+    return r.json();
+  }).then(function (list) {
+    (Array.isArray(list) ? list : []).forEach(function (g) {
+      if (!g || !g.slug || gamesBySlug[g.slug]) return;
+      gamesBySlug[g.slug] = g;
+      var o = document.createElement("option");
+      o.value = g.slug;
+      o.textContent = g.title || g.slug;
+      making.appendChild(o);
+    });
+    // new/?game={slug}&version={id} comes from a game's Update button; an unknown slug stays a new game.
+    if (params.get("game")) pickGame(params.get("game"), params.get("version"));
+    making.dataset.ready = "true";
+    return gamesBySlug;
+  }).catch(function () { making.dataset.ready = "true"; return gamesBySlug; });
 
   // ---------- Talk or type ----------
   var Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -207,7 +292,7 @@ input[type="text"] { width: 100%; border: 2.5px solid var(--ink); border-radius:
     tabType.setAttribute("aria-pressed", String(m === "type"));
     talkPane.hidden = m !== "talk" || !Recognition;
     noSpeech.hidden = !(m === "talk" && !Recognition);
-    ideaLabel.textContent = m === "talk" ? "Here's your idea" : "Type your game idea";
+    ideaLabel.textContent = target ? changeQuestion() : m === "talk" ? "Here's your idea" : "Type your game idea";
     if (m === "type") { stopListening(); idea.focus(); }
   }
   tabTalk.addEventListener("click", function () { setMode("talk"); });
@@ -250,8 +335,9 @@ input[type="text"] { width: 100%; border: 2.5px solid var(--ink); border-radius:
     mic.classList.remove("on");
     mic.setAttribute("aria-label", "Tap to talk");
     live.textContent = "";
-    if (!keepHint) micHint.textContent = idea.value.trim() ? "Read it below. Fix anything, or tap to add more." : "Tap the button and tell us your game";
+    if (!keepHint) micHint.textContent = idea.value.trim() ? "Read it below. Fix anything, or tap to add more." : idleHint();
   }
+  function idleHint() { return target ? "Tap the button and tell us what to change" : "Tap the button and tell us your game"; }
   mic.addEventListener("click", function () { listening ? stopListening() : startListening(); });
 
   // ---------- Nicknames ----------
@@ -287,18 +373,22 @@ input[type="text"] { width: 100%; border: 2.5px solid var(--ink); border-radius:
   idea.addEventListener("input", update);
   maker.addEventListener("input", function () { update(); renderChips(); });
 
-  function issueUrl(text, nick, how) {
+  // upd is null for a new game, or { slug, title, version } for an update (docs/game-versions.md).
+  function issueUrl(text, nick, how, upd) {
     var p = new URLSearchParams();
     p.set("template", "game-idea.yml");
-    p.set("title", "Game idea from " + nick);
+    p.set("title", upd ? "Update to " + upd.title + " from " + nick : "Game idea from " + nick);
     p.set("idea", text);
     p.set("maker", nick);
     p.set("told_by", how);
+    if (upd) { p.set("game", upd.slug); p.set("version", upd.version); }
     // If GitHub opens a blank issue instead of the form (the form only works once it's on
     // main), the body and labels still arrive. Same layout as the form, so the idea line
-    // reads the nickname either way.
-    p.set("body", "### The idea, word for word\n\n" + text + "\n\n### Made by\n\n" + nick + "\n\n### Told by\n\n" + how + "\n");
-    p.set("labels", "game-idea,status: submitted");
+    // reads the nickname (and the game being updated) either way.
+    p.set("body", "### The idea, word for word\n\n" + text + "\n\n" +
+      (upd ? "### Game to update\n\n" + upd.slug + "\n\n### Starting version\n\n" + upd.version + "\n\n" : "") +
+      "### Made by\n\n" + nick + "\n\n### Told by\n\n" + how + "\n");
+    p.set("labels", upd ? "game-idea,update,status: submitted" : "game-idea,status: submitted");
     return REPO + "/issues/new?" + p.toString();
   }
   window.gameonIssueUrl = issueUrl; // used by the evidence tests
@@ -310,7 +400,7 @@ input[type="text"] { width: 100%; border: 2.5px solid var(--ink); border-radius:
     if (!nick || text.length > MAX) return;
     stopListening();
     saveNick(nick);
-    var url = issueUrl(text, nick, told);
+    var url = issueUrl(text, nick, told, target);
     issueLink.href = url;
     issueLink.textContent = url;
     handoff.hidden = false;
@@ -352,6 +442,14 @@ input[type="text"] { width: 100%; border: 2.5px solid var(--ink); border-radius:
     var m = /###\s*Made by\s*\n+\s*([^\n]+)/.exec(body || "");
     return m ? m[1].trim().slice(0, 20) : "Someone";
   }
+  function gameFrom(body) {
+    var m = /###\s*Game to update\s*\n+\s*([^\n]+)/.exec(body || "");
+    return m ? m[1].trim().slice(0, 60) : "";
+  }
+  function updateTitle(slug) {
+    var g = gamesBySlug[slug];
+    return "Update to " + (g && g.title ? g.title : slug || "a game");
+  }
   function slugify(s) { return (s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
   function ago(iso) {
     var s = (Date.now() - new Date(iso).getTime()) / 1000;
@@ -391,7 +489,9 @@ input[type="text"] { width: 100%; border: 2.5px solid var(--ink); border-radius:
       }).map(function (i) {
         var names = i.labels.map(function (l) { return l.name; });
         var st = names.filter(function (n) { return STATUS[n]; })[0] || "status: submitted";
-        return { number: i.number, created: i.created_at, maker: makerFrom(i.body), status: st, ev: evals[String(i.number)] || null };
+        var upd = names.indexOf("update") >= 0;
+        return { number: i.number, created: i.created_at, maker: makerFrom(i.body), status: st, ev: evals[String(i.number)] || null,
+                 update: upd, game: upd ? gameFrom(i.body) : "" };
       });
       try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ at: Date.now(), data: data })); } catch (e) {}
       return data;
@@ -406,7 +506,8 @@ input[type="text"] { width: 100%; border: 2.5px solid var(--ink); border-radius:
       var s = STATUS[it.status], ev = it.ev;
       var li = document.createElement("li"); li.className = "idea";
       var top = document.createElement("div"); top.className = "idea-top";
-      var b = document.createElement("b"); b.textContent = ev && ev.title ? ev.title : "A new idea";
+      // An update is named after the game it changes, with or without an eval.
+      var b = document.createElement("b"); b.textContent = it.update ? updateTitle(it.game) : ev && ev.title ? ev.title : "A new idea";
       var chip = document.createElement("span");
       chip.className = "status" + (it.status === "status: published" ? " live" : it.status === "status: not built" ? " stop" : "");
       chip.textContent = s.words;
@@ -423,7 +524,11 @@ input[type="text"] { width: 100%; border: 2.5px solid var(--ink); border-radius:
         for (var k = 1; k <= 7; k++) { var dot = document.createElement("i"); if (k < s.step || (k === s.step && s.step === 7)) dot.className = "d"; else if (k === s.step) dot.className = "now"; dots.appendChild(dot); }
         li.appendChild(dots);
       }
-      if (it.status === "status: published" && ev && ev.title) {
+      if (it.status === "status: published" && it.update && gamesBySlug[it.game]) {
+        var ua = document.createElement("a"); ua.className = "play";
+        ua.href = "../#" + it.game + (ev && ev.version ? "@" + encodeURIComponent(ev.version) : ""); ua.textContent = "Play it";
+        li.appendChild(ua);
+      } else if (it.status === "status: published" && !it.update && ev && ev.title) {
         var a = document.createElement("a"); a.className = "play"; a.href = "../#" + slugify(ev.title); a.textContent = "Play it";
         li.appendChild(a);
       }
@@ -436,7 +541,8 @@ input[type="text"] { width: 100%; border: 2.5px solid var(--ink); border-radius:
   function showIdeas(force) {
     lineMsg.hidden = false;
     if (!ideasEl.children.length) lineMsg.textContent = "Loading ideas…";
-    loadIdeas(force).then(renderIdeas).catch(function (e) {
+    // Updates are titled from games.json, so wait for it (it never fails; titles fall back to the slug).
+    Promise.all([loadIdeas(force), gamesReady]).then(function (r) { renderIdeas(r[0]); }).catch(function (e) {
       ideasEl.innerHTML = "";
       lineMsg.hidden = false;
       lineMsg.textContent = e && e.kind === "limit"

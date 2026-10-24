@@ -220,6 +220,22 @@ a { color: inherit; }
 .switch-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .switch-head h2 { margin: 0; font: 400 26px/1 var(--display); }
 .switch-head .btn { color: var(--ink); border-color: var(--ink); }
+.ver {
+  height: 34px; max-width: 130px; padding: 0 8px;
+  border: 2px solid var(--wall); border-radius: 999px;
+  background: var(--bar); color: var(--bar-fg);
+  font: 800 13px/1 var(--body); cursor: pointer;
+}
+.ver-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.ver-item {
+  width: 100%; display: grid; gap: 4px; text-align: left; cursor: pointer;
+  padding: 12px 14px; border: var(--line); border-radius: 14px; background: var(--card); color: var(--ink);
+}
+.ver-item[aria-current="true"] { box-shadow: 4px 4px 0 var(--ink); }
+.ver-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font: 400 20px/1.1 var(--display); }
+.ver-chip { font: 800 11px/1 var(--body); letter-spacing: 0.04em; text-transform: uppercase; padding: 4px 8px; border-radius: 999px; border: 2px solid var(--ink); }
+.ver-chip.latest { background: var(--ink); color: var(--wall); }
+.ver-note { font: 600 14px/1.35 var(--body); color: var(--muted); }
 .switch-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 12px; }
 .mini {
   display: grid;
@@ -236,6 +252,10 @@ a { color: inherit; }
 .mini[aria-current="true"] { background: var(--ink); color: var(--wall); }
 
 @media (max-width: 520px) {
+  .wide-only { display: none !important; }
+  .bar { gap: 6px; }
+  .bar.has-versions .bar-title { display: none; }
+  .ver { flex: 1; min-width: 0; max-width: 120px; font-size: 12px; }
   .btn .label { display: none; }
   .btn { padding: 0 10px; }
 }
@@ -266,7 +286,9 @@ a { color: inherit; }
     <button class="btn primary" type="button" id="switch-btn" aria-haspopup="dialog">
       <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg><span class="label">Games</span>
     </button>
-    <button class="btn" type="button" id="fs-btn" aria-label="Full screen" hidden>
+    <select class="ver" id="ver-select" aria-label="Version" hidden></select>
+    <a class="btn" id="update-btn" aria-label="Ask for a change to this game"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4zM14 6l4 4"/></svg><span class="label">Update</span></a>
+    <button class="btn wide-only" type="button" id="fs-btn" aria-label="Full screen" hidden>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
     </button>
     <a class="btn" id="gh-btn" target="_blank" rel="noopener" aria-label="See this game's code on GitHub"><svg class="gh" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 0-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6 0-3.2 0 0 1-.3 3.4 1.2a11.5 11.5 0 0 1 6 0C17 4.6 18 5 18 5c.6 1.6.2 2.8.1 3.2.8.8 1.3 1.9 1.3 3.1 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg></a>
@@ -287,6 +309,16 @@ a { color: inherit; }
   </div>
 </div>
 
+<div class="switcher" id="chooser" hidden role="dialog" aria-modal="true" aria-labelledby="choose-title">
+  <div class="switch-panel">
+    <div class="switch-head">
+      <h2 id="choose-title">Which version?</h2>
+      <button class="btn" type="button" id="close-choose">Cancel</button>
+    </div>
+    <ul class="ver-list" id="ver-list"></ul>
+  </div>
+</div>
+
 <script>
 (function () {
   var games = [];
@@ -300,7 +332,13 @@ a { color: inherit; }
   var fsBtn = document.getElementById("fs-btn");
   var switcher = document.getElementById("switcher");
   var switchGrid = document.getElementById("switch-grid");
-  var current = null;
+  var chooser = document.getElementById("chooser");
+  var verList = document.getElementById("ver-list");
+  var verSelect = document.getElementById("ver-select");
+  var updateBtn = document.getElementById("update-btn");
+  var bar = document.querySelector(".bar");
+  var current = null, currentVer = null;
+  var PICK = "gameon.arcade.version.";
 
   function el(tag, attrs, kids) {
     var n = document.createElement(tag);
@@ -311,10 +349,37 @@ a { color: inherit; }
     (kids || []).forEach(function (c) { n.appendChild(c); });
     return n;
   }
-  // Where a game's code lives: its own repo, or its folder here for in-repo games like MazeAThon.
-  function sourceUrl(g) {
-    if (/^https?:/.test(g.url)) return g.repo;
-    return "https://github.com/jwildfire/gameon/tree/main/" + g.url.replace(/\/$/, "");
+  // Versions: see docs/game-versions.md. An entry without versions is one version, {creator}.v1.
+  function creatorOf(g) { return g.creator || "jeremy"; }
+  function versionsOf(g) {
+    return g.versions && g.versions.length ? g.versions : [{ id: creatorOf(g) + ".v1", url: g.url, note: "The first version" }];
+  }
+  function who(v) { return v.id.split(".v")[0]; }
+  function num(v) { return parseInt(v.id.split(".v")[1], 10) || 0; }
+  function defaultOf(g) {
+    var vs = versionsOf(g);
+    if (g["default"] && vs.some(function (v) { return v.id === g["default"]; })) return g["default"];
+    var mine = vs.filter(function (v) { return who(v) === creatorOf(g); }).sort(function (a, b) { return num(b) - num(a); });
+    return (mine[0] || vs[0]).id;
+  }
+  // The default first, then the creator's older versions, then forks grouped by who made them.
+  function ordered(g) {
+    var def = defaultOf(g), c = creatorOf(g);
+    return versionsOf(g).slice().sort(function (a, b) {
+      if (a.id === def) return -1; if (b.id === def) return 1;
+      var ac = who(a) === c, bc = who(b) === c;
+      if (ac !== bc) return ac ? -1 : 1;
+      if (who(a) !== who(b)) return who(a) < who(b) ? -1 : 1;
+      return num(b) - num(a);
+    });
+  }
+  function findVersion(g, id) { return versionsOf(g).filter(function (v) { return v.id === id; })[0]; }
+  function lastPick(slug) { try { return localStorage.getItem(PICK + slug); } catch (e) { return null; } }
+  function rememberPick(slug, id) { try { localStorage.setItem(PICK + slug, id); } catch (e) {} }
+  // Where a version's code lives: the game's own repo, or its folder here.
+  function sourceUrl(g, v) {
+    if (/^https?:/.test(v.url)) return g.repo;
+    return "https://github.com/jwildfire/gameon/tree/main/" + v.url.replace(/\/$/, "");
   }
   function cover(g) { return "assets/covers/" + g.slug + ".jpg"; }
 
@@ -322,7 +387,8 @@ a { color: inherit; }
     games.forEach(function (g) {
       var badge = el("span", { "class": "play-badge", "aria-hidden": "true" });
       badge.innerHTML = '<svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg>';
-      var tags = el("div", { "class": "tags" }, (g.tags || []).map(function (t) {
+      var nv = versionsOf(g).length;
+      var tags = el("div", { "class": "tags" }, (g.tags || []).concat(nv > 1 ? [nv + " versions"] : []).map(function (t) {
         return el("span", { "class": "tag" + (t === "New" ? " new" : ""), text: t });
       }));
       var body = el("div", { "class": "cart-body" }, [el("h2", { text: g.title }), el("p", { text: g.tagline })]);
@@ -357,24 +423,66 @@ a { color: inherit; }
     try { frame.contentWindow.focus(); } catch (e) { frame.focus(); }
   }
 
+  function showChooser(g) {
+    var def = defaultOf(g), last = lastPick(g.slug), c = creatorOf(g);
+    verList.innerHTML = "";
+    ordered(g).forEach(function (v) {
+      var top = el("span", { "class": "ver-top" }, [el("span", { text: v.id })]);
+      if (v.id === def) top.appendChild(el("span", { "class": "ver-chip latest", text: "Latest" }));
+      if (v.id === last) top.appendChild(el("span", { "class": "ver-chip", text: "Last played" }));
+      var bits = [];
+      if (v.note) bits.push(v.note);
+      if (who(v) !== c) bits.push("Made by " + who(v) + (v.from ? ", started from " + v.from : ""));
+      var btn = el("button", { "class": "ver-item", type: "button", "data-version": v.id, "aria-current": String(v.id === (last || def)) }, [top]);
+      if (bits.length) btn.appendChild(el("span", { "class": "ver-note", text: bits.join(" · ") }));
+      btn.addEventListener("click", function () { location.replace("#" + g.slug + "@" + v.id); });
+      verList.appendChild(el("li", {}, [btn]));
+    });
+    document.getElementById("choose-title").textContent = "Which " + g.title + "?";
+    chooser.hidden = false;
+    var focus = verList.querySelector('[aria-current="true"]') || verList.querySelector("button");
+    if (focus) focus.focus();
+  }
+  function closeChooser() {
+    chooser.hidden = true;
+    location.replace(current ? "#" + current.slug + "@" + currentVer : "#");
+  }
+
   function route() {
-    var slug = decodeURIComponent(location.hash.replace(/^#/, ""));
-    var g = games.filter(function (x) { return x.slug === slug; })[0];
+    var parts = decodeURIComponent(location.hash.replace(/^#/, "")).split("@");
+    var g = games.filter(function (x) { return x.slug === parts[0]; })[0];
     switcher.hidden = true;
+    chooser.hidden = true;
     if (!g) {
-      current = null;
+      current = null; currentVer = null;
       player.hidden = true;
       home.hidden = false;
       frame.removeAttribute("src");
       document.title = "GameOn Arcade";
       return;
     }
-    if (!current || current.slug !== g.slug) {
-      current = g;
-      frame.src = g.url;
+    var vs = versionsOf(g);
+    var v = parts[1] ? findVersion(g, parts[1]) : null;
+    if (!v) {
+      if (vs.length > 1) { showChooser(g); return; }
+      v = vs[0];
+    }
+    if (!current || current.slug !== g.slug || currentVer !== v.id) {
+      current = g; currentVer = v.id;
+      frame.src = v.url;
       barTitle.textContent = g.title;
-      ownBtn.href = g.url;
-      ghBtn.href = sourceUrl(g);
+      ownBtn.href = v.url;
+      ghBtn.href = sourceUrl(g, v);
+      updateBtn.href = "new/?game=" + encodeURIComponent(g.slug) + "&version=" + encodeURIComponent(v.id);
+      verSelect.innerHTML = "";
+      ordered(g).forEach(function (x) {
+        var o = el("option", { value: x.id, text: x.id + (x.id === defaultOf(g) ? " (latest)" : "") });
+        if (x.id === v.id) o.selected = true;
+        verSelect.appendChild(o);
+      });
+      verSelect.hidden = vs.length < 2;
+      bar.classList.toggle("has-versions", vs.length > 1);
+      if (vs.length > 1) rememberPick(g.slug, v.id);
       document.title = g.title + " · GameOn";
     }
     home.hidden = true;
@@ -390,7 +498,13 @@ a { color: inherit; }
     var a = e.target.closest(".mini");
     if (a && current && a.dataset.slug === current.slug) { e.preventDefault(); closeSwitcher(); }
   });
-  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !switcher.hidden) closeSwitcher(); });
+  document.getElementById("close-choose").addEventListener("click", closeChooser);
+  chooser.addEventListener("click", function (e) { if (e.target === chooser) closeChooser(); });
+  verSelect.addEventListener("change", function () { if (current) location.hash = current.slug + "@" + verSelect.value; });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && !switcher.hidden) closeSwitcher();
+    else if (e.key === "Escape" && !chooser.hidden) closeChooser();
+  });
 
   if (frame.requestFullscreen) {
     fsBtn.hidden = false;
