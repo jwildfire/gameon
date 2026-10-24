@@ -42,8 +42,8 @@ test("each new title in Weird mode has a different font and colors, through all 
     expect(l.on).not.toBe(l.word); // still two-tone
     seen.push(l);
   }
-  // Every font actually loaded (not a fallback).
-  const loaded = await page.evaluate(names => names.map(n => document.fonts.check(`40px "${n}"`)), styles.slice(1));
+  // Every font actually loaded (not a fallback) for every letter a title can use.
+  const loaded = await page.evaluate(names => names.map(n => document.fonts.check(`40px "${n}"`, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")), styles.slice(1));
   expect(loaded.every(Boolean)).toBe(true);
   await page.evaluate(() => window.gameonNextTitle());
   expect((await look(page)).style).toBe("Classic"); // the 21st title loops back to the first look
