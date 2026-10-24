@@ -1,7 +1,7 @@
 # Adding a game to the arcade
 
 The arcade ([`index.html`](../index.html)) shows whatever is in [`games.json`](../games.json),
-in that order. Adding a game takes two things: an entry in `games.json` and a cover image.
+in that order, except that Editor's Choice games come first. Adding a game takes two things: an entry in `games.json` and a cover image.
 No arcade code changes.
 
 ## The games.json entry
@@ -29,6 +29,7 @@ No arcade code changes.
 | `repo` | Yes | The game's source repository. Kept for people and tools; the arcade page doesn't show it |
 | `color` | Yes | The card's tint, as a hex color |
 | `tags` | No | Small labels on the card. `"New"` gets the dark highlight style; others are plain. Useful ones so far: player count, "Little kids", "History", "Turn sideways", "Needs internet" |
+| `editorsChoice` | No | `true` makes it an Editor's Choice: its card goes first on the shelf (Editor's Choice games keep their `games.json` order among themselves, and so does everything else) with a gold star on the cover and an "Editor's Choice" tag. A maintainer sets it |
 
 So far, new games go at the top of the list with a `"New"` tag.
 

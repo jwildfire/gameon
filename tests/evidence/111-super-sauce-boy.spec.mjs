@@ -1,7 +1,7 @@
 // Evidence for game idea #111, Super Sauce Boy ("Super sauce boy. It's kinda like super meat boy, but with hot sauce.").
 // Run: npm run evidence -- 111-super-sauce-boy
 import { readFileSync } from "node:fs";
-import { test, expect } from "./evidence.mjs";
+import { test, expect, games } from "./evidence.mjs";
 
 const GAME = "games/super-sauce-boy/";
 // Winning runs found by games/super-sauce-boy/tools/solve.mjs, using the game's own engine.
@@ -184,12 +184,14 @@ test("best times are saved, only under gameon.super-sauce-boy.", async ({ page, 
   note(`keys: ${keys.join(", ")}; level 1 best ${res.t}s still there after a reload`);
 });
 
+// Since #158 Editor's Choice cards come first, so "first" means first after those.
 test("Super Sauce Boy has the first card in the arcade and plays in its frame", async ({ page, shot, note, browserErrors }) => {
   await page.goto("./");
   const card = page.locator('#shelf .cart[href="#super-sauce-boy"]');
   await expect(card).toBeVisible();
-  // Newer pipeline games go in front of it; it stays ahead of the games that were there before it.
+  // Newer pipeline games (Big Weird Dig, #155) also go in front of it, so check it stays ahead of the games that were there before it.
   const order = await page.locator("#shelf .cart").evaluateAll(cs => cs.map(c => c.getAttribute("href")));
+  expect(order.indexOf("#super-sauce-boy")).toBeGreaterThanOrEqual(games.filter(g => g.editorsChoice === true).length);
   expect(order.indexOf("#super-sauce-boy")).toBeLessThan(order.indexOf("#fancy-food-fight"));
   await expect(card.locator("h2")).toHaveText("Super Sauce Boy");
   await expect(card.locator(".cover img")).toHaveJSProperty("complete", true);

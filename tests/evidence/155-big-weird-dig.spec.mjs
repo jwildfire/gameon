@@ -1,6 +1,6 @@
 // Evidence for game idea #155, Big Weird Dig ("you excavate weird stuff with a bulldozer. kind of like dig dug?").
 // Run: npm run evidence -- tests/evidence/155-big-weird-dig
-import { test, expect } from "./evidence.mjs";
+import { test, expect, games } from "./evidence.mjs";
 
 const GAME = "games/big-weird-dig/";
 const bwd = (page, expr, arg) => page.evaluate(expr, arg);
@@ -104,13 +104,15 @@ test("a boulder wobbles and falls when you dig out the dirt under it, and the bl
   await page.keyboard.up("ArrowRight");
   await expect.poll(() => bwd(page, i => __bwd.state.boulders[i].gone, b.i), { timeout: 5000 }).toBe(true);
   // Now a mole: park next to it in its tunnel, facing it, and push the blade.
+  await bwd(page, () => __bwd.freeze(true)); // set up with the game paused so a slow frame can't move the mole first
   const m = await bwd(page, () => {
     const s = __bwd.state, m = s.moles[0], c = Math.round(m.x), r = Math.round(m.y);
     const side = s.grid[r * BWD.COLS + c - 1] === BWD.OPEN ? -1 : 1;
     s.dozer.x = c + side; s.dozer.y = r; s.dozer.dir = side < 0 ? "r" : "l"; s.dozer.face = -side;
-    m.x = c; m.y = r; m.giggle = 0.6; m.dizzy = 0; // holding still for a moment
+    m.x = c; m.y = r; m.giggle = 3; m.dizzy = 0; m.knock = 0; s.dozer.invuln = 3; // the mole holds still
     return { x: c, side };
   });
+  await bwd(page, () => __bwd.freeze(false));
   await page.keyboard.press("Space");
   await expect.poll(() => bwd(page, () => __bwd.state.moles[0].dizzy > 0), { timeout: 3000 }).toBe(true);
   await page.waitForTimeout(400);
@@ -199,11 +201,13 @@ test("the game still plays when the browser blocks saving", async ({ page, note,
   expect(browserErrors).toEqual([]);
 });
 
-test("Big Weird Dig has the first card in the arcade and plays in its frame", async ({ page, shot, note, browserErrors }) => {
+// Editor's Choice cards come first in the arcade (#161), so "first" means first after those.
+test("Big Weird Dig has the first card after the Editor's Choice games and plays in its frame", async ({ page, shot, note, browserErrors }) => {
   await page.goto("./");
   const card = page.locator('#shelf .cart[href="#big-weird-dig"]');
   await expect(card).toBeVisible();
-  await expect(page.locator("#shelf .cart").first()).toHaveAttribute("href", "#big-weird-dig");
+  const picks = games.filter(g => g.editorsChoice === true).length;
+  await expect(page.locator("#shelf .cart").nth(picks)).toHaveAttribute("href", "#big-weird-dig");
   await expect(card.locator("h2")).toHaveText("Big Weird Dig");
   await expect(card.locator(".cover img")).toHaveJSProperty("complete", true);
   expect(await card.locator(".cover img").evaluate(img => img.naturalWidth)).toBe(800);
@@ -214,7 +218,7 @@ test("Big Weird Dig has the first card in the arcade and plays in its frame", as
   await expect(frame.locator(".title-big")).toHaveText("WEIRD");
   await frame.locator("#play-btn").click();
   await expect(frame.locator("#hud")).toBeVisible();
-  note("card first in the arcade with its 800x450 cover; plays inside the frame; GitHub button opens its folder");
+  note(`card first after the ${picks} Editor's Choice card(s), with its 800x450 cover; plays inside the frame; GitHub button opens its folder`);
   await shot("in-arcade");
   expect(browserErrors).toEqual([]);
 });
