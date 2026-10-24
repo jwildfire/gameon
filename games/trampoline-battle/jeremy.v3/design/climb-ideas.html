@@ -1,0 +1,1255 @@
+<title>Climb Level Ideas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&amp;family=Nunito:wght@600;700;800;900&amp;display=swap">
+<style>
+/* Design doc for Trampoline Battle's climbing engine: 100 climb ideas ranked by fun + chaos. Same comic world as the game: night-purple page, white ink-bordered cards with hard drop shadows, Bungee + Nunito. */
+:root {
+  --night: #231e48;
+  --night-2: #2f2860;
+  --night-3: #3a3270;
+  --ink: #16132c;
+  --card: #ffffff;
+  --card-2: #efeefe;
+  --sun: #ffc928;
+  --red: #ec4a2f;
+  --blue: #2f6fe0;
+  --fun: #ffc928;
+  --chaos: #ff4f9a;
+  --muted: #5d5888;
+  --on-night: #f4f2ff;
+  --on-night-dim: #b8b2e6;
+  --t-survival: #ffd5b0;
+  --t-brawl: #ffc4ba;
+  --t-height: #c4ecff;
+  --t-collect: #fff0a0;
+  --t-king: #e2d3ff;
+  --t-race: #c6f2c4;
+  --t-reflex: #ffcdeb;
+  --t-puzzle: #d3dbff;
+  --display: 'Bungee', 'Arial Black', Impact, sans-serif;
+  --ui: 'Nunito', ui-rounded, 'Segoe UI', system-ui, sans-serif;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { background: var(--night); }
+body {
+  margin: 0;
+  background: var(--night);
+  color: var(--on-night);
+  font-family: var(--ui);
+  font-weight: 700;
+  line-height: 1.4;
+  overflow-x: hidden;
+}
+.wrap {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding-top: 28px;
+  padding-bottom: 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
+
+/* ---------- header ---------- */
+header { display: grid; gap: 14px; margin-bottom: 22px; }
+.eyebrow { font-family: var(--display); font-size: 13px; letter-spacing: .08em; color: var(--sun); margin: 0; }
+h1 {
+  font-family: var(--display); font-weight: 400; margin: 0;
+  font-size: clamp(30px, 6vw, 56px); line-height: 1.02;
+  color: var(--card);
+  text-shadow: 3px 3px 0 var(--ink), 0 0 0 var(--ink);
+  -webkit-text-stroke: 1.5px var(--ink);
+  paint-order: stroke fill;
+}
+h1 span { color: var(--sun); }
+.lede { margin: 0; max-width: 62ch; font-size: 17px; color: var(--on-night-dim); font-weight: 700; }
+.lede b { color: var(--on-night); }
+.legend { display: flex; flex-wrap: wrap; gap: 10px; }
+.chip {
+  display: flex; align-items: center; gap: 10px; min-width: 0;
+  background: var(--card); color: var(--ink);
+  border: 3px solid var(--ink); border-radius: 14px; box-shadow: 0 4px 0 var(--ink);
+  padding: 8px 12px; font-size: 14px; max-width: 100%;
+}
+.chip .sw { flex: none; width: 34px; height: 14px; border: 2px solid var(--ink); border-radius: 4px; }
+.chip b { font-family: var(--display); font-weight: 400; font-size: 13px; letter-spacing: .03em; }
+.chip.built .sw { background: var(--sun); width: auto; height: auto; padding: 1px 7px; font-family: var(--display); font-size: 11px; border-radius: 999px; }
+
+/* ---------- filters ---------- */
+.filters {
+  position: sticky; top: 0; z-index: 5;
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  padding: 12px 0;
+  background: var(--night);
+  border-bottom: 3px solid var(--night-3);
+  margin-bottom: 22px;
+}
+.filters button {
+  background: var(--card); color: var(--ink);
+  border: 3px solid var(--ink); border-radius: 999px;
+  box-shadow: 0 3px 0 var(--ink);
+  padding: 5px 12px; font-weight: 900; font-size: 14px;
+  transition: transform .08s;
+}
+.filters button:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.filters button[aria-pressed="true"] { background: var(--sun); }
+.filters button.built-btn[aria-pressed="true"] { background: var(--sun); }
+.filters .count { margin-left: auto; color: var(--on-night-dim); font-size: 14px; font-weight: 800; }
+
+/* ---------- sections + grid ---------- */
+section { margin-bottom: 34px; }
+section h2 {
+  font-family: var(--display); font-weight: 400; font-size: clamp(18px, 3.4vw, 26px);
+  margin: 0 0 4px; color: var(--card); letter-spacing: .02em;
+}
+section h2 em { font-style: normal; color: var(--sun); }
+section .sub { margin: 0 0 16px; color: var(--on-night-dim); font-size: 15px; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr));
+  gap: 20px;
+}
+.card {
+  min-width: 0;
+  background: var(--card); color: var(--ink);
+  border: 3px solid var(--ink); border-radius: 18px;
+  box-shadow: 0 6px 0 var(--ink);
+  padding: 12px 12px 14px;
+  display: flex; flex-direction: column; gap: 9px;
+  position: relative;
+}
+.card.built { background: #fffbea; box-shadow: 0 6px 0 var(--ink), 0 0 0 4px var(--sun), 0 6px 0 4px var(--sun); }
+.card .top { display: flex; align-items: flex-start; gap: 10px; min-width: 0; }
+.rank {
+  flex: none; font-family: var(--display); font-size: 22px; line-height: 1;
+  background: var(--night); color: var(--card);
+  border: 3px solid var(--ink); border-radius: 12px;
+  min-width: 48px; text-align: center; padding: 7px 5px 5px;
+}
+.card.built .rank { background: var(--sun); color: var(--ink); }
+.nm { min-width: 0; flex: 1; display: grid; gap: 4px; }
+.nm h3 { margin: 0; font-family: var(--display); font-weight: 400; font-size: 17px; line-height: 1.12; overflow-wrap: anywhere; }
+.tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.tag, .badge {
+  font-size: 12px; font-weight: 900; line-height: 1;
+  border: 2px solid var(--ink); border-radius: 999px; padding: 3px 8px 3px;
+  white-space: nowrap;
+}
+.badge { background: var(--ink); color: var(--sun); font-family: var(--display); font-weight: 400; font-size: 10.5px; letter-spacing: .06em; padding: 4px 8px 3px; }
+.tag[data-t="Survival"] { background: var(--t-survival); }
+.tag[data-t="Brawl"] { background: var(--t-brawl); }
+.tag[data-t="Height"] { background: var(--t-height); }
+.tag[data-t="Collect"] { background: var(--t-collect); }
+.tag[data-t="King"] { background: var(--t-king); }
+.tag[data-t="Race"] { background: var(--t-race); }
+.tag[data-t="Reflex"] { background: var(--t-reflex); }
+.tag[data-t="Puzzle"] { background: var(--t-puzzle); }
+.mockwrap {
+  display: flex; justify-content: center; min-width: 0;
+  border: 3px solid var(--ink); border-radius: 12px; overflow: hidden;
+  background: var(--night-3) repeating-linear-gradient(0deg, transparent 0 14px, rgba(255,255,255,.06) 14px 16px);
+}
+.mock {
+  display: block; width: 100%; max-width: 230px; height: auto; aspect-ratio: 200 / 240;
+  background: var(--night-2); box-shadow: -3px 0 0 var(--ink), 3px 0 0 var(--ink);
+}
+.pitch { margin: 0; font-weight: 900; font-size: 15px; line-height: 1.3; }
+.scores { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; }
+.bars { display: grid; gap: 5px; min-width: 0; }
+.bar { display: grid; grid-template-columns: 52px minmax(0, 1fr) 20px; gap: 6px; align-items: center; font-size: 12px; font-weight: 900; }
+.bar .lb { font-family: var(--display); font-weight: 400; font-size: 10.5px; letter-spacing: .04em; color: var(--muted); }
+.cells { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 2px; border: 2px solid var(--ink); border-radius: 6px; padding: 2px; background: var(--card-2); }
+.cells i { display: block; height: 8px; border-radius: 2px; background: transparent; }
+.bar.fun .cells i.on { background: var(--fun); box-shadow: inset 0 -2px 0 rgba(22,19,44,.25); }
+.bar.chaos .cells i.on { background: var(--chaos); box-shadow: inset 0 -2px 0 rgba(22,19,44,.25); }
+.bar .v { text-align: right; font-variant-numeric: tabular-nums; }
+.total {
+  width: 54px; height: 54px; border-radius: 50%;
+  border: 3px solid var(--ink); background: var(--night); color: var(--card);
+  display: grid; place-items: center; text-align: center;
+  font-family: var(--display); font-size: 19px; line-height: 1;
+  box-shadow: 0 3px 0 var(--ink);
+}
+.total small { display: block; font-size: 8px; letter-spacing: .06em; color: var(--sun); margin-top: 2px; }
+.card.built .total { background: var(--sun); color: var(--ink); }
+.card.built .total small { color: var(--ink); }
+.how { margin: 0; font-size: 14px; color: #3d3866; font-weight: 700; }
+.how b { color: var(--ink); font-weight: 900; }
+.empty { color: var(--on-night-dim); font-size: 16px; padding: 30px 0; text-align: center; }
+footer { color: var(--on-night-dim); font-size: 13px; text-align: center; padding-top: 10px; }
+
+@media (max-width: 480px) {
+  .filters { position: static; }
+  .filters .count { width: 100%; margin-left: 0; }
+  .filters button { font-size: 13px; padding: 4px 10px; }
+  .lede { font-size: 15.5px; }
+}
+@media (prefers-reduced-motion: reduce) { .filters button { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Trampoline Battle &middot; climbing engine design doc</p>
+    <h1>100 Climb <span>Ideas</span></h1>
+    <p class="lede">The third engine goes <b>up</b>: tall towers, a camera that scrolls with you, and floppy stick fighters scrambling for the summit. Here are 100 climbing mini-games, each with a little mockup of the tower, ranked by <b>fun + chaos</b>. The first 20 are the ones we&rsquo;re building first.</p>
+    <div class="legend" aria-label="Score legend">
+      <div class="chip"><span class="sw" style="background: var(--fun)"></span><span><b>FUN 1&ndash;10</b> &nbsp;how hard the kids laugh and yell &ldquo;again!&rdquo;</span></div>
+      <div class="chip"><span class="sw" style="background: var(--chaos)"></span><span><b>CHAOS 1&ndash;10</b> &nbsp;how wild, flaily and unpredictable it gets</span></div>
+      <div class="chip built"><span class="sw">BUILDING</span><span>the first build (ranks 1&ndash;20), picked for fun, variety and how well they fit the engine</span></div>
+    </div>
+  </header>
+
+  <nav class="filters" id="filters" aria-label="Filter ideas"></nav>
+
+  <section id="secBuilt">
+    <h2>Building <em>first</em></h2>
+    <p class="sub">Ranks 1&ndash;20, one or more for every ruleset, sorted by total score. Each needs the core climbing engine plus one or two small custom bits.</p>
+    <div class="grid" id="gridBuilt"></div>
+  </section>
+  <section id="secPool">
+    <h2>The idea <em>pool</em></h2>
+    <p class="sub">Ranks 21&ndash;100, sorted by total score.</p>
+    <div class="grid" id="gridPool"></div>
+  </section>
+  <p class="empty" id="empty" hidden>No ideas match that filter.</p>
+  <footer>Fall off the bottom of the screen and you&rsquo;re out. Run faster, jump higher.</footer>
+</div>
+
+<script>
+'use strict';
+// ======================================================================
+// Mockup renderer: every idea carries a compact spec; this draws it on a
+// 200x240 logical canvas (a slice of the tower) in the game's comic style.
+// Shared helpers come from the trampoline idea page; climbing bits follow.
+// ======================================================================
+const INK = '#16132c', SUN = '#ffc928', RED = '#ec4a2f', BLUE = '#2f6fe0', WHITE = '#ffffff';
+const W = 200, H = 240;
+const TEAM = { r: RED, b: BLUE, n: '#a3a8bd', o: '#ff9f1c', g: '#3fbf5f', p: '#a45cff', y: SUN, k: '#4a4560', w: WHITE, h: 'rgba(255,255,255,.55)' };
+const TH = {
+  day: { sky: ['#5fb6ff', '#c9ecff'], d: 'sun' },
+  farm: { sky: ['#79c7f2', '#fff1c4'], d: 'clouds' },
+  dusk: { sky: ['#3b2f73', '#e67a8a'], d: 'stars' },
+  night: { sky: ['#120b33', '#3d1a6e'], d: 'stars' },
+  space: { sky: ['#05060f', '#1b2140'], d: 'stars' },
+  sunset: { sky: ['#ff9d5c', '#ffe29a'], d: 'sun' },
+  sea: { sky: ['#7ec8ff', '#e3f6ff'], d: 'clouds' },
+  lava: { sky: ['#2b0a1a', '#ff7b3a'], d: 'embers' },
+  ice: { sky: ['#a9d8ff', '#f0f9ff'], d: 'snow' },
+  party: { sky: ['#ffb3d9', '#fff0f7'], d: 'confetti' },
+  storm: { sky: ['#2e3448', '#7d8aa3'], d: 'rain' },
+  jungle: { sky: ['#79c7f2', '#d8f5b0'], d: 'leaves' },
+  cave: { sky: ['#1a1426', '#3b2f4a'], d: 'none' },
+  neon: { sky: ['#120b33', '#3d1a6e'], d: 'grid' },
+  room: { sky: ['#f7d9a8', '#fff3dc'], d: 'wall' },
+  gym: { sky: ['#ffe2b8', '#fff6e6'], d: 'wall' },
+  kitchen: { sky: ['#bfe8e0', '#f4fff9'], d: 'tiles' },
+  desert: { sky: ['#ffb36b', '#ffe7b0'], d: 'sun' },
+  dark: { sky: ['#07060f', '#141028'], d: 'none' },
+  candy: { sky: ['#ffd1f0', '#d6f0ff'], d: 'confetti' },
+  factory: { sky: ['#56607a', '#9aa6bf'], d: 'girders' },
+  dojo: { sky: ['#f3e3c3', '#fff7e8'], d: 'wall' },
+  circus: { sky: ['#ff6b6b', '#ffd6a0'], d: 'stripes' },
+  deep: { sky: ['#0f4c81', '#47a3d8'], d: 'bubbles' }
+};
+const FL = {
+  grass: ['#5cbf4a', '#3f9a33'], lava: ['#ff7a00', '#c41e00'], water: ['#2a8fd6', '#155a96'],
+  pit: ['#0d0b1c', '#05040c'], ice: ['#ffffff', '#cfe6f7'], snow: ['#ffffff', '#dfeaf5'],
+  sand: ['#f2d48a', '#d9b25e'], road: ['#5a5f6e', '#3e4250'], mud: ['#7a5a3a', '#5a3f26'],
+  wood: ['#c98b52', '#a56a36'], carpet: ['#c0457a', '#93305b'], tile: ['#3d2a6e', '#291c4d'],
+  griddle: ['#3a3a44', '#24242c'], track: ['#8a7a6a', '#5f5245'], foam: ['#e8f6ff', '#bfe0f5']
+};
+const R = (d) => d * Math.PI / 180;
+
+function rng(seed) { let a = seed >>> 0; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function inkS(c, w) { c.strokeStyle = INK; c.lineWidth = w || 1.6; c.lineJoin = 'round'; c.lineCap = 'round'; }
+function fs(c, fill, w) { if (fill) { c.fillStyle = fill; c.fill(); } if (w !== 0) { inkS(c, w); c.stroke(); } }
+function rr(c, x, y, w, h, r) { r = Math.min(r, Math.abs(w) / 2, Math.abs(h) / 2); c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+function circ(c, x, y, r) { c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); }
+function ell(c, x, y, rx, ry, rot) { c.beginPath(); c.ellipse(x, y, rx, ry, rot || 0, 0, Math.PI * 2); }
+function poly(c, pts) { c.beginPath(); pts.forEach((p, i) => i ? c.lineTo(p[0], p[1]) : c.moveTo(p[0], p[1])); c.closePath(); }
+function line(c, x1, y1, x2, y2, col, w) { c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.strokeStyle = col || INK; c.lineWidth = w || 1.6; c.lineCap = 'round'; c.stroke(); }
+function iline(c, x1, y1, x2, y2, col, w) { line(c, x1, y1, x2, y2, INK, w + 2); line(c, x1, y1, x2, y2, col, w); }
+function star(c, x, y, r, n, inner) { n = n || 5; inner = inner || r * .45; c.beginPath(); for (let i = 0; i < n * 2; i++) { const a = -Math.PI / 2 + i * Math.PI / n, rad = i % 2 ? inner : r; c.lineTo(x + Math.cos(a) * rad, y + Math.sin(a) * rad); } c.closePath(); }
+
+function text(c, x, y, s, size, col, box) {
+  size = size || 9;
+  c.font = `${size}px Bungee, 'Arial Black', Impact, sans-serif`;
+  c.textAlign = 'center'; c.textBaseline = 'middle';
+  if (box) {
+    const w = c.measureText(s).width + 10;
+    rr(c, x - w / 2, y - size * .75, w, size * 1.5, 4); fs(c, box === true ? WHITE : box, 1.6);
+    c.fillStyle = col || INK; c.fillText(s, x, y + size * .06);
+    return;
+  }
+  c.lineJoin = 'round'; c.strokeStyle = INK; c.lineWidth = Math.max(2.2, size * .32); c.strokeText(s, x, y);
+  c.fillStyle = col || WHITE; c.fillText(s, x, y);
+}
+
+function arrowHead(c, x, y, ang, col, sz) {
+  sz = sz || 5;
+  c.save(); c.translate(x, y); c.rotate(ang);
+  poly(c, [[sz * .6, 0], [-sz * .7, -sz * .7], [-sz * .7, sz * .7]]); fs(c, col, 1.2);
+  c.restore();
+}
+function arrow(c, x1, y1, x2, y2, col, both) {
+  col = col || SUN;
+  const a = Math.atan2(y2 - y1, x2 - x1), k = 3;
+  const sx = both ? x1 + Math.cos(a) * k : x1, sy = both ? y1 + Math.sin(a) * k : y1;
+  iline(c, sx, sy, x2 - Math.cos(a) * k, y2 - Math.sin(a) * k, col, 1.8);
+  arrowHead(c, x2, y2, a, col);
+  if (both) arrowHead(c, x1, y1, a + Math.PI, col);
+}
+function carrow(c, cx, cy, r, a0, a1, col) {
+  col = col || SUN;
+  c.beginPath(); c.arc(cx, cy, r, R(a0), R(a1), a1 < a0); c.strokeStyle = INK; c.lineWidth = 3.8; c.lineCap = 'round'; c.stroke();
+  c.beginPath(); c.arc(cx, cy, r, R(a0), R(a1), a1 < a0); c.strokeStyle = col; c.lineWidth = 1.8; c.stroke();
+  const ex = cx + Math.cos(R(a1)) * r, ey = cy + Math.sin(R(a1)) * r;
+  arrowHead(c, ex, ey, R(a1) + (a1 > a0 ? Math.PI / 2 : -Math.PI / 2), col);
+}
+function dline(c, pts, col) {
+  c.save(); c.setLineDash([2.5, 3]); c.beginPath(); pts.forEach((p, i) => i ? c.lineTo(p[0], p[1]) : c.moveTo(p[0], p[1]));
+  c.strokeStyle = col || WHITE; c.lineWidth = 1.6; c.lineCap = 'round'; c.stroke(); c.restore();
+}
+function floor(c, fl, fy, seed) {
+  if (!fl || fl === 'none') return;
+  const F = FL[fl]; if (!F) return;
+  const g = c.createLinearGradient(0, fy, 0, H); g.addColorStop(0, F[0]); g.addColorStop(1, F[1]);
+  c.fillStyle = g; c.fillRect(-2, fy, W + 4, H - fy + 2);
+  const rnd = rng(seed * 31 + 7);
+  c.save();
+  switch (fl) {
+    case 'grass': c.strokeStyle = 'rgba(22,19,44,.3)'; c.lineWidth = 1; for (let x = 4; x < W; x += 9) { c.beginPath(); c.moveTo(x, fy + 6 + rnd() * 8); c.lineTo(x + 2, fy + 2 + rnd() * 8); c.stroke(); } break;
+    case 'lava': for (let i = 0; i < 9; i++) { circ(c, rnd() * W, fy + 5 + rnd() * (H - fy - 6), 1.5 + rnd() * 2); fs(c, '#ffd23a', 1); } break;
+    case 'water': c.strokeStyle = 'rgba(255,255,255,.7)'; c.lineWidth = 1.3; for (let y = fy + 6; y < H; y += 7) { c.beginPath(); for (let x = 0; x <= W; x += 4) c.lineTo(x, y + Math.sin(x / 7 + y) * 1.2); c.stroke(); } break;
+    case 'road': c.fillStyle = SUN; for (let x = 6; x < W; x += 26) c.fillRect(x, fy + (H - fy) / 2 - 1, 13, 2.4); break;
+    case 'track': c.fillStyle = '#5a3f26'; for (let x = 2; x < W; x += 12) c.fillRect(x, fy + 4, 6, H - fy - 4); c.fillStyle = '#c9ccd6'; c.fillRect(0, fy + 2, W, 2.5); break;
+    case 'wood': c.strokeStyle = 'rgba(22,19,44,.25)'; c.lineWidth = 1; for (let x = 0; x < W; x += 20) { c.beginPath(); c.moveTo(x, fy); c.lineTo(x, H); c.stroke(); } break;
+    case 'sand': c.fillStyle = 'rgba(120,80,30,.35)'; for (let i = 0; i < 30; i++) c.fillRect(rnd() * W, fy + 3 + rnd() * (H - fy - 4), 1.3, 1.3); break;
+    case 'tile': c.strokeStyle = 'rgba(255,79,154,.35)'; c.lineWidth = 1; for (let x = 0; x < W; x += 16) { c.beginPath(); c.moveTo(x, fy); c.lineTo(x, H); c.stroke(); } break;
+    case 'mud': for (let i = 0; i < 8; i++) { ell(c, rnd() * W, fy + 5 + rnd() * 12, 4, 1.6); c.fillStyle = 'rgba(40,25,10,.5)'; c.fill(); } break;
+    case 'carpet': c.fillStyle = 'rgba(255,255,255,.15)'; for (let x = 0; x < W; x += 12) c.fillRect(x, fy + 4, 6, 3); break;
+  }
+  c.restore();
+  line(c, -2, fy, W + 2, fy, INK, 2);
+}
+function cloud(c, x, y, s, col, w) {
+  c.beginPath();
+  [[0, 0, 9], [10, -4, 8], [19, 1, 7], [-9, 2, 6]].forEach(p => { c.moveTo(x + p[0] * s + p[2] * s, y + p[1] * s); c.arc(x + p[0] * s, y + p[1] * s, p[2] * s, 0, Math.PI * 2); });
+  c.fillStyle = col || WHITE; c.fill();
+  if (w !== 0) { inkS(c, w || 1.4); c.stroke(); c.beginPath(); [[0, 0, 9], [10, -4, 8], [19, 1, 7], [-9, 2, 6]].forEach(p => { c.moveTo(x + p[0] * s + (p[2] - 1.2) * s, y + p[1] * s); c.arc(x + p[0] * s, y + p[1] * s, (p[2] - 1.2) * s, 0, Math.PI * 2); }); c.fillStyle = col || WHITE; c.fill(); }
+}
+// ---------------- trampolines ----------------
+// [x1, x2, y, style, y2, color]; style letters: g legs, f floating, m moves sideways, u moves up/down,
+// v vanishing, s shrinking, G golden, r danger red, I ice, J jelly, p bouncy pink, w sandy, M metal,
+// c/C conveyor right/left, x cracked, i invisible, L lily pad
+function tramp(c, t, fy) {
+  let [x1, x2, y, st, y2, col] = t; st = st || ''; if (y2 == null) y2 = y;
+  const has = (k) => st.indexOf(k) >= 0;
+  const len = Math.hypot(x2 - x1, y2 - y), ang = Math.atan2(y2 - y, x2 - x1);
+  if (has('g')) {
+    [.12, .88].forEach(f => { const lx = x1 + (x2 - x1) * f, ly = y + (y2 - y) * f; iline(c, lx, ly + 2, lx + (f < .5 ? -5 : 5), fy, '#6b6590', 1.6); });
+  }
+  const fill = col || (has('G') ? SUN : has('r') ? RED : has('I') ? '#bfe6ff' : has('p') ? '#ff8cc6' : has('w') ? '#e8c27a' : has('M') ? '#a9b2c4' : has('L') ? '#55c25a' : has('J') ? '#5fe0b0' : '#3a3270');
+  c.save();
+  c.translate(x1, y); c.rotate(ang);
+  if (has('v')) { c.globalAlpha = .6; c.setLineDash([3, 2]); }
+  if (has('i')) { c.globalAlpha = .35; c.setLineDash([1.5, 2.5]); }
+  const h = 5.5;
+  if (has('J')) {
+    c.beginPath(); c.moveTo(0, 0);
+    for (let x = 0; x <= len; x += 3) c.lineTo(x, -Math.sin(x / len * Math.PI * 3) * 4 - h / 2);
+    for (let x = len; x >= 0; x -= 3) c.lineTo(x, -Math.sin(x / len * Math.PI * 3) * 4 + h / 2);
+    c.closePath(); fs(c, fill, 1.6);
+  } else {
+    rr(c, 0, -h / 2, len, h, 2.6); fs(c, has('i') ? 'rgba(255,255,255,.4)' : fill, 1.6);
+  }
+  c.setLineDash([]);
+  if (!col && !has('G') && !has('I') && !has('L') && !has('J') && !has('i') && !has('M') && len > 18) {
+    rr(c, -1, -h / 2 - .5, 6, h + 1, 2); fs(c, SUN, 1.3);
+    rr(c, len - 5, -h / 2 - .5, 6, h + 1, 2); fs(c, SUN, 1.3);
+  }
+  if (has('c') || has('C')) {
+    const d = has('c') ? 1 : -1; c.strokeStyle = WHITE; c.lineWidth = 1.2;
+    for (let x = 10; x < len - 8; x += 8) { c.beginPath(); c.moveTo(x - d * 1.5, -1.8); c.lineTo(x + d * 1.5, 0); c.lineTo(x - d * 1.5, 1.8); c.stroke(); }
+  }
+  if (has('x')) { c.strokeStyle = INK; c.lineWidth = 1; c.beginPath(); c.moveTo(len * .45, -h / 2); c.lineTo(len * .5, 0); c.lineTo(len * .44, 1); c.lineTo(len * .52, h / 2); c.stroke(); }
+  if (has('G')) { c.fillStyle = WHITE; star(c, len * .25, -7, 2.4, 4); c.fill(); star(c, len * .75, -9, 2, 4); c.fill(); }
+  c.restore();
+  const mx = (x1 + x2) / 2, my = (y + y2) / 2;
+  if (has('m')) arrow(c, mx - 13, my + 9, mx + 13, my + 9, SUN, true);
+  if (has('u')) arrow(c, x2 + 7, my - 10, x2 + 7, my + 10, SUN, true);
+  if (has('s')) { arrow(c, x1 - 13, y - 9, x1 + 1, y - 9, '#ff4f9a'); arrow(c, x2 + 13, y2 - 9, x2 - 1, y2 - 9, '#ff4f9a'); }
+  if (has('f') && !has('i')) { c.strokeStyle = 'rgba(255,255,255,.7)'; c.lineWidth = 1; [x1 + 6, mx, x2 - 6].forEach(px => { c.beginPath(); c.moveTo(px - 2, y + 6); c.lineTo(px + 2, y + 6); c.stroke(); }); }
+}
+// ---------------- fighters ----------------
+const POSE = {
+  s: { hip: [0, -8], neck: [0, -15], legs: [[-3, 0], [3, 0]], arms: [[-5, -8], [5, -8]] },
+  j: { hip: [0, -8], neck: [0, -15], legs: [[-5, -1], [5, -1]], arms: [[-6, -22], [6, -22]] },
+  k: { hip: [0, -8], neck: [-1, -15], legs: [[9, -10], [-3, 0]], arms: [[-7, -14], [6, -20]] },
+  w: { hip: [0, -8], neck: [0, -15], legs: [[-6, -3], [4, 1]], arms: [[-8, -21], [8, -11]] },
+  x: { hip: [0, -8], neck: [0, -15], legs: [[-5, 0], [5, 0]], arms: [[-8, -16], [8, -16]] },
+  d: { hip: [0, -5], neck: [4, -10], legs: [[-4, 0], [4, 0]], arms: [[9, -6], [-1, -4]] },
+  p: { hip: [0, -8], neck: [0, -15], legs: [[-3, 0], [3, 0]], arms: [[-7, -17], [8, -15]] },
+  c: { hip: [0, -7], neck: [0, -14], legs: [[-4, -6], [4, -6]], arms: [[-6, -9], [6, -9]] }
+};
+function fighter(c, x, y, tm, pose, s, rot, prop) {
+  const P = POSE[pose || 's'] || POSE.s, col = TEAM[tm] || tm || TEAM.n;
+  s = s || 1;
+  c.save(); c.translate(x, y); c.scale(s, s);
+  if (rot) { c.translate(0, -8); c.rotate(R(rot)); c.translate(0, 8); }
+  if (tm === 'h') c.globalAlpha = .55;
+  const [hx, hy] = P.hip, [nx, ny] = P.neck;
+  const limbs = [[nx, ny, hx, hy], ...P.legs.map(l => [hx, hy, l[0], l[1]]), ...P.arms.map(a => [nx, ny + 1, a[0], a[1]])];
+  limbs.forEach(l => line(c, l[0], l[1], l[2], l[3], INK, 3.6));
+  limbs.forEach(l => line(c, l[0], l[1], l[2], l[3], col, 1.7));
+  const hdx = nx + (nx - hx) * .55, hdy = ny - 4.4;
+  circ(c, hdx, hdy, 3.8); fs(c, col, 1.4);
+  c.fillStyle = INK; c.fillRect(hdx + .4, hdy - 1.2, 1, 1.4); c.fillRect(hdx + 2, hdy - 1.2, 1, 1.4);
+  if (prop === 'pogo') { line(c, 0, 0, 0, 10, INK, 3.4); line(c, 0, 0, 0, 10, '#c9ccd6', 1.6); line(c, -4, 2, 4, 2, INK, 2); c.strokeStyle = INK; c.lineWidth = 1; c.beginPath(); for (let i = 0; i < 5; i++) { c.lineTo(i % 2 ? 2 : -2, 4 + i * 1.3); } c.stroke(); }
+  if (prop === 'car') { rr(c, -9, -9, 18, 9, 3); fs(c, col, 1.4); circ(c, -5, 1, 2.2); fs(c, INK, 0); circ(c, 5, 1, 2.2); fs(c, INK, 0); }
+  if (prop === 'robot') { rr(c, hdx - 4.5, hdy - 4.5, 9, 9, 1.5); fs(c, '#c9ccd6', 1.4); c.fillStyle = col; c.fillRect(hdx - 2.5, hdy - 1.5, 5, 2); line(c, hdx, hdy - 4.5, hdx, hdy - 8, INK, 1.2); }
+  if (prop === 'helmet') { c.beginPath(); c.arc(hdx, hdy - .5, 4.6, Math.PI, 0); c.closePath(); fs(c, '#c9ccd6', 1.3); }
+  if (prop === 'basket') { rr(c, hdx - 5, hdy - 10, 10, 6, 1.5); fs(c, '#c98b52', 1.3); }
+  if (prop === 'bat') { line(c, P.arms[1][0], P.arms[1][1], P.arms[1][0] + 8, P.arms[1][1] - 9, INK, 3.6); line(c, P.arms[1][0], P.arms[1][1], P.arms[1][0] + 8, P.arms[1][1] - 9, '#c98b52', 2); }
+  if (prop === 'brolly') { line(c, P.arms[1][0], P.arms[1][1], P.arms[1][0], P.arms[1][1] - 9, INK, 1.4); c.beginPath(); c.arc(P.arms[1][0], P.arms[1][1] - 9, 6, Math.PI, 0); c.closePath(); fs(c, '#ff4f9a', 1.3); }
+  if (prop === 'flag') { line(c, P.arms[1][0], P.arms[1][1], P.arms[1][0], P.arms[1][1] - 12, INK, 1.4); poly(c, [[P.arms[1][0], P.arms[1][1] - 12], [P.arms[1][0] + 8, P.arms[1][1] - 9.5], [P.arms[1][0], P.arms[1][1] - 7]]); fs(c, BLUE, 1.2); }
+  if (prop === 'mallet') { rr(c, P.arms[1][0] - 3, P.arms[1][1] - 3, 6, 6, 3); fs(c, SUN, 1.2); }
+  if (prop === 'crown') { poly(c, [[hdx - 4, hdy - 3.5], [hdx - 4, hdy - 8], [hdx - 2, hdy - 5.5], [hdx, hdy - 9], [hdx + 2, hdy - 5.5], [hdx + 4, hdy - 8], [hdx + 4, hdy - 3.5]]); fs(c, SUN, 1.2); }
+  const A0 = P.arms[0], A1 = P.arms[1];
+  if (prop === 'jet') { rr(c, -9, -17, 5, 10, 1.5); fs(c, '#a9b2c4', 1.2); poly(c, [[-8.5, -7], [-4.5, -7], [-6.5, -1]]); fs(c, '#ff9f1c', 1); }
+  if (prop === 'balloons') { [[-5, -15, RED], [4, -17, SUN], [-1, -22, '#5fe8ff']].forEach(b => { line(c, A0[0], A0[1], A0[0] + b[0], A0[1] + b[1] + 5, INK, .8); ell(c, A0[0] + b[0], A0[1] + b[1], 4, 5); fs(c, b[2], 1.2); }); }
+  if (prop === 'key') obj(c, A1[0] + 3, A1[1], 'key', 4);
+  if (prop === 'bomb') obj(c, hdx, hdy - 11, 'bomb', 5);
+  if (prop === 'pizza') { rr(c, hdx - 8, hdy - 9, 16, 4.5, 1); fs(c, '#f2d48a', 1.2); }
+  if (prop === 'cone') { [[-20, '#7a4d2a'], [-15.5, '#5fe0b0'], [-11, '#ffb3d9']].forEach(s2 => { circ(c, hdx, hdy + s2[0] + 4, 3.4); fs(c, s2[1], 1.1); }); poly(c, [[hdx - 3.6, hdy - 6], [hdx + 3.6, hdy - 6], [hdx, hdy - 1]]); fs(c, '#e8b05a', 1.1); }
+  if (prop === 'kitten') obj(c, hdx, hdy - 7, 'cat', 3.6);
+  if (prop === 'peel') obj(c, A1[0] + 1, A1[1] - 2, 'peel', 3.5);
+  if (prop === 'mag') obj(c, A1[0] + 2, A1[1] - 2, 'magnet', 3);
+  if (prop === 'feather') obj(c, A1[0] + 3, A1[1] - 3, 'feather', 5);
+  if (prop === 'egg') obj(c, A1[0], A1[1] - 4, 'egg', 3.6);
+  if (prop === 'snowb') { circ(c, A1[0] + 1, A1[1] - 1, 3); fs(c, WHITE, 1.2); }
+  if (prop === 'pillow') obj(c, A1[0] + 4, A1[1] - 2, 'pillow', 5);
+  if (prop === 'toot') { [[-7, -5, 3], [-11, -1, 3.8], [-15, -5, 2.6]].forEach(p => { circ(c, p[0], p[1], p[2]); fs(c, 'rgba(155,224,90,.9)', 1); }); }
+  if (prop === 'glove') { circ(c, A1[0] + 1, A1[1], 3.4); fs(c, RED, 1.3); }
+  if (prop === 'paint') { rr(c, A1[0] - 1, A1[1] - 1, 5, 5, 1); fs(c, '#ff4f9a', 1.1); }
+  c.restore();
+}
+
+Object.assign(POSE, {
+  cl: { hip: [0, -8], neck: [0, -15], legs: [[-4, -3], [4, -6]], arms: [[-4, -24], [5, -20]] },
+  hg: { hip: [0, -8], neck: [0, -15], legs: [[-2, 1], [3, 0]], arms: [[1, -26], [7, -9]] },
+  pu: { hip: [0, -8], neck: [1, -15], legs: [[-6, 0], [4, 0]], arms: [[-5, -11], [12, -15]] },
+  th: { hip: [0, -8], neck: [0, -15], legs: [[-4, 0], [4, 0]], arms: [[-7, -10], [4, -26]] },
+  fa: { hip: [0, -8], neck: [0, -15], legs: [[-7, -2], [7, -5]], arms: [[-10, -21], [9, -24]] },
+  mm: { hip: [0, -4], neck: [0, -11], legs: [[-7, 0], [7, 0]], arms: [[-5, -5], [5, -5]] }
+});
+
+// ---------------- objects (falling things, weapons, props) ----------------
+function obj(c, x, y, k, s) {
+  s = s || 8;
+  c.save(); c.translate(x, y);
+  const u = s / 8; // unit
+  switch (k) {
+    case 'bomb': circ(c, 0, 1, s); fs(c, '#2a2540', 1.5); line(c, s * .5, -s * .6, s * .9, -s * 1.15, '#c9a36a', 1.6); c.fillStyle = SUN; star(c, s * .95, -s * 1.25, 3 * u + 1, 6); c.fill(); circ(c, -s * .35, -s * .2, s * .22); c.fillStyle = 'rgba(255,255,255,.5)'; c.fill(); break;
+    case 'bowl': circ(c, 0, 0, s); fs(c, '#3b3b8f', 1.5); c.fillStyle = INK; [[-2, -3], [1.5, -4], [0, -.5]].forEach(p => { circ(c, p[0] * u, p[1] * u, 1.1 * u); c.fill(); }); break;
+    case 'ball': circ(c, 0, 0, s); fs(c, WHITE, 0); [[RED, -90], [BLUE, 30], [SUN, 150]].forEach(w => { c.beginPath(); c.moveTo(0, 0); c.arc(0, 0, s, R(w[1]), R(w[1] + 60)); c.closePath(); c.fillStyle = w[0]; c.fill(); }); circ(c, 0, 0, s); fs(c, null, 1.5); circ(c, 0, 0, s * .2); fs(c, WHITE, 1); break;
+    case 'dodge': circ(c, 0, 0, s); fs(c, '#ff5a5a', 1.5); c.beginPath(); c.arc(-s * .9, 0, s * .9, -1, 1); inkS(c, 1); c.stroke(); break;
+    case 'bball': circ(c, 0, 0, s); fs(c, '#ff8a2a', 1.5); inkS(c, 1); c.beginPath(); c.moveTo(-s, 0); c.lineTo(s, 0); c.moveTo(0, -s); c.lineTo(0, s); c.stroke(); c.beginPath(); c.arc(-s * 1.1, 0, s * .8, -.9, .9); c.stroke(); c.beginPath(); c.arc(s * 1.1, 0, s * .8, Math.PI - .9, Math.PI + .9); c.stroke(); break;
+    case 'soccer': circ(c, 0, 0, s); fs(c, WHITE, 1.5); c.save(); c.fillStyle = INK; c.beginPath(); for (let i = 0; i < 5; i++) { const a = -Math.PI / 2 + i * Math.PI * 2 / 5; c.lineTo(Math.cos(a) * s * .38, Math.sin(a) * s * .38); } c.closePath(); c.fill(); c.restore(); break;
+    case 'golf': circ(c, 0, 0, s * .6); fs(c, WHITE, 1.3); break;
+    case 'baseball': circ(c, 0, 0, s); fs(c, WHITE, 1.4); c.strokeStyle = RED; c.lineWidth = 1; c.beginPath(); c.arc(-s * 1.2, 0, s * .9, -.7, .7); c.stroke(); c.beginPath(); c.arc(s * 1.2, 0, s * .9, Math.PI - .7, Math.PI + .7); c.stroke(); break;
+    case 'puck': ell(c, 0, 0, s, s * .45); fs(c, '#2a2540', 1.4); break;
+    case 'cball': c.strokeStyle = 'rgba(255,255,255,.8)'; c.lineWidth = 1.2; for (let i = -1; i <= 1; i++) { c.beginPath(); c.moveTo(-s * 1.4, i * s * .55); c.lineTo(-s * 3, i * s * .55); c.stroke(); } circ(c, 0, 0, s); fs(c, '#2a2540', 1.4); break;
+    case 'meteor': { c.save(); c.rotate(R(-35)); c.beginPath(); c.moveTo(-s * .2, -s * .9); c.quadraticCurveTo(s * 3, -s * .3, s * 3.6, 0); c.quadraticCurveTo(s * 3, s * .3, -s * .2, s * .9); c.closePath(); fs(c, '#ffb43a', 1.3); c.restore(); circ(c, 0, 0, s); fs(c, '#8a5a3b', 1.5); c.fillStyle = '#5a3a24'; circ(c, -s * .3, -s * .2, s * .25); c.fill(); circ(c, s * .3, s * .35, s * .18); c.fill(); break; }
+    case 'anvil': poly(c, [[-s, -s * .5], [s * 1.1, -s * .5], [s * .6, 0], [s * .35, 0], [s * .55, s * .7], [-s * .55, s * .7], [-s * .35, 0], [-s * .6, 0], [-s * 1.3, -s * .2]]); fs(c, '#4a4f5e', 1.4); break;
+    case 'piano': rr(c, -s, -s * .7, s * 2, s * 1.2, 2); fs(c, '#221d33', 1.4); c.fillStyle = WHITE; c.fillRect(-s * .85, s * .05, s * 1.7, s * .35); c.fillStyle = INK; for (let i = -3; i <= 3; i++) c.fillRect(i * s * .24 - .4, s * .05, .8, s * .35); line(c, -s * .8, s * .5, -s * .8, s * .9, INK, 1.4); line(c, s * .8, s * .5, s * .8, s * .9, INK, 1.4); break;
+    case 'cow': ell(c, 0, 0, s, s * .62); fs(c, WHITE, 1.4); c.fillStyle = INK; ell(c, -s * .35, -s * .1, s * .25, s * .18); c.fill(); ell(c, s * .3, s * .2, s * .2, s * .15); c.fill(); [-.6, -.25, .25, .6].forEach(f => line(c, f * s, s * .5, f * s, s * .95, INK, 1.6)); ell(c, s * 1.05, -s * .3, s * .42, s * .34); fs(c, WHITE, 1.3); ell(c, s * 1.25, -s * .2, s * .22, s * .16); fs(c, '#ffb3c8', 1); break;
+    case 'crate': rr(c, -s, -s, s * 2, s * 2, 1.5); fs(c, '#c98b52', 1.5); inkS(c, 1.1); c.beginPath(); c.moveTo(-s, -s); c.lineTo(s, s); c.moveTo(s, -s); c.lineTo(-s, s); c.stroke(); c.font = `${s}px Bungee, sans-serif`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = WHITE; c.fillText('?', 0, 1); break;
+    case 'fish': ell(c, 0, 0, s, s * .5); fs(c, '#ff9f1c', 1.4); poly(c, [[-s * .9, 0], [-s * 1.6, -s * .5], [-s * 1.6, s * .5]]); fs(c, '#ff9f1c', 1.3); circ(c, s * .5, -s * .1, 1); c.fillStyle = INK; c.fill(); break;
+    case 'pan': line(c, s * .8, 0, s * 2, -s * .3, INK, 3.4); circ(c, 0, 0, s); fs(c, '#2a2540', 1.4); circ(c, -s * .25, -s * .25, s * .3); c.fillStyle = 'rgba(255,255,255,.25)'; c.fill(); break;
+    case 'hammer': iline(c, 0, 0, s * 1.4, s * 1.4, '#c98b52', 2.2); c.save(); c.rotate(R(45)); rr(c, -s * .9, -s * .55, s * 1.8, s * 1.1, 2); fs(c, '#8a90a3', 1.4); c.restore(); break;
+    case 'noodle': c.save(); c.rotate(R(-30)); rr(c, -s * 1.6, -s * .3, s * 3.2, s * .6, s * .3); fs(c, '#5fe0b0', 1.4); c.restore(); break;
+    case 'plunger': iline(c, 0, -s * 1.3, 0, s * .2, '#c98b52', 1.8); c.beginPath(); c.arc(0, s * .7, s * .7, Math.PI, 0); c.closePath(); fs(c, RED, 1.3); break;
+    case 'snow': circ(c, 0, 0, s); fs(c, WHITE, 1.4); break;
+    case 'egg': ell(c, 0, 0, s * .7, s); fs(c, '#fffaf0', 1.4); break;
+    case 'chick': circ(c, 0, 0, s); fs(c, SUN, 1.4); poly(c, [[s * .8, -s * .1], [s * 1.4, s * .1], [s * .8, s * .3]]); fs(c, '#ff9f1c', 1); c.fillStyle = INK; c.fillRect(s * .3, -s * .35, 1.2, 1.2); break;
+    case 'rock': poly(c, [[-s, s * .3], [-s * .6, -s * .6], [s * .2, -s * .8], [s, -s * .1], [s * .7, s * .6], [-s * .4, s * .7]]); fs(c, '#8a8fa0', 1.4); break;
+    case 'star': star(c, 0, 0, s, 5); fs(c, SUN, 1.3); break;
+    case 'boot': poly(c, [[-s * .6, -s * 1.2], [s * .4, -s * 1.2], [s * .4, -s * .1], [s * 1.2, s * .1], [s * 1.3, s * .6], [-s * .7, s * .6]]); fs(c, '#8a5a3b', 1.6); c.fillStyle = INK; c.fillRect(-s * .7, s * .45, s * 2, s * .18); break;
+    case 'pin': c.beginPath(); c.moveTo(0, -s); c.bezierCurveTo(s * .45, -s, s * .3, -s * .3, s * .2, -s * .2); c.bezierCurveTo(s * .7, s * .2, s * .5, s, 0, s); c.bezierCurveTo(-s * .5, s, -s * .7, s * .2, -s * .2, -s * .2); c.bezierCurveTo(-s * .3, -s * .3, -s * .45, -s, 0, -s); fs(c, WHITE, 1.2); c.fillStyle = RED; c.fillRect(-s * .25, -s * .45, s * .5, s * .15); break;
+    case 'pillow': rr(c, -s, -s * .6, s * 2, s * 1.2, s * .5); fs(c, '#fff2f8', 1.4); break;
+    case 'candy': poly(c, [[-s * .6, 0], [-s * 1.2, -s * .5], [-s * 1.2, s * .5]]); fs(c, '#ff8cc6', 1); poly(c, [[s * .6, 0], [s * 1.2, -s * .5], [s * 1.2, s * .5]]); fs(c, '#ff8cc6', 1); circ(c, 0, 0, s * .65); fs(c, '#ff4f9a', 1.2); break;
+    case 'melon': c.beginPath(); c.arc(0, -s * .3, s, 0, Math.PI); c.closePath(); fs(c, '#3fbf5f', 1.4); c.beginPath(); c.arc(0, -s * .3, s * .78, 0, Math.PI); c.closePath(); fs(c, '#ff5a6a', 0); break;
+    case 'apple': circ(c, 0, 0, s); fs(c, '#ec3a3a', 1.4); ell(c, s * .35, -s * 1.05, s * .35, s * .18, -.5); fs(c, '#3fbf5f', 1); break;
+    case 'banana': c.beginPath(); c.arc(0, -s * .6, s * 1.1, R(30), R(150)); c.arc(0, -s * 1.1, s * 1.2, R(145), R(35), true); c.closePath(); fs(c, SUN, 1.3); break;
+    case 'sushi': rr(c, -s, -s * .5, s * 2, s, 2); fs(c, WHITE, 1.3); rr(c, -s, -s * .75, s * 2, s * .45, 2); fs(c, '#ff8a6a', 1.1); c.fillStyle = INK; c.fillRect(-s * .2, -s * .75, s * .4, s * 1.25); break;
+    case 'plate': ell(c, 0, s * .4, s * 1.3, s * .35); fs(c, '#ffd23a', 1.2); break;
+    case 'chest': rr(c, -s, -s * .4, s * 2, s * 1.2, 1.5); fs(c, '#8a5a3b', 1.4); c.beginPath(); c.moveTo(-s, -s * .4); c.quadraticCurveTo(0, -s * 1.3, s, -s * .4); c.closePath(); fs(c, '#a56a36', 1.4); c.fillStyle = SUN; c.fillRect(-s * .15, -s * .6, s * .3, s * .7); break;
+    case 'gem': poly(c, [[0, -s], [s * .8, -s * .2], [0, s], [-s * .8, -s * .2]]); fs(c, '#5fe8ff', 1.3); break;
+    case 'popcorn': c.beginPath(); [[0, 0, .55], [.45, -.2, .45], [-.45, -.15, .45], [.1, -.55, .4]].forEach(p => { c.moveTo(p[0] * s + p[2] * s, p[1] * s); c.arc(p[0] * s, p[1] * s, p[2] * s, 0, Math.PI * 2); }); fs(c, '#fff6d0', 1.2); circ(c, 0, 0, s * .2); c.fillStyle = SUN; c.fill(); break;
+    case 'ghost': c.beginPath(); c.arc(0, -s * .2, s * .8, Math.PI, 0); c.lineTo(s * .8, s * .8); for (let i = 0; i < 4; i++) c.lineTo(s * .8 - (i + .5) * s * .4, s * (i % 2 ? .8 : .55)); c.lineTo(-s * .8, s * .8); c.closePath(); fs(c, '#f4f2ff', 1.4); c.fillStyle = INK; ell(c, -s * .28, -s * .25, s * .13, s * .2); c.fill(); ell(c, s * .28, -s * .25, s * .13, s * .2); c.fill(); break;
+    case 'bee': ell(c, -s * .1, -s * .7, s * .4, s * .3, -.4); fs(c, 'rgba(255,255,255,.9)', 1); ell(c, 0, 0, s * .75, s * .5); fs(c, SUN, 1.3); c.fillStyle = INK; c.fillRect(-s * .15, -s * .45, s * .22, s * .9); c.fillRect(s * .3, -s * .4, s * .18, s * .8); break;
+    case 'hive': [[0, -s * .6, .55], [0, -s * .1, .8], [0, s * .45, .65]].forEach(p => { ell(c, p[0], p[1], s * p[2], s * .32); fs(c, '#e8b94a', 1.3); }); circ(c, 0, s * .1, s * .15); c.fillStyle = INK; c.fill(); break;
+    case 'crown': poly(c, [[-s, s * .5], [-s, -s * .5], [-s * .5, 0], [0, -s * .8], [s * .5, 0], [s, -s * .5], [s, s * .5]]); fs(c, SUN, 1.4); break;
+    case 'duck': ell(c, 0, s * .2, s, s * .55); fs(c, SUN, 1.3); circ(c, s * .55, -s * .45, s * .45); fs(c, SUN, 1.3); poly(c, [[s * .95, -s * .45], [s * 1.4, -s * .35], [s * .95, -s * .25]]); fs(c, '#ff9f1c', 1); break;
+    case 'vac': ell(c, 0, 0, s * 1.6, s * .6); fs(c, '#4a4f5e', 1.5); ell(c, 0, -s * .2, s * 1.1, s * .3); fs(c, '#8a90a3', 1.1); circ(c, s * .7, -s * .25, s * .15); c.fillStyle = '#5fe8ff'; c.fill(); break;
+    case 'note': ell(c, 0, s * .5, s * .45, s * .32, -.4); fs(c, INK, 0); line(c, s * .38, s * .4, s * .38, -s * .8, INK, 1.4); line(c, s * .38, -s * .8, s * .85, -s * .5, INK, 1.4); break;
+    case 'pellet': circ(c, 0, 0, s * 1.6); c.fillStyle = 'rgba(255,201,40,.3)'; c.fill(); circ(c, 0, 0, s * .8); fs(c, SUN, 1.2); break;
+    case 'stal': poly(c, [[-s * .6, -s], [s * .6, -s], [0, s * 1.2]]); fs(c, '#8a8fa0', 1.3); break;
+    case 'teddy': circ(c, -s * .55, -s * 1.15, s * .3); fs(c, '#a56a36', 1.2); circ(c, s * .55, -s * 1.15, s * .3); fs(c, '#a56a36', 1.2); ell(c, 0, s * .45, s * .75, s * .7); fs(c, '#a56a36', 1.3); circ(c, 0, -s * .7, s * .62); fs(c, '#a56a36', 1.3); ell(c, 0, -s * .55, s * .25, s * .18); fs(c, '#e8c9a0', 1); break;
+    case 'gear': c.beginPath(); for (let i = 0; i < 16; i++) { const a = i * Math.PI / 8, rad = i % 2 ? s * .75 : s; c.lineTo(Math.cos(a) * rad, Math.sin(a) * rad); } c.closePath(); fs(c, '#a9b2c4', 1.3); circ(c, 0, 0, s * .3); fs(c, INK, 0); break;
+    case 'spatula': iline(c, s * .6, s * .3, s * 2.6, s * 1.2, '#2a2540', 2); poly(c, [[-s * 1.4, -s * .2], [s * .7, -s * .2], [s * .8, s * .7], [-s * 1.3, s * .9]]); fs(c, '#c9ccd6', 1.4); break;
+    case 'chair': rr(c, -s * .7, -s * 1.2, s * .3, s * 2.2, 1); fs(c, '#a56a36', 1.2); rr(c, -s * .7, -s * .1, s * 1.5, s * .3, 1); fs(c, '#a56a36', 1.2); line(c, s * .7, s * .2, s * .7, s, INK, 1.6); break;
+    case 'book': rr(c, -s * .8, -s * .55, s * 1.6, s * 1.1, 1); fs(c, '#a45cff', 1.3); c.fillStyle = WHITE; c.fillRect(-s * .8, s * .3, s * 1.6, s * .15); break;
+    case 'clock': circ(c, 0, 0, s); fs(c, '#fff7e8', 1.4); line(c, 0, 0, 0, -s * .65, INK, 1.4); line(c, 0, 0, s * .45, s * .1, INK, 1.4); break;
+    case 'snail': ell(c, 0, s * .45, s * 1.3, s * .3); fs(c, '#c6e86a', 1.2); circ(c, -s * .1, -s * .1, s * .7); fs(c, '#d98a5a', 1.4); c.beginPath(); c.arc(-s * .1, -s * .1, s * .35, 0, Math.PI * 1.6); inkS(c, 1); c.stroke(); line(c, s * 1, s * .2, s * 1.2, -s * .4, INK, 1.1); break;
+    case 'target': [[1, RED], [.66, WHITE], [.33, RED]].forEach(r => { circ(c, 0, 0, s * r[0]); fs(c, r[1], 1.2); }); break;
+    case 'pinata': rr(c, -s, -s * .4, s * 1.6, s * .9, 2); fs(c, '#ff4f9a', 1.3); rr(c, s * .3, -s * 1, s * .55, s * .9, 2); fs(c, SUN, 1.3); [-.7, -.2, .3].forEach(f => line(c, f * s, s * .5, f * s, s * .95, INK, 1.6)); c.fillStyle = '#5fe0b0'; c.fillRect(-s * .6, -s * .4, s * .25, s * .9); c.fillStyle = BLUE; c.fillRect(-s * .1, -s * .4, s * .25, s * .9); break;
+    case 'tumble': circ(c, 0, 0, s); fs(c, null, 0); c.strokeStyle = '#a56a36'; c.lineWidth = 1; for (let i = 0; i < 5; i++) { c.beginPath(); c.arc(0, 0, s * (.4 + i * .13), i, i + 3.5); c.stroke(); } break;
+    case 'spark': star(c, 0, 0, s, 8, s * .5); fs(c, SUN, 1.3); break;
+    case 'feather': ell(c, 0, 0, s * .35, s, .6); fs(c, WHITE, 1); break;
+    case 'sock': poly(c, [[-s * .3, -s], [s * .3, -s], [s * .3, s * .3], [s * .9, s * .4], [s * .9, s * .9], [-s * .3, s * .9]]); fs(c, '#5fe0b0', 1.2); break;
+    case 'marble': circ(c, 0, 0, s); fs(c, 'rgba(95,232,255,.8)', 1.2); c.beginPath(); c.arc(0, 0, s * .6, .3, 2); c.strokeStyle = RED; c.lineWidth = 1.2; c.stroke(); break;
+    case 'block': rr(c, -s, -s, s * 2, s * 2, 1.5); fs(c, '#ff9f1c', 1.4); c.font = `${s * 1.2}px Bungee, sans-serif`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = INK; c.fillText('A', 0, s * .1); break;
+    case 'domino': rr(c, -s * .4, -s, s * .8, s * 2, 1); fs(c, WHITE, 1.3); line(c, -s * .4, 0, s * .4, 0, INK, 1); break;
+    case 'candle': rr(c, -s * .3, -s * .3, s * .6, s * 1.2, 1); fs(c, '#fff7e8', 1.2); ell(c, 0, -s * .65, s * .2, s * .35); c.fillStyle = SUN; c.fill(); break;
+    case 'disco': circ(c, 0, 0, s); fs(c, '#c9ccd6', 1.4); c.strokeStyle = 'rgba(22,19,44,.4)'; c.lineWidth = .7; for (let i = -2; i <= 2; i++) { c.beginPath(); c.moveTo(i * s * .35, -s); c.lineTo(i * s * .35, s); c.moveTo(-s, i * s * .35); c.lineTo(s, i * s * .35); c.stroke(); } line(c, 0, -s, 0, -s * 3, INK, 1); break;
+    case 'giant': ell(c, 0, 0, s * 1.3, s * 1.1); fs(c, '#8fd18a', 2); line(c, -s * .6, -s * .1, -s * .2, -s * .1, INK, 2); line(c, s * .2, -s * .1, s * .6, -s * .1, INK, 2); ell(c, 0, s * .45, s * .3, s * .15); fs(c, '#5a3a24', 1); break;
+    case 'heli': circ(c, 0, 0, s); fs(c, null, 0); break;
+    case 'umbrella': c.beginPath(); c.arc(0, 0, s, Math.PI, 0); c.closePath(); fs(c, '#ff4f9a', 1.3); line(c, 0, 0, 0, s * 1.2, INK, 1.4); break;
+    case 'basket': rr(c, -s, -s * .4, s * 2, s, 2); fs(c, '#c98b52', 1.4); break;
+    case 'spider': circ(c, 0, 0, s * .55); fs(c, INK, 0); for (let i = 0; i < 4; i++) { line(c, -s * .3, 0, -s * 1.1, -s * .6 + i * .4 * s, INK, 1); line(c, s * .3, 0, s * 1.1, -s * .6 + i * .4 * s, INK, 1); } break;
+    case 'croc': ell(c, 0, 0, s * 1.4, s * .4); fs(c, '#3f9a33', 1.3); break;
+    case 'bird': ell(c, 0, 0, s, s * .55); fs(c, '#f4f2ff', 1.3); c.beginPath(); c.moveTo(-s * .6, -s * .1); c.quadraticCurveTo(-s * .1, -s * 1.3, s * .3, -s * .2); c.closePath(); fs(c, '#d6d9e6', 1.2); poly(c, [[s * .9, -s * .15], [s * 1.5, s * .05], [s * .9, s * .25]]); fs(c, '#ff9f1c', 1); circ(c, s * .55, -s * .2, .9); c.fillStyle = INK; c.fill(); break;
+    case 'saw': c.beginPath(); for (let i = 0; i < 24; i++) { const a = i * Math.PI / 12, rad = i % 2 ? s * .78 : s; c.lineTo(Math.cos(a) * rad, Math.sin(a) * rad); } c.closePath(); fs(c, '#c9ccd6', 1.3); circ(c, 0, 0, s * .28); fs(c, RED, 1.1); break;
+    case 'fire': c.beginPath(); c.moveTo(0, -s * 1.3); c.quadraticCurveTo(s, -s * .1, s * .7, s * .5); c.quadraticCurveTo(0, s * 1.1, -s * .7, s * .5); c.quadraticCurveTo(-s, -s * .1, 0, -s * 1.3); fs(c, '#ff7a00', 1.3); c.beginPath(); c.moveTo(0, -s * .4); c.quadraticCurveTo(s * .45, s * .2, 0, s * .6); c.quadraticCurveTo(-s * .45, s * .2, 0, -s * .4); c.fillStyle = SUN; c.fill(); break;
+    case 'key': circ(c, -s * .5, 0, s * .45); fs(c, SUN, 1.3); rr(c, -s * .1, -s * .14, s * 1.3, s * .28, 1); fs(c, SUN, 1.1); rr(c, s * .8, 0, s * .2, s * .4, .5); fs(c, SUN, 1); rr(c, s * .45, 0, s * .2, s * .32, .5); fs(c, SUN, 1); circ(c, -s * .5, 0, s * .16); c.fillStyle = INK; c.fill(); break;
+    case 'cat': poly(c, [[-s * .7, -s * .2], [-s * .55, -s * 1.05], [-s * .1, -s * .55], [s * .1, -s * .55], [s * .55, -s * 1.05], [s * .7, -s * .2]]); fs(c, '#ff9f1c', 1.2); ell(c, 0, 0, s * .8, s * .65); fs(c, '#ff9f1c', 1.3); c.fillStyle = INK; c.fillRect(-s * .35, -s * .15, 1.3, 1.6); c.fillRect(s * .25, -s * .15, 1.3, 1.6); break;
+    case 'peel': c.beginPath(); c.moveTo(0, s * .4); c.quadraticCurveTo(-s * 1.2, s * .1, -s * 1.1, -s * .4); c.quadraticCurveTo(-s * .4, -s * .1, 0, -s * .3); c.quadraticCurveTo(s * .4, -s * .1, s * 1.1, -s * .4); c.quadraticCurveTo(s * 1.2, s * .1, 0, s * .4); fs(c, SUN, 1.3); rr(c, -s * .25, -s * .7, s * .5, s * .6, 1.5); fs(c, '#f2d48a', 1.1); break;
+    case 'beans': rr(c, -s * .6, -s * .8, s * 1.2, s * 1.6, 2); fs(c, '#ec4a2f', 1.4); c.fillStyle = WHITE; c.fillRect(-s * .6, -s * .3, s * 1.2, s * .6); c.fillStyle = '#c98b52'; [[-.2, 0], [.18, -.06], [0, .12]].forEach(p => { ell(c, p[0] * s, p[1] * s, s * .14, s * .1); c.fill(); }); rr(c, -s * .6, -s * .8, s * 1.2, s * 1.6, 2); fs(c, null, 1.4); break;
+    case 'yeti': ell(c, 0, 0, s, s * 1.1); fs(c, '#f4f2ff', 1.6); ell(c, 0, -s * .2, s * .55, s * .4); fs(c, '#a9c4e6', 1.2); c.fillStyle = INK; circ(c, -s * .2, -s * .3, s * .08 + .6); c.fill(); circ(c, s * .2, -s * .3, s * .08 + .6); c.fill(); rr(c, -s * .2, -s * .05, s * .4, s * .12, 1); fs(c, WHITE, 1); break;
+    case 'monkey': circ(c, -s * .75, -s * .1, s * .35); fs(c, '#d9a06a', 1.2); circ(c, s * .75, -s * .1, s * .35); fs(c, '#d9a06a', 1.2); circ(c, 0, 0, s * .8); fs(c, '#8a5a3b', 1.4); ell(c, 0, s * .15, s * .5, s * .42); fs(c, '#d9a06a', 1.1); c.fillStyle = INK; c.fillRect(-s * .3, -s * .3, 1.4, 1.6); c.fillRect(s * .2, -s * .3, 1.4, 1.6); break;
+    case 'barrel': rr(c, -s * .7, -s, s * 1.4, s * 2, s * .4); fs(c, '#a56a36', 1.4); line(c, -s * .7, -s * .45, s * .7, -s * .45, INK, 1.4); line(c, -s * .7, s * .45, s * .7, s * .45, INK, 1.4); break;
+    case 'toast': rr(c, -s, -s, s * 2, s * 1.8, s * .5); fs(c, '#c98b52', 1.4); rr(c, -s * .75, -s * .7, s * 1.5, s * 1.3, s * .35); fs(c, '#f2d48a', 0); break;
+    case 'scoop': circ(c, 0, 0, s); fs(c, '#ffb3d9', 1.4); [[-.4, -.3, RED], [.3, -.45, BLUE], [.1, .2, '#3fbf5f'], [-.2, .35, SUN]].forEach(p => { c.fillStyle = p[2]; c.fillRect(p[0] * s, p[1] * s, 2, 1); }); break;
+    case 'pizza': poly(c, [[-s, -s * .6], [s, -s * .6], [0, s]]); fs(c, '#ffc928', 1.4); rr(c, -s * 1.05, -s * .8, s * 2.1, s * .35, 2); fs(c, '#c98b52', 1.2); c.fillStyle = RED; circ(c, -s * .3, -s * .2, s * .16); c.fill(); circ(c, s * .25, -s * .1, s * .16); c.fill(); circ(c, 0, s * .35, s * .13); c.fill(); break;
+    case 'jelly': c.beginPath(); c.arc(0, 0, s, Math.PI, 0); c.closePath(); fs(c, 'rgba(255,140,198,.88)', 1.4); c.strokeStyle = INK; c.lineWidth = 1.1; for (let i = -2; i <= 2; i++) { c.beginPath(); c.moveTo(i * s * .35, 0); c.quadraticCurveTo(i * s * .35 + 3, s * .6, i * s * .35, s * 1.2); c.stroke(); } break;
+    case 'jellyb': c.beginPath(); c.arc(0, 0, s, Math.PI, 0); c.closePath(); fs(c, 'rgba(95,232,255,.88)', 1.4); c.strokeStyle = INK; c.lineWidth = 1.1; for (let i = -2; i <= 2; i++) { c.beginPath(); c.moveTo(i * s * .35, 0); c.lineTo(i * s * .35 + 2, s * .5); c.lineTo(i * s * .35 - 1, s * 1.2); c.stroke(); } break;
+    case 'penguin': ell(c, 0, 0, s * .7, s); fs(c, '#2a2540', 1.4); ell(c, 0, s * .15, s * .45, s * .7); c.fillStyle = WHITE; c.fill(); poly(c, [[-s * .15, -s * .4], [s * .15, -s * .4], [0, -s * .2]]); fs(c, '#ff9f1c', 1); c.fillStyle = WHITE; c.fillRect(-s * .3, -s * .65, 1.5, 1.5); c.fillRect(s * .15, -s * .65, 1.5, 1.5); break;
+    case 'rocket': c.beginPath(); c.moveTo(0, -s * 1.3); c.quadraticCurveTo(s * .55, -s * .6, s * .45, s * .7); c.lineTo(-s * .45, s * .7); c.quadraticCurveTo(-s * .55, -s * .6, 0, -s * 1.3); fs(c, RED, 1.4); poly(c, [[-s * .45, s * .3], [-s * .85, s * .9], [-s * .4, s * .7]]); fs(c, BLUE, 1.1); poly(c, [[s * .45, s * .3], [s * .85, s * .9], [s * .4, s * .7]]); fs(c, BLUE, 1.1); poly(c, [[-s * .3, s * .75], [s * .3, s * .75], [0, s * 1.5]]); fs(c, SUN, 1.1); break;
+    case 'piggy': ell(c, 0, 0, s, s * .78); fs(c, '#ff9ec4', 1.6); ell(c, s * .9, s * .05, s * .25, s * .2); fs(c, '#ff7aa8', 1.2); poly(c, [[-s * .35, -s * .6], [-s * .15, -s], [0, -s * .7]]); fs(c, '#ff9ec4', 1.2); rr(c, -s * .25, -s * .82, s * .5, s * .12, 1); fs(c, INK, 0); [-.5, .4].forEach(f => line(c, f * s, s * .65, f * s, s * .95, INK, 2)); c.strokeStyle = INK; c.lineWidth = 1.2; c.beginPath(); c.moveTo(-s * .1, -s * .1); c.lineTo(s * .1, s * .2); c.lineTo(-s * .05, s * .5); c.lineTo(s * .05, s * .75); c.stroke(); circ(c, s * .5, -s * .2, 1.1); c.fillStyle = INK; c.fill(); break;
+    case 'ornament': circ(c, 0, 0, s); fs(c, RED, 1.4); rr(c, -s * .3, -s * 1.25, s * .6, s * .35, 1); fs(c, SUN, 1.1); circ(c, -s * .35, -s * .35, s * .2); c.fillStyle = 'rgba(255,255,255,.6)'; c.fill(); break;
+    case 'lever': rr(c, -s * .7, 0, s * 1.4, s * .5, 1.5); fs(c, '#4a4f5e', 1.3); iline(c, 0, 0, s * .6, -s * 1.1, '#c9ccd6', 1.6); circ(c, s * .6, -s * 1.1, s * .3); fs(c, RED, 1.2); break;
+    case 'tp': rr(c, -s * .8, -s, s * 1.6, s * 2, s * .3); fs(c, WHITE, 1.4); ell(c, 0, -s, s * .8, s * .3); fs(c, '#f4f2ff', 1.2); ell(c, 0, -s, s * .3, s * .12); fs(c, '#c98b52', 1); break;
+    case 'nest': c.beginPath(); c.ellipse(0, 0, s * 1.2, s * .55, 0, 0, Math.PI); c.closePath(); fs(c, '#a56a36', 1.4); c.strokeStyle = 'rgba(22,19,44,.4)'; c.lineWidth = .8; for (let i = -2; i <= 2; i++) { c.beginPath(); c.moveTo(i * s * .4 - 3, s * .1); c.lineTo(i * s * .4 + 3, s * .35); c.stroke(); } break;
+    case 'hand': rr(c, -s * .6, -s * .7, s * 1.6, s * 1.4, s * .45); fs(c, '#ffd0a8', 1.5); rr(c, -s * 1.9, -s * .65, s * 1.5, s * .48, s * .24); fs(c, '#ffd0a8', 1.3); rr(c, -s * .9, -s * .1, s * .6, s * .4, s * .2); fs(c, '#ffd0a8', 1.1); rr(c, s * .9, -s * .32, s * 1.8, s * .64, 2); fs(c, '#5fb6ff', 1.4); break;
+    case 'magnet': c.beginPath(); c.arc(0, 0, s, Math.PI, 0); c.lineTo(s, s * .9); c.lineTo(s * .45, s * .9); c.lineTo(s * .45, 0); c.arc(0, 0, s * .45, 0, Math.PI, true); c.lineTo(-s * .45, s * .9); c.lineTo(-s, s * .9); c.closePath(); fs(c, RED, 1.4); c.fillStyle = '#c9ccd6'; c.fillRect(-s, s * .55, s * .55, s * .35); c.fillRect(s * .45, s * .55, s * .55, s * .35); break;
+    case 'firefly': circ(c, 0, 0, s * 2.4); c.fillStyle = 'rgba(255,240,120,.28)'; c.fill(); circ(c, 0, 0, s * .6); fs(c, '#fff27a', 1); break;
+    case 'lock': c.beginPath(); c.arc(0, -s * .2, s * .5, Math.PI, 0); c.strokeStyle = INK; c.lineWidth = 3.4; c.stroke(); c.strokeStyle = '#c9ccd6'; c.lineWidth = 1.6; c.stroke(); rr(c, -s * .8, -s * .2, s * 1.6, s * 1.2, 2); fs(c, SUN, 1.4); circ(c, 0, s * .35, s * .18); c.fillStyle = INK; c.fill(); break;
+    case 'meatball': circ(c, 0, 0, s); fs(c, '#8a4a2a', 1.4); c.fillStyle = '#5a2a14'; circ(c, -s * .3, -s * .2, s * .2); c.fill(); circ(c, s * .3, s * .2, s * .18); c.fill(); break;
+    case 'cup': c.beginPath(); c.arc(s * 1.05, 0, s * .35, -1.4, 1.4); inkS(c, 1.6); c.stroke(); c.beginPath(); c.moveTo(-s, -s * .5); c.lineTo(s, -s * .5); c.quadraticCurveTo(s * .9, s * .8, 0, s * .8); c.quadraticCurveTo(-s * .9, s * .8, -s, -s * .5); fs(c, WHITE, 1.4); ell(c, 0, -s * .5, s * .95, s * .2); fs(c, '#c98b52', 1); ell(c, 0, s * .85, s * 1.2, s * .2); fs(c, '#ffb3d9', 1.2); break;
+    case 'sloth': ell(c, 0, 0, s, s * .8); fs(c, '#a58a6a', 1.4); ell(c, 0, -s * .1, s * .6, s * .45); fs(c, '#e8d8b8', 1.1); c.fillStyle = '#5a3f26'; ell(c, -s * .25, -s * .15, s * .15, s * .1, .4); c.fill(); ell(c, s * .25, -s * .15, s * .15, s * .1, -.4); c.fill(); break;
+    case 'dragon': ell(c, 0, 0, s * 1.3, s * .8); fs(c, '#3fbf5f', 1.6); poly(c, [[-s * .6, -s * .6], [-s * .9, -s * 1.3], [-s * .3, -s * .7]]); fs(c, SUN, 1.2); poly(c, [[s * .1, -s * .7], [s * .1, -s * 1.4], [s * .5, -s * .7]]); fs(c, SUN, 1.2); line(c, -s * .5, -s * .15, -s * .1, -s * .15, INK, 1.6); circ(c, s * 1.05, s * .1, 1.2); c.fillStyle = INK; c.fill(); break;
+    case 'ghead': line(c, -s * .3, -s * .45, -s * .35, -s * 1.1, INK, 1.4); line(c, s * .1, -s * .45, s * .15, -s * 1.1, INK, 1.4); circ(c, -s * .35, -s * 1.15, 1.6); fs(c, '#a56a36', 1); circ(c, s * .15, -s * 1.15, 1.6); fs(c, '#a56a36', 1); ell(c, 0, 0, s * 1.1, s * .55); fs(c, '#ffc928', 1.4); c.fillStyle = INK; c.fillRect(-s * .2, -s * .2, 1.4, 1.4); ell(c, s * .55, s * .1, s * .25, s * .15); c.fillStyle = '#c98b52'; c.fill(); break;
+    case 'goat': [-.6, -.2, .3, .7].forEach(f => line(c, f * s, s * .4, f * s, s * .95, INK, 1.6)); ell(c, 0, 0, s, s * .55); fs(c, '#f4f2ff', 1.4); ell(c, s * 1.05, -s * .45, s * .4, s * .3); fs(c, '#f4f2ff', 1.3); c.beginPath(); c.arc(s * .85, -s * .8, s * .35, Math.PI, Math.PI * 1.9); inkS(c, 1.8); c.stroke(); c.fillStyle = INK; c.fillRect(s * 1.15, -s * .55, 1.2, 1.2); break;
+    case 'kite': c.beginPath(); c.moveTo(0, s * 1.2); c.quadraticCurveTo(s * .4, s * 1.8, -s * .1, s * 2.4); c.strokeStyle = INK; c.lineWidth = .9; c.stroke(); poly(c, [[0, -s], [s * .7, 0], [0, s * 1.2], [-s * .7, 0]]); fs(c, '#ff4f9a', 1.4); line(c, 0, -s, 0, s * 1.2, INK, .8); line(c, -s * .7, 0, s * .7, 0, INK, .8); break;
+    case 'door': rr(c, -s * .7, -s * 1.2, s * 1.4, s * 2.4, 2); fs(c, '#a56a36', 1.5); circ(c, s * .4, 0, s * .12 + .5); fs(c, SUN, 1); break;
+    case 'yarn': circ(c, 0, 0, s); fs(c, '#ff6b9a', 1.4); c.strokeStyle = 'rgba(22,19,44,.4)'; c.lineWidth = .8; for (let i = -1; i <= 1; i++) { c.beginPath(); c.arc(i * s * .5, 0, s * .9, -1, 1); c.stroke(); } break;
+    case 'cheese': poly(c, [[-s, s * .5], [s, s * .5], [s, -s * .3], [-s, s * .1]]); fs(c, '#ffd23a', 1.4); c.fillStyle = '#e8b030'; circ(c, s * .4, s * .15, s * .16); c.fill(); circ(c, -s * .3, s * .3, s * .12); c.fill(); break;
+    case 'milk': rr(c, -s * .6, -s * .6, s * 1.2, s * 1.6, 1); fs(c, WHITE, 1.4); poly(c, [[-s * .6, -s * .6], [0, -s * 1.1], [s * .6, -s * .6]]); fs(c, '#e8f6ff', 1.2); c.fillStyle = BLUE; c.fillRect(-s * .6, 0, s * 1.2, s * .35); break;
+    case 'bucket': poly(c, [[-s * .8, -s * .7], [s * .8, -s * .7], [s * .6, s * .8], [-s * .6, s * .8]]); fs(c, '#a9b2c4', 1.4); c.beginPath(); c.arc(0, -s * .7, s * .8, Math.PI, 0); inkS(c, 1.1); c.stroke(); break;
+    case 'marsh': rr(c, -s, -s * .7, s * 2, s * 1.4, s * .5); fs(c, '#fff6f8', 1.4); ell(c, 0, -s * .7, s * .95, s * .22); fs(c, '#ffe3ec', 1.1); break;
+    default: circ(c, 0, 0, s); fs(c, '#ff4f9a', 1.4);
+  }
+  c.restore();
+}
+// ---------------- scene elements ----------------
+function elBase(c, e, S) {
+  const [k] = e;
+  switch (k) {
+    case 'f': fighter(c, e[1], e[2], e[3], e[4], e[5], e[6], e[7]); break;
+    case 'o': obj(c, e[1], e[2], e[3], e[4]); break;
+    case 'txt': text(c, e[1], e[2], e[3], e[4], e[5], e[6]); break;
+    case 'arr': arrow(c, e[1], e[2], e[3], e[4], e[5], e[6]); break;
+    case 'carr': carrow(c, e[1], e[2], e[3], e[4], e[5], e[6]); break;
+    case 'dline': dline(c, e[1], e[2]); break;
+    case 'blk': rr(c, e[1], e[2], e[3], e[4], e[6] == null ? 2 : e[6]); fs(c, e[5] || '#8a90a3', 1.6); break;
+    case 'poly': poly(c, e[1]); fs(c, e[2], e[3] == null ? 1.6 : e[3]); break;
+    case 'w': iline(c, e[1], e[2], e[3], e[4], e[5] || RED, 4); break;
+    case 'rope': line(c, e[1], e[2], e[3], e[4], e[5] || '#7a4d2a', e[6] || 1.4); break;
+    case 'post': iline(c, e[1], e[2], e[1], e[3], e[4] || '#a56a36', 2.4); break;
+    case 'cloud': cloud(c, e[1], e[2], e[3] || 1, e[4]); break;
+    case 'shadow': ell(c, e[1], e[2], e[3], e[3] * .25); c.fillStyle = 'rgba(22,19,44,.45)'; c.fill(); break;
+    case 'warn': { c.save(); c.setLineDash([3, 2]); ell(c, e[1], e[2], e[3], e[3] * .35); c.strokeStyle = '#ff2a4a'; c.lineWidth = 2; c.stroke(); c.restore(); text(c, e[1], e[2] - e[3] * .35 - 7, '!', 9, '#ff2a4a'); break; }
+    case 'hole': { const [, x, y, r] = e; poly(c, [[x - r, y - 1], [x - r * .6, y - 3.5], [x - r * .2, y - 1.5], [x + r * .3, y - 4], [x + r, y - 1], [x + r * .7, y + 3.5], [x + r * .1, y + 2], [x - r * .5, y + 4]]); fs(c, '#0d0b1c', 1.3); break; }
+    case 'net': { const [, x, y1, y2] = e; c.strokeStyle = 'rgba(22,19,44,.55)'; c.lineWidth = .8; for (let y = y1 + 4; y < y2 - 30; y += 4) { c.beginPath(); c.moveTo(x - 3, y); c.lineTo(x + 3, y); c.stroke(); } iline(c, x, y1, x, y2, WHITE, 2); rr(c, x - 4, y1, 8, 28, 1); c.strokeStyle = INK; c.lineWidth = 1.2; c.stroke(); break; }
+    case 'bump': circ(c, e[1], e[2], e[3]); fs(c, e[4] || '#ff4f9a', 1.6); circ(c, e[1], e[2], e[3] * .5); fs(c, WHITE, 1.2); break;
+    case 'pend': { const [, px, py, bx, by, r] = e; c.save(); c.setLineDash([2, 2]); line(c, px, py, bx, by, INK, 1.8); c.restore(); circ(c, bx, by, r); fs(c, '#4a4f5e', 1.8); circ(c, bx - r * .35, by - r * .35, r * .25); c.fillStyle = 'rgba(255,255,255,.35)'; c.fill(); break; }
+    case 'can': { const [, x, y, d] = e; c.save(); c.translate(x, y); c.scale(d, 1); rr(c, -6, -5, 18, 9, 3); fs(c, '#2a2540', 1.5); circ(c, -2, 5, 4); fs(c, '#a56a36', 1.4); c.restore(); break; }
+    case 'sw': { const [, cx, cy, len, ang] = e; iline(c, cx, cy, cx, S.fy, '#8a90a3', 2.4); c.save(); c.translate(cx, cy); c.rotate(R(ang)); c.strokeStyle = 'rgba(255,255,255,.7)'; c.lineWidth = 1; for (let i = 1; i <= 3; i++) { c.beginPath(); c.moveTo(len * .3, -6 - i * 3); c.lineTo(len, -6 - i * 3); c.stroke(); } rr(c, 0, -4, len, 8, 4); fs(c, '#ff8cc6', 1.6); c.restore(); circ(c, cx, cy, 5); fs(c, SUN, 1.5); break; }
+    case 'coin': circ(c, e[1], e[2], 4); fs(c, SUN, 1.3); line(c, e[1], e[2] - 2, e[1], e[2] + 2, '#c98b1a', 1.2); break;
+    case 'bal': { const [, x, y, t] = e, col = TEAM[t] || t; c.beginPath(); c.moveTo(x, y + 8); c.quadraticCurveTo(x + 3, y + 13, x, y + 17); c.strokeStyle = INK; c.lineWidth = 1; c.stroke(); ell(c, x, y, 5.5, 7); fs(c, col, 1.4); poly(c, [[x, y + 6.5], [x - 2, y + 9], [x + 2, y + 9]]); fs(c, col, 1); ell(c, x - 2, y - 3, 1.2, 2); c.fillStyle = 'rgba(255,255,255,.6)'; c.fill(); break; }
+    case 'mole': { const [, x, y, t] = e; ell(c, x, y, 10, 3); fs(c, '#0d0b1c', 1.2); const col = t === 'g' ? SUN : t === 'b' ? '#2a2540' : '#8a5a3b'; c.beginPath(); c.arc(x, y - 1, 7, Math.PI, 0); c.lineTo(x + 7, y); c.lineTo(x - 7, y); c.closePath(); fs(c, col, 1.4); c.fillStyle = t === 'b' ? WHITE : INK; c.fillRect(x - 3.5, y - 6, 1.4, 1.6); c.fillRect(x + 2, y - 6, 1.4, 1.6); circ(c, x, y - 3.5, 1.4); c.fillStyle = '#ff8cc6'; c.fill(); if (t === 'b') { line(c, x + 4, y - 7, x + 7, y - 11, '#c9a36a', 1.4); c.fillStyle = SUN; star(c, x + 7.5, y - 11.5, 2.5, 6); c.fill(); } if (t === 'g') { c.fillStyle = WHITE; star(c, x - 9, y - 9, 2.2, 4); c.fill(); } break; }
+    case 'bell': { const [, x, y] = e; line(c, x, 0, x, y - 6, INK, 1.2); c.beginPath(); c.moveTo(x - 7, y + 5); c.quadraticCurveTo(x - 6, y - 7, x, y - 7); c.quadraticCurveTo(x + 6, y - 7, x + 7, y + 5); c.closePath(); fs(c, SUN, 1.5); circ(c, x, y + 6, 2); fs(c, '#c98b1a', 1.1); break; }
+    case 'hoop': { const [, x, y, d] = e; rr(c, x - (d > 0 ? 0 : 4), y - 16, 4, 22, 1); fs(c, WHITE, 1.4); const rx = x + d * 11; ell(c, rx, y + 2, 7, 2); c.strokeStyle = INK; c.lineWidth = 3.4; c.stroke(); c.strokeStyle = '#ff8a2a'; c.lineWidth = 1.8; c.stroke(); c.strokeStyle = 'rgba(255,255,255,.9)'; c.lineWidth = .8; for (let i = -1; i <= 1; i++) { c.beginPath(); c.moveTo(rx + i * 5, y + 3); c.lineTo(rx + i * 2.5, y + 11); c.stroke(); } break; }
+    case 'goal': { const [, x, y, w, h] = e; c.strokeStyle = 'rgba(22,19,44,.35)'; c.lineWidth = .7; for (let i = 3; i < w; i += 3) { c.beginPath(); c.moveTo(x + i, y); c.lineTo(x + i, y + h); c.stroke(); } for (let i = 3; i < h; i += 3) { c.beginPath(); c.moveTo(x, y + i); c.lineTo(x + w, y + i); c.stroke(); } rr(c, x, y, w, h, 1); c.strokeStyle = INK; c.lineWidth = 3.4; c.stroke(); c.strokeStyle = WHITE; c.lineWidth = 1.6; c.stroke(); break; }
+    case 'zones': { const [, x1, x2, y, cols, noLegs] = e, n = cols.length, w = (x2 - x1) / n; if (!noLegs) { iline(c, x1 + 8, y + 2, x1 + 3, S.fy, '#6b6590', 1.6); iline(c, x2 - 8, y + 2, x2 - 3, S.fy, '#6b6590', 1.6); } cols.forEach((col, i) => { rr(c, x1 + i * w, y - 3, w, 6, 1.5); fs(c, col, 1.6); }); break; }
+    case 'piano': { const [, x1, x2, y, n, down] = e, w = (x2 - x1) / n; iline(c, x1 + 6, y + 2, x1 + 2, S.fy, '#6b6590', 1.6); iline(c, x2 - 6, y + 2, x2 - 2, S.fy, '#6b6590', 1.6); for (let i = 0; i < n; i++) { rr(c, x1 + i * w + .5, y - 3 + (i === down ? 2.5 : 0), w - 1, 7, 1.5); fs(c, i === down ? SUN : WHITE, 1.5); } for (let i = 1; i < n; i++) { if (i % 7 === 3 || i % 7 === 0) continue; rr(c, x1 + i * w - 2.5, y - 6, 5, 5, 1); fs(c, INK, 0); } break; }
+    case 'fin': { const [, x, y] = e; poly(c, [[x - 6, y], [x + 1, y - 10], [x + 5, y]]); fs(c, '#7d8aa3', 1.4); c.strokeStyle = 'rgba(255,255,255,.85)'; c.lineWidth = 1.2; c.beginPath(); c.moveTo(x - 11, y + 1); c.lineTo(x + 10, y + 1); c.stroke(); break; }
+    case 'shark': { const [, x, y, d] = e; c.save(); c.translate(x, y); c.scale(d, 1); c.rotate(R(-20)); c.beginPath(); c.moveTo(-18, 0); c.quadraticCurveTo(-4, -10, 14, -2); c.quadraticCurveTo(16, 2, 12, 4); c.quadraticCurveTo(-4, 8, -18, 0); c.closePath(); fs(c, '#8a96b0', 1.6); poly(c, [[-2, -6], [3, -14], [6, -5]]); fs(c, '#8a96b0', 1.4); poly(c, [[-17, 0], [-24, -7], [-22, 5]]); fs(c, '#8a96b0', 1.4); c.fillStyle = WHITE; poly(c, [[6, 3], [8, 1], [9, 3], [11, 1], [12, 3.5]]); c.fill(); c.fillStyle = INK; c.fillRect(8, -2.5, 1.5, 1.5); c.restore(); break; }
+    case 'laser': { const [, x1, y1, x2, y2] = e; line(c, x1, y1, x2, y2, 'rgba(255,40,80,.35)', 5); line(c, x1, y1, x2, y2, '#ff3355', 1.6); line(c, x1, y1, x2, y2, '#ffd0da', .6); [[x1, y1], [x2, y2]].forEach(p => { rr(c, p[0] - 3, p[1] - 3, 6, 6, 1); fs(c, '#4a4f5e', 1.2); }); break; }
+    case 'spikes': { const [, x1, x2, y] = e; for (let x = x1; x < x2; x += 8) { poly(c, [[x, y], [x + 4, y - 8], [x + 8, y]]); fs(c, '#c9ccd6', 1.2); } break; }
+    case 'mag': { const [, x1, x2, y] = e; rr(c, x1, y - 6, x2 - x1, 12, 3); fs(c, RED, 1.8); for (let x = x1 + 10; x < x2 - 6; x += 22) { rr(c, x, y + 3, 10, 6, 1); fs(c, '#c9ccd6', 1.2); } c.strokeStyle = 'rgba(255,255,255,.75)'; c.lineWidth = 1; for (let x = x1 + 20; x < x2; x += 44) { c.beginPath(); c.arc(x, y + 12, 6, .3, Math.PI - .3); c.stroke(); c.beginPath(); c.arc(x, y + 12, 11, .4, Math.PI - .4); c.stroke(); } break; }
+    case 'tor': { const [, x, y, s] = e; for (let i = 0; i < 6; i++) { const rx = (18 - i * 2.6) * s, yy = y - 26 * s + i * 9 * s; ell(c, x + Math.sin(i) * 3, yy, rx, 3.2 * s); fs(c, i % 2 ? '#9aa3b5' : '#b9c1d0', 1.3); } break; }
+    case 'car': { const [, x1, x2, y, col, h] = e, hh = h || 16; rr(c, x1, y, x2 - x1, hh, 2); fs(c, col, 1.6); c.fillStyle = 'rgba(255,255,255,.8)'; for (let x = x1 + 6; x < x2 - 10; x += 14) c.fillRect(x, y + 4, 8, 5); [x1 + 9, x2 - 9].forEach(wx => { circ(c, wx, y + hh + 1, 4); fs(c, '#2a2540', 1.3); }); break; }
+    case 'fan': { const [, x, y, d] = e; c.save(); c.translate(x, y); c.rotate(R(d)); rr(c, -8, -3, 16, 6, 1.5); fs(c, '#4a4f5e', 1.4); c.strokeStyle = 'rgba(255,255,255,.85)'; c.lineWidth = 1.2; for (let i = -1; i <= 1; i++) { c.beginPath(); for (let t = 0; t < 28; t += 2) c.lineTo(i * 5 + Math.sin(t / 3) * 1.5, -6 - t); c.stroke(); } c.restore(); break; }
+    case 'wind': { const [, x, y, len, col] = e; c.strokeStyle = col || 'rgba(255,255,255,.85)'; c.lineWidth = 1.3; for (let i = 0; i < 3; i++) { c.beginPath(); c.moveTo(x, y + i * 6); c.lineTo(x + len - i * 6, y + i * 6); c.arc(x + len - i * 6, y + i * 6 - 2.5, 2.5, Math.PI / 2, -Math.PI / 2, true); c.stroke(); } break; }
+    case 'bub': { const [, x, y, r] = e; circ(c, x, y, r); c.fillStyle = 'rgba(180,240,255,.35)'; c.fill(); c.strokeStyle = INK; c.lineWidth = 1.4; c.stroke(); c.beginPath(); c.arc(x, y, r * .7, R(200), R(250)); c.strokeStyle = WHITE; c.lineWidth = 1.6; c.stroke(); break; }
+    case 'flag': { const [, x, y, col] = e; line(c, x, y, x, y - 22, INK, 1.8); poly(c, [[x, y - 22], [x + 13, y - 18], [x, y - 13]]); fs(c, TEAM[col] || col, 1.3); break; }
+    case 'portal': { const [, x, y, col] = e; ell(c, x, y, 6, 13); c.strokeStyle = INK; c.lineWidth = 5.5; c.stroke(); c.strokeStyle = col; c.lineWidth = 3; c.stroke(); ell(c, x, y, 3, 9); c.fillStyle = 'rgba(255,255,255,.25)'; c.fill(); break; }
+    case 'bolt': { const [, x, y, s] = e, k2 = s || 1; poly(c, [[x, y - 14 * k2], [x + 6 * k2, y - 14 * k2], [x + 2 * k2, y - 4 * k2], [x + 7 * k2, y - 4 * k2], [x - 3 * k2, y + 12 * k2], [x, y + 1 * k2], [x - 5 * k2, y + 1 * k2]]); fs(c, SUN, 1.4); break; }
+    case 'ring': { const [, x, y, r, col, w] = e; circ(c, x, y, r); c.strokeStyle = INK; c.lineWidth = (w || 4) + 2.5; c.stroke(); c.strokeStyle = col || '#8a90a3'; c.lineWidth = w || 4; c.stroke(); break; }
+    case 'arc': { const [, cx, cy, r, a0, a1, col] = e; c.beginPath(); c.arc(cx, cy, r, R(a0), R(a1)); c.strokeStyle = INK; c.lineWidth = 7.5; c.lineCap = 'butt'; c.stroke(); c.strokeStyle = col || '#3a3270'; c.lineWidth = 4.5; c.stroke(); c.lineCap = 'round'; break; }
+    case 'dino': { const [, x, y, d, s] = e, k2 = s || 1; c.save(); c.translate(x, y); c.scale(d * k2, k2); c.beginPath(); c.moveTo(-22, -12); c.quadraticCurveTo(-10, -20, 2, -16); c.lineTo(8, -26); c.quadraticCurveTo(16, -30, 18, -24); c.lineTo(18, -21); c.lineTo(10, -20); c.lineTo(8, -12); c.quadraticCurveTo(4, -6, -6, -7); c.closePath(); fs(c, '#5fbf4a', 1.6); line(c, -6, -8, -8, 0, INK, 3.2); line(c, 2, -9, 4, 0, INK, 3.2); line(c, -6, -8, -8, 0, '#5fbf4a', 1.4); line(c, 2, -9, 4, 0, '#5fbf4a', 1.4); c.fillStyle = INK; c.fillRect(13, -26, 1.6, 1.6); c.restore(); break; }
+    case 'claw': { const [, x, y] = e; line(c, x, 0, x, y - 5, INK, 1.4); rr(c, x - 6, y - 7, 12, 6, 2); fs(c, '#a9b2c4', 1.4); [[-1, -8], [1, 8]].forEach(p => { c.beginPath(); c.moveTo(x + p[0] * 4, y - 1); c.quadraticCurveTo(x + p[1], y + 4, x + p[0] * 3, y + 10); inkS(c, 3.4); c.stroke(); c.strokeStyle = '#a9b2c4'; c.lineWidth = 1.6; c.stroke(); }); break; }
+    case 'mirror': { const [, x] = e; c.save(); c.setLineDash([4, 3]); line(c, x, 6, x, S.fy, 'rgba(190,240,255,.95)', 2); c.restore(); c.fillStyle = WHITE; star(c, x, 10, 4, 4); c.fill(); break; }
+    case 'fog': { c.save(); c.beginPath(); c.rect(0, 0, W, H); e[1].forEach(h => { c.moveTo(h[0] + h[2], h[1]); c.arc(h[0], h[1], h[2], 0, Math.PI * 2, true); }); c.fillStyle = 'rgba(5,4,14,.88)'; c.fill('evenodd'); c.restore(); break; }
+    case 'ship': { const [, x1, x2, y, tilt] = e; c.save(); c.translate((x1 + x2) / 2, y); c.rotate(R(tilt)); const hw = (x2 - x1) / 2; poly(c, [[-hw - 8, -6], [hw + 8, -6], [hw - 8, 18], [-hw + 8, 18]]); fs(c, '#8a5a3b', 1.8); c.fillStyle = 'rgba(22,19,44,.25)'; c.fillRect(-hw, 2, hw * 2, 2); c.fillRect(-hw + 4, 9, hw * 2 - 8, 2); iline(c, 0, -6, 0, -78, '#5a3a24', 2.6); poly(c, [[2, -74], [40, -62], [2, -40]]); fs(c, WHITE, 1.4); c.restore(); break; }
+    case 'castle': { const [, x1, x2, y] = e, w = x2 - x1; rr(c, x1, y - 30, w, 34, 6); fs(c, '#ffd23a', 1.8); rr(c, x1 + 8, y - 22, w - 16, 18, 5); fs(c, '#5fb6ff', 1.6); [x1, x2 - 18].forEach(tx => { rr(c, tx, y - 58, 18, 62, 6); fs(c, RED, 1.8); poly(c, [[tx - 2, y - 58], [tx + 9, y - 72], [tx + 20, y - 58]]); fs(c, BLUE, 1.6); }); for (let x = x1 + 22; x < x2 - 24; x += 14) { rr(c, x, y - 38, 10, 10, 4); fs(c, '#ffd23a', 1.4); } break; }
+    case 'blades': { const [, cx, cy, len, n, a0] = e; for (let i = 0; i < n; i++) { const a = R(a0 + i * 360 / n); iline(c, cx, cy, cx + Math.cos(a) * len, cy + Math.sin(a) * len, '#e8dcc0', 3); } circ(c, cx, cy, 5); fs(c, RED, 1.5); break; }
+    case 'spot': { const [, x, w] = e; poly(c, [[x - 4, 0], [x + 4, 0], [x + w, S.fy], [x - w, S.fy]]); c.fillStyle = 'rgba(255,240,160,.35)'; c.fill(); break; }
+    case 'splat': { const [, x, y, col, r] = e, rad = r || 7; c.beginPath(); for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6, rr2 = rad * (i % 2 ? .6 : 1); c.lineTo(x + Math.cos(a) * rr2, y + Math.sin(a) * rr2 * .45); } c.closePath(); fs(c, TEAM[col] || col, 1.1); break; }
+    case 'dial': { const [, x, y, r] = e, cols = [RED, BLUE, SUN, '#3fbf5f', '#a45cff']; cols.forEach((col, i) => { c.beginPath(); c.moveTo(x, y); c.arc(x, y, r, R(i * 72), R(i * 72 + 72)); c.closePath(); fs(c, col, 1.2); }); circ(c, x, y, r); fs(c, null, 1.8); poly(c, [[x, y - r + 4], [x - 4, y - r - 6], [x + 4, y - r - 6]]); fs(c, WHITE, 1.3); break; }
+    case 'web': { const [, x, y, r] = e; c.strokeStyle = 'rgba(255,255,255,.85)'; c.lineWidth = 1; for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; c.beginPath(); c.moveTo(x, y); c.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r); c.stroke(); } for (let q = r / 3; q <= r; q += r / 3) { c.beginPath(); for (let i = 0; i <= 8; i++) { const a = i * Math.PI / 4; c.lineTo(x + Math.cos(a) * q, y + Math.sin(a) * q); } c.stroke(); } break; }
+    case 'sling': { const [, x, y] = e; iline(c, x, y, x, y - 10, '#a56a36', 2.4); iline(c, x, y - 10, x - 6, y - 20, '#a56a36', 2.4); iline(c, x, y - 10, x + 6, y - 20, '#a56a36', 2.4); c.beginPath(); c.moveTo(x - 6, y - 20); c.quadraticCurveTo(x - 4, y - 8, x + 6, y - 20); c.strokeStyle = '#ff4f9a'; c.lineWidth = 1.4; c.stroke(); break; }
+    case 'spray': { const [, x, y, a, len] = e; c.save(); c.translate(x, y); c.rotate(R(a)); c.strokeStyle = 'rgba(160,220,255,.95)'; c.lineWidth = 1.4; c.setLineDash([3, 2]); for (let i = -1; i <= 1; i++) { c.beginPath(); c.moveTo(0, 0); c.lineTo(len, i * len * .2); c.stroke(); } c.restore(); rr(c, x - 4, y - 4, 8, 8, 2); fs(c, '#4a4f5e', 1.2); break; }
+    case 'ripple': { const [, x, y, col] = e; c.strokeStyle = col || 'rgba(255,255,255,.9)'; c.lineWidth = 1.2; [7, 12, 17].forEach(r => { ell(c, x, y, r, r * .32); c.stroke(); }); break; }
+    case 'tunnel': { const [, x, y] = e; poly(c, [[x, S.fy], [x, y + 20], [x + 20, y], [W + 4, y - 8], [W + 4, S.fy]]); fs(c, '#6b5a4a', 1.8); rr(c, x + 6, y + 22, W - x, S.fy - y - 22, 10); fs(c, '#1a1426', 1.4); break; }
+    case 'shoji': { const [, x, y, w, h] = e; rr(c, x, y, w, h, 1); fs(c, '#fff7e8', 1.6); c.strokeStyle = '#a56a36'; c.lineWidth = 1; for (let i = 1; i < 3; i++) { c.beginPath(); c.moveTo(x + w * i / 3, y); c.lineTo(x + w * i / 3, y + h); c.stroke(); } for (let i = 1; i < 4; i++) { c.beginPath(); c.moveTo(x, y + h * i / 4); c.lineTo(x + w, y + h * i / 4); c.stroke(); } break; }
+    case 'sign': { const [, x, y, s, col] = e; text(c, x, y, s, 9, col || INK, true); break; }
+    case 'mount': poly(c, e[1]); fs(c, e[2] || WHITE, 1.6); break;
+  }
+}
+
+// ======================================================================
+// Climbing additions: tall tower scenes on a 200x240 logical canvas.
+// Shaft walls, height markers, ledges, ladders, ropes, vines, springs,
+// rising liquids, summit flags, camera / bottom-edge markers.
+// ======================================================================
+Object.assign(TH, {
+  sky: { sky: ['#3f8ff0', '#d4f0ff'], d: 'clouds' },
+  high: { sky: ['#0b0f3a', '#6fb8ff'], d: 'stars' },
+  bath: { sky: ['#bfe8f0', '#f4fdff'], d: 'tiles' },
+  city: { sky: ['#3b2f73', '#ff9d7a'], d: 'city' },
+  castle: { sky: ['#4a4560', '#8a8fa0'], d: 'bricks' },
+  mine: { sky: ['#1a1426', '#4a3326'], d: 'none' },
+  tree: { sky: ['#8fd6ff', '#e8ffd0'], d: 'leaves' },
+  fridge: { sky: ['#dff3ff', '#ffffff'], d: 'tiles' },
+  library: { sky: ['#6b3f2a', '#c98b52'], d: 'wall' }
+});
+
+function backdrop(c, th, seed) {
+  const T = TH[th] || TH.day, g = c.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, T.sky[0]); g.addColorStop(1, T.sky[1]);
+  c.fillStyle = g; c.fillRect(0, 0, W, H);
+  const rnd = rng(seed * 97 + 13);
+  c.save();
+  switch (T.d) {
+    case 'sun': circ(c, W - 26, 26, 11); fs(c, SUN, 1.6); break;
+    case 'clouds': for (let i = 0; i < 4; i++) cloud(c, 20 + rnd() * (W - 60), 16 + i * 58 + rnd() * 18, .55 + rnd() * .3, 'rgba(255,255,255,.7)', 0); break;
+    case 'stars': case 'embers': for (let i = 0; i < 44; i++) { c.fillStyle = T.d === 'stars' ? 'rgba(255,255,255,.8)' : 'rgba(255,200,80,.8)'; c.fillRect(rnd() * W, rnd() * H * .8, 1.4, 1.4); } break;
+    case 'snow': for (let i = 0; i < 40; i++) { circ(c, rnd() * W, rnd() * H, 1.1); c.fillStyle = WHITE; c.fill(); } break;
+    case 'confetti': { const cols = [RED, BLUE, SUN, '#3fbf5f', '#a45cff']; for (let i = 0; i < 36; i++) { c.fillStyle = cols[i % 5]; c.save(); c.translate(rnd() * W, rnd() * H); c.rotate(rnd() * 3); c.fillRect(-1.5, -.8, 3, 1.6); c.restore(); } break; }
+    case 'rain': c.strokeStyle = 'rgba(200,220,255,.5)'; c.lineWidth = 1; for (let i = 0; i < 46; i++) { const x = rnd() * W, y = rnd() * H; c.beginPath(); c.moveTo(x, y); c.lineTo(x - 3, y + 7); c.stroke(); } break;
+    case 'grid': c.strokeStyle = 'rgba(255,79,154,.22)'; c.lineWidth = 1; for (let x = 10; x < W; x += 20) { c.beginPath(); c.moveTo(x, 0); c.lineTo(x, H); c.stroke(); } for (let y = 10; y < H; y += 20) { c.beginPath(); c.moveTo(0, y); c.lineTo(W, y); c.stroke(); } break;
+    case 'wall': c.fillStyle = 'rgba(22,19,44,.06)'; for (let x = 0; x < W; x += 16) c.fillRect(x, 0, 8, H); break;
+    case 'tiles': c.strokeStyle = 'rgba(22,19,44,.08)'; c.lineWidth = 1; for (let x = 0; x < W; x += 14) { c.beginPath(); c.moveTo(x, 0); c.lineTo(x, H); c.stroke(); } for (let y = 0; y < H; y += 14) { c.beginPath(); c.moveTo(0, y); c.lineTo(W, y); c.stroke(); } break;
+    case 'girders': c.strokeStyle = 'rgba(22,19,44,.2)'; c.lineWidth = 2; for (let y = 0; y < H; y += 60) for (let x = 0; x < W; x += 40) { c.beginPath(); c.moveTo(x, y); c.lineTo(x + 40, y + 40); c.moveTo(x + 40, y); c.lineTo(x, y + 40); c.stroke(); } break;
+    case 'stripes': c.fillStyle = 'rgba(255,255,255,.2)'; for (let x = 0; x < W; x += 28) c.fillRect(x, 0, 14, H); break;
+    case 'leaves': c.fillStyle = 'rgba(47,154,74,.45)'; for (let i = 0; i < 16; i++) { const left = i % 2; ell(c, left ? rnd() * 30 : W - rnd() * 30, rnd() * H, 16, 7, rnd()); c.fill(); } break;
+    case 'bubbles': for (let i = 0; i < 22; i++) { circ(c, rnd() * W, rnd() * H, 1 + rnd() * 2.5); c.strokeStyle = 'rgba(255,255,255,.6)'; c.lineWidth = 1; c.stroke(); } break;
+    case 'city': for (let x = -6; x < W; ) { const bw = 22 + rnd() * 22, bh = 50 + rnd() * 120; c.fillStyle = 'rgba(22,19,44,.32)'; c.fillRect(x, H - bh, bw, bh); c.fillStyle = 'rgba(255,215,110,.55)'; for (let wy = H - bh + 6; wy < H - 4; wy += 10) for (let wx = x + 4; wx < x + bw - 5; wx += 8) if (rnd() > .45) c.fillRect(wx, wy, 3.5, 4.5); x += bw + 3; } break;
+    case 'bricks': c.strokeStyle = 'rgba(22,19,44,.14)'; c.lineWidth = 1; for (let y = 0, r = 0; y < H; y += 12, r++) { c.beginPath(); c.moveTo(0, y); c.lineTo(W, y); c.stroke(); for (let x = r % 2 ? 10 : 0; x < W; x += 20) { c.beginPath(); c.moveTo(x, y); c.lineTo(x, y + 12); c.stroke(); } } break;
+  }
+  c.restore();
+}
+
+// ---------------- tower walls ----------------
+const WALL = {
+  brick: ['#b4583c', 'brick'], stone: ['#8a8fa0', 'block'], rock: ['#5a4a5e', 'rock'], ice: ['#cfeaff', 'block'],
+  wood: ['#a56a36', 'plank'], tile: ['#3d2a6e', 'block'], metal: ['#6b7389', 'rivet'], bark: ['#7a4d2a', 'bark'],
+  glass: ['#5d6f9a', 'window'], candy: ['#ff8cc6', 'candy'], hedge: ['#3f9a33', 'rock'], white: ['#f4f2ff', 'block']
+};
+function wallFill(c, x, y, w, h, st, seed) {
+  const Wd = WALL[st] || WALL.stone, rnd = rng((seed || 1) * 53 + Math.round(x) + 3);
+  c.save(); c.beginPath(); c.rect(x, y, w, h); c.clip();
+  c.fillStyle = Wd[0]; c.fillRect(x, y, w, h);
+  c.strokeStyle = 'rgba(22,19,44,.28)'; c.lineWidth = 1;
+  const hl = (y1) => { c.beginPath(); c.moveTo(x, y1); c.lineTo(x + w, y1); c.stroke(); };
+  const vl = (x1, y1, y2) => { c.beginPath(); c.moveTo(x1, y1); c.lineTo(x1, y2); c.stroke(); };
+  switch (Wd[1]) {
+    case 'brick': for (let yy = y, r = 0; yy < y + h; yy += 8, r++) { hl(yy); for (let xx = x + (r % 2 ? 6 : 0); xx < x + w; xx += 12) vl(xx, yy, yy + 8); } break;
+    case 'block': for (let yy = y, r = 0; yy < y + h; yy += 14, r++) { hl(yy); for (let xx = x + (r % 2 ? 8 : 0); xx < x + w; xx += 16) vl(xx, yy, yy + 14); } break;
+    case 'rock': for (let i = 0; i < w * h / 160; i++) { ell(c, x + rnd() * w, y + rnd() * h, 3 + rnd() * 5, 2 + rnd() * 3, rnd() * 3); c.fillStyle = rnd() > .5 ? 'rgba(22,19,44,.22)' : 'rgba(255,255,255,.1)'; c.fill(); } break;
+    case 'plank': for (let xx = x + 8; xx < x + w; xx += 8) vl(xx, y, y + h); for (let i = 0; i < w * h / 500; i++) { circ(c, x + rnd() * w, y + rnd() * h, 1); c.fillStyle = 'rgba(22,19,44,.3)'; c.fill(); } break;
+    case 'rivet': for (let yy = y + 30; yy < y + h; yy += 30) { hl(yy); c.fillStyle = 'rgba(255,255,255,.4)'; for (let xx = x + 4; xx < x + w; xx += 8) c.fillRect(xx, yy + 3, 1.5, 1.5); } break;
+    case 'bark': for (let xx = x + 4; xx < x + w; xx += 7) { c.beginPath(); for (let yy = y; yy <= y + h; yy += 6) c.lineTo(xx + Math.sin(yy / 9 + xx) * 1.6, yy); c.stroke(); } break;
+    case 'window': c.fillStyle = 'rgba(190,230,255,.55)'; for (let yy = y + 6; yy < y + h; yy += 20) for (let xx = x + 4; xx < x + w - 6; xx += 14) c.fillRect(xx, yy, 9, 12); break;
+    case 'candy': c.fillStyle = 'rgba(255,255,255,.55)'; for (let k = -h; k < w + h; k += 14) { c.beginPath(); c.moveTo(x + k, y); c.lineTo(x + k + 6, y); c.lineTo(x + k + 6 - h, y + h); c.lineTo(x + k - h, y + h); c.closePath(); c.fill(); } break;
+  }
+  c.restore();
+}
+function shaft(c, sh, seed) {
+  const [x1, x2, st] = sh;
+  if (x1 > 0) { wallFill(c, 0, 0, x1, H, st, seed); line(c, x1, -2, x1, H + 2, INK, 2); }
+  if (x2 < W) { wallFill(c, x2, 0, W - x2, H, st, seed + 1); line(c, x2, -2, x2, H + 2, INK, 2); }
+}
+function heights(c, hm) {
+  const [m0, step] = hm;
+  for (let i = 0; i < 5; i++) {
+    const y = H - 18 - i * 52;
+    line(c, 0, y, 5, y, INK, 3.4); line(c, 0, y, 5, y, WHITE, 1.4);
+    text(c, 17, y, (m0 + i * step) + 'm', 5.5, INK, true);
+  }
+}
+
+// ---------------- rising liquids ----------------
+const LIQ = {
+  lava: ['#ff7a00', '#c41e00', '#ffd23a'], water: ['#3aa0e6', '#155a96', '#ffffff'], slime: ['#8fe04a', '#3f9a33', '#d8ffb0'],
+  choc: ['#8a5a3b', '#4a2a1a', '#c98b52'], sand: ['#f2d48a', '#c9a04e', '#fff0c0'], jam: ['#e0315a', '#8a1030', '#ff9ab0'],
+  foam: ['#ffffff', '#cfe6f7', '#bfe6ff'], sauce: ['#e0412a', '#9a2010', '#ffb080'], popcorn: ['#fff6d0', '#f2d48a', '#ffc928']
+};
+function rise(c, r, seed) {
+  const [k, y, noArrows] = r, L = LIQ[k] || LIQ.water, rnd = rng(seed * 17 + 5);
+  const g = c.createLinearGradient(0, y, 0, H); g.addColorStop(0, L[0]); g.addColorStop(1, L[1]);
+  c.beginPath(); c.moveTo(-2, H + 2); c.lineTo(-2, y);
+  for (let x = 0; x <= W + 4; x += 4) c.lineTo(x, y + Math.sin(x / 9 + seed) * 2.2);
+  c.lineTo(W + 2, H + 2); c.closePath(); c.fillStyle = g; c.fill(); inkS(c, 2); c.stroke();
+  for (let i = 0; i < 9; i++) { circ(c, rnd() * W, y + 7 + rnd() * Math.max(2, H - y - 9), 1.4 + rnd() * 2); fs(c, L[2], 1); }
+  if (!noArrows) { arrow(c, 11, y - 3, 11, y - 22, L[0]); arrow(c, W - 11, y - 3, W - 11, y - 22, L[0]); }
+}
+
+// ---------------- ledges ----------------
+// [x1, x2, y, style, y2, color]; top surface sits at y. Style letters:
+// (none) stone, w wood, g grass, i ice, y sticky, o one-way (thin, jump up through), x crumbling,
+// c/C conveyor right/left, m moves sideways, u moves up/down, T trampoline, b bouncy cloud,
+// v vanishing, G gold, r hot, M metal, n candy
+function ledge(c, l, seed) {
+  let [x1, x2, y, st, y2, col] = l; st = st || ''; if (y2 == null) y2 = y;
+  const has = (k) => st.indexOf(k) >= 0;
+  const len = Math.hypot(x2 - x1, y2 - y), ang = Math.atan2(y2 - y, x2 - x1);
+  const mx = (x1 + x2) / 2, my = (y + y2) / 2;
+  if (has('T')) { tramp(c, [x1, x2, y + 1, 'f', y2 + 1, col], H); }
+  else if (has('b')) {
+    c.save(); c.translate(x1, y); c.rotate(ang);
+    const n = Math.max(2, Math.round(len / 13)), step = len / n;
+    c.beginPath(); for (let i = 0; i <= n; i++) { const px = i * step, r = i % 2 ? 7 : 8.5; c.moveTo(px + r, 3); c.arc(px, 3, r, 0, Math.PI * 2); }
+    c.fillStyle = col || WHITE; c.fill(); inkS(c, 1.5); c.stroke();
+    c.beginPath(); for (let i = 0; i <= n; i++) { const px = i * step, r = (i % 2 ? 7 : 8.5) - 1.3; c.moveTo(px + r, 3); c.arc(px, 3, r, 0, Math.PI * 2); }
+    c.fill();
+    c.restore();
+  } else {
+    const thin = has('o'), h = thin ? 4.5 : 8;
+    const fill = col || (has('G') ? SUN : has('i') ? '#bfe6ff' : has('y') ? '#ffb81c' : has('r') ? RED : has('M') ? '#a9b2c4' : has('w') ? '#c98b52' : has('n') ? '#ff8cc6' : has('g') ? '#a56a36' : thin ? '#e8dcc0' : '#9aa0b4');
+    c.save(); c.translate(x1, y); c.rotate(ang);
+    if (has('v')) { c.globalAlpha = .55; c.setLineDash([3, 2]); }
+    rr(c, 0, 0, len, h, 2.4); fs(c, fill, 1.6);
+    c.setLineDash([]);
+    c.strokeStyle = 'rgba(22,19,44,.3)'; c.lineWidth = 1;
+    if (!thin && !has('i') && !has('b') && !has('y') && !has('c') && !has('C')) for (let x = 12; x < len - 4; x += has('w') ? 10 : 15) { c.beginPath(); c.moveTo(x, 1); c.lineTo(x, h - 1); c.stroke(); }
+    if (has('g')) { rr(c, -1, -1.5, len + 2, 4, 2); fs(c, '#5cbf4a', 1.3); }
+    if (has('i')) { c.fillStyle = 'rgba(255,255,255,.85)'; c.fillRect(4, 1.6, len * .35, 1.4); for (let x = 7; x < len - 4; x += 11) { poly(c, [[x - 2, h], [x + 2, h], [x, h + 5]]); fs(c, '#dff3ff', 1); } }
+    if (has('y')) { c.fillStyle = col || '#ffb81c'; for (let x = 8; x < len - 4; x += 13) { ell(c, x, h + 1.5, 1.8, 3); c.fill(); inkS(c, 1); c.stroke(); } }
+    if (has('o')) { c.strokeStyle = 'rgba(255,255,255,.85)'; c.lineWidth = 1.1; for (let x = 10; x < len - 6; x += 14) { c.beginPath(); c.moveTo(x - 2.5, h + 6); c.lineTo(x, h + 3.5); c.lineTo(x + 2.5, h + 6); c.stroke(); } }
+    if (has('x')) { c.strokeStyle = INK; c.lineWidth = 1; [len * .3, len * .68].forEach(px => { c.beginPath(); c.moveTo(px, 0); c.lineTo(px + 2, h * .45); c.lineTo(px - 1, h * .7); c.lineTo(px + 1, h); c.stroke(); }); poly(c, [[len * .45, h + 4], [len * .45 + 4, h + 3], [len * .45 + 3, h + 7]]); fs(c, fill, 1); poly(c, [[len * .6, h + 9], [len * .6 + 3, h + 8], [len * .6 + 2, h + 11]]); fs(c, fill, 1); }
+    if (has('c') || has('C')) { const d = has('c') ? 1 : -1; c.strokeStyle = WHITE; c.lineWidth = 1.2; for (let x = 8; x < len - 6; x += 8) { c.beginPath(); c.moveTo(x - d * 1.5, h / 2 - 2); c.lineTo(x + d * 1.5, h / 2); c.lineTo(x - d * 1.5, h / 2 + 2); c.stroke(); } }
+    if (has('G')) { c.fillStyle = WHITE; star(c, len * .25, -6, 2.4, 4); c.fill(); star(c, len * .75, -8, 2, 4); c.fill(); }
+    if (has('r')) { c.strokeStyle = 'rgba(255,210,58,.9)'; c.lineWidth = 1.2; for (let x = 8; x < len - 4; x += 12) { c.beginPath(); c.moveTo(x, -3); c.quadraticCurveTo(x + 3, -6, x, -9); c.stroke(); } }
+    c.restore();
+  }
+  if (has('m')) arrow(c, mx - 13, my + 15, mx + 13, my + 15, SUN, true);
+  if (has('u')) arrow(c, Math.max(x1, x2) + 7, my - 9, Math.max(x1, x2) + 7, my + 11, SUN, true);
+}
+
+// ---------------- climbing elements ----------------
+function ladder(c, x, yb, yt, col, w, xt) {
+  col = col || '#c98b52'; w = w || 12; if (xt == null) xt = x;
+  const dx = xt - x, dy = yt - yb, len = Math.hypot(dx, dy), nx = -dy / len * w / 2, ny = dx / len * w / 2;
+  for (let d = 6; d < len - 2; d += 8) { const px = x + dx * d / len, py = yb + dy * d / len; iline(c, px - nx, py - ny, px + nx, py + ny, col, 1.6); }
+  iline(c, x - nx, yb - ny, xt - nx, yt - ny, col, 2); iline(c, x + nx, yb + ny, xt + nx, yt + ny, col, 2);
+}
+function vine(c, px, py, len, ang, col) {
+  const a = R(90 + (ang || 0)), ex = px + Math.cos(a) * len, ey = py + Math.sin(a) * len;
+  c.save(); c.setLineDash([2, 3]); c.beginPath(); c.arc(px, py, len, R(90 - 38), R(90 + 38)); c.strokeStyle = 'rgba(255,255,255,.75)'; c.lineWidth = 1.2; c.stroke(); c.restore();
+  const cx = (px + ex) / 2 + 4, cy = (py + ey) / 2;
+  c.beginPath(); c.moveTo(px, py); c.quadraticCurveTo(cx, cy, ex, ey); c.strokeStyle = INK; c.lineWidth = 4.4; c.lineCap = 'round'; c.stroke(); c.strokeStyle = col || '#3f9a33'; c.lineWidth = 2.2; c.stroke();
+  [.3, .55, .8].forEach((t, i) => { const qx = (1 - t) * (1 - t) * px + 2 * (1 - t) * t * cx + t * t * ex, qy = (1 - t) * (1 - t) * py + 2 * (1 - t) * t * cy + t * t * ey; ell(c, qx + (i % 2 ? 4 : -4), qy, 4.5, 2.2, i % 2 ? .5 : -.5); fs(c, '#5cbf4a', 1); });
+  circ(c, px, py, 2.4); fs(c, '#7a4d2a', 1.2);
+}
+function stalk(c, x, y1, y2, w) {
+  w = w || 8; const top = Math.min(y1, y2), bot = Math.max(y1, y2);
+  c.beginPath(); for (let y = bot; y >= top; y -= 4) c.lineTo(x + Math.sin(y / 18) * 6, y);
+  c.strokeStyle = INK; c.lineWidth = w + 3.2; c.lineCap = 'round'; c.stroke(); c.strokeStyle = '#3fbf5f'; c.lineWidth = w; c.stroke();
+  c.strokeStyle = 'rgba(22,19,44,.25)'; c.lineWidth = 1; c.beginPath(); for (let y = bot; y >= top; y -= 4) c.lineTo(x + Math.sin(y / 18) * 6 - w * .2, y); c.stroke();
+}
+function summit(c, x, y) {
+  iline(c, x, y, x, y - 30, '#c9ccd6', 1.6);
+  const fx = x + 1, fy = y - 30, cw = 4.5, ch = 4;
+  for (let i = 0; i < 4; i++) for (let j = 0; j < 3; j++) { c.fillStyle = (i + j) % 2 ? INK : WHITE; c.fillRect(fx + i * cw, fy + j * ch, cw, ch); }
+  c.strokeStyle = INK; c.lineWidth = 1.4; c.strokeRect(fx, fy, cw * 4, ch * 3);
+  circ(c, x, y - 31.5, 2.2); fs(c, SUN, 1.2);
+}
+
+function el(c, e, S) {
+  switch (e[0]) {
+    case 'lad': ladder(c, e[1], e[2], e[3], e[4], e[5], e[6]); break;
+    case 'rp': { const [, x, y1, y2, col] = e; iline(c, x, y1, x, y2, col || '#d9b25e', 2); for (let y = y1 + 12; y < y2; y += 14) { circ(c, x, y, 2.2); fs(c, col || '#d9b25e', 1.1); } break; }
+    case 'vine': vine(c, e[1], e[2], e[3], e[4], e[5]); break;
+    case 'stalk': stalk(c, e[1], e[2], e[3], e[4]); break;
+    case 'spr': { const [, x, y, s] = e, k = s || 1; c.save(); c.translate(x, y); c.scale(k, k); rr(c, -8, -3, 16, 4, 1.5); fs(c, '#4a4f5e', 1.3); c.beginPath(); for (let i = 0; i <= 6; i++) c.lineTo(i % 2 ? 5 : -5, -3 - i * 2); c.strokeStyle = INK; c.lineWidth = 3.2; c.stroke(); c.strokeStyle = '#c9ccd6'; c.lineWidth = 1.6; c.stroke(); rr(c, -9, -18, 18, 4.5, 2); fs(c, RED, 1.4); c.restore(); break; }
+    case 'wall': { const [, x, y, w, h, st] = e; wallFill(c, x, y, w, h, st || 'stone', S.seed); rr(c, x, y, w, h, 1.5); fs(c, null, 1.8); break; }
+    case 'top': summit(c, e[1], e[2]); break;
+    case 'cp': { const [, x, y] = e; iline(c, x, y, x, y - 16, '#c9ccd6', 1.2); poly(c, [[x, y - 16], [x + 10, y - 13], [x, y - 10]]); fs(c, '#3fbf5f', 1.2); break; }
+    case 'edge': { const [, y, label, col] = e; c.save(); c.setLineDash([5, 4]); line(c, 0, y, W, y, col || '#ff2a4a', 2); c.restore(); if (label) text(c, W / 2, y, label, 6.5, WHITE, col || '#ff2a4a'); break; }
+    case 'cam': { const [, y, label, lx] = e; arrow(c, 8, y, 8, y - 26, SUN); arrow(c, W - 8, y, W - 8, y - 26, SUN); if (label) text(c, lx || W / 2, y - 13, label, 6.5, INK, SUN); break; }
+    case 'spin': { const [, cx, cy, len, ang, col] = e; c.save(); c.translate(cx, cy); c.rotate(R(ang)); rr(c, -len / 2, -3.5, len, 7, 3); fs(c, col || '#9aa0b4', 1.6); c.restore(); circ(c, cx, cy, 2.8); fs(c, SUN, 1.3); carrow(c, cx, cy, len / 2 + 7, ang + 200, ang + 250); break; }
+    case 'geyser': { const [, x, y, h] = e; c.beginPath(); c.moveTo(x - 5, y); for (let yy = y; yy >= y - h; yy -= 5) c.lineTo(x - 5 - Math.sin(yy / 4) * 1.6 - (y - yy) * .05, yy); for (let yy = y - h; yy <= y; yy += 5) c.lineTo(x + 5 + Math.sin(yy / 4) * 1.6 + (y - yy) * .05, yy); c.closePath(); c.fillStyle = 'rgba(200,236,255,.85)'; c.fill(); inkS(c, 1.3); c.stroke(); cloud(c, x - 6, y - h, .55, '#eef8ff'); break; }
+    case 'beam': { const [, x, y, ang, len, spread] = e, a = R(ang), sp = R(spread || 14); poly(c, [[x, y], [x + Math.cos(a - sp) * len, y + Math.sin(a - sp) * len], [x + Math.cos(a + sp) * len, y + Math.sin(a + sp) * len]]); c.fillStyle = 'rgba(255,240,160,.42)'; c.fill(); break; }
+    case 'dot': { const [, x, y, r, col] = e; circ(c, x, y, r); fs(c, TEAM[col] || col || INK, 1.2); break; }
+    case 'broom': { const [, x, y, len, d] = e, k = d || 1; iline(c, x, y, x + len * k, y, '#c98b52', 2); poly(c, [[x, y - 5], [x - 12 * k, y - 8], [x - 12 * k, y + 8], [x, y + 5]]); fs(c, '#f2d48a', 1.3); break; }
+    default: elBase(c, e, S);
+  }
+}
+
+function drawScene(cv, spec, seed) {
+  const cssW = cv.clientWidth || W, dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+  const scale = cssW / W * dpr;
+  cv.width = Math.round(W * scale); cv.height = Math.round(H * scale);
+  const c = cv.getContext('2d');
+  c.setTransform(scale, 0, 0, scale, 0, 0);
+  const S = Object.assign({ th: 'day', fl: null, fy: H - 14, l: [], b: [], m: [], e: [] }, spec);
+  S.seed = seed; if (!S.fl) S.fy = H;
+  backdrop(c, S.th, seed);
+  S.b.forEach(e => el(c, e, S));
+  if (S.sh) shaft(c, S.sh, seed);
+  if (S.fl) floor(c, S.fl, S.fy, seed);
+  if (S.hm) heights(c, S.hm);
+  S.m.forEach(e => el(c, e, S));
+  S.l.forEach(l => ledge(c, l, seed));
+  if (S.rise) rise(c, S.rise, seed);
+  S.e.forEach(e => el(c, e, S));
+}
+
+
+// ======================================================================
+// The 100 climb ideas. [name, ruleset, fun, chaos, pitch, how it plays, mockup spec]
+// Spec: th theme, sh shaft walls [leftX, rightX, style], hm height markers [start m, step m],
+// fl/fy optional ground, b back layer, m mid layer, l ledges, rise rising liquid [kind, y], e front layer.
+// Ranks 1-20 are the first build, picked for fun, ruleset variety and engine fit; the rest sorted by total.
+// ======================================================================
+const RULESETS = { Race: 'Race', Survival: 'Survival', Brawl: 'Brawl', King: 'King of the hill', Collect: 'Collect', Height: 'Height score', Reflex: 'Reflex', Puzzle: 'Puzzle' };
+const IDEAS = [
+  // ----- 1-20: the first build -----
+  ['The Floor Is Lava (For Real)', 'Survival', 10, 10, 'Lava pours in at the bottom of the tower and it never, ever stops rising.',
+    'Hop up one-way ledges as fast as you can while the lava chases you; the camera follows the lowest climber, so slowpokes get a great view of the bubbles. Shove a rival down a ledge and they get toasty toes.',
+    { th: 'lava', sh: [16, 184, 'rock'], hm: [0, 10], l: [[26, 92, 200, 'o'], [108, 174, 164, 'o'], [34, 100, 128, 'o'], [100, 166, 92, 'ox'], [26, 96, 56, 'o'], [118, 174, 22, 'o']], rise: ['lava', 208], e: [['f', 140, 164, 'r', 'j'], ['f', 66, 128, 'b', 'cl'], ['f', 134, 92, 'o', 's'], ['o', 56, 222, 'fire', 5], ['txt', 110, 228, 'HOT HOT HOT', 8, SUN]] }],
+  ['Shove-a-Palooza', 'Brawl', 10, 10, 'An auto-scrolling tower of thin ledges, full of very pushy stick people.',
+    'The camera creeps up on its own and anyone who drops off the bottom edge is out. Punch to shove, ground-pound to drop through a ledge onto someone’s head; last one on screen wins.',
+    { th: 'dusk', sh: [14, 186, 'brick'], l: [[24, 100, 204, 'o'], [100, 176, 168, 'o'], [24, 110, 130, 'o'], [90, 170, 92, 'o'], [30, 104, 54, 'o'], [110, 176, 20, 'o']], e: [['cam', 84], ['f', 62, 130, 'r', 'pu', 1, 0, 'glove'], ['f', 86, 122, 'b', 'fa', 1, -50], ['o', 76, 110, 'spark', 5], ['f', 140, 168, 'o', 's'], ['f', 66, 54, 'g', 'j'], ['f', 124, 238, 'n', 'fa', 1, 160], ['edge', 222, 'BOTTOM = OUT'], ['txt', 140, 40, 'SHOVE!', 10, SUN]] }],
+  ['Udderly Ridiculous', 'Race', 10, 9, 'Race to the summit while cows, anvils and pianos tumble down the tower.',
+    'Shadows on the ledges show what’s about to land. Get bonked and you’re flat as a pancake for a second; first to grab the summit flag wins.',
+    { th: 'farm', sh: [14, 186, 'wood'], l: [[24, 92, 206, 'g'], [108, 176, 170, 'g'], [24, 96, 134, 'g'], [104, 176, 98, 'g'], [60, 140, 46, 'g']], e: [['top', 100, 46], ['o', 62, 72, 'cow', 12], ['o', 150, 22, 'anvil', 7], ['o', 150, 124, 'piano', 8], ['arr', 62, 90, 62, 108], ['shadow', 60, 134, 10], ['shadow', 150, 170, 9], ['f', 130, 170, 'r', 'j'], ['f', 44, 134, 'b', 'w'], ['f', 160, 98, 'o', 's']] }],
+  ['Boing to the Moon', 'Height', 10, 9, 'A tower made of springs, trampolines and bouncy clouds, straight up into space.',
+    'Chain bounces without touching a plain ledge to build a combo, and every boing in a row launches you higher. Your score is how high you get before you fall off the bottom.',
+    { th: 'high', hm: [0, 100], l: [[30, 90, 212, 'T'], [140, 184, 212, ''], [116, 176, 172, 'b'], [36, 96, 132, 'T'], [110, 170, 90, 'b'], [46, 106, 44, 'T']], e: [['spr', 162, 212], ['f', 98, 104, 'r', 'j', 1, 20], ['dline', [[60, 208], [66, 160], [82, 126], [96, 108]], SUN], ['txt', 150, 26, 'x7 COMBO!', 9, SUN], ['o', 182, 12, 'star', 5], ['o', 36, 18, 'star', 3]] }],
+  ['Bomb Tag Tower', 'Reflex', 9, 10, 'A ticking bomb sticks to whoever touched it last, and you’re all stuck on one tower.',
+    'Climb, chase and slap the bomb onto someone else before the fuse runs out. The boom launches the holder way down the tower (and sometimes way up).',
+    { th: 'night', sh: [16, 184, 'stone'], l: [[26, 104, 204, ''], [96, 174, 164, ''], [26, 100, 124, 'o'], [100, 174, 84, ''], [40, 120, 44, 'o']], e: [['lad', 160, 164, 84], ['f', 60, 204, 'r', 'w', 1, 0, 'bomb'], ['f', 160, 132, 'b', 'cl'], ['arr', 80, 186, 128, 170], ['txt', 62, 158, 'TICK TICK', 7, SUN], ['txt', 100, 22, '3...', 14, '#ff4f9a'], ['f', 74, 124, 'o', 's']] }],
+  ['Crumbly King', 'King', 9, 9, 'Hold the summit ledge. It crumbles under your feet, then grows back.',
+    'Every second at the top scores a point, but the summit cracks the longer one person stands on it. When it falls, everyone scrambles back up the regrowing ledges.',
+    { th: 'sky', b: [['mount', [[0, 240], [100, 40], [200, 240]], '#c9b8a0']], l: [[70, 130, 60, 'x'], [36, 86, 116, 'x'], [114, 164, 150, ''], [50, 110, 196, '']], e: [['f', 98, 60, 'r', 's', 1, 0, 'crown'], ['f', 140, 150, 'b', 'j'], ['f', 62, 116, 'o', 'cl'], ['o', 90, 80, 'rock', 3], ['o', 112, 88, 'rock', 2.5], ['txt', 100, 18, '+1 +1 +1', 9, SUN], ['arr', 146, 126, 122, 82]] }],
+  ['Bathtub Overflow', 'Survival', 9, 9, 'Somebody left the tap on. Climb the bathroom before the bubble bath gets you.',
+    'Rubber ducks float on the rising water and make great stepping stones; soap ledges are super slippy. Fall in and you bob back up, slowly and very soggy.',
+    { th: 'bath', sh: [14, 186, 'tile'], l: [[24, 84, 170, 'i'], [110, 176, 128, 'w'], [24, 90, 86, 'M'], [100, 170, 46, 'w']], rise: ['water', 186], e: [['blk', 138, 6, 36, 8, '#c9ccd6'], ['blk', 166, 6, 8, 20, '#c9ccd6'], ['dline', [[170, 28], [170, 40]], '#5fb6ff'], ['o', 150, 194, 'duck', 8], ['o', 54, 198, 'duck', 7], ['bub', 100, 196, 6], ['bub', 124, 206, 4], ['f', 140, 128, 'b', 'cl'], ['f', 54, 170, 'r', 'j'], ['txt', 56, 152, 'SOAP!', 7, '#5fe8ff']] }],
+  ['Slippy Sloppy Tower', 'Height', 9, 9, 'An endless tower of ice ledges, where running fast makes you fly.',
+    'Sprint across the slippery ledges to build speed, then jump for a huge spinning leap that skips whole floors. The camera speeds up every 100 floors, so keep the combo going.',
+    { th: 'ice', sh: [14, 186, 'ice'], hm: [100, 10], l: [[24, 120, 212, 'i'], [80, 176, 172, 'i'], [24, 110, 132, 'i'], [100, 176, 92, 'i'], [30, 130, 52, 'i']], e: [['f', 52, 212, 'r', 'w', 1, -15], ['arr', 66, 200, 102, 200, '#5fe8ff'], ['dline', [[104, 196], [124, 130], [140, 82]]], ['f', 140, 74, 'r', 'j', 1, 40], ['carr', 140, 62, 15, 200, 480], ['txt', 100, 22, 'COMBO x12', 9, '#5fe8ff'], ['cam', 160]] }],
+  ['Piggy Bank Avalanche', 'Collect', 9, 8, 'A giant piggy bank at the top cracked open, and coins are pouring down the tower.',
+    'Climb into the coin waterfall and grab as many as you can; big gold coins knock you back a step. Punch the other player and they drop half their stash.',
+    { th: 'party', sh: [14, 186, 'candy'], l: [[24, 90, 206, ''], [110, 176, 166, 'w'], [30, 100, 124, 'w'], [100, 170, 84, '']], e: [['o', 100, 38, 'piggy', 18], ['coin', 92, 64], ['coin', 110, 74], ['coin', 98, 100], ['coin', 78, 110], ['coin', 128, 120], ['coin', 116, 146], ['coin', 60, 162], ['coin', 140, 188], ['f', 140, 166, 'r', 'j'], ['f', 60, 206, 'b', 'cl'], ['txt', 160, 104, '+10', 9, SUN]] }],
+  ['Elevator Punch-Up', 'Brawl', 8, 9, 'Three elevators zoom up and down an open shaft. Ride them, and punch.',
+    'Each lift moves at its own speed, so hop between them and shove rivals off. Fall below the bottom of the screen and you’re out.',
+    { th: 'factory', sh: [12, 188, 'metal'], b: [['rope', 50, 0, 50, 240, '#4a4f5e', 1.2], ['rope', 100, 0, 100, 240, '#4a4f5e', 1.2], ['rope', 150, 0, 150, 240, '#4a4f5e', 1.2]], l: [[28, 72, 190, 'Mu'], [78, 122, 120, 'Mu'], [128, 172, 62, 'Mu']], e: [['f', 44, 190, 'r', 'pu'], ['f', 100, 120, 'b', 's'], ['f', 64, 176, 'o', 'fa', 1, -40], ['o', 58, 170, 'spark', 4], ['f', 150, 62, 'g', 'j'], ['edge', 226, 'OUT']] }],
+  ['Vine Swingers', 'Race', 9, 8, 'A jungle tower of swinging vines, with monkeys who think you’re a banana.',
+    'Grab a vine, swing, and let go at just the right moment to fling up to the next one. Monkeys hop on your head and slow you down until you shake them off.',
+    { th: 'jungle', b: [['blk', -4, 30, 210, 8, '#7a4d2a', 2], ['blk', -4, 122, 96, 8, '#7a4d2a', 2]], l: [[8, 66, 214, 'g'], [146, 196, 74, 'g']], e: [['vine', 60, 130, 56, -20], ['vine', 110, 38, 62, 25], ['vine', 40, 38, 50, -10], ['f', 79, 212, 'r', 'hg'], ['f', 84, 120, 'b', 'hg'], ['o', 162, 64, 'monkey', 7], ['top', 182, 74], ['o', 30, 180, 'banana', 5], ['arr', 100, 178, 118, 140]] }],
+  ['Jack and the Snorestalk', 'Reflex', 9, 8, 'Climb the beanstalk, but only while the giant at the top is snoring.',
+    'When the snoring stops, freeze! Anyone still moving gets flicked off the beanstalk. First to sneak up and grab the golden egg wins.',
+    { th: 'sky', b: [['stalk', 100, 240, 40, 8]], l: [[56, 96, 190, 'g'], [104, 146, 146, 'g'], [56, 96, 100, 'g']], e: [['o', 100, 30, 'giant', 18], ['txt', 152, 14, 'Zzz', 10, '#5d5888'], ['o', 140, 58, 'egg', 6], ['o', 140, 58, 'pellet', 3], ['f', 80, 190, 'r', 'cl'], ['f', 126, 146, 'b', 's'], ['sign', 100, 224, 'SHHH...', SUN]] }],
+  ['Wrong-Way Escalators', 'Race', 8, 9, 'Every ledge is a conveyor belt, and most of them run the wrong way.',
+    'Run against the belts to make your jumps, or find the ones heading your way for a free sprint boost. A sneaky lever flips every belt at once.',
+    { th: 'neon', sh: [14, 186, 'tile'], l: [[24, 120, 204, 'C'], [80, 176, 164, 'c'], [24, 120, 124, 'C'], [80, 176, 84, 'c'], [24, 130, 44, 'C']], e: [['top', 36, 44], ['f', 100, 204, 'r', 'w', 1, -10], ['arr', 94, 190, 60, 190, '#ff4f9a'], ['f', 130, 164, 'b', 'j'], ['o', 166, 158, 'lever', 6], ['txt', 70, 106, 'WRONG WAY!', 8, '#ff4f9a']] }],
+  ['Toot Tower', 'Height', 9, 8, 'Eat beans, toot, fly. Every toot is an extra mid-air jump.',
+    'Beans float around the tower and each can stores a toot you can use as a jump (with a big green puff). Run out of toots over a gap and, well, gravity.',
+    { th: 'sunset', sh: [16, 184, 'brick'], l: [[26, 86, 212, ''], [124, 174, 150, ''], [26, 80, 84, ''], [110, 170, 30, '']], e: [['o', 150, 126, 'beans', 6], ['o', 52, 60, 'beans', 6], ['dline', [[60, 208], [78, 172], [92, 140]]], ['f', 92, 138, 'r', 'j', 1, 0, 'toot'], ['dline', [[98, 110], [120, 80], [140, 48]], '#9be05a'], ['txt', 148, 194, 'TOOT!', 11, '#9be05a'], ['txt', 60, 30, 'x2', 10, SUN]] }],
+  ['Gem Mine', 'Collect', 8, 8, 'Climb out of a gem mine, grabbing jewels off crumbly ledges.',
+    'Gems sit on ledges that crumble a second after you land, so greedy climbers get dropped. A mine cart rattles across the shaft every few floors.',
+    { th: 'mine', sh: [14, 186, 'rock'], l: [[24, 84, 206, 'wx'], [110, 176, 170, 'w'], [24, 96, 130, 'x'], [104, 170, 94, 'x'], [24, 120, 54, 'w']], e: [['o', 52, 196, 'gem', 5], ['o', 136, 84, 'gem', 5], ['o', 76, 120, 'gem', 5], ['o', 160, 160, 'gem', 4], ['blk', 60, 38, 28, 14, '#4a4f5e', 2], ['dot', 66, 53, 3, '#2a2540'], ['dot', 82, 53, 3, '#2a2540'], ['arr', 92, 44, 112, 44], ['o', 150, 26, 'rock', 6], ['arr', 150, 36, 150, 58], ['f', 136, 170, 'r', 's'], ['f', 54, 130, 'b', 'j'], ['txt', 150, 120, '+5', 9, SUN]] }],
+  ['Lightning Ladders', 'Survival', 8, 8, 'Storm clouds zap the metal ladders. Jump to the wooden ones in time.',
+    'A cloud crackles over one ladder before it strikes, so let go and leap to a wooden ladder. Get zapped and you light up like an x-ray and slide to the bottom.',
+    { th: 'storm', fl: 'mud', fy: 226, e: [['lad', 50, 226, 50, '#a9b2c4'], ['lad', 100, 226, 90, '#c98b52'], ['lad', 150, 226, 40, '#a9b2c4'], ['cloud', 134, 18, 1.1, '#5c6478'], ['bolt', 152, 60, 1.3], ['f', 150, 114, 'r', 'x'], ['o', 140, 92, 'spark', 5], ['o', 162, 104, 'spark', 4], ['f', 100, 162, 'b', 'cl'], ['f', 50, 200, 'g', 'cl'], ['txt', 52, 26, 'ZAP!', 10, SUN]] }],
+  ['Summit Sumo', 'King', 8, 8, 'A tiny flat summit, trampolines all around the bottom, and lots of shoving.',
+    'Score while you’re standing on the summit pad. Knocked-off players land on the trampolines below and come boinging back up for revenge.',
+    { th: 'sunset', b: [['mount', [[48, 240], [78, 96], [122, 96], [152, 240]], '#c9a37a']], l: [[78, 122, 96, 'G'], [4, 56, 208, 'T'], [144, 196, 208, 'T']], e: [['f', 94, 96, 'r', 'pu'], ['f', 112, 88, 'b', 'fa', 1, 30], ['f', 30, 160, 'o', 'j'], ['arr', 34, 186, 64, 120], ['txt', 100, 40, '+1', 12, SUN], ['o', 106, 76, 'spark', 4]] }],
+  ['Banana Peel Brawl', 'Brawl', 8, 8, 'Throw banana peels down at the climbers below you.',
+    'Every peel that lands stays on its ledge, and stepping on one slides you right off. Being in front is great, until someone above you starts throwing.',
+    { th: 'jungle', sh: [14, 186, 'bark'], l: [[24, 100, 206, 'w'], [100, 176, 166, 'w'], [24, 100, 126, 'w'], [90, 176, 86, 'w'], [30, 110, 46, 'w']], e: [['f', 70, 46, 'r', 'th', 1, 0, 'peel'], ['dline', [[78, 18], [110, 40], [130, 78]], SUN], ['o', 130, 82, 'peel', 5], ['o', 70, 122, 'peel', 5], ['o', 150, 162, 'peel', 5], ['f', 150, 80, 'b', 'fa', 1, -60], ['f', 50, 206, 'o', 'cl'], ['txt', 150, 30, 'SLIP!', 10, SUN]] }],
+  ['Flip-Flop Blocks', 'Puzzle', 8, 7, 'Red ledges and blue ledges swap between solid and ghostly every time anyone jumps.',
+    'Each jump flips which colour is solid, so you plan your hops in a rhythm. Two players jumping out of sync makes it gloriously confusing.',
+    { th: 'neon', sh: [14, 186, 'tile'], l: [[24, 84, 206, '', null, RED], [110, 170, 172, 'v', null, BLUE], [50, 110, 140, '', null, RED], [120, 176, 104, 'v', null, BLUE], [30, 90, 70, '', null, RED], [110, 170, 36, 'v', null, BLUE]], e: [['f', 80, 140, 'r', 'j'], ['f', 54, 206, 'b', 's'], ['sign', 148, 146, 'JUMP = FLIP', SUN], ['top', 140, 36], ['carr', 100, 100, 14, -30, 250]] }],
+  ['Key to the Top', 'Puzzle', 7, 8, 'The summit door is locked, and the key is hidden somewhere in the tower.',
+    'Find the key, then carry it up to the door, but carrying it means no double jumps. Punch the carrier and the key goes flying, maybe all the way back down.',
+    { th: 'castle', sh: [14, 186, 'stone'], l: [[24, 110, 210, ''], [90, 176, 170, ''], [24, 100, 128, ''], [110, 176, 90, ''], [24, 176, 40, '']], e: [['o', 151, 22, 'door', 12], ['o', 151, 24, 'lock', 4], ['f', 118, 170, 'b', 'pu'], ['f', 146, 166, 'r', 'fa', 1, 30], ['dline', [[146, 140], [110, 96], [92, 106]], SUN], ['o', 88, 110, 'key', 7], ['txt', 60, 84, 'KEY!', 9, SUN], ['f', 50, 40, 'o', 's']] }],
+
+  // ----- 21-24 (17) -----
+  ['Snowball Mountain', 'Survival', 8, 9, 'Giant snowballs roll down a zig-zag mountain path, getting bigger every floor.',
+    'Climb the switchbacks and jump each snowball as it rolls past. Get rolled up and you become part of the snowball until it smashes at the bottom.',
+    { th: 'ice', b: [['mount', [[0, 240], [0, 30], [200, 70], [200, 240]], '#eef6ff']], l: [[16, 176, 214, 'i', 198], [24, 184, 154, 'i', 170], [16, 176, 96, 'i', 80], [60, 184, 36, 'i', 50]], e: [['o', 150, 186, 'snow', 10], ['o', 60, 142, 'snow', 13], ['arr', 132, 176, 108, 180, WHITE], ['f', 90, 206, 'r', 'j'], ['f', 140, 165, 'b', 's'], ['o', 150, 30, 'yeti', 9], ['txt', 70, 24, 'ROLL!', 10, '#2f6fe0']] }],
+  ['Bird Brained', 'Survival', 8, 9, 'Seagulls dive-bomb the tower and carry climbers off sideways.',
+    'Watch for the squawk and duck under a ledge. Grabbed players flap their arms to escape, and the bird might drop you higher up, or right off the edge.',
+    { th: 'sea', sh: [16, 184, 'wood'], l: [[26, 100, 206, 'w'], [100, 174, 166, 'w'], [26, 96, 126, 'w'], [110, 174, 86, 'w'], [40, 120, 46, 'w']], e: [['dline', [[40, 60], [90, 92], [140, 112]], WHITE], ['o', 150, 112, 'bird', 10], ['f', 150, 144, 'b', 'hg'], ['o', 60, 26, 'bird', 7], ['o', 120, 132, 'feather', 3], ['f', 60, 206, 'r', 'cl'], ['txt', 136, 28, 'SQUAWK!', 8, SUN]] }],
+  ['Popcorn Panic', 'Height', 8, 9, 'The tower is inside a popcorn machine. Kernels pop under your feet and fling you up.',
+    'Stand on a kernel when it pops for a mega launch; the higher you go, the hotter and poppier it gets. Butter ledges are sticky, so you can’t slide off them.',
+    { th: 'circus', sh: [18, 182, 'glass'], l: [[30, 90, 124, 'y'], [110, 170, 74, 'y'], [40, 100, 30, 'y']], rise: ['popcorn', 202, 1], e: [['o', 60, 196, 'popcorn', 7], ['o', 130, 190, 'popcorn', 8], ['o', 96, 160, 'popcorn', 6], ['o', 150, 108, 'popcorn', 6], ['o', 50, 214, 'popcorn', 6], ['f', 96, 146, 'r', 'j', 1, -15], ['arr', 112, 178, 112, 150, SUN], ['f', 140, 74, 'b', 's'], ['txt', 100, 16, 'POP POP POP', 9, SUN]] }],
+  ['Pinball Tower', 'Reflex', 8, 9, 'Bumpers and flippers fling you up a giant pinball machine.',
+    'Press jump at the exact moment a flipper swings to get launched; miss and you roll down the drain. Bumpers ding you sideways into the other player.',
+    { th: 'neon', sh: [12, 188, 'metal'], e: [['bump', 60, 150, 10], ['bump', 140, 120, 10, '#5fe8ff'], ['bump', 86, 66, 9, SUN], ['poly', [[16, 202], [86, 214], [86, 220], [16, 210]], SUN], ['poly', [[184, 202], [114, 214], [114, 220], [184, 210]], SUN], ['f', 60, 208, 'r', 'j'], ['dline', [[70, 196], [74, 160], [120, 104]]], ['f', 130, 92, 'b', 'fa', 1, 40], ['edge', 234, 'DRAIN'], ['txt', 150, 30, 'DING!', 10, '#ff4f9a']] }],
+
+  // ----- 25-37 (16) -----
+  ['Spaghetti Volcano', 'Survival', 7, 9, 'A volcano made of spaghetti erupts sauce and meatballs.',
+    'Climb noodle ropes up the side while meatballs bounce down and sauce bubbles up from below. Sauce is sticky; meatballs are bouncy and can be ridden.',
+    { th: 'kitchen', b: [['mount', [[20, 240], [80, 44], [120, 44], [180, 240]], '#f2d48a']], rise: ['sauce', 214], e: [['splat', 100, 44, '#e0412a', 16], ['rp', 80, 56, 210, '#ffe28a'], ['rp', 120, 56, 200, '#ffe28a'], ['o', 100, 24, 'meatball', 8], ['o', 152, 96, 'meatball', 7], ['o', 50, 140, 'meatball', 6], ['arr', 158, 108, 170, 132], ['f', 80, 156, 'r', 'cl'], ['f', 120, 186, 'b', 'cl'], ['txt', 150, 20, 'BLORP', 9, '#ffb080']] }],
+  ['Fireworks Finale', 'Survival', 7, 9, 'It’s the fireworks show, and you’re climbing the launch tower.',
+    'Rockets fire up from the bottom in waves. Dodge them, or hop on one and ride it up three floors before it goes BANG in a shower of sparkles.',
+    { th: 'night', sh: [18, 182, 'metal'], l: [[28, 90, 200, 'M'], [110, 172, 160, 'M'], [28, 96, 110, 'M'], [104, 172, 64, 'M']], e: [['o', 60, 150, 'rocket', 8], ['dline', [[150, 132], [150, 158]], '#ff9f1c'], ['o', 150, 120, 'rocket', 8], ['f', 150, 109, 'r', 's'], ['o', 60, 36, 'spark', 10], ['o', 84, 22, 'spark', 6], ['o', 40, 58, 'spark', 5], ['f', 60, 200, 'b', 'j'], ['txt', 142, 30, 'BANG!', 11, '#ff4f9a']] }],
+  ['Earthquake Tower', 'King', 7, 9, 'Hold the top of a wobbly tower block while an earthquake shakes everything.',
+    'The tower sways left and right, tilting every ledge, and the top floors crack and drop away. Score while you’re standing on the very top.',
+    { th: 'city', b: [['poly', [[60, 240], [140, 240], [146, 64], [66, 58]], '#8a8fa0']], l: [[56, 150, 60, '', 66], [36, 120, 112, 'x', 120], [80, 168, 160, '', 152], [30, 170, 212, '']], e: [['top', 140, 64], ['f', 100, 62, 'r', 's', 1, -6, 'crown'], ['f', 70, 114, 'b', 'fa', 1, -30], ['carr', 100, 40, 26, 200, 250], ['carr', 100, 40, 26, -20, -70], ['txt', 100, 228, 'RUMBLE', 9, SUN]] }],
+  ['Castle Siege Ladders', 'Brawl', 8, 8, 'Attackers climb ladders up the castle wall while the defender pushes them off.',
+    'One player defends the battlements, everyone else climbs. Push a ladder and it tips over backward with everyone on it; reach the top to swap roles.',
+    { th: 'day', fl: 'grass', fy: 228, b: [['wall', 40, 62, 160, 170, 'stone'], ['blk', 40, 48, 20, 16, '#8a8fa0'], ['blk', 80, 48, 20, 16, '#8a8fa0'], ['blk', 120, 48, 20, 16, '#8a8fa0'], ['blk', 160, 48, 20, 16, '#8a8fa0']], e: [['lad', 22, 228, 66, '#c98b52', 12, 46], ['lad', 104, 228, 66, '#c98b52', 12, 104], ['lad', 150, 228, 86, '#c98b52', 12, 194], ['carr', 150, 228, 100, -84, -62], ['f', 120, 62, 'r', 'pu'], ['f', 36, 160, 'b', 'cl'], ['f', 178, 132, 'o', 'fa', 1, 40], ['txt', 100, 22, 'PUSH!', 10, SUN]] }],
+  ['Bunk Bed Skyscraper', 'Brawl', 8, 8, 'Twenty bunk beds stacked to the ceiling, plus an endless supply of pillows.',
+    'Every mattress is a mini trampoline. Pillow-whack players off their bunk; feathers float everywhere and slow everyone down.',
+    { th: 'night', fl: 'carpet', fy: 230, b: [['post', 30, 20, 230], ['post', 170, 20, 230], ['post', 100, 20, 230]], l: [[30, 170, 202, 'T', null, '#5f8fe0'], [30, 100, 152, 'T', null, '#5f8fe0'], [100, 170, 110, 'T', null, '#5f8fe0'], [30, 170, 60, 'T', null, '#5f8fe0']], e: [['f', 56, 152, 'r', 'pu', 1, 0, 'pillow'], ['f', 82, 142, 'b', 'fa', 1, -50], ['o', 100, 124, 'feather', 3], ['o', 70, 100, 'feather', 3], ['o', 142, 84, 'feather', 3], ['f', 140, 110, 'o', 's'], ['o', 130, 44, 'pillow', 7]] }],
+  ['Water Balloon Balconies', 'Brawl', 8, 8, 'Climb an apartment block, lobbing water balloons at the floors above and below.',
+    'A splashed climber slips off their balcony; the laundry on the washing lines makes a handy shield. Most splashes wins.',
+    { th: 'city', b: [['wall', 18, 0, 164, 240, 'glass']], l: [[24, 90, 200, 'M'], [110, 176, 160, 'M'], [24, 90, 110, 'M'], [110, 176, 64, 'M']], e: [['rope', 90, 102, 110, 98, WHITE, 1], ['o', 100, 106, 'sock', 4], ['dline', [[60, 86], [90, 120], [136, 150]], '#5fb6ff'], ['splat', 140, 156, '#5fb6ff', 11], ['f', 146, 158, 'o', 'fa', 1, 30], ['f', 50, 110, 'r', 'th'], ['f', 60, 200, 'b', 's'], ['bal', 150, 36, 'b']] }],
+  ['Slime Time', 'Survival', 8, 8, 'Green slime oozes up the tower. Touch it and you stick like a fly on honey.',
+    'Stuck players wriggle free by mashing jump; the other player can help pull you out (or step on your head to climb higher).',
+    { th: 'cave', sh: [16, 184, 'rock'], l: [[26, 96, 186, 'y', null, '#8fe04a'], [110, 174, 146, ''], [26, 100, 104, ''], [110, 174, 62, ''], [40, 120, 24, 'o']], m: [['f', 60, 216, 'r', 'fa']], rise: ['slime', 198], e: [['txt', 60, 176, 'HELP!', 9, '#d8ffb0'], ['f', 140, 146, 'b', 'cl'], ['f', 64, 104, 'o', 's'], ['arr', 100, 176, 100, 156, '#8fe04a']] }],
+  ['Space Elevator', 'Height', 8, 8, 'Climb out of the sky into space. Gravity gets weaker the higher you go.',
+    'Down low it’s normal jumping; up high every jump is a floaty moon leap. Satellites and space junk drift sideways across the gaps.',
+    { th: 'high', hm: [0, 1000], b: [['rope', 100, 0, 100, 240, '#c9ccd6', 2]], l: [[30, 90, 210, ''], [110, 170, 160, 'm'], [30, 96, 100, 'M'], [104, 170, 44, 'M']], e: [['f', 60, 210, 'r', 'j'], ['dline', [[64, 182], [90, 118], [138, 86]], '#5fe8ff'], ['f', 140, 80, 'b', 'j', 1, 30], ['blk', 40, 56, 16, 10, '#c9ccd6'], ['blk', 26, 58, 12, 6, '#2f6fe0', 1], ['blk', 58, 58, 12, 6, '#2f6fe0', 1], ['o', 168, 120, 'meteor', 4], ['txt', 150, 18, 'LOW G', 9, '#5fe8ff']] }],
+  ['Pizza Delivery', 'Collect', 8, 8, 'Deliver hot pizzas to open windows all the way up a skyscraper.',
+    'Grab a pizza at the shop downstairs and climb to whichever window is waving. Carrying a pizza means one hand, so ladders are slow; get punched and the pizza flies off.',
+    { th: 'city', b: [['wall', 16, 0, 168, 240, 'glass']], l: [[20, 80, 206, 'M'], [120, 180, 166, 'M'], [20, 80, 126, 'M'], [120, 180, 86, 'M'], [20, 100, 46, 'M']], e: [['blk', 36, 16, 24, 22, SUN, 2], ['txt', 48, 8, 'HERE!', 6, SUN], ['lad', 100, 206, 126], ['f', 150, 166, 'r', 's', 1, 0, 'pizza'], ['f', 100, 176, 'b', 'cl'], ['o', 54, 112, 'pizza', 6], ['txt', 150, 200, '$$', 9, '#3fbf5f']] }],
+  ['Ice Cream Tower', 'Collect', 8, 8, 'Scoops fall from the sky. Catch them on your cone hat and build a wobbly tower.',
+    'Each scoop is a point, but a big stack makes you top-heavy and slower to climb. Bonk someone and their scoops scatter for anyone to grab.',
+    { th: 'candy', sh: [16, 184, 'candy'], l: [[26, 100, 206, 'n'], [100, 174, 160, 'n'], [26, 100, 110, 'n'], [110, 174, 60, 'n']], e: [['f', 60, 206, 'r', 's', 1, 0, 'cone'], ['f', 140, 152, 'b', 'j', 1, 0, 'cone'], ['o', 80, 40, 'scoop', 6], ['o', 146, 26, 'scoop', 6], ['o', 98, 82, 'scoop', 5], ['arr', 80, 50, 80, 68], ['txt', 150, 100, '+1', 10, SUN]] }],
+  ['Jetpack Jamboree', 'Race', 8, 8, 'Everyone gets a jetpack with almost no fuel in it.',
+    'Short hover bursts get you over the big gaps, and fuel cans on the ledges top you up. Run dry mid-air and it’s a long, flappy fall.',
+    { th: 'sky', sh: [14, 186, 'metal'], l: [[24, 84, 210, ''], [120, 176, 150, ''], [24, 90, 90, ''], [110, 176, 40, '']], e: [['dline', [[60, 206], [78, 170], [90, 142]], '#ff9f1c'], ['f', 92, 134, 'r', 'j', 1, 0, 'jet'], ['f', 150, 150, 'b', 's', 1, 0, 'jet'], ['blk', 44, 76, 10, 14, RED, 2], ['top', 150, 40], ['sign', 100, 222, 'FUEL 12%', SUN]] }],
+  ['Pop-Up Toasters', 'Height', 8, 8, 'Every ledge has a toaster. Stand in the slot and get popped up with the toast.',
+    'Toasters ding on a timer; ride the pop for a huge launch, or eat the toast for a speed boost. Burnt toast is slippery.',
+    { th: 'kitchen', sh: [16, 184, 'tile'], l: [[26, 96, 206, 'M'], [104, 174, 150, 'M'], [26, 96, 94, 'M'], [104, 174, 40, 'M']], e: [['blk', 44, 184, 36, 22, '#c9ccd6', 4], ['blk', 122, 128, 36, 22, '#c9ccd6', 4], ['blk', 44, 72, 36, 22, '#c9ccd6', 4], ['o', 62, 168, 'toast', 6], ['f', 140, 112, 'r', 'j'], ['o', 152, 92, 'toast', 5], ['arr', 128, 126, 128, 104], ['txt', 100, 18, 'DING!', 11, SUN]] }],
+  ['Ferris Wheel Frenzy', 'Race', 8, 8, 'Hop up a giant ferris wheel, gondola to gondola, to the very top.',
+    'The wheel turns slowly, carrying you up and then sadly down again, so time your jumps upward. Shove someone and they ride all the way back to the bottom.',
+    { th: 'dusk', fl: 'grass', fy: 228, b: [['blades', 100, 124, 76, 6, 0], ['ring', 100, 124, 76, '#c9ccd6', 3], ['poly', [[92, 228], [100, 124], [108, 228]], '#8a90a3']], l: [[164, 188, 124, '', null, RED], [126, 150, 190, '', null, BLUE], [50, 74, 190, '', null, SUN], [12, 36, 124, '', null, '#3fbf5f'], [50, 74, 58, '', null, '#a45cff'], [126, 150, 58, '', null, '#ff9f1c']], e: [['top', 100, 44], ['f', 62, 190, 'r', 'j'], ['f', 138, 58, 'b', 's'], ['carr', 100, 124, 52, 30, 120], ['arr', 70, 160, 40, 134]] }],
+
+  // ----- 38-64 (15) -----
+  ['Chimney Sweep Shimmy', 'Race', 8, 7, 'A super-narrow chimney with no ledges at all. Wall-jump or bust.',
+    'Bounce wall to wall to zigzag up while soot clouds puff out and blind you for a second. First out the top gets a face full of fresh air.',
+    { th: 'dusk', sh: [60, 140, 'brick'], e: [['dline', [[66, 210], [132, 168], [68, 126], [132, 84]]], ['f', 68, 214, 'r', 'cl', 1, 20], ['f', 132, 150, 'b', 'cl', 1, -20], ['cloud', 92, 104, .7, '#4a4560'], ['txt', 100, 16, 'FRESH AIR', 7, SUN], ['o', 100, 40, 'star', 4]] }],
+  ['Volcano Vent Dash', 'Race', 7, 8, 'Steam vents blast you up the inside of a volcano, whether you’re ready or not.',
+    'Vents hiss before they blow: stand on one for a huge free boost, but it fires you off at a random angle. First to the crater rim wins.',
+    { th: 'lava', sh: [12, 188, 'rock'], fl: 'lava', fy: 230, l: [[22, 90, 210, 'r'], [110, 178, 170, ''], [22, 96, 120, ''], [100, 178, 70, ''], [22, 90, 30, '']], e: [['geyser', 60, 210, 70], ['geyser', 144, 170, 56], ['f', 62, 132, 'r', 'j', 1, -20], ['f', 160, 70, 'b', 's'], ['top', 40, 30], ['txt', 148, 196, 'HISS', 8, SUN]] }],
+  ['Simon Says Ledges', 'Reflex', 8, 7, 'Ledges glow in colours, and only the colour Simon calls stays solid.',
+    'Simon shouts BLUE! and everything else goes see-through for two seconds. The calls get faster and sneakier (Simon didn’t say!).',
+    { th: 'party', sh: [14, 186, 'candy'], l: [[24, 84, 206, '', null, BLUE], [110, 176, 206, 'v', null, RED], [60, 130, 160, '', null, BLUE], [24, 84, 116, 'v', null, '#3fbf5f'], [110, 176, 116, '', null, BLUE], [60, 130, 70, 'v', null, SUN]], e: [['sign', 100, 30, 'SIMON SAYS: BLUE!', BLUE], ['f', 54, 206, 'r', 's'], ['f', 142, 214, 'b', 'fa', 1, 30], ['f', 96, 160, 'o', 'j']] }],
+  ['Trapdoor Tower', 'Reflex', 8, 7, 'Every ledge is a trapdoor that snaps open on the beat of the music.',
+    'Boom, boom, OPEN: jump on the beat or drop down a floor. The tempo speeds up as you climb.',
+    { th: 'neon', sh: [14, 186, 'tile'], l: [[24, 72, 200, ''], [128, 176, 200, ''], [24, 72, 140, ''], [72, 128, 140, '', null, '#ff4f9a'], [128, 176, 140, ''], [24, 72, 80, ''], [128, 176, 80, '']], e: [['poly', [[72, 200], [77, 200], [96, 224], [91, 226]], '#9aa0b4'], ['poly', [[128, 200], [123, 200], [104, 224], [109, 226]], '#9aa0b4'], ['f', 100, 230, 'b', 'fa', 1, 170], ['f', 48, 140, 'r', 'j'], ['o', 100, 34, 'note', 7], ['o', 150, 46, 'note', 6], ['txt', 100, 112, 'BOOM BOOM', 8, '#ff4f9a']] }],
+  ['Musical Ladders', 'Reflex', 8, 7, 'Five ladders. When the music stops, two of them vanish.',
+    'Climb while the tune plays; when it cuts out, hang on to a ladder that stays. Anyone on a vanishing ladder drops a floor (or three).',
+    { th: 'party', fl: 'carpet', fy: 226, e: [['lad', 30, 226, 40], ['lad', 65, 226, 40, 'rgba(255,79,154,.45)'], ['lad', 100, 226, 40], ['lad', 135, 226, 40, 'rgba(255,79,154,.45)'], ['lad', 170, 226, 40], ['f', 30, 124, 'r', 'cl'], ['f', 100, 166, 'o', 'cl'], ['f', 135, 176, 'b', 'fa', 1, 20], ['o', 66, 24, 'note', 7], ['sign', 140, 22, 'STOP!', '#ff4f9a']] }],
+  ['Balloon Ride', 'Height', 8, 7, 'Grab a bunch of balloons and float up. Birds peck them, one pop at a time.',
+    'More balloons means a faster rise, so steer left and right to dodge. Grab drifting balloons to refill, or pop the other player’s with a well-aimed dart.',
+    { th: 'sky', hm: [0, 50], e: [['dline', [[80, 238], [80, 192]], WHITE], ['f', 80, 186, 'r', 'hg', 1, 0, 'balloons'], ['f', 140, 112, 'b', 'hg', 1, 0, 'balloons'], ['o', 50, 110, 'bird', 7], ['arr', 62, 112, 110, 92], ['bal', 162, 190, 'p'], ['bal', 40, 40, SUN], ['txt', 112, 70, 'POP!', 10, '#ff4f9a']] }],
+  ['Cloud Hopper', 'Height', 8, 7, 'Bouncy clouds drift apart as the camera scrolls up. Rain clouds melt under you.',
+    'White clouds bounce, grey clouds rain and shrink while you stand on them, and the golden cloud launches you two screens up. How high can you get?',
+    { th: 'sky', hm: [200, 20], l: [[24, 74, 206, 'b'], [110, 170, 170, 'b'], [40, 92, 126, 'b', null, '#9aa3b5'], [120, 180, 86, 'b'], [50, 110, 40, 'b', null, SUN]], e: [['dline', [[52, 140], [48, 156]], '#5fb6ff'], ['dline', [[70, 140], [66, 156]], '#5fb6ff'], ['f', 140, 164, 'r', 'j'], ['f', 66, 120, 'b', 's'], ['cam', 120], ['arr', 186, 92, 196, 92, WHITE]] }],
+  ['Pogo Peak', 'Height', 7, 8, 'Climb a mountain on a pogo stick. You can’t stop bouncing, ever.',
+    'Steer every hop onto the next ledge; landing on a spring pad bounces you twice as high. Miss and it’s boing-boing-boing all the way back down.',
+    { th: 'day', b: [['mount', [[0, 240], [60, 70], [120, 150], [160, 36], [200, 100], [200, 240]], '#a9c48a']], l: [[20, 70, 206, 'g'], [100, 150, 160, 'g'], [40, 90, 112, 'g'], [120, 170, 60, 'g']], e: [['spr', 125, 160], ['dline', [[46, 196], [62, 150], [80, 140]]], ['f', 80, 132, 'r', 's', 1, -10, 'pogo'], ['f', 146, 50, 'b', 's', 1, 10, 'pogo'], ['txt', 60, 30, 'BOING', 9, SUN]] }],
+  ['Treehouse Takeover', 'King', 8, 7, 'Hold the treehouse at the top of the big oak. Everyone else climbs ropes to get in.',
+    'Points tick while you’re inside, and defenders can tip water buckets down the ladder. A secret rope swing lets attackers fling in through the window.',
+    { th: 'tree', b: [['wall', 86, 60, 28, 180, 'bark']], l: [[18, 86, 180, 'g'], [114, 182, 200, 'g']], e: [['blk', 50, 32, 100, 36, '#c98b52', 2], ['poly', [[44, 34], [100, 6], [156, 34]], RED], ['blk', 120, 42, 16, 14, '#4a3a2a', 2], ['lad', 100, 240, 68], ['rp', 160, 68, 200], ['f', 76, 68, 'r', 's', 1, 0, 'crown'], ['o', 96, 96, 'bucket', 5], ['f', 100, 146, 'b', 'cl'], ['f', 160, 128, 'o', 'cl'], ['txt', 100, 18, '+1', 10, SUN]] }],
+  ['Lighthouse Keeper', 'King', 7, 8, 'Hold the lamp room at the top of a lighthouse while giant waves crash up the side.',
+    'Each wave sprays up the tower and knocks climbers down a floor, and the spinning light dazzles whoever it points at. Most seconds in the lamp room wins.',
+    { th: 'storm', b: [['poly', [[70, 240], [130, 240], [122, 66], [78, 66]], WHITE], ['poly', [[73, 180], [127, 180], [126, 160], [74, 160]], RED], ['poly', [[76, 120], [124, 120], [123, 100], [77, 100]], RED], ['beam', 100, 46, -15, 110, 10], ['blk', 78, 32, 44, 30, '#fff27a', 2], ['poly', [[74, 34], [100, 14], [126, 34]], RED]], l: [[66, 134, 64, 'M'], [40, 78, 140, 'w'], [122, 160, 186, 'w']], rise: ['water', 212, 1], e: [['f', 96, 64, 'r', 's', 1, 0, 'crown'], ['f', 140, 186, 'b', 'cl'], ['splat', 154, 204, '#bfe6ff', 18], ['txt', 154, 226, 'SPLOOSH', 8, WHITE], ['f', 58, 140, 'o', 'j']] }],
+  ['Crow’s Nest', 'King', 7, 8, 'Climb the mast of a pirate ship and hold the crow’s nest while the ship rocks.',
+    'The whole ship tilts left and right, so the rigging swings you around. Cannonballs sometimes bonk the mast and shake everyone loose.',
+    { th: 'sea', b: [['post', 100, 30, 200, '#7a4d2a'], ['rope', 100, 40, 30, 196, '#d9b25e', 1.2], ['rope', 100, 40, 170, 196, '#d9b25e', 1.2], ['poly', [[104, 70], [150, 90], [104, 150]], WHITE]], l: [[84, 116, 40, 'w']], rise: ['water', 214, 1], e: [['ship', 50, 150, 206, -4], ['blk', 84, 40, 32, 14, '#a56a36', 2], ['f', 100, 40, 'r', 's', 1, 0, 'crown'], ['f', 60, 130, 'b', 'cl', 1, -20], ['o', 170, 60, 'cball', 5], ['carr', 100, 200, 40, 200, 250], ['txt', 150, 20, 'YARR!', 9, SUN]] }],
+  ['Laundry Chute', 'Survival', 7, 8, 'Climb UP the laundry chute while the whole family’s dirty washing falls on you.',
+    'Socks are harmless, jeans knock you down, and a towel over your face means three seconds of climbing blind. Smelly socks make you sneeze.',
+    { th: 'room', sh: [40, 160, 'metal'], l: [[44, 100, 200, 'o'], [100, 156, 150, 'o'], [44, 110, 100, 'o'], [90, 156, 50, 'o']], e: [['o', 80, 34, 'sock', 6], ['o', 120, 70, 'sock', 5], ['poly', [[60, 120], [76, 118], [80, 140], [72, 140], [68, 128], [64, 142], [56, 140]], BLUE], ['f', 70, 200, 'r', 'cl'], ['f', 130, 150, 'b', 'fa', 1, -20], ['blk', 122, 124, 18, 14, '#5fe0b0', 3], ['txt', 100, 18, 'STINKY!', 9, '#9be05a']] }],
+  ['Penguin Slide', 'Survival', 7, 8, 'Penguins belly-slide down the icy ledges like bowling balls.',
+    'Jump the penguins or get bowled over; at the bottom they waddle back up the stairs to go again. Grab a fish and they chase you instead.',
+    { th: 'ice', sh: [16, 184, 'ice'], l: [[26, 150, 206, 'i', 196], [50, 174, 150, 'i', 160], [26, 150, 96, 'i', 86], [50, 174, 40, 'i', 50]], e: [['o', 120, 191, 'penguin', 8], ['arr', 104, 188, 80, 192, WHITE], ['o', 86, 144, 'penguin', 7], ['arr', 102, 142, 124, 144, WHITE], ['f', 60, 200, 'r', 'j'], ['f', 150, 158, 'b', 's'], ['o', 140, 36, 'fish', 5], ['txt', 70, 24, 'STRIKE!', 9, '#2f6fe0']] }],
+  ['Chocolate Fountain', 'Survival', 7, 8, 'Rising chocolate, marshmallow stepping stones, and a strawberry summit.',
+    'Marshmallows bob on the chocolate and slowly sink; wafer ledges snap if two people stand on them. Fall in and you come out dipped, sticky and slow.',
+    { th: 'candy', l: [[30, 90, 150, 'w', null, '#e8c27a'], [110, 170, 110, 'wx', null, '#e8c27a'], [40, 100, 64, 'w', null, '#e8c27a']], rise: ['choc', 196], e: [['o', 60, 202, 'marsh', 8], ['o', 140, 206, 'marsh', 7], ['f', 60, 196, 'r', 's'], ['f', 140, 110, 'b', 'j'], ['o', 76, 50, 'apple', 7], ['top', 50, 64], ['txt', 100, 226, 'YUM', 9, '#f2d48a']] }],
+  ['Spider Silk Climb', 'Race', 7, 8, 'Spiders drop on silk threads, and their webs are sticky shortcuts.',
+    'Webs slow you down but you can’t fall off them. Spiders zip up and down, so catch a ride on a thread for a quick lift.',
+    { th: 'night', sh: [14, 186, 'stone'], l: [[24, 100, 206, ''], [100, 176, 160, ''], [24, 96, 110, ''], [110, 176, 60, '']], e: [['web', 60, 160, 22], ['web', 150, 104, 20], ['rope', 100, 0, 100, 70, WHITE, .8], ['o', 100, 76, 'spider', 7], ['f', 60, 170, 'r', 'x'], ['f', 140, 160, 'b', 's'], ['rope', 160, 0, 160, 30, WHITE, .8], ['o', 160, 36, 'spider', 5], ['arr', 112, 90, 112, 70]] }],
+  ['Up the Waterfall', 'Race', 7, 8, 'Climb a roaring waterfall while it tries to wash you back down.',
+    'Standing in the water pushes you down, and logs tumble over the edge. Salmon leap up the falls too, and you can ride one.',
+    { th: 'jungle', b: [['wall', 0, 0, 40, 240, 'rock'], ['wall', 160, 0, 40, 240, 'rock'], ['poly', [[40, 0], [160, 0], [160, 240], [40, 240]], 'rgba(95,182,255,.75)', 0], ['dline', [[60, 0], [60, 240]]], ['dline', [[100, 0], [100, 240]]], ['dline', [[140, 0], [140, 240]]]], l: [[40, 90, 200, 'g'], [110, 160, 150, 'g'], [40, 100, 100, 'g'], [100, 160, 50, 'g']], e: [['blk', 76, 66, 44, 8, '#a56a36', 4], ['arr', 70, 26, 70, 52, WHITE], ['arr', 132, 104, 132, 130, WHITE], ['o', 130, 182, 'fish', 7], ['f', 130, 178, 'b', 's'], ['f', 60, 200, 'r', 'cl']] }],
+  ['Toilet Paper Mountain', 'Race', 7, 8, 'A tower of toilet paper rolls. Unroll them into ropes, or yank someone else’s.',
+    'Grab a roll’s loose end and it becomes a climbing rope. Yank the rope another player is climbing and they spin down in a cloud of tissue.',
+    { th: 'bath', l: [[20, 90, 206, ''], [110, 180, 160, ''], [20, 100, 100, ''], [110, 180, 40, '']], e: [['o', 40, 194, 'tp', 9], ['o', 66, 194, 'tp', 9], ['o', 132, 148, 'tp', 9], ['o', 158, 148, 'tp', 9], ['o', 40, 88, 'tp', 9], ['o', 136, 28, 'tp', 9], ['rp', 150, 104, 160, WHITE], ['rp', 70, 44, 100, WHITE], ['f', 150, 140, 'r', 'cl'], ['f', 74, 76, 'b', 'fa', 1, 90], ['carr', 74, 66, 14, 0, 300], ['txt', 150, 80, 'YANK!', 10, '#ff4f9a']] }],
+  ['Dragon Tail Dash', 'Race', 7, 8, 'Climb up a sleeping dragon, from the tip of its tail to the top of its head.',
+    'The tail flicks, the scales are slippery, and every snore puffs a smoke ring you can bounce on. Whatever you do, don’t step on its nose.',
+    { th: 'cave', b: [['poly', [[0, 240], [60, 206], [118, 160], [148, 96], [156, 64], [184, 62], [172, 106], [144, 166], [84, 222], [36, 240]], '#3fbf5f']], l: [[30, 80, 214, '', 204, '#2f9a4f'], [90, 140, 172, '', 150, '#2f9a4f'], [138, 168, 108, '', 86, '#2f9a4f']], e: [['o', 170, 54, 'dragon', 12], ['ring', 120, 40, 8, '#9aa3b5', 3], ['ring', 96, 26, 6, '#9aa3b5', 3], ['f', 56, 209, 'r', 'cl'], ['f', 118, 160, 'b', 's'], ['txt', 70, 22, 'SNORE...', 8, '#b8b2e6']] }],
+  ['Magnet Gloves', 'Brawl', 7, 8, 'Magnet gloves stick you to metal walls and yank other players toward you.',
+    'Hold punch to magnet-pull a rival off their ledge into a big bonk. Metal walls are climbable and wooden ones aren’t, so look before you leap.',
+    { th: 'factory', sh: [14, 186, 'metal'], l: [[24, 88, 206, 'w'], [112, 176, 160, 'w'], [24, 88, 110, 'w'], [112, 176, 60, 'w']], e: [['wall', 92, 30, 16, 150, 'metal'], ['f', 86, 150, 'r', 'cl', 1, 0, 'mag'], ['f', 140, 154, 'b', 'fa', 1, -40], ['arr', 132, 146, 100, 140, '#ff4f9a'], ['txt', 150, 36, 'CLANG!', 9, SUN]] }],
+  ['The Big Flick', 'Brawl', 7, 8, 'A giant finger pokes in from the side and flicks climbers off the tower.',
+    'One player steers the finger (or the computer does) while everyone else climbs. Clever climbers duck, so the flick hits somebody else.',
+    { th: 'room', sh: [16, 150, 'wood'], l: [[26, 140, 206, 'w'], [26, 100, 160, 'w'], [60, 140, 114, 'w'], [26, 110, 66, 'w']], e: [['o', 174, 108, 'hand', 11], ['o', 148, 104, 'spark', 6], ['f', 128, 112, 'b', 'fa', 1, -60], ['f', 70, 160, 'r', 'd'], ['f', 60, 206, 'o', 'cl'], ['txt', 160, 70, 'FLICK!', 9, SUN]] }],
+  ['Snowball Fight Cliffs', 'Brawl', 7, 8, 'Build snow forts on icy ledges and pelt the climbers below.',
+    'Hold punch to pack a snowball; big ones knock people right off. Snow forts block hits until they crumble.',
+    { th: 'ice', b: [['mount', [[0, 240], [0, 20], [200, 0], [200, 240]], '#e6f2ff']], l: [[20, 100, 200, 'i'], [100, 180, 150, 'i'], [20, 100, 96, 'i'], [100, 180, 46, 'i']], e: [['poly', [[116, 150], [120, 134], [146, 134], [150, 150]], WHITE], ['f', 162, 150, 'b', 'th', 1, 0, 'snowb'], ['dline', [[164, 118], [110, 140], [72, 186]]], ['f', 60, 200, 'r', 'fa', 1, -30], ['o', 78, 182, 'snow', 4], ['f', 40, 96, 'o', 's'], ['txt', 60, 30, 'SPLAT!', 9, '#2f6fe0']] }],
+  ['Seesaw Slingers', 'Brawl', 7, 8, 'Seesaw ledges everywhere. Land on one end to fling whoever is on the other.',
+    'Stomp down hard to launch a rival sky-high, or off the side. You can fling yourself too, if you trust the other player to stomp.',
+    { th: 'day', sh: [14, 186, 'wood'], l: [[24, 116, 206, '', 186], [88, 176, 120, '', 136], [30, 110, 50, '']], e: [['poly', [[66, 214], [74, 214], [70, 197]], '#8a90a3'], ['poly', [[128, 144], [136, 144], [132, 128]], '#8a90a3'], ['f', 34, 204, 'r', 'd'], ['f', 112, 150, 'b', 'fa', 1, 30], ['dline', [[110, 184], [114, 160]]], ['f', 160, 132, 'o', 's'], ['txt', 150, 90, 'FLING!', 9, SUN]] }],
+  ['Whack-a-Climber', 'Reflex', 7, 8, 'Moles pop out of holes in the tower wall and boop you.',
+    'Boop them back first for points. Golden moles give you a speed boost; grumpy moles boop extra hard.',
+    { th: 'farm', sh: [14, 186, 'hedge'], l: [[24, 100, 206, 'w'], [100, 176, 160, 'w'], [24, 100, 110, 'w'], [100, 176, 60, 'w']], e: [['mole', 150, 140, 'n'], ['mole', 50, 90, 'g'], ['mole', 140, 40, 'n'], ['mole', 60, 186, 'n'], ['f', 130, 160, 'r', 'pu'], ['o', 148, 130, 'spark', 4], ['f', 80, 110, 'b', 'fa', 1, -30], ['txt', 100, 18, 'BOOP!', 10, SUN]] }],
+  ['Paint the Tower', 'Collect', 7, 8, 'Every ledge you land on turns your colour. Most ledges painted wins.',
+    'Repaint the other player’s ledges by landing on them; a paint bomb splats a whole floor at once. The tower ends up a gorgeous mess.',
+    { th: 'gym', sh: [14, 186, 'white'], l: [[24, 84, 206, '', null, RED], [110, 176, 206, '', null, BLUE], [60, 130, 160, '', null, RED], [24, 84, 114, '', null, '#9aa0b4'], [110, 176, 114, '', null, BLUE], [60, 130, 66, '', null, '#9aa0b4']], e: [['splat', 96, 162, 'r', 12], ['splat', 140, 116, 'b', 10], ['f', 96, 160, 'r', 's', 1, 0, 'paint'], ['f', 52, 98, 'b', 'j'], ['o', 140, 36, 'bomb', 6], ['txt', 60, 24, '7 - 5', 10]] }],
+  ['Piñata Peak', 'Collect', 8, 7, 'Piñatas hang between every floor. Whack them for a candy shower.',
+    'Each piñata takes three bonks to burst, and the candy rains down on the floors below, so the climber underneath gets the goodies. Time it right.',
+    { th: 'party', sh: [14, 186, 'candy'], l: [[24, 100, 206, ''], [100, 176, 166, ''], [24, 100, 110, ''], [100, 176, 60, '']], e: [['rope', 70, 0, 70, 36, INK, 1], ['o', 70, 46, 'pinata', 10], ['rope', 140, 76, 140, 124, INK, 1], ['o', 140, 132, 'pinata', 9], ['f', 120, 154, 'r', 'j', 1, 0, 'mallet'], ['o', 130, 150, 'spark', 4], ['o', 60, 150, 'candy', 4], ['o', 80, 180, 'candy', 4], ['o', 50, 190, 'candy', 4], ['f', 60, 206, 'b', 'j']] }],
+  ['Eggs-press Delivery', 'Collect', 7, 8, 'Carry eggs up the tower to the nest at the top, without cracking them.',
+    'A big fall or a punch cracks your egg (splat!). Mama bird pays a golden worm for every egg that makes it.',
+    { th: 'tree', sh: [14, 186, 'bark'], l: [[24, 100, 206, 'g'], [100, 176, 160, 'g'], [24, 100, 110, 'g'], [100, 176, 52, 'g']], e: [['o', 150, 44, 'nest', 12], ['o', 160, 30, 'bird', 6], ['o', 140, 38, 'egg', 4], ['f', 60, 206, 'r', 's', 1, 0, 'egg'], ['splat', 140, 162, '#fffaf0', 9], ['dot', 140, 161, 2.4, SUN], ['f', 66, 110, 'b', 'j', 1, 0, 'egg'], ['txt', 150, 120, 'CRACK', 8, SUN]] }],
+  ['Gravity Flip', 'Puzzle', 7, 8, 'Big buttons flip gravity. Suddenly the ceiling is the floor.',
+    'Hit a button and everyone falls UP, so plan a route that uses both sides of every ledge. Flip it at the right moment to drop the other player off the screen.',
+    { th: 'space', sh: [16, 184, 'metal'], l: [[26, 106, 206, 'M'], [94, 174, 150, 'M'], [26, 106, 96, 'M'], [94, 174, 40, 'M']], e: [['bump', 140, 146, 4, RED], ['f', 60, 206, 'r', 's'], ['f', 130, 158, 'b', 's', 1, 180], ['arr', 160, 200, 160, 172, '#5fe8ff'], ['arr', 40, 60, 40, 84, '#5fe8ff'], ['txt', 100, 18, 'FLIP!', 11, '#5fe8ff']] }],
+
+  // ----- 65-83 (14) -----
+  ['Haunted Stairwell', 'Survival', 7, 7, 'Ghosts drift through the stairwell, and the stairs fade in and out.',
+    'Ghosts pass right through walls and spook you off your step; fading stairs flicker as a warning. Light the candle on each floor to keep the stairs solid.',
+    { th: 'night', sh: [16, 184, 'stone'], l: [[26, 66, 210, ''], [66, 106, 186, ''], [106, 146, 162, 'v'], [146, 184, 138, ''], [106, 146, 114, ''], [66, 106, 90, 'v'], [26, 66, 66, '']], e: [['o', 150, 72, 'ghost', 9], ['o', 50, 140, 'ghost', 8], ['o', 40, 58, 'candle', 5], ['f', 86, 186, 'r', 's'], ['f', 162, 138, 'b', 'w'], ['txt', 120, 24, 'BOO!', 10, '#f4f2ff']] }],
+  ['Firefly Climb', 'Puzzle', 7, 7, 'A pitch-dark tower. Catch fireflies to light up the ledges around you.',
+    'Each firefly glows for ten seconds, then flies off. Climb close together to share light, or punch the other player to steal theirs.',
+    { th: 'dark', sh: [16, 184, 'stone'], l: [[26, 96, 206, ''], [104, 174, 160, ''], [26, 96, 110, ''], [104, 174, 64, '']], e: [['f', 60, 206, 'r', 'j'], ['f', 140, 160, 'b', 's'], ['fog', [[60, 190, 30], [140, 146, 26]]], ['o', 76, 176, 'firefly', 3], ['o', 150, 130, 'firefly', 3], ['o', 50, 80, 'firefly', 2.5], ['o', 120, 40, 'firefly', 2.5], ['txt', 100, 20, '???', 10, '#fff27a']] }],
+  ['Hourglass Heist', 'Survival', 7, 7, 'You’re inside a giant hourglass. Sand pours down and fills it up.',
+    'Climb up through the falling sand while the bottom fills. At the halfway point the whole hourglass FLIPS, and up becomes down.',
+    { th: 'desert', b: [['poly', [[20, 0], [180, 0], [110, 120], [180, 240], [20, 240], [90, 120]], 'rgba(220,240,255,.45)'], ['poly', [[96, 120], [104, 120], [104, 220], [96, 220]], '#f2d48a', 0]], l: [[40, 80, 60, 'w'], [120, 160, 60, 'w'], [110, 150, 166, 'w']], rise: ['sand', 206], e: [['blk', 10, 0, 180, 8, '#a56a36', 2], ['blk', 10, 232, 180, 8, '#a56a36', 2], ['f', 60, 60, 'r', 's'], ['f', 130, 166, 'b', 'j'], ['carr', 100, 120, 30, 200, 340], ['txt', 150, 110, 'FLIP!', 9, SUN]] }],
+  ['Tickle Tower', 'Brawl', 7, 7, 'No punching allowed. Only giant feathers.',
+    'Tickle someone three times and they laugh so hard they let go and slide down a floor. Hold block to cover your armpits.',
+    { th: 'party', sh: [14, 186, 'candy'], l: [[24, 100, 206, ''], [100, 176, 160, ''], [24, 100, 110, ''], [100, 176, 60, '']], e: [['f', 120, 160, 'r', 'pu', 1, 0, 'feather'], ['f', 142, 160, 'b', 'fa', 1, 20], ['txt', 150, 130, 'HEE HEE!', 8, '#ff4f9a'], ['f', 60, 206, 'o', 'cl'], ['o', 70, 90, 'feather', 5], ['txt', 70, 30, 'NO PUNCHES', 7, SUN]] }],
+  ['Flagpole Hug', 'King', 7, 7, 'One big greasy flagpole. Hold the top.',
+    'The pole is slippery, so you slowly slide down unless you keep climbing; grease spots make you zoom. Knock the top climber and they slide right past you.',
+    { th: 'day', fl: 'grass', fy: 228, e: [['post', 100, 20, 228, '#c9ccd6'], ['flag', 101, 42, RED], ['dot', 100, 20, 3, SUN], ['splat', 100, 150, '#4a4560', 6], ['f', 100, 70, 'r', 'cl', 1, 0, 'crown'], ['f', 100, 118, 'b', 'cl'], ['f', 100, 196, 'o', 'fa', 1, 20], ['arr', 116, 160, 116, 186, '#ff4f9a'], ['txt', 150, 90, '+1', 10, SUN], ['txt', 46, 150, 'GREASY', 7, '#c9ccd6']] }],
+  ['Hot Seat', 'King', 7, 7, 'A comfy throne on the summit. It heats up the longer you sit.',
+    'Sit to score, but after five seconds your bottom catches fire and you rocket off. Then it cools down for the next sitter.',
+    { th: 'sunset', b: [['mount', [[10, 240], [70, 80], [130, 80], [190, 240]], '#c9a37a']], l: [[70, 130, 80, 'r'], [30, 80, 170, 'g'], [120, 170, 206, 'g']], e: [['blk', 88, 50, 24, 30, '#a45cff', 3], ['blk', 84, 70, 32, 10, '#a45cff', 3], ['o', 100, 44, 'crown', 5], ['f', 120, 40, 'r', 'fa', 1, 160], ['o', 104, 66, 'fire', 7], ['f', 50, 170, 'b', 'cl'], ['txt', 150, 30, 'OUCH!', 10, '#ff4f9a'], ['txt', 46, 110, '5s', 10, SUN]] }],
+  ['Christmas Tree Climb', 'Collect', 7, 7, 'Climb a giant Christmas tree, grabbing ornaments, with the star on top.',
+    'Branches bend under you like springboards, and tinsel works as a rope. Ornaments are points, and whoever reaches the star gets a big bonus.',
+    { th: 'night', b: [['poly', [[100, 26], [150, 90], [50, 90]], '#2f9a4f'], ['poly', [[100, 66], [168, 160], [32, 160]], '#2f9a4f'], ['poly', [[100, 130], [186, 230], [14, 230]], '#2f9a4f'], ['blk', 90, 228, 20, 12, '#7a4d2a', 1]], l: [[50, 90, 90, 'g', null, '#3f9a33'], [110, 168, 160, 'g', null, '#3f9a33'], [14, 90, 230, 'g', null, '#3f9a33']], e: [['o', 100, 20, 'star', 9], ['o', 130, 120, 'ornament', 5], ['o', 70, 140, 'ornament', 5], ['o', 140, 200, 'ornament', 5], ['rope', 60, 110, 150, 140, SUN, 1.6], ['f', 140, 160, 'r', 'j'], ['f', 70, 230, 'b', 'cl'], ['txt', 160, 40, '+50', 9, SUN]] }],
+  ['Wedding Cake Climb', 'Race', 7, 7, 'Race up a towering wedding cake, one frosted layer at a time.',
+    'Frosting is sticky, cherries are bouncy, and the candles on the top tier are lit. First to grab the cake topper wins.',
+    { th: 'party', b: [['blk', 20, 190, 160, 50, '#fff0d6', 4], ['blk', 40, 140, 120, 50, '#ffd1e8', 4], ['blk', 60, 92, 80, 48, '#fff0d6', 4], ['blk', 76, 52, 48, 40, '#ffd1e8', 4]], l: [[20, 180, 190, 'y', null, '#ffffff'], [40, 160, 140, 'y', null, '#ffffff'], [60, 140, 92, 'y', null, '#ffffff'], [76, 124, 52, '']], e: [['o', 86, 44, 'candle', 5], ['o', 114, 44, 'candle', 5], ['f', 100, 52, 'n', 's', .8], ['dot', 150, 134, 5, RED], ['dot', 40, 184, 5, RED], ['f', 140, 190, 'r', 'cl'], ['f', 60, 140, 'b', 'j']] }],
+  ['Fridge Raid', 'Collect', 7, 7, 'Climb the shelves of a giant fridge, grabbing snacks as you go.',
+    'Jelly wobbles, the milk carton topples, and the cold makes you sneeze-jump. The door is slowly closing, so grab and go.',
+    { th: 'fridge', sh: [10, 190, 'white'], l: [[10, 190, 210, 'i'], [10, 190, 150, 'i'], [10, 190, 90, 'i'], [10, 190, 30, 'i']], e: [['o', 40, 198, 'cheese', 8], ['o', 150, 136, 'milk', 9], ['o', 60, 80, 'jelly', 9], ['o', 140, 80, 'apple', 6], ['f', 90, 210, 'r', 'j'], ['f', 100, 150, 'b', 's'], ['blk', 176, 0, 24, 240, '#dff3ff', 2], ['arr', 196, 120, 172, 120, '#5fb6ff'], ['txt', 100, 112, 'BRRR', 9, '#5fb6ff']] }],
+  ['Apple Picking', 'Collect', 7, 7, 'Shake apples loose from a giant tree, then catch them before they land.',
+    'Stomp a branch to shake it, and its apples drop to the branches below. Wormy apples give you the giggles and make you wobble.',
+    { th: 'tree', b: [['wall', 88, 0, 24, 240, 'bark']], l: [[20, 88, 190, 'g'], [112, 180, 140, 'g'], [20, 88, 90, 'g'], [112, 180, 40, 'g']], e: [['o', 40, 70, 'apple', 6], ['o', 60, 120, 'apple', 6], ['o', 150, 120, 'apple', 5], ['o', 160, 28, 'apple', 5], ['arr', 60, 130, 60, 150], ['f', 140, 140, 'r', 'd'], ['f', 50, 190, 'b', 'j'], ['txt', 150, 90, 'SHAKE!', 8, SUN]] }],
+  ['Lost Kittens', 'Collect', 8, 6, 'Kittens are stuck all over a tall tree. Carry them down to the basket.',
+    'A grabbed kitten clings to your head; climb down carefully, because a big fall makes it leap back up the tree. Most kittens rescued wins.',
+    { th: 'tree', b: [['wall', 86, 0, 28, 240, 'bark']], fl: 'grass', fy: 226, l: [[20, 86, 160, 'g'], [114, 182, 110, 'g'], [20, 86, 60, 'g']], e: [['o', 40, 52, 'cat', 6], ['o', 160, 102, 'cat', 6], ['o', 160, 214, 'basket', 10], ['f', 60, 160, 'r', 's', 1, 0, 'kitten'], ['f', 140, 110, 'b', 'j'], ['txt', 100, 18, 'MEOW!', 9, SUN], ['arr', 70, 180, 140, 204]] }],
+  ['Pulley Party', 'Puzzle', 7, 7, 'Two buckets on one rope: when one goes down, the other goes up.',
+    'Co-op: one player jumps in a bucket to lift the other, then they drop a rope back down. Versus: jump in the other bucket at the worst possible moment.',
+    { th: 'farm', sh: [16, 184, 'wood'], b: [['rope', 64, 30, 64, 170, INK, 1.2], ['rope', 136, 30, 136, 90, INK, 1.2]], l: [[16, 184, 30, 'w'], [26, 60, 210, 'w']], e: [['ring', 100, 30, 36, '#c98b52', 3], ['dot', 100, 30, 4, SUN], ['o', 64, 178, 'bucket', 10], ['o', 136, 98, 'bucket', 10], ['f', 64, 176, 'r', 'cl', .8], ['f', 136, 96, 'b', 'j', .8], ['arr', 50, 140, 50, 168], ['arr', 150, 120, 150, 92], ['f', 40, 210, 'o', 's']] }],
+  ['Sticky Jam Jar', 'Race', 7, 7, 'You’re tiny and trapped in a jar of jam. Race out before the spoon comes.',
+    'The jam is sticky and slowly rising; jump between floating crumbs and the spoon handle. The spoon scoops whoever is lowest.',
+    { th: 'kitchen', b: [['poly', [[24, 30], [176, 30], [176, 240], [24, 240]], 'rgba(220,240,255,.45)'], ['blk', 16, 14, 168, 16, '#ec4a2f', 3]], l: [[30, 80, 150, 'y', null, '#ff9ab0'], [116, 170, 100, 'y', null, '#ff9ab0']], rise: ['jam', 190], e: [['o', 60, 196, 'toast', 6], ['o', 140, 200, 'toast', 5], ['f', 60, 186, 'r', 'j'], ['f', 140, 100, 'b', 's'], ['poly', [[150, 30], [158, 30], [140, 150], [132, 150]], '#c9ccd6'], ['txt', 60, 60, 'SPOON!', 9, '#ff4f9a']] }],
+  ['Up the Giraffe', 'Race', 7, 7, 'Climb a giraffe’s very long neck to reach the snack at the top.',
+    'Spots are handholds and the neck sways side to side. Sometimes the giraffe sneezes everyone off; first to feed it the apple wins.',
+    { th: 'desert', fl: 'sand', fy: 228, b: [['poly', [[80, 240], [120, 240], [124, 50], [100, 46]], '#ffc928'], ['dot', 104, 200, 5, '#c98b52'], ['dot', 114, 160, 4, '#c98b52'], ['dot', 102, 120, 5, '#c98b52'], ['dot', 116, 84, 4, '#c98b52']], e: [['o', 120, 40, 'ghead', 14], ['o', 160, 30, 'apple', 6], ['f', 100, 180, 'r', 'cl'], ['f', 118, 110, 'b', 'cl'], ['txt', 60, 60, 'ACHOO!', 9, SUN], ['carr', 110, 140, 40, 250, 290]] }],
+  ['Window Washer Wobble', 'Race', 7, 7, 'Window-washer platforms on ropes go up when you pull the rope.',
+    'Pull your platform up hand over hand, or hop onto someone else’s and let them do the work. Soapy windows are slippery walls.',
+    { th: 'city', b: [['wall', 10, 0, 180, 240, 'glass']], l: [[30, 90, 180, 'M'], [110, 170, 110, 'M']], e: [['rope', 34, 0, 34, 180, INK, 1], ['rope', 86, 0, 86, 180, INK, 1], ['rope', 114, 0, 114, 110, INK, 1], ['rope', 166, 0, 166, 110, INK, 1], ['f', 60, 180, 'r', 'th'], ['f', 140, 110, 'b', 's'], ['o', 46, 174, 'bucket', 5], ['bub', 150, 60, 6], ['bub', 70, 120, 5], ['arr', 24, 160, 24, 134]] }],
+  ['Bubble Elevator', 'Height', 7, 7, 'Blow a bubble, jump in, and float up until it pops.',
+    'Each bubble carries you up a few floors before it pops, so blow the next one in time. Poke the other player’s bubble to send them back down.',
+    { th: 'sky', hm: [0, 25], l: [[30, 90, 214, '']], e: [['bub', 80, 160, 20], ['f', 80, 172, 'r', 'mm'], ['bub', 140, 70, 18], ['f', 140, 80, 'b', 'j', .9], ['ripple', 150, 30, WHITE], ['txt', 150, 22, 'POP', 8], ['bub', 40, 100, 6], ['bub', 120, 200, 5]] }],
+  ['Jellyfish Jump', 'Height', 7, 7, 'An underwater climb on bouncy jellyfish. Some of them sting.',
+    'Pink jellies bounce you up, blue ones zap you for a second, and currents push you sideways. How high can you get before you run out of bubbles?',
+    { th: 'deep', hm: [0, 10], e: [['o', 60, 200, 'jelly', 14], ['o', 140, 150, 'jelly', 12], ['o', 70, 100, 'jellyb', 12], ['o', 140, 50, 'jelly', 12], ['f', 140, 138, 'r', 'j'], ['f', 70, 86, 'b', 'x'], ['wind', 20, 60, 30, 'rgba(255,255,255,.7)'], ['o', 82, 80, 'spark', 4]] }],
+  ['Quick Grab Ropes', 'Reflex', 7, 7, 'Ropes drop from the ceiling for one second. Grab one before the floor falls away.',
+    'A bell rings, ropes drop and the floor opens up, so grab a rope fast or fall a floor. Some ropes are actually noodles.',
+    { th: 'gym', sh: [14, 186, 'wood'], l: [[14, 80, 200, 'w'], [120, 186, 200, 'w']], e: [['bell', 100, 20], ['rp', 50, 0, 130], ['rp', 100, 0, 150], ['rp', 150, 0, 120, '#ffe28a'], ['poly', [[80, 200], [86, 200], [100, 230], [94, 232]], '#c98b52'], ['f', 100, 170, 'r', 'hg'], ['f', 150, 140, 'b', 'hg'], ['f', 50, 200, 'o', 'j'], ['txt', 150, 190, 'NOODLE?!', 7, SUN]] }],
+  ['Duck!', 'Reflex', 7, 7, 'Giant brooms sweep across each floor. Jump or duck: you get one second.',
+    'The broom’s shadow shows whether it’s high or low; guess wrong and you’re swept off the tower. Sweeps get faster and start coming two at a time.',
+    { th: 'room', sh: [14, 186, 'wood'], l: [[14, 186, 200, 'w'], [14, 186, 130, 'w'], [14, 186, 60, 'w']], e: [['broom', 160, 194, 60, 1], ['arr', 140, 186, 110, 186], ['f', 90, 200, 'r', 'j'], ['broom', 40, 112, 60, -1], ['f', 120, 130, 'b', 'd'], ['txt', 100, 30, 'DUCK!', 11, SUN]] }],
+
+  // ----- 84-93 (13) -----
+  ['Bookshelf Scramble', 'Puzzle', 7, 6, 'A towering bookshelf where you punch books out to make steps.',
+    'Punch a book and it slides out as a ledge; punch it again and it slides back in, maybe out from under someone. Build your own staircase to the top.',
+    { th: 'library', sh: [10, 190, 'wood'], l: [[10, 190, 220, 'w'], [10, 190, 160, 'w'], [10, 190, 100, 'w'], [10, 190, 40, 'w']], m: [['blk', 30, 190, 10, 30, RED, 1], ['blk', 42, 194, 10, 26, BLUE, 1], ['blk', 54, 188, 10, 32, '#3fbf5f', 1], ['blk', 100, 130, 10, 30, SUN, 1], ['blk', 112, 132, 10, 28, '#a45cff', 1], ['blk', 150, 70, 10, 30, RED, 1]], e: [['blk', 64, 190, 34, 10, '#ff9f1c', 2], ['f', 80, 190, 'r', 's'], ['blk', 124, 128, 34, 10, '#5fe8ff', 2], ['f', 100, 220, 'b', 'pu'], ['arr', 100, 120, 136, 120], ['txt', 150, 200, 'PUNCH', 8, SUN]] }],
+  ['Crate Stacker', 'Puzzle', 6, 7, 'A crane drops crates. Stack them into a staircase to reach the flag.',
+    'Push crates into place and climb them, and watch out, because crates can land on heads. In versus, knock down the other player’s stack.',
+    { th: 'factory', fl: 'road', fy: 228, l: [[140, 196, 70, 'M']], e: [['claw', 100, 50], ['o', 100, 70, 'crate', 9], ['o', 40, 218, 'crate', 9], ['o', 58, 218, 'crate', 9], ['o', 58, 200, 'crate', 9], ['o', 76, 218, 'crate', 9], ['o', 76, 200, 'crate', 9], ['o', 76, 182, 'crate', 9], ['f', 76, 173, 'r', 'j'], ['top', 170, 70], ['f', 140, 228, 'b', 'pu']] }],
+  ['Cloud Castle', 'King', 6, 7, 'A castle on top of drifting bouncy clouds. Hold the throne room.',
+    'The clouds drift apart and back together, so the path up keeps changing. A thundercloud zaps whoever holds the throne too long.',
+    { th: 'sky', l: [[60, 140, 70, 'b'], [20, 70, 140, 'b'], [130, 180, 160, 'b'], [50, 110, 214, 'b']], e: [['blk', 76, 36, 48, 30, '#f4f2ff', 2], ['blk', 72, 24, 12, 14, '#f4f2ff', 2], ['blk', 116, 24, 12, 14, '#f4f2ff', 2], ['flag', 100, 30, '#a45cff'], ['f', 100, 66, 'r', 's', 1, 0, 'crown'], ['f', 46, 136, 'b', 'j'], ['cloud', 150, 14, .7, '#5c6478'], ['bolt', 158, 40, .8], ['arr', 70, 160, 40, 160, WHITE]] }],
+  ['Mountain Goat', 'Height', 7, 6, 'Tiny ledges, huge gaps, and a goat who head-butts you for fun.',
+    'The ledges are barely foot-sized, so precise jumps and wall-jumps count. The goat climbs too, and it’s way better at it than you.',
+    { th: 'day', sh: [30, 170, 'rock'], l: [[30, 46, 206, ''], [154, 170, 170, ''], [30, 46, 130, ''], [154, 170, 96, ''], [30, 46, 54, '']], e: [['o', 160, 86, 'goat', 7], ['f', 38, 206, 'r', 's'], ['dline', [[44, 196], [100, 150], [150, 164]]], ['f', 100, 130, 'b', 'j'], ['txt', 100, 30, 'BAAA!', 10, SUN]] }],
+  ['Kite Climb', 'Height', 6, 7, 'Hang on to a kite and ride the wind gusts up.',
+    'Gusts blow in from the left and right; tilt your kite into them to soar. No wind and you sink, and trees snag your string.',
+    { th: 'sky', hm: [0, 40], b: [['wall', 150, 160, 50, 80, 'hedge']], e: [['o', 110, 60, 'kite', 12], ['rope', 110, 74, 90, 120, INK, .8], ['f', 90, 146, 'r', 'hg'], ['wind', 20, 100, 40], ['wind', 20, 180, 30], ['o', 160, 130, 'kite', 8], ['f', 170, 170, 'b', 'hg'], ['txt', 60, 30, 'WHOOSH', 9, SUN]] }],
+  ['Mirror Climb', 'Puzzle', 6, 7, 'Two towers side by side, and both players move as mirror images.',
+    'When one player jumps left, the other jumps right, so you have to agree on a plan (good luck). Work together to reach the top.',
+    { th: 'neon', l: [[10, 60, 206, ''], [40, 90, 150, ''], [10, 60, 96, ''], [140, 190, 206, ''], [110, 160, 150, ''], [140, 190, 96, ''], [40, 90, 40, ''], [110, 160, 40, '']], e: [['mirror', 100], ['f', 60, 150, 'r', 'j'], ['f', 140, 150, 'b', 'j'], ['arr', 80, 120, 50, 110], ['arr', 120, 120, 150, 110], ['top', 66, 40], ['top', 134, 40]] }],
+  ['Invisible Ledges', 'Puzzle', 6, 7, 'The ledges are invisible until someone touches them. Then they glow for three seconds.',
+    'Leave footprints to remember the path, or follow the other player and let them find the drops. Glow paint lights up a whole floor.',
+    { th: 'night', sh: [16, 184, 'stone'], l: [[26, 96, 206, ''], [104, 164, 160, ''], [40, 100, 110, 'v'], [110, 174, 60, 'v']], e: [['ripple', 134, 160], ['f', 134, 160, 'r', 'j'], ['f', 60, 206, 'b', 's'], ['splat', 70, 112, '#5fe8ff', 4], ['splat', 90, 112, '#5fe8ff', 4], ['txt', 140, 30, '???', 11, '#5fe8ff']] }],
+  ['Grandma’s Knitting', 'Race', 6, 7, 'Climb a tower of yarn while Grandma’s cat bats the strings.',
+    'Yarn strands are swaying ropes and knitting needles are poles to swing around. The cat swats whatever wiggles most.',
+    { th: 'room', l: [[20, 80, 214, 'w']], e: [['o', 60, 196, 'yarn', 14], ['rp', 100, 0, 180, '#ff6b9a'], ['rp', 150, 0, 120, '#5fb6ff'], ['post', 40, 40, 120, '#c9ccd6'], ['post', 60, 50, 130, '#c9ccd6'], ['o', 170, 160, 'cat', 12], ['f', 100, 140, 'r', 'cl'], ['f', 150, 100, 'b', 'cl', 1, 20], ['carr', 150, 0, 70, 80, 110]] }],
+  ['Sock Hunt', 'Collect', 6, 7, 'Washing lines criss-cross the tower. Find the matching sock pairs.',
+    'Grab a sock and find its twin to score; carrying odd socks makes you stinky and slow. The wind keeps blowing socks off the lines.',
+    { th: 'day', sh: [14, 186, 'brick'], l: [[24, 90, 214, 'w']], e: [['rope', 14, 60, 186, 90, WHITE, 1], ['rope', 14, 150, 186, 120, WHITE, 1], ['o', 50, 72, 'sock', 6], ['o', 130, 90, 'sock', 6], ['o', 60, 152, 'sock', 6], ['f', 100, 160, 'r', 'hg'], ['f', 150, 110, 'b', 'hg'], ['wind', 30, 30, 40], ['txt', 150, 30, 'PAIR!', 9, SUN]] }],
+  ['Dodgeball Drop', 'Reflex', 6, 7, 'The player at the top throws dodgeballs down at the climbers.',
+    'Climbers dodge and keep climbing; tag the thrower to swap places. Balls bounce off ledges in very silly directions.',
+    { th: 'gym', sh: [14, 186, 'wood'], l: [[24, 100, 206, 'w'], [100, 176, 160, 'w'], [24, 100, 110, 'w'], [60, 140, 40, 'G']], e: [['f', 100, 40, 'r', 'th'], ['o', 104, 12, 'dodge', 5], ['o', 130, 100, 'dodge', 6], ['dline', [[110, 50], [150, 110], [120, 150]]], ['f', 140, 160, 'b', 'd'], ['f', 60, 206, 'o', 'cl'], ['txt', 50, 80, 'DODGE!', 8, SUN]] }],
+
+  // ----- 94-100 (12 and below) -----
+  ['Lever Lifts', 'Puzzle', 6, 6, 'Levers raise and lower platforms, but only for the other player.',
+    'Your levers move their lifts and their levers move yours, so you have to help each other up (or not). A co-op brain-teaser.',
+    { th: 'factory', sh: [14, 186, 'metal'], l: [[24, 80, 206, '', null, RED], [120, 176, 170, 'u', null, BLUE], [24, 80, 120, 'u', null, RED], [120, 176, 70, '', null, BLUE]], e: [['o', 60, 202, 'lever', 6], ['o', 160, 66, 'lever', 6], ['f', 40, 206, 'r', 'pu'], ['f', 150, 170, 'b', 's'], ['dline', [[60, 190], [100, 170], [140, 170]], RED], ['txt', 100, 30, 'HELP ME UP', 7, SUN]] }],
+  ['Star Catcher', 'Collect', 6, 6, 'A night-sky climb across the moon and stars, catching shooting stars.',
+    'Shooting stars streak sideways across the screen, so jump to catch them. The moon is a giant, slow trampoline.',
+    { th: 'night', b: [['mount', [[0, 240], [0, 220], [100, 200], [200, 220], [200, 240]], '#e8e4c8']], l: [[40, 90, 150, 'b', null, '#d6d9e6'], [110, 160, 90, 'b', null, '#d6d9e6']], e: [['o', 60, 60, 'star', 6], ['dline', [[20, 60], [52, 60]], SUN], ['o', 150, 130, 'star', 6], ['dline', [[180, 120], [158, 128]], SUN], ['f', 100, 202, 'r', 'j'], ['f', 66, 150, 'b', 'j'], ['txt', 140, 30, '+3', 10, SUN]] }],
+  ['Copy Climb', 'Reflex', 6, 6, 'A robot climbs a route. Copy it exactly before the timer runs out.',
+    'Watch the robot’s path light up, then do it from memory. The routes get longer and trickier every round.',
+    { th: 'gym', sh: [14, 186, 'wood'], l: [[24, 80, 206, 'w'], [120, 176, 180, 'w'], [60, 120, 140, 'w'], [24, 80, 100, 'w'], [120, 176, 60, 'w']], e: [['dline', [[50, 200], [140, 170], [90, 132], [50, 92], [146, 52]], SUN], ['f', 146, 60, 'n', 's', 1, 0, 'robot'], ['f', 50, 206, 'r', 'j'], ['txt', 100, 20, '0:08', 10, SUN]] }],
+  ['Sloth Speed', 'Race', 6, 5, 'Everything is super slow. You’re sloths, racing up a tree.',
+    'Hold to climb inch by inch while the sloth-o-meter shows who’s ahead. Hilariously tense, and every so often everyone falls asleep.',
+    { th: 'jungle', b: [['wall', 60, 0, 30, 240, 'bark'], ['wall', 120, 0, 30, 240, 'bark']], e: [['o', 75, 150, 'sloth', 10], ['o', 135, 140, 'sloth', 10], ['txt', 75, 126, 'Zzz', 8, '#b8b2e6'], ['flag', 76, 20, '#3fbf5f'], ['flag', 136, 20, '#3fbf5f'], ['txt', 100, 220, 's l o o o w', 9]] }],
+  ['Plumber’s Puzzle', 'Puzzle', 6, 5, 'Rotate pipe pieces to send a water jet up, then ride the fountain.',
+    'Line up the pipes, turn on the tap, and the geyser launches you to the next floor. Leaky pipes spray sideways.',
+    { th: 'factory', sh: [14, 186, 'metal'], l: [[24, 90, 214, 'M'], [110, 176, 100, 'M']], e: [['blk', 30, 200, 60, 10, '#3fbf5f', 3], ['blk', 80, 160, 10, 50, '#3fbf5f', 3], ['blk', 80, 150, 50, 10, '#3fbf5f', 3], ['carr', 100, 160, 14, 0, 270], ['geyser', 130, 150, 56], ['f', 140, 100, 'r', 's'], ['spray', 80, 180, 180, 20], ['f', 50, 214, 'b', 'th']] }],
+  ['Tea Party Tower', 'Collect', 5, 5, 'A wobbly stack of giant teacups. Climb up without spilling.',
+    'Every cup tilts when you land on it, and spilled tea costs you a point. The teapot at the top pours a warm-ish waterfall.',
+    { th: 'room', fl: 'wood', fy: 228, e: [['o', 70, 210, 'cup', 16], ['o', 130, 168, 'cup', 14], ['o', 76, 124, 'cup', 12], ['o', 120, 86, 'cup', 10], ['f', 70, 198, 'r', 's'], ['f', 130, 157, 'b', 'j'], ['dline', [[150, 30], [130, 70]], '#c98b52'], ['txt', 60, 40, 'SPILL!', 9, SUN]] }],
+  ['Zen Mountain', 'Height', 6, 3, 'A calm, quiet climb with no hazards, no timer, just you and the view.',
+    'Climb as high as you like with soft music and drifting cherry blossoms. Perfect for winding down after a Floor Is Lava marathon.',
+    { th: 'sunset', hm: [0, 100], b: [['mount', [[0, 240], [100, 40], [200, 240]], '#c9a3b8'], ['poly', [[78, 80], [100, 40], [122, 80]], WHITE]], l: [[60, 110, 200, 'g'], [100, 150, 150, 'g'], [56, 106, 100, 'g']], e: [['f', 84, 100, 'r', 'mm'], ['dot', 40, 60, 2, '#ff9ec4'], ['dot', 150, 90, 2, '#ff9ec4'], ['dot', 130, 40, 2, '#ff9ec4'], ['dot', 60, 160, 2, '#ff9ec4'], ['txt', 150, 210, 'breathe...', 8]] }]
+];
+
+
+// ======================================================================
+// UI
+// ======================================================================
+const $ = (s) => document.querySelector(s);
+const state = { tag: 'All', built: false };
+const cards = [];
+
+function esc(s) { return String(s).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch])); }
+function cells(n) { let h = ''; for (let i = 0; i < 10; i++) h += `<i class="${i < n ? 'on' : ''}"></i>`; return h; }
+
+function build() {
+  const gb = $('#gridBuilt'), gp = $('#gridPool');
+  IDEAS.forEach((d, i) => {
+    const [name, tag, fun, chaos, pitch, how, spec] = d, rank = i + 1, built = rank <= 20, total = fun + chaos;
+    const card = document.createElement('article');
+    card.className = 'card' + (built ? ' built' : '');
+    card.dataset.tag = tag;
+    card.innerHTML = `
+      <div class="top">
+        <div class="rank">#${rank}</div>
+        <div class="nm">
+          <h3>${esc(name)}</h3>
+          <div class="tags"><span class="tag" data-t="${tag}">${esc(RULESETS[tag])}</span>${built ? '<span class="badge">BUILDING</span>' : ''}</div>
+        </div>
+      </div>
+      <div class="mockwrap"><canvas class="mock" width="200" height="240" role="img" aria-label="Mockup of ${esc(name)}"></canvas></div>
+      <p class="pitch">${esc(pitch)}</p>
+      <div class="scores">
+        <div class="bars">
+          <div class="bar fun"><span class="lb">FUN</span><span class="cells">${cells(fun)}</span><span class="v">${fun}</span></div>
+          <div class="bar chaos"><span class="lb">CHAOS</span><span class="cells">${cells(chaos)}</span><span class="v">${chaos}</span></div>
+        </div>
+        <div class="total" title="Fun + Chaos">${total}<small>TOTAL</small></div>
+      </div>
+      <p class="how"><b>How it plays:</b> ${esc(how)}</p>`;
+    (built ? gb : gp).appendChild(card);
+    cards.push({ card, cv: card.querySelector('canvas'), spec, rank, tag, built, w: 0 });
+  });
+}
+
+function drawAll(force) {
+  cards.forEach(o => {
+    if (o.card.hidden) return;
+    const w = o.cv.clientWidth;
+    if (!force && w === o.w) return;
+    o.w = w;
+    try { drawScene(o.cv, o.spec, o.rank); } catch (err) { /* keep the page alive if one mockup fails */ }
+  });
+}
+
+function buildFilters() {
+  const nav = $('#filters');
+  const tags = ['All', ...Object.keys(RULESETS)];
+  const counts = {}; IDEAS.forEach(d => counts[d[1]] = (counts[d[1]] || 0) + 1);
+  nav.innerHTML = tags.map(t => `<button type="button" data-tag="${t}" aria-pressed="${t === 'All'}">${t === 'All' ? 'All 100' : esc(RULESETS[t]) + ' · ' + counts[t]}</button>`).join('') +
+    `<button type="button" class="built-btn" data-built="1" aria-pressed="false">Building only</button><span class="count" id="count" aria-live="polite"></span>`;
+  nav.addEventListener('click', (ev) => {
+    const b = ev.target.closest('button'); if (!b) return;
+    if (b.dataset.built) { state.built = !state.built; b.setAttribute('aria-pressed', String(state.built)); }
+    else { state.tag = b.dataset.tag; nav.querySelectorAll('button[data-tag]').forEach(x => x.setAttribute('aria-pressed', String(x === b))); }
+    apply();
+  });
+}
+
+function apply() {
+  let shown = 0, shownBuilt = 0, shownPool = 0;
+  cards.forEach(o => {
+    const ok = (state.tag === 'All' || o.tag === state.tag) && (!state.built || o.built);
+    o.card.hidden = !ok;
+    if (ok) { shown++; o.built ? shownBuilt++ : shownPool++; }
+  });
+  $('#secBuilt').hidden = !shownBuilt;
+  $('#secPool').hidden = !shownPool;
+  $('#empty').hidden = shown > 0;
+  $('#count').textContent = `Showing ${shown} of ${IDEAS.length}`;
+  requestAnimationFrame(() => drawAll(false));
+}
+
+build();
+buildFilters();
+apply();
+let rt = 0;
+window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => drawAll(false), 120); });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => drawAll(true));
+</script>
