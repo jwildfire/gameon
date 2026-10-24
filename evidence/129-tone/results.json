@@ -1,0 +1,54 @@
+{
+  "spec": "129-tone",
+  "passed": true,
+  "headline": "PASS: 2 of 2 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-24T04:30:07.045Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "910e8af",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/129-tone.spec.mjs",
+  "checks": [
+    {
+      "check": "the arcade reads as Game Night: tagline, button, credits, footer",
+      "notes": [
+        "desktop: 9 cards, every credit reads \"Made by …\"",
+        "phone: 9 cards, every credit reads \"Made by …\""
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "arcade-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "arcade-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the New Game page reads as Game Night, statuses included",
+      "notes": [
+        "desktop: statuses: Got it!, Waiting for a human, In the queue, Game on!",
+        "phone: statuses: Got it!, Waiting for a human, In the queue, Game on!"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "new-game-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "new-game-phone.jpg"
+        ],
+        "error": null
+      }
+    }
+  ]
+}

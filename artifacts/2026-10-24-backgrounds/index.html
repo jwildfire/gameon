@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Trippy Backgrounds</title>
+<meta name="description" content="Twenty trippy animated backgrounds for the GameOn arcade, and the ten that cycle behind it.">
+<meta name="theme-color" content="#ffd23f">
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;800&display=swap">
+<style>
+:root {
+  --wall: #ffd23f;
+  --ink: #1d1a2f;
+  --card: #fffdf6;
+  --muted: #5b5670;
+  --pop: #ff6b4a;
+  --display: "Lilita One", "Arial Rounded MT Bold", "Trebuchet MS", sans-serif;
+  --body: "Nunito", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --line: 3px solid var(--ink);
+  --lift: 5px 5px 0 var(--ink);
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--wall); color: var(--ink); font: 600 16px/1.45 var(--body); }
+a { color: inherit; }
+.page {
+  max-width: 1180px; margin: 0 auto; display: grid; gap: 26px;
+  padding: max(24px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 48px max(16px, env(safe-area-inset-left, 0px));
+}
+.back { justify-self: start; display: inline-flex; align-items: center; gap: 6px; height: 38px; padding: 0 14px; border: var(--line); border-radius: 999px; background: var(--card); text-decoration: none; font-weight: 800; }
+h1 { margin: 0; font: 400 clamp(46px, 9vw, 88px)/0.92 var(--display); color: var(--card); -webkit-text-stroke: 3px var(--ink); paint-order: stroke fill; text-shadow: 5px 5px 0 var(--ink); }
+h1 span { color: var(--pop); }
+.lede { margin: 0; max-width: 62ch; font-size: clamp(17px, 2.2vw, 19px); font-weight: 800; }
+.how { margin: 0; max-width: 72ch; color: var(--ink); }
+h2 { margin: 8px 0 0; font: 400 clamp(28px, 4.5vw, 40px)/1 var(--display); }
+.why-not { margin: 0; max-width: 72ch; padding: 12px 16px; background: var(--card); border: var(--line); border-radius: 14px; box-shadow: var(--lift); font-weight: 800; }
+.grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 22px; }
+.tile { height: 100%; display: grid; grid-template-rows: auto 1fr; background: var(--card); border: var(--line); border-radius: 18px; box-shadow: var(--lift); overflow: hidden; }
+.screen { position: relative; aspect-ratio: 16 / 10; border-bottom: var(--line); background: var(--ink); }
+.screen canvas { display: block; width: 100%; height: 100%; }
+.rank { position: absolute; left: 10px; top: 10px; min-width: 40px; height: 40px; padding: 0 10px; display: grid; place-items: center; border: var(--line); border-radius: 999px; background: var(--wall); font: 400 20px/1 var(--display); }
+.out .rank { background: var(--card); color: var(--muted); font-size: 14px; font-family: var(--body); font-weight: 800; }
+.info { display: grid; align-content: start; gap: 6px; padding: 12px 14px 14px; }
+.info h3 { margin: 0; font: 400 23px/1.05 var(--display); }
+.info p { margin: 0; font-size: 15px; color: var(--muted); }
+.kind { font-size: 12px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--ink); }
+.try { justify-self: start; margin-top: 4px; font: 400 16px/1 var(--display); text-decoration: none; background: var(--ink); color: var(--wall); border-radius: 10px; padding: 8px 12px; }
+.foot { margin: 0; font-size: 14px; }
+</style>
+</head>
+<body>
+<main class="page">
+  <a class="back" href="../../">&larr; Arcade</a>
+  <h1>Trippy <span>Backgrounds</span></h1>
+  <p class="lede">Jeremy asked for "some trippy backgrounds. matrix, phsycadelic rainbow. make 20, pick the best 10 and cycle through them". Here are all twenty, running live. The top ten take turns behind the arcade and the New Game page in Weird mode (the Normal | Weird switch by the GitHub button), swapping every 30 to 45 seconds.</p>
+  <p class="how">How they were picked: each one was screenshotted behind the arcade at desktop size at 1, 4 and 8 seconds, then judged on wow, on how different the ten are from each other, on how well the cards and words still read on top, and on speed. A pixel check sampled each one 20 times a second for 3 seconds: none flips big areas between bright and dark, and all ran at a full 60 frames a second on a laptop. Code: <a href="https://github.com/jwildfire/gameon/blob/dev/assets/backgrounds.js">assets/backgrounds.js</a>.</p>
+
+  <h2>The top 10</h2>
+  <ul class="grid" id="top" aria-label="The ten backgrounds that cycle on the arcade"></ul>
+
+  <h2>The other 10</h2>
+  <p class="why-not" id="why-not">Why these lost: they were too close to a pick (three more swirls and spirals, a second rainbow field), too quiet to say "trippy" behind a page of cards (bubbles, ribbons, spirograph, northern lights), or too busy and buzzy around the words (the moiré rings and the Julia fractal's sparkly edges).</p>
+  <ul class="grid" id="rest" aria-label="The ten that didn't make the cut"></ul>
+
+  <p class="foot">Made for the trippy backgrounds task (#134). If your device asks for less motion, each tile shows a still frame instead.</p>
+</main>
+<script src="../../assets/backgrounds.js"></script>
+<script>
+(function () {
+  var notes = {
+    "rainbow-plasma": "The classic psychedelic rainbow: smooth, bright and calm enough to sit behind anything.",
+    "matrix-rain": "The one Jeremy named. Green code falling, with sharp glyphs and lots of dark between them for the cards.",
+    "kaleidoscope": "Eight mirrored slices that keep folding into new flowers. The biggest wow of the lot.",
+    "lava-lamp": "Glowing rainbow blobs that merge and split slowly. Dark around the edges, so the words pop.",
+    "rainbow-rain": "Matrix rain in every colour, sweeping across the rainbow column by column.",
+    "hex-disco": "A dance floor of hexagons outlined like the arcade's own cards, with a colour wave rolling out.",
+    "liquid-marble": "Oil on water: folded, swirling rainbow marble that never repeats.",
+    "warp-speed": "Rainbow stars streaking past. The calm, dark one, and the best for reading.",
+    "rainbow-tunnel": "Flying down a striped rainbow tube. The one pick with real depth.",
+    "retro-sun": "A striped synthwave sun over a glowing grid. A whole scene, not just a pattern.",
+    "hue-swirl": "Lovely, but it's another rainbow whirlpool next to the tunnel and the tie-dye.",
+    "tie-dye": "The brightest of all, and it covers the same ground as the plasma and the marble.",
+    "moire-ripples": "Fine interference rings: hypnotic, but the busiest thing behind small text.",
+    "hypno-spiral": "Bold, but a second vortex beside the tunnel, and its centre steals the show.",
+    "julia-dream": "A drifting fractal. Mostly empty sky, and its edges sparkle more than the rest.",
+    "arcade-rain": "Arcade symbols falling in the arcade's colours. Too sparse: it reads as confetti.",
+    "rainbow-ribbons": "Silky ribbons of light. Pretty, but too gentle to feel trippy.",
+    "bubble-party": "Soft glowing bubbles floating up. Cosy rather than trippy.",
+    "spirograph": "Three pens drawing loops. Thin lines that mostly vanish behind the cards.",
+    "northern-lights": "Aurora curtains over a starry sky. Beautiful, but too subtle."
+  };
+  var B = window.GameOnBackgrounds, picks = B.picks;
+  function tile(d, rank, inTop) {
+    var li = document.createElement("li");
+    li.className = inTop ? "top" : "out";
+    li.innerHTML = '<article class="tile" data-bg="' + d.id + '"><div class="screen"><canvas aria-hidden="true"></canvas>' +
+      '<span class="rank">' + (inTop ? rank : "Cut") + '</span></div><div class="info"><h3></h3>' +
+      '<span class="kind">' + (d.kind === "gl" ? "WebGL shader" : "Canvas 2D") + '</span><p></p>' +
+      (inTop ? '<a class="try" href="../../?mode=weird&bg=' + d.id + '">Try it behind the arcade</a>' : '') + '</div></article>';
+    li.querySelector("h3").textContent = d.name;
+    li.querySelector("p").textContent = notes[d.id] || "";
+    return li;
+  }
+  var byId = {};
+  B.list.forEach(function (d) { byId[d.id] = d; });
+  var top = document.getElementById("top"), rest = document.getElementById("rest");
+  picks.forEach(function (id, i) { top.appendChild(tile(byId[id], i + 1, true)); });
+  B.list.forEach(function (d) { if (picks.indexOf(d.id) < 0) rest.appendChild(tile(d, 0, false)); });
+  document.querySelectorAll(".tile").forEach(function (t) { B.preview(t.querySelector("canvas"), t.getAttribute("data-bg")); });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,211 @@
+{
+  "spec": "134-trippy-backgrounds",
+  "passed": true,
+  "headline": "PASS: 9 of 9 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-24T05:07:02.836Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "159e1bf",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/134-trippy-backgrounds.spec.mjs",
+  "checks": [
+    {
+      "check": "the default is Normal: the yellow wall, the fixed tagline, nothing drawing",
+      "notes": [
+        "desktop: Normal: wall #ffd23f, no frames drawn in 7 s, tagline held on \"Think of a Game? Make it, play it, change it!\"",
+        "phone: Normal: wall #ffd23f, no frames drawn in 7 s, tagline held on \"Think of a Game? Make it, play it, change it!\""
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "normal-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "normal-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "switching to Weird starts the backgrounds and rotating taglines, no reload",
+      "notes": [
+        "desktop: Weird: hex-disco on a 1280x800 canvas (548 colours), about 61 fps; tagline moved on from \"Thought up by people. Built by robots. Played by everyone.\"",
+        "phone: Weird: kaleidoscope on a 375x812 canvas (399 colours), about 30 fps; tagline moved on from \"Your idea. Our robots. Everyone's controller.\""
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "weird-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "weird-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Weird survives a reload and carries to the New Game page",
+      "notes": [
+        "desktop: after a reload: Weird; New Game page: Weird, showing matrix-rain",
+        "phone: after a reload: Weird; New Game page: Weird, showing matrix-rain"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "new-game-weird-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "new-game-weird-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "switching back to Normal stops everything",
+      "notes": [
+        "desktop: Normal again: canvas hidden, no frames in 7 s, fixed tagline, and the New Game page follows",
+        "phone: Normal again: canvas hidden, no frames in 7 s, fixed tagline, and the New Game page follows"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "new-game-normal-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "new-game-normal-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "in Weird mode the cycle crossfades to the next background by itself",
+      "notes": [
+        "desktop: rainbow-tunnel moved on to retro-sun (interval shortened to 2 s with ?bgInterval=2; normally 30 to 45 s)",
+        "phone: rainbow-plasma moved on to matrix-rain (interval shortened to 2 s with ?bgInterval=2; normally 30 to 45 s)"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "the skip button changes the background",
+      "notes": [
+        "desktop: skip: liquid-marble → warp-speed",
+        "phone: skip: retro-sun → rainbow-plasma"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "skip-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "skip-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "reduced motion in Weird mode gets a still frame and one tagline",
+      "notes": [
+        "desktop: still frame of retro-sun: no frames and the same pixels and tagline (\"Ideas welcome. Controllers recommended.\") for 7 s",
+        "phone: still frame of rainbow-rain: no frames and the same pixels and tagline (\"Remix any game. Make it yours.\") for 7 s"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "reduced-motion-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "reduced-motion-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the background pauses and the skip button hides while a game plays",
+      "notes": [
+        "desktop: playing Super Sauce Boy: paused, no frames drawn in 1.2 s, skip hidden; back home it runs again",
+        "phone: playing Super Sauce Boy: paused, no frames drawn in 1.2 s, skip hidden; back home it runs again"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "each of the ten Weird picks behind the arcade",
+      "notes": [
+        "desktop: rainbow-plasma, matrix-rain, kaleidoscope, lava-lamp, rainbow-rain, hex-disco, liquid-marble, warp-speed, rainbow-tunnel, retro-sun",
+        "phone: rainbow-plasma, matrix-rain, kaleidoscope, lava-lamp, rainbow-rain, hex-disco, liquid-marble, warp-speed, rainbow-tunnel, retro-sun"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "pick-01-rainbow-plasma-desktop.jpg",
+          "pick-02-matrix-rain-desktop.jpg",
+          "pick-03-kaleidoscope-desktop.jpg",
+          "pick-04-lava-lamp-desktop.jpg",
+          "pick-05-rainbow-rain-desktop.jpg",
+          "pick-06-hex-disco-desktop.jpg",
+          "pick-07-liquid-marble-desktop.jpg",
+          "pick-08-warp-speed-desktop.jpg",
+          "pick-09-rainbow-tunnel-desktop.jpg",
+          "pick-10-retro-sun-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "pick-01-rainbow-plasma-phone.jpg",
+          "pick-02-matrix-rain-phone.jpg",
+          "pick-03-kaleidoscope-phone.jpg",
+          "pick-04-lava-lamp-phone.jpg",
+          "pick-05-rainbow-rain-phone.jpg",
+          "pick-06-hex-disco-phone.jpg",
+          "pick-07-liquid-marble-phone.jpg",
+          "pick-08-warp-speed-phone.jpg",
+          "pick-09-rainbow-tunnel-phone.jpg",
+          "pick-10-retro-sun-phone.jpg"
+        ],
+        "error": null
+      }
+    }
+  ]
+}

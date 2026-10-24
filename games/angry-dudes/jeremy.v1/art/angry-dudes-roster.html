@@ -1,0 +1,933 @@
+<title>Angry Dudes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans:wght@400;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: a game "unit select" screen. Battlefield banner up top, then one barracks panel per army. Light = daytime battle, dark = night battle. */
+:root{
+  --bg:#dcecfa; --panel:#ffffff; --fg:#1d1a2b; --muted:#4b5672; --edge:#1d1a2b; --shadow:#1d1a2b;
+  --blue:#2a64c4; --blue-band:#2f6fd0; --blue-soft:#dbe7ff;
+  --red:#c2341f; --red-band:#cf3b28; --red-soft:#ffe0d9;
+  --on-band:#ffffff; --gold:#9a6b00; --pip:#d3dae6; --pip-shade:#b8c1d1;
+  --sky1:#6fbff5; --sky2:#94d2fa; --sky3:#bfe6fd; --sun:#ffe25a; --cloud:#ffffff; --star:#ffffff; --trail:#ffffff;
+  --hill1:#a4d7a0; --hill2:#7cc27a; --grass:#4fae3f; --grass-hi:#8bd85e; --dirt:#8b5a2b; --dirt-lo:#6b4220;
+  --night:0;
+  --font-display:"Press Start 2P", ui-monospace, monospace;
+  --font-pixel:"Pixelify Sans", ui-monospace, monospace;
+  --font-body:"Rubik", system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1530; --panel:#18213f; --fg:#eef1fb; --muted:#a6b1d3; --edge:#03050c; --shadow:#03050c;
+    --blue:#82adff; --blue-band:#2c55a8; --blue-soft:#1d2c56;
+    --red:#ff8a73; --red-band:#a3321f; --red-soft:#3c1e24;
+    --on-band:#ffffff; --gold:#ffd23f; --pip:#2b3660; --pip-shade:#222b4f;
+    --sky1:#0b1534; --sky2:#132150; --sky3:#1d3068; --sun:#f3efd2; --cloud:#33416e; --star:#fff6c8; --trail:#cdd8ff;
+    --hill1:#1f3b46; --hill2:#183236; --grass:#2c6a39; --grass-hi:#3f8c4b; --dirt:#4a301d; --dirt-lo:#342114;
+    --night:1; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1530; --panel:#18213f; --fg:#eef1fb; --muted:#a6b1d3; --edge:#03050c; --shadow:#03050c;
+  --blue:#82adff; --blue-band:#2c55a8; --blue-soft:#1d2c56;
+  --red:#ff8a73; --red-band:#a3321f; --red-soft:#3c1e24;
+  --on-band:#ffffff; --gold:#ffd23f; --pip:#2b3660; --pip-shade:#222b4f;
+  --sky1:#0b1534; --sky2:#132150; --sky3:#1d3068; --sun:#f3efd2; --cloud:#33416e; --star:#fff6c8; --trail:#cdd8ff;
+  --hill1:#1f3b46; --hill2:#183236; --grass:#2c6a39; --grass-hi:#3f8c4b; --dirt:#4a301d; --dirt-lo:#342114;
+  --night:1; color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:400 16px/1.55 var(--font-body);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+h1,h2,h3{text-wrap:balance;margin:0}
+p{margin:0}
+canvas{display:block;image-rendering:pixelated;image-rendering:crisp-edges}
+
+/* ---------- header ---------- */
+.top{padding-block:40px 20px}
+.eyebrow{font-family:var(--font-pixel);font-weight:600;font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.logo{font-family:var(--font-display);font-weight:400;font-size:clamp(30px, 8.4vw, 76px);line-height:1.15;display:flex;flex-wrap:wrap;gap:.1em .42em;margin-block:14px 18px}
+.logo span{
+  text-shadow:
+    -.0625em 0 var(--edge), .0625em 0 var(--edge), 0 -.0625em var(--edge), 0 .0625em var(--edge),
+    .125em .125em 0 var(--edge);
+}
+.logo .a{color:var(--red-band)}
+.logo .d{color:var(--blue-band)}
+.lede{font-size:clamp(17px, 2.2vw, 20px);max-width:56ch;color:var(--fg)}
+
+/* ---------- battlefield ---------- */
+.field{padding-block:8px 0}
+.screen{border:4px solid var(--edge);box-shadow:8px 8px 0 var(--shadow);background:var(--sky2);max-width:100%}
+.screen canvas{width:100%;height:auto}
+.caption{margin-top:16px;font-size:14px;color:var(--muted);max-width:70ch}
+
+/* ---------- how a battle works ---------- */
+section.block{padding-block:56px 0}
+.sec-title{font-family:var(--font-display);font-size:clamp(16px, 2.4vw, 22px);line-height:1.4;margin-bottom:20px}
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4, minmax(0,1fr));gap:20px}
+.step{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:start}
+.step .n{grid-row:span 2;font-family:var(--font-display);font-size:18px;width:44px;height:44px;display:grid;place-items:center;background:var(--panel);border:3px solid var(--edge);box-shadow:3px 3px 0 var(--shadow);color:var(--fg)}
+.step h3{font-family:var(--font-pixel);font-weight:700;font-size:20px;line-height:1.2;padding-top:2px}
+.step p{font-size:15px;color:var(--muted);line-height:1.5}
+
+/* ---------- army panels ---------- */
+.army{--team:var(--blue);--band:var(--blue-band);--soft:var(--blue-soft)}
+.army--red{--team:var(--red);--band:var(--red-band);--soft:var(--red-soft)}
+.army-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:8px 24px;background:var(--band);color:var(--on-band);border:4px solid var(--edge);box-shadow:6px 6px 0 var(--shadow);padding:16px 20px;margin-bottom:28px}
+.army-head .eyebrow{color:var(--on-band);opacity:.85}
+.army-head h2{font-family:var(--font-display);font-weight:400;font-size:clamp(20px, 3.6vw, 32px);line-height:1.3;margin-top:8px}
+.army-head .count{font-family:var(--font-pixel);font-size:18px;font-weight:600}
+.sub{font-family:var(--font-pixel);font-weight:700;font-size:22px;margin:40px 0 16px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.sub small{font-family:var(--font-body);font-weight:400;font-size:15px;color:var(--muted)}
+
+.cards{display:grid;gap:24px}
+.cards--troops{grid-template-columns:repeat(3, minmax(0,1fr))}
+.cards--defs{grid-template-columns:repeat(4, minmax(0,1fr))}
+.card{background:var(--panel);border:3px solid var(--edge);box-shadow:5px 5px 0 var(--shadow);display:flex;flex-direction:column;min-width:0;transition:transform .12s steps(2), box-shadow .12s steps(2)}
+.card:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--shadow)}
+.card .stage{width:100%;height:auto;border-bottom:3px solid var(--edge)}
+.card-body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:10px;flex:1}
+.card-title{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.card h3{font-family:var(--font-pixel);font-weight:700;font-size:24px;line-height:1.1}
+.tag{font-family:var(--font-pixel);font-weight:600;font-size:13px;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;background:var(--soft);color:var(--team);border:2px solid var(--team)}
+.tap{font-size:15px;line-height:1.45}
+.k{font-family:var(--font-pixel);font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:1px 6px;margin-right:6px;border:2px solid var(--edge);background:var(--bg);color:var(--fg);display:inline-block;transform:translateY(-1px)}
+.note{font-size:14px;color:var(--muted);line-height:1.45}
+.stats{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;align-items:center;margin:2px 0 0}
+.stats dt{font-family:var(--font-pixel);font-weight:600;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.stats dd{margin:0;display:flex;align-items:center}
+.pips{display:flex;gap:3px}
+.pips i{width:13px;height:13px;background:var(--pip);box-shadow:inset -2px -2px 0 var(--pip-shade)}
+.pips i.on{background:var(--team);box-shadow:inset -2px -2px 0 var(--edge)}
+.pts{font-family:var(--font-display);font-size:13px;color:var(--gold);font-variant-numeric:tabular-nums}
+.best{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:6px;font-size:14px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-pixel);font-weight:600;font-size:15px;padding:3px 8px 3px 5px;background:var(--bg);border:2px solid var(--edge)}
+.chip .ico{flex:none}
+.meta{font-family:var(--font-pixel);font-size:12px;color:var(--muted);letter-spacing:.04em}
+
+/* building blocks */
+.tiles{display:grid;grid-template-columns:repeat(3, minmax(0,1fr));gap:20px}
+.tile{display:grid;grid-template-columns:88px 1fr;gap:14px;align-items:start;background:var(--panel);border:3px solid var(--edge);box-shadow:4px 4px 0 var(--shadow);padding:12px;min-width:0}
+.tile canvas{width:88px;height:auto;border:2px solid var(--edge)}
+.tile h4{margin:0 0 4px;font-family:var(--font-pixel);font-weight:700;font-size:19px;line-height:1.15}
+.tile p{font-size:14px;color:var(--muted);line-height:1.4}
+.tile .row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px}
+.tile .row .lbl{font-family:var(--font-pixel);font-weight:600;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+footer{padding-block:56px 48px;color:var(--muted);font-size:14px}
+footer p + p{margin-top:6px}
+
+@media (max-width: 960px){
+  .cards--troops{grid-template-columns:repeat(2, minmax(0,1fr))}
+  .cards--defs{grid-template-columns:repeat(2, minmax(0,1fr))}
+  .steps{grid-template-columns:repeat(2, minmax(0,1fr))}
+}
+@media (max-width: 640px){
+  .tiles{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width: 600px){
+  .cards--troops{grid-template-columns:minmax(0,1fr)}
+  .steps{grid-template-columns:minmax(0,1fr)}
+  .screen{box-shadow:5px 5px 0 var(--shadow)}
+}
+@media (max-width: 480px){
+  .cards--defs{grid-template-columns:minmax(0,1fr)}
+}
+@media (prefers-reduced-motion: reduce){
+  .card{transition:none}
+  .card:hover{transform:none}
+}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <p class="eyebrow">Troop roster · concept art v0.1</p>
+    <h1 class="logo" aria-label="Angry Dudes"><span class="a">ANGRY</span><span class="d">DUDES</span></h1>
+    <p class="lede">Two armies, one giant slingshot. Launch your troops across the battlefield and flatten the computer's fort before you run out of dudes.</p>
+  </div>
+</header>
+
+<div class="wrap field">
+  <div class="screen"><canvas id="hero" role="img" aria-label="Pixel art battlefield: the Blue Brigade lined up beside a wooden slingshot on the left, a Rookie flying toward the Red Raiders' fort on the right"></canvas></div>
+  <p class="caption">Launch screen mock-up. Your lineup waits by the slingshot on the left. The computer's fort sits on the right, built from crates, sandbags, brick and steel, with the General on top.</p>
+</div>
+
+<section class="block wrap" aria-labelledby="how">
+  <h2 class="sec-title" id="how">How a battle works</h2>
+  <ol class="steps">
+    <li class="step"><span class="n">1</span><h3>Get your lineup</h3><p>Each battle gives you a set number of troops, like five. They wait in line next to the slingshot.</p></li>
+    <li class="step"><span class="n">2</span><h3>Pull back, let go</h3><p>Drag back on the slingshot to aim and power up. The dotted trail from your last shot helps you adjust.</p></li>
+    <li class="step"><span class="n">3</span><h3>Tap for the special</h3><p>Most troops have a mid-air move. Tap at the right moment for the biggest crash.</p></li>
+    <li class="step"><span class="n">4</span><h3>Flatten the fort</h3><p>Knock out every enemy dude to win. Each troop you didn't need is worth 10,000 bonus points.</p></li>
+  </ol>
+</section>
+
+<section class="block wrap army" aria-labelledby="blue">
+  <div class="army-head">
+    <div><p class="eyebrow">Player · you launch these</p><h2 id="blue">Blue Brigade</h2></div>
+    <p class="count">6 troop types</p>
+  </div>
+  <div class="cards cards--troops" id="troops"></div>
+</section>
+
+<section class="block wrap army army--red" aria-labelledby="red">
+  <div class="army-head">
+    <div><p class="eyebrow">Computer · they guard the fort</p><h2 id="red">Red Raiders</h2></div>
+    <p class="count">4 defenders · 6 fort pieces</p>
+  </div>
+  <div class="cards cards--defs" id="defenders"></div>
+  <h3 class="sub">Fort building pieces <small>Each material has one troop that wrecks it fastest.</small></h3>
+  <div class="tiles" id="blocks"></div>
+</section>
+
+<footer class="wrap">
+  <p>Angry Dudes · concept v0.1. Every name, color and number here is a first guess, so change anything.</p>
+  <p>Troops are drawn on 16-pixel grids (Big Sarge and the General get 20) so they line up with the 16×16 fort pieces.</p>
+</footer>
+
+<script type="application/json" id="sprite-data">
+{
+  "palette": {
+    "k":"#1d1a2b","w":"#ffffff","s":"#f2b386","S":"#c8805b","h":"#3d2414",
+    "b":"#a8693a","B":"#5e3a1d","g":"#a9b2bf","G":"#646d7b","l":"#e3e9f0",
+    "y":"#ffd23f","o":"#ff8c1a","r":"#e0412c","R":"#9e2417","x":"#3a3546",
+    "c":"#d9bc80","C":"#a9884f","q":"#b9533a","Q":"#7d3424","u":"#d9c4aa"
+  },
+  "teams": {
+    "blue": {"T":"#3b7de0","t":"#234f9e","L":"#8bbcff"},
+    "red":  {"T":"#d8432f","t":"#8d2618","L":"#ff9a85"}
+  },
+  "sprites": {
+    "rookie": {"team":"blue","rows":[
+      ".....kkkkkk.....",
+      "...kkTTTTTTkk...",
+      "..kTTLLTTTTTTk..",
+      "..kTLTTTTTTTTk..",
+      ".kttttttttttttk.",
+      ".kkkkkkkkkkkkkk.",
+      "..kskssssssksk..",
+      "..ksskksskkssk..",
+      "..ksswksskwssk..",
+      "..kssssssssssk..",
+      "..kssskkkksssk..",
+      "..kSskssssksSk..",
+      "...kkkkkkkkkk...",
+      "...kTTTTTTTTk...",
+      "..kskTTTTTTksk..",
+      "...kbbbyybbbk...",
+      "...kttk..kttk...",
+      "..kBBBk..kBBBk.."
+    ]},
+    "sprinter": {"team":"blue","rows":[
+      ".....k..k..k....",
+      "....khkkhkkhk...",
+      "...khhhhhhhhhk..",
+      "..khhhhhhhhhhk..",
+      "kTkTTTTTTTTTTk..",
+      "kTkskssssssksk..",
+      ".kksskksskkssk..",
+      "..ksswksskwssk..",
+      "..kssssssssssk..",
+      "..ksskwwwwkssk..",
+      "..kSsskkkkssSk..",
+      "...kkkkkkkkkk...",
+      "...kTTTTTTTTk...",
+      "..kskTTTTTTksk..",
+      "...kttttttttk...",
+      "...kssk..kssk...",
+      "..kyyyk..kyyyk..",
+      "..kkkkk..kkkkk.."
+    ]},
+    "mini": {"rows":[
+      ".kkkkk.",
+      "kTLTTTk",
+      "kkkkkkk",
+      "kwkskwk",
+      "ksskssk",
+      ".kTTTk.",
+      ".kk.kk."
+    ]},
+    "triplets": {"team":"blue","w":15,"h":14,"parts":[
+      {"s":"mini","x":0,"y":7},
+      {"s":"mini","x":8,"y":7},
+      {"s":"mini","x":4,"y":0}
+    ]},
+    "boomer": {"team":"blue","rows":[
+      ".....kkkkkk.....",
+      "...kkyyyyyykk...",
+      "..kyywyyyyyyyk..",
+      "..kyyyyooyyyyk..",
+      ".kooooooooooook.",
+      ".kkkkkkkkkkkkkk.",
+      "..kskssssssksk..",
+      "..ksskksskkssk..",
+      "..ksswksskwssk..",
+      "..kssssssssssky.",
+      "..kskwwwwwwkskry",
+      "..kSskkkkkksSkB.",
+      "....kkkkkkkkBB..",
+      "...kxxxxxxwxk...",
+      ".kskxxxxxxGxksk.",
+      "...kxxxxxxxxk...",
+      "....kxxxxxxk....",
+      "..kBBkkkkkkBBk.."
+    ]},
+    "sarge": {"team":"blue","rows":[
+      "......kkkkkkk.......",
+      "....kkTTTTTTTkk.....",
+      "...kTTTLTTTTTTTkk...",
+      "...kttttttttttttk...",
+      "...kkkkkkkkkkkkkk...",
+      "...kskssssssssksk...",
+      "...ksskkksskkkssk...",
+      "...kssswksskwsssk...",
+      "...ksssssSSsssssk...",
+      "...ksshhhhhhhhssk...",
+      "...kshhskkkkshhsk...",
+      "...kSssssssssssSk...",
+      "....kkkkkkkkkkkk....",
+      ".kkkTTTTTTTTTTTTkkk.",
+      "kTTTTTTTTTTTTTTTTTTk",
+      "kTTksssssssssssskTTk",
+      "kTTkSSSSSSSSSSSSkTTk",
+      "kttkkkkkkkkkkkkkkttk",
+      ".kbbbbbbbyybbbbbbbk.",
+      "..kBBBBk....kBBBBk.."
+    ]},
+    "diver": {"team":"blue","rows":[
+      ".....kkkkkk.....",
+      "...kkbbbbbbkk...",
+      "..kbbbbbbbbbbk..",
+      ".kkkkkkbbkkkkkk.",
+      ".kLLLwkbbkLLLwk.",
+      ".kkkkkkkkkkkkkk.",
+      "..kbksssssskbk..",
+      "..kbskksskksbk..",
+      "..kbswksskwsbk..",
+      "..kbssssssssbk..",
+      "..kbsskkkkssbk..",
+      "...kkkkkkkkkk...",
+      "...kTTTTTTTTkTTk",
+      "..kbbbbbbbbbbkTk",
+      ".kskbbbbbbbbksk.",
+      "..kkbbbbbbbbkk..",
+      "...kGGk..kGGk...",
+      "..kBBBk..kBBBk.."
+    ]},
+    "guard": {"team":"red","rows":[
+      "....kkkkkkkk....",
+      "...kTTTTTTTTk...",
+      "..kTTTTyTTTTTk..",
+      "..kttttttttttk..",
+      ".kskksssssskksk.",
+      ".kssskkkkkksssk.",
+      ".ksswksssskwssk.",
+      ".ksssssSSsssssk.",
+      ".kSsskkkkkkssSk.",
+      ".kSSskssssksSSk.",
+      "..kSSSSSSSSSSk..",
+      "...kkkkkkkkkk...",
+      "..kTTTTTTTTTTk..",
+      ".kskTTTTTTTTksk.",
+      "...kBBBBBBBBk...",
+      "..kBBk....kBBk.."
+    ]},
+    "helmet": {"team":"red","rows":[
+      ".......kk.......",
+      "......kglk......",
+      "...kkkkglkkkk...",
+      "..kglgggggggGk..",
+      "..kglgggggggGk..",
+      "kkkkkkkkkkkkkkkk",
+      ".ksskksssskkssk.",
+      ".ksswksssskwssk.",
+      ".ksssssSSsssssk.",
+      ".kSsskkkkkkssSk.",
+      ".kSSskssssksSSk.",
+      "..kSSSSSSSSSSk..",
+      "...kkkkkkkkkk...",
+      "..kTTTTTTTTTTk..",
+      ".kskTTTTTTTTksk.",
+      "...kBBBBBBBBk...",
+      "..kBBk....kBBk.."
+    ]},
+    "shield": {"team":"red","rows":[
+      "....kkkkkkkk....",
+      "...kTTTTTTTTk...",
+      "..kTTTTyTTTTTk..",
+      "..kttttttttttk..",
+      ".kskksssssskksk.",
+      ".kssskkkkkksssk.",
+      ".ksswksssskwssk.",
+      ".kkkkkkkkkkkkkk.",
+      ".klggggggggggGk.",
+      "sklgggTTTTgggGks",
+      "sklggTTyyTTggGks",
+      ".klggTTyyTTggGk.",
+      ".klgggTTTTgggGk.",
+      ".klggggggggggGk.",
+      "..klggggggggGk..",
+      "...kkkkkkkkkk...",
+      "...kBBk..kBBk..."
+    ]},
+    "general": {"team":"red","rows":[
+      ".....kkkkkkkkkk.....",
+      "...kkTTTTTTTTTTkk...",
+      "..kTTTTTTyyTTTTTTk..",
+      "..kTTTTTyyyyTTTTTk..",
+      "..kyyyyyyyyyyyyyyk..",
+      ".kkkkkkkkkkkkkkkkkk.",
+      "..kskksssssssskksk..",
+      "..kssskksssskksssk..",
+      "..kssswksssskwsssk..",
+      "..kssssssSSssssssk..",
+      "..kshhhhhhhhhhhhsk..",
+      "..khhsskkkkkksshhk..",
+      "..kSssssssssssssSk..",
+      "...kkkkkkkkkkkkkk...",
+      "yyykTTTTTTTTTTTTkyyy",
+      ".kTTTyTyTyTTTTTTTTk.",
+      ".kTTTLTLTLTTTTTTTTk.",
+      ".kskTTTTTTTTTTTTksk.",
+      "..kbbbbbbyybbbbbbk..",
+      "..kBBBBBk..kBBBBBk.."
+    ]},
+    "slingshot": {"rows":[
+      ".kkkk......kkkk.",
+      ".kbbk......kbbk.",
+      ".kbBk......kbBk.",
+      ".kbbkBBBBBBkbbk.",
+      ".kbBk......kbBk.",
+      ".kbbk......kbbk.",
+      ".kbbbk....kbbbk.",
+      "..kbbbk..kbbbk..",
+      "...kbbbkkbbbk...",
+      "....kbbbbbbk....",
+      ".....kbbbbk.....",
+      ".....kcccck.....",
+      ".....kCCCCk.....",
+      ".....kbBbbk.....",
+      ".....kbbBbk.....",
+      ".....kbBbbk.....",
+      ".....kbbbBk.....",
+      ".....kbBbbk.....",
+      ".....kbbBbk.....",
+      ".....kbBbbk.....",
+      ".....kbbbbk.....",
+      "....kkbbbbkk....",
+      "...kBBBBBBBBk...",
+      "...kkkkkkkkkk..."
+    ]},
+    "wood": {"rows":[
+      "kkkkkkkkkkkkkkkk",
+      "kBBBBBBBBBBBBBBk",
+      "kBbbbbbbbbbBBBBk",
+      "kBbbbbbbbbBBbBBk",
+      "kBbbbbbbbBBbbBBk",
+      "kBbbbbbbBBbbbBBk",
+      "kBbbbbbBBbbbbBBk",
+      "kBbbbbBBbbbbbBBk",
+      "kBbbbBBbbbbbbBBk",
+      "kBbbBBbbbbbbbBBk",
+      "kBbBBbbbbbbbbBBk",
+      "kBBBbbbbbbbbbBBk",
+      "kBBbbbbbbbbbbBBk",
+      "kBbbbbbbbbbbbBBk",
+      "kBBBBBBBBBBBBBBk",
+      "kkkkkkkkkkkkkkkk"
+    ]},
+    "sandbag": {"rows":[
+      ".kkkkkk..kkkkkk.",
+      "kcccccckkcccccck",
+      "kccccCckkccccCck",
+      "kCCCCCCkkCCCCCCk",
+      "kkkkkkkkkkkkkkkk",
+      "cccckcccccckcccc",
+      "cccckccccCckcccc",
+      "CCCCkCCCCCCkCCCC",
+      "kkkkkkkkkkkkkkkk",
+      "kcccccckkcccccck",
+      "kccccCckkccccCck",
+      "kCCCCCCkkCCCCCCk",
+      "kkkkkkkkkkkkkkkk",
+      "cccckcccccckcccc",
+      "CCCCkCCCCCCkCCCC",
+      "kkkkkkkkkkkkkkkk"
+    ]},
+    "brick": {"rows":[
+      "kkkkkkkkkkkkkkkk",
+      "kqqqqqquqqqqqqqk",
+      "kqqqqqQuqqqqqqQk",
+      "kQQQQQQuQQQQQQQk",
+      "kuuuuuuuuuuuuuuk",
+      "kqquqqqqqqqquqqk",
+      "kqQuqqqqqqqQuqQk",
+      "kQQuQQQQQQQQuQQk",
+      "kuuuuuuuuuuuuuuk",
+      "kqqqqqquqqqqqqqk",
+      "kqqqqqQuqqqqqqQk",
+      "kQQQQQQuQQQQQQQk",
+      "kuuuuuuuuuuuuuuk",
+      "kqquqqqqqqqquqqk",
+      "kQQuQQQQQQQQuQQk",
+      "kkkkkkkkkkkkkkkk"
+    ]},
+    "steel": {"rows":[
+      "kkkkkkkkkkkkkkkk",
+      "klllllllllllllGk",
+      "klGggggggggggGGk",
+      "klgggggggllgggGk",
+      "klggggggllggggGk",
+      "klgggggllgggggGk",
+      "klggggllggggggGk",
+      "klgggllgggggggGk",
+      "klggllggggggggGk",
+      "klgllgggggggggGk",
+      "klllggggggggggGk",
+      "klggggggggggggGk",
+      "klggggggggggggGk",
+      "klGggggggggggGGk",
+      "kGGGGGGGGGGGGGGk",
+      "kkkkkkkkkkkkkkkk"
+    ]},
+    "tnt": {"rows":[
+      "...kkkkkkkkkk...",
+      "..kGlGGGGGGGGk..",
+      ".krrrrrrrrrrrRk.",
+      "krrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrRk",
+      "krwwwrwrrwrwwwRk",
+      "krrwrrwwrwrrwrRk",
+      "krrwrrwrwwrrwrRk",
+      "krrwrrwrrwrrwrRk",
+      "krrwrrwrrwrrwrRk",
+      "krrrrrrrrrrrrrRk",
+      "krrrrrrrrrrrrrRk",
+      "kyykkyykkyykkyyk",
+      ".krrrrrrrrrrrRk.",
+      "..kGGGGGGGGGGk..",
+      "...kkkkkkkkkk..."
+    ]},
+    "flag": {"team":"red","rows":[
+      ".kyk............",
+      ".klkkkkkkkkkkkk.",
+      ".klkTTTTTTTTTTk.",
+      ".klkTwTTTTTTwTk.",
+      ".klkTTwwTTwwTTk.",
+      ".klkTTTTTTTTTTk.",
+      ".klkTTTwTTwTTTk.",
+      ".klkTTTTTTTTTTk.",
+      ".klkTTTwwwwTTTk.",
+      ".klkTTwTTTTwTTk.",
+      ".klkkkkkkkkkkkk.",
+      ".klk............",
+      ".klk............",
+      ".klk............",
+      ".klk............",
+      "kGGGk..........."
+    ]}
+  }
+}
+</script>
+
+<script>
+(function(){
+  "use strict";
+  var DATA = JSON.parse(document.getElementById("sprite-data").textContent);
+  var PAL = DATA.palette, TEAMS = DATA.teams, SPR = DATA.sprites;
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  /* ---------- content ---------- */
+  var TROOPS = [
+    {id:"rookie",   name:"Rookie",       tag:"Basic",     stats:{Power:2,Speed:3,Weight:2}, tap:"Nothing fancy. Just angry.", note:"Your everyday soldier. You get lots of these.", best:null},
+    {id:"sprinter", name:"Sprinter",     tag:"Speed",     stats:{Power:2,Speed:5,Weight:1}, tap:"Dash forward at triple speed.", note:"Rips through wooden walls like paper.", best:"wood"},
+    {id:"triplets", name:"The Triplets", tag:"Splitter",  stats:{Power:1,Speed:3,Weight:1}, tap:"Split into three mini dudes.", note:"Three small hits tear sandbags open.", best:"sandbag"},
+    {id:"boomer",   name:"Boomer",       tag:"Explosive", stats:{Power:4,Speed:2,Weight:3}, tap:"KABOOM. Also blows up when he lands.", note:"The one troop that cracks brick walls.", best:"brick"},
+    {id:"sarge",    name:"Big Sarge",    tag:"Heavy",     stats:{Power:5,Speed:1,Weight:5}, tap:"Ground pound. Slams straight down.", note:"Hard to throw far. Impossible to stop.", best:"steel"},
+    {id:"diver",    name:"Sky Diver",    tag:"Air drop",  stats:{Power:3,Speed:4,Weight:2}, tap:"Drop a grenade straight down, then fly off.", note:"Gets dudes who hide behind walls and shields.", best:"shield"}
+  ];
+  var DEFENDERS = [
+    {id:"guard",   name:"Guard",        tough:1, pts:"500",   note:"Goes down after one solid hit.", beat:"rookie"},
+    {id:"helmet",  name:"Spike Helmet", tough:2, pts:"1,000", note:"The steel helmet soaks up the first hit.", beat:"boomer"},
+    {id:"shield",  name:"Shield Guard", tough:3, pts:"1,500", note:"Blocks anything from the front. Drop something on his head.", beat:"diver"},
+    {id:"general", name:"The General",  tough:5, pts:"5,000", note:"Boss of the fort. Usually sits up top on a steel floor.", beat:"sarge"}
+  ];
+  var BLOCKS = [
+    {id:"sandbag", name:"Sandbags",    str:1, note:"Weakest piece. Bursts into sand.", weak:"triplets"},
+    {id:"wood",    name:"Wood crate",  str:2, note:"Splinters and tumbles.", weak:"sprinter"},
+    {id:"brick",   name:"Brick",       str:3, note:"Heavy. Cracks, then crumbles.", weak:"boomer"},
+    {id:"steel",   name:"Steel plate", str:4, note:"Almost unbreakable. Dents first.", weak:"sarge"},
+    {id:"tnt",     name:"TNT barrel",  str:1, note:"Explodes when hit. Chain reactions!", weak:null, weakText:"Any hit"},
+    {id:"flag",    name:"Fort flag",   str:1, note:"Knock it down for a 3,000 point bonus.", weak:null, weakText:"Any hit"}
+  ];
+  var NAMES = {};
+  TROOPS.forEach(function(t){ NAMES[t.id] = t.name; });
+  DEFENDERS.forEach(function(t){ NAMES[t.id] = t.name; });
+  BLOCKS.forEach(function(t){ NAMES[t.id] = t.name; });
+
+  /* ---------- sprites ---------- */
+  function rng(seed){
+    return function(){
+      seed = (seed + 0x6D2B79F5) | 0;
+      var t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  var cache = {};
+  function sprite(name, team){
+    var key = name + "|" + (team || "");
+    if (cache[key]) return cache[key];
+    var s = SPR[name], t = team || s.team, c = document.createElement("canvas"), x;
+    if (s.parts){
+      c.width = s.w; c.height = s.h; x = c.getContext("2d");
+      s.parts.forEach(function(p){ x.drawImage(sprite(p.s, t), p.x, p.y); });
+    } else {
+      var w = 0; s.rows.forEach(function(r){ w = Math.max(w, r.length); });
+      c.width = w; c.height = s.rows.length; x = c.getContext("2d");
+      var tp = TEAMS[t] || {};
+      s.rows.forEach(function(row, y){
+        for (var i = 0; i < row.length; i++){
+          var ch = row[i]; if (ch === ".") continue;
+          var col = tp[ch] || PAL[ch]; if (!col) continue;
+          x.fillStyle = col; x.fillRect(i, y, 1, 1);
+        }
+      });
+    }
+    cache[key] = c; return c;
+  }
+
+  /* ---------- theme tokens ---------- */
+  var TK = {};
+  function readTokens(){
+    var cs = getComputedStyle(document.documentElement);
+    function g(n){ return cs.getPropertyValue(n).trim(); }
+    TK = {
+      sky1:g("--sky1"), sky2:g("--sky2"), sky3:g("--sky3"), sun:g("--sun"), cloud:g("--cloud"), star:g("--star"), trail:g("--trail"),
+      hill1:g("--hill1"), hill2:g("--hill2"), grass:g("--grass"), grassHi:g("--grass-hi"), dirt:g("--dirt"), dirtLo:g("--dirt-lo"),
+      night: g("--night") === "1"
+    };
+  }
+
+  /* ---------- pixel scenes: logical size W×H, backing store at an integer multiple ---------- */
+  var scenes = [];
+  function scene(canvas, W, H, paint){
+    canvas.width = W; canvas.height = H;
+    var sc = {canvas:canvas, W:W, H:H, paint:paint, S:1};
+    scenes.push(sc);
+    return sc;
+  }
+  function render(sc){
+    var dpr = window.devicePixelRatio || 1;
+    var cssW = sc.canvas.getBoundingClientRect().width || sc.W;
+    var S = Math.max(1, Math.ceil(cssW * dpr / sc.W));
+    if (sc.canvas.width !== sc.W * S){ sc.canvas.width = sc.W * S; sc.canvas.height = sc.H * S; }
+    sc.S = S;
+    var ctx = sc.canvas.getContext("2d");
+    ctx.setTransform(S, 0, 0, S, 0, 0);
+    ctx.imageSmoothingEnabled = false;
+    sc.paint(ctx, sc);
+  }
+  function renderAll(){ readTokens(); scenes.forEach(render); }
+
+  function disc(ctx, cx, cy, r, color){
+    ctx.fillStyle = color;
+    for (var dy = -r; dy <= r; dy++){
+      var w = Math.round(Math.sqrt(r * r - dy * dy));
+      ctx.fillRect(cx - w, cy + dy, w * 2, 1);
+    }
+  }
+  function cloud(ctx, x, y, big){
+    ctx.fillStyle = TK.cloud;
+    if (big){
+      ctx.fillRect(x + 5, y - 2, 5, 1);
+      ctx.fillRect(x + 3, y - 1, 9, 1);
+      ctx.fillRect(x + 1, y, 16, 2);
+      ctx.fillRect(x, y + 2, 20, 2);
+    } else {
+      ctx.fillRect(x + 3, y - 1, 4, 1);
+      ctx.fillRect(x + 1, y, 9, 1);
+      ctx.fillRect(x, y + 1, 12, 2);
+    }
+  }
+  function paintSky(ctx, W, gy, seed, opts){
+    opts = opts || {};
+    var bands = [TK.sky1, TK.sky2, TK.sky3], bh = gy / bands.length, i, x;
+    for (i = 0; i < bands.length; i++){ ctx.fillStyle = bands[i]; ctx.fillRect(0, Math.round(i * bh), W, Math.ceil(bh) + 1); }
+    for (i = 1; i < bands.length; i++){
+      var y = Math.round(i * bh);
+      ctx.fillStyle = bands[i - 1];
+      for (x = 0; x < W; x += 2) ctx.fillRect(x, y, 1, 1);
+      for (x = 1; x < W; x += 4) ctx.fillRect(x, y + 1, 1, 1);
+    }
+    var r = rng(seed);
+    if (TK.night){
+      ctx.fillStyle = TK.star;
+      var n = Math.round(W * gy / (opts.starDensity || 140));
+      for (i = 0; i < n; i++){
+        var sx = Math.floor(r() * W), sy = Math.floor(r() * gy * 0.75);
+        ctx.fillRect(sx, sy, 1, 1);
+        if (r() < 0.12){ ctx.fillRect(sx - 1, sy, 3, 1); ctx.fillRect(sx, sy - 1, 1, 3); }
+      }
+    } else if (opts.clouds !== false){
+      var c = opts.cloudCount || 2;
+      for (i = 0; i < c; i++) cloud(ctx, Math.floor(r() * (W - 10)) - 4, 3 + Math.floor(r() * Math.max(2, gy * 0.35)), r() < 0.4);
+    }
+  }
+  function paintGround(ctx, W, H, gy, seed){
+    var r = rng(seed), x, i;
+    ctx.fillStyle = TK.dirt; ctx.fillRect(0, gy, W, H - gy);
+    ctx.fillStyle = TK.grass; ctx.fillRect(0, gy, W, 3);
+    ctx.fillStyle = TK.grassHi; ctx.fillRect(0, gy, W, 1);
+    ctx.fillStyle = TK.grass;
+    for (x = 0; x < W; x += 2 + Math.floor(r() * 5)) ctx.fillRect(x, gy - 1, 1, 1);
+    for (x = 0; x < W; x += 2) if (r() < 0.55) ctx.fillRect(x, gy + 3, 1, 1);
+    ctx.fillStyle = TK.dirtLo;
+    var n = Math.max(2, Math.round(W * (H - gy) / 22));
+    for (i = 0; i < n; i++) ctx.fillRect(Math.floor(r() * W), gy + 5 + Math.floor(r() * Math.max(1, H - gy - 5)), 2, 1);
+  }
+  function hills(ctx, W, gy, color, base, amp, f1, f2, ph){
+    ctx.fillStyle = color;
+    for (var x = 0; x < W; x += 2){
+      var h = Math.round((base + amp * Math.sin(x / f1 + ph) + amp * 0.5 * Math.sin(x / f2 + ph * 2)) / 2) * 2;
+      ctx.fillRect(x, gy - h, 2, h);
+    }
+  }
+
+  /* ---------- hero battlefield ---------- */
+  var HERO = {W:360, H:150, gy:128};
+  var FORT_X = 236;
+  var START = {x:106, y:95}, TARGET = {x:258, y:52}, ARC = 58;
+  var heroBg = null, heroScene = null;
+
+  function drawOn(ctx, name, x, bottom, team){
+    var s = sprite(name, team);
+    ctx.drawImage(s, x, bottom - s.height);
+  }
+  function heroStatic(ctx){
+    var W = HERO.W, H = HERO.H, gy = HERO.gy;
+    paintSky(ctx, W, gy, 7, {clouds:false, starDensity:110});
+    disc(ctx, 304, 24, 9, TK.sun);
+    if (TK.night){ ctx.fillStyle = TK.sky2; ctx.fillRect(300, 20, 3, 2); ctx.fillRect(306, 27, 2, 2); }
+    else { cloud(ctx, 24, 22, true); cloud(ctx, 150, 14, false); cloud(ctx, 196, 34, true); cloud(ctx, 330, 48, false); }
+    hills(ctx, W, gy, TK.hill1, 30, 9, 41, 17, 0.4);
+    hills(ctx, W, gy, TK.hill2, 14, 6, 29, 11, 2.1);
+    paintGround(ctx, W, H, gy, 11);
+
+    function B(n, c, row){ ctx.drawImage(sprite(n), FORT_X + c * 16, gy - (row + 1) * 16); }
+    ["brick","sandbag","wood","wood","sandbag","brick"].forEach(function(n, c){ B(n, c, 0); });
+    B("brick", 0, 1); B("tnt", 2, 1); B("brick", 5, 1);
+    for (var c = 0; c < 6; c++) B("steel", c, 2);
+    B("brick", 0, 3); B("brick", 5, 3);
+    B("wood", 0, 4); B("flag", 5, 4);
+
+    drawOn(ctx, "shield", FORT_X + 16, gy - 16);
+    drawOn(ctx, "helmet", FORT_X + 48, gy - 16);
+    drawOn(ctx, "guard",  FORT_X + 64, gy - 16);
+    drawOn(ctx, "guard",  FORT_X + 16, gy - 48);
+
+    drawOn(ctx, "sarge", 3, gy);
+    drawOn(ctx, "boomer", 26, gy);
+    drawOn(ctx, "triplets", 46, gy);
+    drawOn(ctx, "diver", 64, gy);
+    drawOn(ctx, "sprinter", 84, gy);
+    drawOn(ctx, "slingshot", 106, gy);
+  }
+  function arcPos(t){
+    return {
+      x: Math.round(START.x + (TARGET.x - START.x) * t),
+      y: Math.round(START.y + (TARGET.y - START.y) * t - 4 * ARC * t * (1 - t))
+    };
+  }
+  function burst(ctx, cx, cy, k){
+    var dirs = [[1,0],[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1]];
+    var grow = Math.min(1, k * 3);
+    dirs.forEach(function(d, i){
+      var L = Math.round((i % 2 ? 5 : 8) * grow);
+      for (var j = 1; j <= L; j++){
+        ctx.fillStyle = j < 3 ? "#ffffff" : (j < L - 1 ? PAL.y : PAL.o);
+        ctx.fillRect(cx + d[0] * j * 2 - 1, cy + d[1] * j * 2 - 1, 2, 2);
+      }
+    });
+    ctx.fillStyle = "#ffffff"; ctx.fillRect(cx - 2, cy - 2, 4, 4);
+    var r = rng(5);
+    ctx.fillStyle = PAL.b;
+    for (var n = 0; n < 7; n++){
+      var a = r() * Math.PI * 2, dist = 6 + k * 26 * (0.6 + r() * 0.6);
+      ctx.fillRect(Math.round(cx + Math.cos(a) * dist), Math.round(cy + Math.sin(a) * dist + k * k * 14), 2, 1);
+    }
+  }
+  var CYCLE = 4400;
+  function heroFrame(ctx, ms, still){
+    if (!heroBg) return;
+    var gy = HERO.gy, t = ms % CYCLE, flight = null, pow = -1;
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(heroBg, 0, 0, HERO.W, HERO.H);
+    var rook = sprite("rookie");
+    if (still){ flight = 0.62; }
+    else if (t < 1000){
+      var pull = t > 450 ? Math.min(5, Math.floor((t - 450) / 80)) : 0;
+      ctx.drawImage(rook, START.x - pull, START.y + Math.floor(pull / 2));
+    }
+    else if (t < 2400){ flight = (t - 1000) / 1400; }
+    else { flight = 1; pow = (t - 2400) / 900; }
+
+    if (flight !== null){
+      ctx.fillStyle = TK.trail;
+      var i = 0;
+      for (var k = 0.05; k <= Math.min(flight, 0.97); k += 0.045, i++){
+        var p = arcPos(k), sz = i % 3 === 0 ? 2 : 1;
+        ctx.fillRect(p.x + 8, p.y + 9, sz, sz);
+      }
+      if (flight < 1){ var q = arcPos(flight); ctx.drawImage(rook, q.x, q.y); }
+    }
+    var shake = (pow >= 0 && pow < 0.45) ? (Math.floor(t / 60) % 2 ? 1 : -1) : 0;
+    drawOn(ctx, "general", FORT_X + 38 + shake, gy - 48);
+    if (pow >= 0 && pow < 0.7) burst(ctx, TARGET.x + 12, TARGET.y + 9, pow);
+  }
+  function heroPaint(ctx, sc){
+    heroBg = document.createElement("canvas");
+    heroBg.width = sc.W * sc.S; heroBg.height = sc.H * sc.S;
+    var b = heroBg.getContext("2d");
+    b.setTransform(sc.S, 0, 0, sc.S, 0, 0);
+    b.imageSmoothingEnabled = false;
+    heroStatic(b);
+    heroFrame(ctx, lastMs, !animating());
+  }
+
+  var lastMs = 0, t0 = performance.now(), lastStep = -1, visible = true, raf = 0;
+  function animating(){ return !reduceMotion.matches; }
+  function loop(now){
+    raf = 0;
+    if (!animating() || !visible) return;
+    lastMs = now - t0;
+    var step = Math.floor(lastMs / 50);
+    if (step !== lastStep && heroScene){
+      lastStep = step;
+      var ctx = heroScene.canvas.getContext("2d");
+      ctx.setTransform(heroScene.S, 0, 0, heroScene.S, 0, 0);
+      heroFrame(ctx, lastMs, false);
+    }
+    raf = requestAnimationFrame(loop);
+  }
+  function kick(){ if (!raf && animating() && visible) raf = requestAnimationFrame(loop); }
+
+  /* ---------- cards ---------- */
+  function stagePaint(name, team, seed){
+    return function(ctx, sc){
+      var gy = sc.H - 5;
+      paintSky(ctx, sc.W, gy, seed, {cloudCount:2});
+      paintGround(ctx, sc.W, sc.H, gy, seed + 3);
+      var s = sprite(name, team);
+      ctx.drawImage(s, Math.floor((sc.W - s.width) / 2), gy - s.height + 1);
+    };
+  }
+  function blockPaint(name, seed){
+    return function(ctx, sc){
+      var gy = sc.H - 4;
+      paintSky(ctx, sc.W, gy, seed, {clouds:false, starDensity:60});
+      paintGround(ctx, sc.W, sc.H, gy, seed + 3);
+      var s = sprite(name);
+      ctx.drawImage(s, Math.floor((sc.W - s.width) / 2), gy - s.height + 1);
+    };
+  }
+  function icon(name){
+    var s = sprite(name), k = Math.max(1, Math.ceil(window.devicePixelRatio || 1));
+    var c = document.createElement("canvas");
+    c.width = s.width * k; c.height = s.height * k;
+    c.style.width = s.width + "px"; c.style.height = s.height + "px";
+    c.className = "ico"; c.setAttribute("aria-hidden", "true");
+    var x = c.getContext("2d"); x.imageSmoothingEnabled = false; x.drawImage(s, 0, 0, c.width, c.height);
+    return c;
+  }
+  function chip(id, text){
+    var el = document.createElement("span");
+    el.className = "chip";
+    if (id) el.appendChild(icon(id));
+    el.appendChild(document.createTextNode(text || NAMES[id]));
+    return el;
+  }
+  function pips(v){
+    var h = '<span class="pips" role="img" aria-label="' + v + ' out of 5">';
+    for (var i = 1; i <= 5; i++) h += '<i' + (i <= v ? ' class="on"' : '') + '></i>';
+    return h + '</span>';
+  }
+  function size(id){ var s = sprite(id); return s.width + "×" + s.height + " px"; }
+
+  var troopsEl = document.getElementById("troops");
+  TROOPS.forEach(function(t, i){
+    var el = document.createElement("article");
+    el.className = "card";
+    el.innerHTML =
+      '<canvas class="stage" role="img" aria-label="Pixel art of ' + t.name + '"></canvas>' +
+      '<div class="card-body">' +
+        '<div class="card-title"><h3>' + t.name + '</h3><span class="tag">' + t.tag + '</span></div>' +
+        '<p class="tap"><span class="k">Tap</span>' + t.tap + '</p>' +
+        '<p class="note">' + t.note + '</p>' +
+        '<dl class="stats">' + Object.keys(t.stats).map(function(k){ return '<dt>' + k + '</dt><dd>' + pips(t.stats[k]) + '</dd>'; }).join("") + '</dl>' +
+        '<p class="best"><span class="k">Best vs</span></p>' +
+        '<p class="meta">Sprite ' + size(t.id) + '</p>' +
+      '</div>';
+    var best = el.querySelector(".best");
+    best.appendChild(t.best ? chip(t.best) : chip(null, "A bit of everything"));
+    troopsEl.appendChild(el);
+    scene(el.querySelector(".stage"), 44, 29, stagePaint(t.id, null, 20 + i * 7));
+  });
+
+  var defsEl = document.getElementById("defenders");
+  DEFENDERS.forEach(function(d, i){
+    var el = document.createElement("article");
+    el.className = "card";
+    el.innerHTML =
+      '<canvas class="stage" role="img" aria-label="Pixel art of ' + d.name + '"></canvas>' +
+      '<div class="card-body">' +
+        '<div class="card-title"><h3>' + d.name + '</h3></div>' +
+        '<p class="note">' + d.note + '</p>' +
+        '<dl class="stats"><dt>Toughness</dt><dd>' + pips(d.tough) + '</dd><dt>Points</dt><dd class="pts">' + d.pts + '</dd></dl>' +
+        '<p class="best"><span class="k">Beat with</span></p>' +
+        '<p class="meta">Sprite ' + size(d.id) + '</p>' +
+      '</div>';
+    el.querySelector(".best").appendChild(chip(d.beat));
+    defsEl.appendChild(el);
+    scene(el.querySelector(".stage"), 44, 29, stagePaint(d.id, null, 90 + i * 11));
+  });
+
+  var blocksEl = document.getElementById("blocks");
+  BLOCKS.forEach(function(b, i){
+    var el = document.createElement("div");
+    el.className = "tile";
+    el.innerHTML =
+      '<canvas role="img" aria-label="Pixel art of ' + b.name + '"></canvas>' +
+      '<div><h4>' + b.name + '</h4><p>' + b.note + '</p>' +
+        '<div class="row"><span class="lbl">Strength</span>' + pips(b.str) + '</div>' +
+        '<div class="row weak"><span class="lbl">Weak to</span></div>' +
+      '</div>';
+    el.querySelector(".weak").appendChild(b.weak ? chip(b.weak) : chip(null, b.weakText));
+    blocksEl.appendChild(el);
+    scene(el.querySelector("canvas"), 24, 22, blockPaint(b.id, 300 + i * 13));
+  });
+
+  heroScene = scene(document.getElementById("hero"), HERO.W, HERO.H, heroPaint);
+
+  /* ---------- wiring ---------- */
+  readTokens();
+  var ro = new ResizeObserver(function(entries){
+    entries.forEach(function(e){
+      for (var i = 0; i < scenes.length; i++) if (scenes[i].canvas === e.target){ render(scenes[i]); break; }
+    });
+  });
+  scenes.forEach(function(sc){ ro.observe(sc.canvas); });
+  scenes.forEach(render);
+
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", renderAll);
+  new MutationObserver(renderAll).observe(document.documentElement, {attributes:true, attributeFilter:["data-theme"]});
+  reduceMotion.addEventListener("change", function(){ render(heroScene); kick(); });
+  if ("IntersectionObserver" in window){
+    new IntersectionObserver(function(es){ visible = es[0].isIntersecting; kick(); }).observe(heroScene.canvas);
+  }
+  kick();
+})();
+</script>

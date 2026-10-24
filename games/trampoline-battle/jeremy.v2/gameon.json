@@ -1,0 +1,9 @@
+{
+  "name": "trampoline-battle",
+  "title": "Trampoline Battle",
+  "version": "jeremy.v2",
+  "from": "jeremy.v1",
+  "updates": [
+    { "version": "jeremy.v2", "from": "jeremy.v1", "idea": "Bring in the latest from jwildfire/trampoline-battle", "by": "Jeremy", "made": "2026-10-24", "built_with": "Claude Opus 5.5", "idea_issue": 139 }
+  ]
+}

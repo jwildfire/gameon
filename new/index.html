@@ -4,8 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>New Game · GameOn</title>
-<meta name="description" content="Tell GameOn your game idea by talking or typing, and a grown-up sends it to be built.">
+<meta name="description" content="Say what you want to play, an AI builds it, and you play it with your friends.">
 <meta name="theme-color" content="#ffd23f">
+<script src="../assets/mode.js"></script>
 <link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -113,6 +114,11 @@ input[type="text"] { width: 100%; border: 2.5px solid var(--ink); border-radius:
 .dots i { height: 7px; border-radius: 4px; background: var(--soft); }
 .dots i.d { background: var(--ink); }
 .dots i.now { background: var(--pop); }
+/* Normal | Weird (assets/mode.js, #134). Weird mode puts trippy backgrounds behind the page,
+   so the heading gets a card and the page leaves room for the skip button in the corner. */
+.top-right { flex-wrap: wrap; justify-content: flex-end; }
+html[data-mode="weird"] h1 { justify-self: start; background: var(--card); border: var(--line); border-radius: 18px; box-shadow: var(--lift); padding: 6px 16px 10px; }
+.page { padding-bottom: max(88px, env(safe-area-inset-bottom, 0px)); } /* room for the corner control (Shuffle, and Next in Weird) */
 </style>
 </head>
 <body>
@@ -120,11 +126,12 @@ input[type="text"] { width: 100%; border: 2.5px solid var(--ink); border-radius:
   <div class="top">
     <a class="back" href="../"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Arcade</a>
     <div class="top-right">
+      <div class="mode-switch" role="group" aria-label="Arcade mode"><button type="button" data-mode-set="normal" aria-pressed="true">Normal</button><button type="button" data-mode-set="weird" aria-pressed="false">Weird</button></div>
       <a class="gh-link" id="gh-link" href="https://github.com/jwildfire/gameon" target="_blank" rel="noopener"><svg class="gh" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 0-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6 0-3.2 0 0 1-.3 3.4 1.2a11.5 11.5 0 0 1 6 0C17 4.6 18 5 18 5c.6 1.6.2 2.8.1 3.2.8.8 1.3 1.9 1.3 3.1 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>GitHub</a>
       <div class="mark" aria-hidden="true">Game<span>On</span></div>
     </div>
   </div>
-  <h1 id="heading">What's your game?</h1>
+  <h1 id="heading">What should we play?</h1>
 
   <div class="cols">
     <section class="card" id="tell" aria-label="Tell us your game">
@@ -147,16 +154,16 @@ input[type="text"] { width: 100%; border: 2.5px solid var(--ink); border-radius:
       <div id="talk-pane" class="talk">
         <div style="display:grid;gap:10px">
           <button type="button" class="mic" id="mic" aria-label="Tap to talk"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12h-2z"/></svg></button>
-          <div class="hint" id="mic-hint">Tap the button and tell us your game</div>
+          <div class="hint" id="mic-hint">Tap and tell us: who's in it, what do you do, what makes it funny?</div>
           <div class="live" id="live" aria-live="polite"></div>
         </div>
       </div>
 
-      <div id="no-speech" class="msg warn" hidden>Talking doesn't work in this browser. Type your idea instead, or ask a grown-up to help.</div>
+      <div id="no-speech" class="msg warn" hidden>Talking doesn't work in this browser. Type your idea instead.</div>
 
       <div id="idea-box" style="display:grid;gap:8px">
         <label class="lbl" for="idea" id="idea-label">Here's your idea</label>
-        <textarea id="idea" maxlength="1200" placeholder="A game where..."></textarea>
+        <textarea id="idea" maxlength="1200" placeholder="A game where you and your friends..."></textarea>
         <div class="count" id="count">0 / 1000</div>
       </div>
 
@@ -167,11 +174,11 @@ input[type="text"] { width: 100%; border: 2.5px solid var(--ink); border-radius:
       </div>
 
       <div class="msg" id="ask" hidden>What happens in your game? Tell us a bit more.</div>
-      <button type="button" class="go" id="send" disabled>Send to a grown-up</button>
+      <button type="button" class="go" id="send" disabled>Send to the Matrix</button>
 
       <div class="handoff" id="handoff" hidden>
-        <div class="msg">Great idea! A grown-up will check it on GitHub and press <b>Submit</b>.</div>
-        <p>If GitHub didn't open, a grown-up can use this link:</p>
+        <div class="msg">Sent to the Matrix! Someone with GitHub access presses <b>Submit</b> to make it real.</div>
+        <p>If GitHub didn't open, use this link:</p>
         <a class="linkbox" id="issue-link" target="_blank" rel="noopener"></a>
         <button type="button" class="chip" id="another" style="justify-self:start">Make another one</button>
       </div>
@@ -186,13 +193,13 @@ input[type="text"] { width: 100%; border: 2.5px solid var(--ink); border-radius:
     <aside class="side card" aria-label="How it works">
       <h2>How it works</h2>
       <ol class="steps">
-        <li>Tell us your game. Talk or type.</li>
-        <li>Read it back and fix anything that came out wrong.</li>
-        <li>A grown-up sends it to GameOn on GitHub.</li>
-        <li>An AI thinks about it, then builds it.</li>
-        <li>A grown-up checks it, and it shows up in the arcade.</li>
+        <li>Say what you want to play. Talk or type.</li>
+        <li>Fix the typos.</li>
+        <li>Send it to the Matrix, and someone signs it off on GitHub.</li>
+        <li>An AI builds it, and another AI checks it.</li>
+        <li>Game night.</li>
       </ol>
-      <p style="color:var(--muted)">For grown-ups: Send opens GitHub's Game idea form with everything filled in. Read it, take out anything private, and press Submit. Then tell your agent "Evaluate game idea #N".</p>
+      <p style="color:var(--muted)">For whoever presses Submit: Send opens GitHub's Game idea form with everything filled in. Read it, take out anything private like real names, and press Submit. An agent picks it up within about ten minutes.</p>
     </aside>
     </div>
   </div>
@@ -255,7 +262,7 @@ input[type="text"] { width: 100%; border: 2.5px solid var(--ink); border-radius:
       fillVersions(g, want);
       target = { slug: g.slug, title: g.title || g.slug, version: versionSel.value };
     }
-    heading.textContent = target ? changeQuestion() : "What's your game?";
+    heading.textContent = target ? changeQuestion() : "What should we play?";
     tell.setAttribute("aria-label", target ? "Tell us the change" : "Tell us your game");
     idea.placeholder = target ? "Make it so..." : "A game where...";
     ideaLabel.textContent = target ? changeQuestion() : mode === "talk" ? "Here's your idea" : "Type your game idea";
@@ -420,16 +427,16 @@ input[type="text"] { width: 100%; border: 2.5px solid var(--ink); border-radius:
   var API = "https://api.github.com/repos/jwildfire/gameon";
   var CACHE_KEY = "gameon.arcade.ideas";
   var STATUS = {
-    "status: submitted":      { words: "Got your idea!",         step: 1 },
-    "status: evaluating":     { words: "Thinking about it",      step: 2 },
+    "status: submitted":      { words: "Got it!",                step: 1 },
+    "status: evaluating":     { words: "Thinking it over",       step: 2 },
     "status: needs more":     { words: "Tell us more",           step: 2 },
-    "status: needs approval": { words: "Waiting for a grown-up", step: 3 },
-    "status: approved":       { words: "In line to be built",    step: 3 },
+    "status: needs approval": { words: "Waiting for a human",    step: 3 },
+    "status: approved":       { words: "In the queue",           step: 3 },
     "status: building":       { words: "Being built",            step: 4 },
     "status: checking":       { words: "Getting checked",        step: 5 },
     "status: on dev":         { words: "Almost ready",           step: 6 },
-    "status: published":      { words: "Play it now!",           step: 7 },
-    "status: not built":      { words: "Not this time",          step: 0 }
+    "status: published":      { words: "Game on!",               step: 7 },
+    "status: not built":      { words: "Not this one",           step: 0 }
   };
   var ideasEl = $("ideas"), lineMsg = $("line-msg");
 
@@ -562,5 +569,6 @@ input[type="text"] { width: 100%; border: 2.5px solid var(--ink); border-radius:
   update();
 })();
 </script>
+<script src="../assets/backgrounds.js" data-mount defer></script>
 </body>
 </html>

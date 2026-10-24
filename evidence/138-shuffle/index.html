@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Evidence 138-shuffle</title>
+<style>
+:root { color-scheme: light dark; --ok: #1a7f37; --bad: #cf222e; }
+body { margin: 0 auto; max-width: 1100px; padding: 16px; font: 16px/1.45 system-ui, sans-serif; background: Canvas; color: CanvasText; }
+h1 { font-size: 24px; margin: 0 0 4px; } h2 { font-size: 19px; margin: 28px 0 6px; }
+.head { font-weight: 700; color: var(--ok); }
+.meta { font-size: 14px; opacity: .75; }
+.s { display: inline-block; padding: 1px 8px; border-radius: 999px; border: 1px solid currentColor; font-size: 13px; margin: 2px 4px 2px 0; }
+.s.ok { color: var(--ok); } .s.bad { color: var(--bad); }
+.pair { display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap; margin: 8px 0; }
+.pair img { display: block; max-width: 100%; border: 1px solid #8886; border-radius: 6px; }
+.pair img.desktop { width: 640px; } .pair img.phone { width: 220px; }
+</style></head><body>
+<h1>Evidence: 138-shuffle</h1>
+<p class="head">PASS: 4 of 4 checks pass at desktop and phone widths.</p>
+<p class="meta">Against the local server (python3 -m http.server) on this branch, from commit 211b59e, 2026-10-24 05:33 UTC. Spec: tests/evidence/138-shuffle.spec.mjs.</p>
+<section><h2>1. in Normal, shuffle changes the wall, and the pick sticks and follows to the New Game page</h2><p><span class="s ok">Desktop 1280: pass</span> <span class="s ok">Phone 375: pass</span></p><ul><li>desktop: sunny → mint-stripes; kept after a reload and on the New Game page</li><li>phone: sunny → bubblegum-checks; kept after a reload and on the New Game page</li></ul><div class="pair"><a href="normal-shuffled-desktop.jpg"><img class="desktop" src="normal-shuffled-desktop.jpg" alt="in Normal, shuffle changes the wall, and the pick sticks and follows to the New Game page: normal-shuffled-desktop.jpg" loading="lazy"></a><a href="normal-shuffled-phone.jpg"><img class="phone" src="normal-shuffled-phone.jpg" alt="in Normal, shuffle changes the wall, and the pick sticks and follows to the New Game page: normal-shuffled-phone.jpg" loading="lazy"></a></div><div class="pair"><a href="new-game-same-wall-desktop.jpg"><img class="desktop" src="new-game-same-wall-desktop.jpg" alt="in Normal, shuffle changes the wall, and the pick sticks and follows to the New Game page: new-game-same-wall-desktop.jpg" loading="lazy"></a><a href="new-game-same-wall-phone.jpg"><img class="phone" src="new-game-same-wall-phone.jpg" alt="in Normal, shuffle changes the wall, and the pick sticks and follows to the New Game page: new-game-same-wall-phone.jpg" loading="lazy"></a></div></section>
+<section><h2>2. every wall is light enough for the dark text (contrast at least 7:1)</h2><p><span class="s ok">Desktop 1280: pass</span> <span class="s ok">Phone 375: pass</span></p><ul><li>desktop: 12 walls, all at least 7:1 against the dark text</li><li>phone: 12 walls, all at least 7:1 against the dark text</li></ul></section>
+<section><h2>3. in Weird, shuffle moves to the next background</h2><p><span class="s ok">Desktop 1280: pass</span> <span class="s ok">Phone 375: pass</span></p><ul><li>desktop: warp-speed → matrix-rain</li><li>phone: retro-sun → lava-lamp</li></ul></section>
+<section><h2>4. Shuffle sits in the bottom-right corner, on screen, and hides while a game plays</h2><p><span class="s ok">Desktop 1280: pass</span> <span class="s ok">Phone 375: pass</span></p><ul><li>desktop: 1280px: Shuffle in the bottom-right corner, everything on screen, hidden in the game player</li><li>phone: 375px: Shuffle in the bottom-right corner, everything on screen, hidden in the game player</li></ul><div class="pair"><a href="fits-desktop.jpg"><img class="desktop" src="fits-desktop.jpg" alt="Shuffle sits in the bottom-right corner, on screen, and hides while a game plays: fits-desktop.jpg" loading="lazy"></a><a href="fits-phone.jpg"><img class="phone" src="fits-phone.jpg" alt="Shuffle sits in the bottom-right corner, on screen, and hides while a game plays: fits-phone.jpg" loading="lazy"></a></div></section>
+</body></html>
