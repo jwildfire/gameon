@@ -2,9 +2,9 @@
   "spec": "145-weird-titles",
   "passed": true,
   "headline": "PASS: 5 of 5 checks pass at desktop and phone widths.",
-  "generatedAt": "2026-10-24T05:54:17.736Z",
+  "generatedAt": "2026-10-24T06:16:09.824Z",
   "target": "local server (python3 -m http.server) on this branch",
-  "commit": "152f953",
+  "commit": "08ac914",
   "playwright": "1.61.1",
   "specFile": "tests/evidence/145-weird-titles.spec.mjs",
   "checks": [
@@ -32,8 +32,8 @@
     {
       "check": "Weird mode starts on GameOn, then swaps in a new ___On title half a beat after the tagline",
       "notes": [
-        "desktop: 32 titles; GameOn held for 2.5 s, then became FlameOn on the default 6.5 s timer's half beat; heading still named GameOn",
-        "phone: 32 titles; GameOn held for 2.5 s, then became FlameOn on the default 6.5 s timer's half beat; heading still named GameOn"
+        "desktop: 32 titles; GameOn held past 3 s, became FlameOn by 4 s, held, then LlamaOn by 10.5 s (6.5 s later); heading still named GameOn",
+        "phone: 32 titles; GameOn held past 3 s, became FlameOn by 4 s, held, then LlamaOn by 10.5 s (6.5 s later); heading still named GameOn"
       ],
       "desktop": {
         "status": "pass",
@@ -53,7 +53,7 @@
     {
       "check": "switching modes starts and stops the rotation without a reload, and Normal restores GameOn",
       "notes": [
-        "desktop: Weird showed FlameOn, LlamaOn, DreamOn, GlitchOn, PartyOn; back in Normal it read GameOn at once and held for 2.4 s",
+        "desktop: Weird showed FlameOn, LlamaOn, DreamOn, GlitchOn, PartyOn, BounceOn; back in Normal it read GameOn at once and held for 2.4 s",
         "phone: Weird showed FlameOn, LlamaOn, DreamOn, GlitchOn; back in Normal it read GameOn at once and held for 2.4 s"
       ],
       "desktop": {
@@ -70,8 +70,9 @@
     {
       "check": "every title fits: no sideways scroll, no wrapping, and the header doesn't move",
       "notes": [
-        "desktop: 1280px: all 32 titles fit on one line; widest is BananaOn at 381px; header 109px tall throughout",
-        "phone: 375px: all 32 titles fit on one line; widest is BananaOn at 223px; header 197px tall throughout"
+        "desktop: 1600px: all 32 titles fit on one line in the one-row header; widest is BananaOn at 311px; header 109px tall throughout",
+        "desktop: 1280px: all 32 titles fit on one line in the one-row header; widest is BananaOn at 310px; header 109px tall throughout",
+        "phone: 375px: all 32 titles fit on one line, clear of GitHub; widest is BananaOn at 223px; header 197px tall throughout"
       ],
       "desktop": {
         "status": "pass",

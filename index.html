@@ -302,8 +302,10 @@ html[data-mode="weird"] .lede.fading { opacity: 1; color: transparent; }
 @media (min-width: 760px) { html[data-mode="weird"] .lede { display: flex; align-items: center; min-height: calc(4.35em + 18px); padding: 6px 12px; } }
 @media (prefers-reduced-motion: reduce) { html[data-mode="weird"] .lede { transition: none; } }
 /* The logo's rotating titles (#145): the first word wobbles into a new one, "On" stays put. In
-   the wide row the logo keeps the widest title's width, so the tagline doesn't shuffle sideways. */
-@media (min-width: 760px) { html[data-mode="weird"] .wordmark { min-width: 4.6em; } }
+   the wide row the logo keeps the widest title's width (about 4.6em), so the tagline doesn't
+   shuffle sideways, and is a little smaller so that width matches Normal's "GameOn" and the
+   tagline card keeps its room. */
+@media (min-width: 760px) { html[data-mode="weird"] .wordmark { min-width: 4.6em; font-size: clamp(48px, 5.3vw, 68px); } }
 /* On phones GitHub sits in the logo's top-right corner, so the logo shrinks just enough for the
    widest title (about 4.6em) to stay clear of it. */
 @media (max-width: 759px) { html[data-mode="weird"] .wordmark { font-size: min(clamp(56px, 12vw, 104px), calc((100vw - 148px) / 4.65)); } }
