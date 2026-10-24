@@ -2,9 +2,9 @@
   "spec": "157-pet-wash-payback",
   "passed": true,
   "headline": "PASS: 9 of 9 checks pass at desktop and phone widths.",
-  "generatedAt": "2026-10-24T13:42:00.208Z",
+  "generatedAt": "2026-10-24T14:01:35.931Z",
   "target": "local server (python3 -m http.server) on this branch",
-  "commit": "ed8c245",
+  "commit": "71150ed",
   "playwright": "1.61.1",
   "specFile": "tests/evidence/157-pet-wash-payback.spec.mjs",
   "checks": [
@@ -55,8 +55,8 @@
     {
       "check": "the hose round runs with the real controls: arrow keys on a laptop, a drag joystick on a phone",
       "notes": [
-        "desktop: held → and ↑: the kid ran from (236, 423) to (328, 333)",
-        "phone: dragged the joystick up and right: the kid ran from (150, 931) to (276, 855)"
+        "desktop: held → and ↑: the kid ran from (236, 423) to (328, 330)",
+        "phone: dragged the joystick up and right: the kid ran from (150, 931) to (278, 854)"
       ],
       "desktop": {
         "status": "pass",
@@ -76,8 +76,8 @@
     {
       "check": "each pet sprays its own way: the cat ambushes from a bush, the bunny sprinkles, the pig leaves mud, the surprise duck throws balloons",
       "notes": [
-        "desktop: Mittens waited in a bush, then sprayed from it; Clover hopped and swished her sprinkler 1.18 radians; Truffle left 1 mud puddles that cut your speed to 103 (from 205), with a cone 0.42 radians wide; Sir Quackers threw a balloon with its shadow at 236,423",
-        "phone: Mittens waited in a bush, then sprayed from it; Clover hopped and swished her sprinkler 0.92 radians; Truffle left 2 mud puddles that cut your speed to 103 (from 205), with a cone 0.42 radians wide; Sir Quackers threw a balloon with its shadow at 150,931"
+        "desktop: Mittens waited in a bush, then sprayed from it; Clover hopped and swished her sprinkler 1.06 radians; Truffle left 1 mud puddles that cut your speed to 103 (from 205), with a cone 0.42 radians wide; Sir Quackers threw a balloon with its shadow at 236,423",
+        "phone: Mittens waited in a bush, then sprayed from it; Clover hopped and swished her sprinkler 0.94 radians; Truffle left 2 mud puddles that cut your speed to 103 (from 205), with a cone 0.42 radians wide; Sir Quackers threw a balloon with its shadow at 150,931"
       ],
       "desktop": {
         "status": "pass",
@@ -97,8 +97,8 @@
     {
       "check": "a whole game through the real buttons: all 5 pets washed in time and escaped, with a final score",
       "notes": [
-        "desktop: Biscuit: washed with 20.3s left (3★), 13% wet (3★); Mittens: washed with 20.8s left (3★), 0% wet (3★); Clover: washed with 21s left (3★), 0% wet (3★); Truffle: washed with 15.5s left (2★), 0% wet (3★); Sir Quackers: washed with 19.8s left (3★), 0% wet (3★); final 6586 points",
-        "phone: Biscuit: washed with 18.1s left (3★), 0% wet (3★); Mittens: washed with 18.9s left (3★), 0% wet (3★); Clover: washed with 19.8s left (3★), 6% wet (3★); Truffle: washed with 9.1s left (2★), 6% wet (3★); Sir Quackers: washed with 16.8s left (3★), 0% wet (3★); final 6465 points"
+        "desktop: Biscuit: washed with 20.4s left (3★), 5% wet (3★); Mittens: washed with 20.8s left (3★), 0% wet (3★); Clover: washed with 21.5s left (3★), 4% wet (3★); Truffle: washed with 15.5s left (2★), 0% wet (3★); Sir Quackers: washed with 19.9s left (3★), 0% wet (3★); final 6608 points",
+        "phone: Biscuit: washed with 18.1s left (3★), 2% wet (3★); Mittens: washed with 18.7s left (3★), 0% wet (3★); Clover: washed with 19.7s left (3★), 6% wet (3★); Truffle: washed with 10.1s left (2★), 6% wet (3★); Sir Quackers: washed with 16.8s left (3★), 0% wet (3★); final 6463 points"
       ],
       "desktop": {
         "status": "pass",
@@ -120,8 +120,8 @@
     {
       "check": "later pets are harder: a player who stands still gets wetter, and the wash clock gets tighter",
       "notes": [
-        "desktop: standing still: Biscuit SOAKED, Mittens SOAKED, Clover 68% wet, Truffle SOAKED, Sir Quackers SOAKED; wash: Biscuit 7 spots in 35s, Mittens 8 spots in 36s, Clover 9 spots in 37s, Truffle 10 spots in 42s, Sir Quackers 11 spots in 38s",
-        "phone: standing still: Biscuit SOAKED, Mittens SOAKED, Clover 66% wet, Truffle 85% wet, Sir Quackers SOAKED; wash: Biscuit 7 spots in 35s, Mittens 8 spots in 36s, Clover 9 spots in 37s, Truffle 10 spots in 42s, Sir Quackers 11 spots in 38s"
+        "desktop: standing still: Biscuit SOAKED, Mittens SOAKED, Clover 66% wet, Truffle 99% wet, Sir Quackers SOAKED; wash: Biscuit 7 spots in 35s, Mittens 8 spots in 36s, Clover 9 spots in 37s, Truffle 10 spots in 42s, Sir Quackers 11 spots in 38s",
+        "phone: standing still: Biscuit SOAKED, Mittens SOAKED, Clover 61% wet, Truffle 87% wet, Sir Quackers SOAKED; wash: Biscuit 7 spots in 35s, Mittens 8 spots in 36s, Clover 9 spots in 37s, Truffle 10 spots in 42s, Sir Quackers 11 spots in 38s"
       ],
       "desktop": {
         "status": "pass",

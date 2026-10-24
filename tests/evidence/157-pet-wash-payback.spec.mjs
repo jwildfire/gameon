@@ -382,6 +382,7 @@ test("Pet Wash Payback has a card near the front of the arcade and plays in its 
   // newest pipeline game: after the Editor's Choice games, ahead of the games that were there before it
   const order = await page.locator("#shelf .cart").evaluateAll(cs => cs.map(c => c.getAttribute("href")));
   expect(order.indexOf("#pet-wash-payback")).toBeGreaterThanOrEqual(games.filter(g => g.editorsChoice === true).length);
+  expect(order.indexOf("#pet-wash-payback")).toBeLessThan(order.indexOf("#big-weird-dig"));
   expect(order.indexOf("#pet-wash-payback")).toBeLessThan(order.indexOf("#super-sauce-boy"));
   expect(games[0].slug).toBe("pet-wash-payback");
   await expect(card.locator("h2")).toHaveText("Pet Wash Payback");
