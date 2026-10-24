@@ -6,7 +6,7 @@ import { test, expect, games } from "./evidence.mjs";
 
 const SLUG = "princess-lady-drive";
 const V2 = `games/${SLUG}/jeremy.v2/`;
-const V1_URL = "https://jwildfire.github.io/princess-lady-drive/";
+const V1_URL = "games/princess-lady-drive/jeremy.v1/"; // frozen inside GameOn by #124
 const OLD_KEY = "princess-lady-drive:v2"; // the key jeremy.v1 saves under (it predates the gameon.* rule)
 // Outside requests jeremy.v1 already made: its Google Fonts stylesheet and font files.
 const INHERITED = ["fonts.googleapis.com", "fonts.gstatic.com"];
@@ -234,7 +234,7 @@ test("a jeremy.v1 save loads: Rosie keeps her balloons, pets and castle decorati
   expect(browserErrors).toEqual([]);
 });
 
-test("games.json makes jeremy.v2 the default and still points jeremy.v1 at its own site", async ({ note }) => {
+test("games.json makes jeremy.v2 the default and still offers jeremy.v1", async ({ note }) => {
   const g = games.find(x => x.slug === SLUG);
   expect(g.creator).toBe("jeremy");
   expect(g.default).toBe("jeremy.v2");

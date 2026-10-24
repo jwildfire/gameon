@@ -1,0 +1,278 @@
+{
+  "spec": "124-freeze-repo-games",
+  "passed": true,
+  "headline": "PASS: 14 of 14 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-24T03:56:51.511Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "e30d105",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/124-freeze-repo-games.spec.mjs",
+  "checks": [
+    {
+      "check": "Trampoline Battle: its card plays the frozen jeremy.v1 in the arcade, from its start screen",
+      "notes": [
+        "desktop: frame: games/trampoline-battle/jeremy.v1/; start screen shown, then started; outside: fonts.googleapis.com, fonts.gstatic.com; no console errors",
+        "phone: frame: games/trampoline-battle/jeremy.v1/; start screen shown, then started; outside: fonts.googleapis.com, fonts.gstatic.com; no console errors"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "trampoline-battle-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "trampoline-battle-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Princess Lady Drive: its card plays the frozen jeremy.v1 in the arcade, from its start screen",
+      "notes": [
+        "desktop: frame: games/princess-lady-drive/jeremy.v1/; start screen shown, then started; outside: fonts.googleapis.com, fonts.gstatic.com; no console errors",
+        "phone: frame: games/princess-lady-drive/jeremy.v1/; start screen shown, then started; outside: fonts.googleapis.com, fonts.gstatic.com; no console errors"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "princess-lady-drive-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "princess-lady-drive-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Stretcher Bearer: its card plays the frozen jeremy.v1 in the arcade, from its start screen",
+      "notes": [
+        "desktop: frame: games/stretcher-bearer/jeremy.v1/; start screen shown, then started; outside: fonts.googleapis.com, fonts.gstatic.com; no console errors",
+        "phone: frame: games/stretcher-bearer/jeremy.v1/; start screen shown, then started; outside: fonts.googleapis.com, fonts.gstatic.com; no console errors"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "stretcher-bearer-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "stretcher-bearer-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Angry Dudes: its card plays the frozen jeremy.v1 in the arcade, from its start screen",
+      "notes": [
+        "desktop: frame: games/angry-dudes/jeremy.v1/; start screen shown, then started; outside: fonts.googleapis.com, fonts.gstatic.com, cdnjs.cloudflare.com; no console errors",
+        "phone: frame: games/angry-dudes/jeremy.v1/; start screen shown, then started; outside: fonts.googleapis.com, fonts.gstatic.com, cdnjs.cloudflare.com; no console errors"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "angry-dudes-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "angry-dudes-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Magic Friends, Up We Go!: its card plays the frozen jeremy.v1 in the arcade, from its start screen",
+      "notes": [
+        "desktop: frame: games/magic-friends/jeremy.v1/; start screen shown, then started; outside: fonts.googleapis.com, fonts.gstatic.com; no console errors",
+        "phone: frame: games/magic-friends/jeremy.v1/; start screen shown, then started; outside: fonts.googleapis.com, fonts.gstatic.com; no console errors"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "magic-friends-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "magic-friends-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Timed Out: its card plays the frozen jeremy.v1 in the arcade, from its start screen",
+      "notes": [
+        "desktop: frame: games/timedout/jeremy.v1/; start screen shown; outside: fonts.googleapis.com, fonts.gstatic.com; no console errors",
+        "phone: frame: games/timedout/jeremy.v1/; start screen shown; outside: fonts.googleapis.com, fonts.gstatic.com; no console errors"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "timedout-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "timedout-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Trampoline Battle: saves from the original load, and it saves under the same keys",
+      "notes": [
+        "desktop: seeded tb2-settings → names Rocket and Bean, vs Computer; keys after a short play: tb2-settings",
+        "phone: seeded tb2-settings → names Rocket and Bean, vs Computer; keys after a short play: tb2-settings"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "Princess Lady Drive: saves from the original load, and it saves under the same keys",
+      "notes": [
+        "desktop: seeded princess-lady-drive:v2 → sound off; keys after a short play: princess-lady-drive:v2",
+        "phone: seeded princess-lady-drive:v2 → sound off; keys after a short play: princess-lady-drive:v2"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "Stretcher Bearer: saves from the original load, and it saves under the same keys",
+      "notes": [
+        "desktop: seeded sb-best → best 4321, day 7; keys after a short play: sb-best",
+        "phone: seeded sb-best → best 4321, day 7; keys after a short play: sb-best"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "Angry Dudes: saves from the original load, and it saves under the same keys",
+      "notes": [
+        "desktop: seeded angrydudes.pack → Vikings pack picked; keys after a short play: angrydudes.pack",
+        "phone: seeded angrydudes.pack → Vikings pack picked; keys after a short play: angrydudes.pack"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "Magic Friends, Up We Go!: saves from the original load, and it saves under the same keys",
+      "notes": [
+        "desktop: seeded mfuwg-muted → sound off; keys after a short play: mfuwg-muted",
+        "phone: seeded mfuwg-muted → sound off; keys after a short play: mfuwg-muted"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "Timed Out: saves from the original load, and it saves under the same keys",
+      "notes": [
+        "desktop: seeded dadMode → Dad Mode on; keys after a short play: dadMode",
+        "phone: seeded dadMode → Dad Mode on; keys after a short play: dadMode"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "Princess Lady Drive still offers jeremy.v2 (the default) and jeremy.v1",
+      "notes": [
+        "desktop: picker: jeremy.v2 (Latest), jeremy.v1; the version dropdown switches the frame to games/princess-lady-drive/jeremy.v1/",
+        "phone: picker: jeremy.v2 (Latest), jeremy.v1; the version dropdown switches the frame to games/princess-lady-drive/jeremy.v1/"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "princess-chooser-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "princess-chooser-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "every version in games.json is served from this repo, and the six record their source",
+      "notes": [
+        "desktop: trampoline-battle ← jwildfire/trampoline-battle@669e7fe; princess-lady-drive ← jwildfire/princess-lady-drive@43a8292; stretcher-bearer ← jwildfire/stretcher-bearer@6c2401c; angry-dudes ← jwildfire/angry-dudes@f20ad5e; magic-friends ← jwildfire/magic-friends@821dc27; timedout ← jwildfire/timedout@3326116",
+        "phone: trampoline-battle ← jwildfire/trampoline-battle@669e7fe; princess-lady-drive ← jwildfire/princess-lady-drive@43a8292; stretcher-bearer ← jwildfire/stretcher-bearer@6c2401c; angry-dudes ← jwildfire/angry-dudes@f20ad5e; magic-friends ← jwildfire/magic-friends@821dc27; timedout ← jwildfire/timedout@3326116"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    }
+  ]
+}
