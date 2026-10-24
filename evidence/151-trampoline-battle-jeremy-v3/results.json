@@ -2,9 +2,9 @@
   "spec": "151-trampoline-battle-jeremy-v3",
   "passed": true,
   "headline": "PASS: 10 of 10 checks pass at desktop and phone widths.",
-  "generatedAt": "2026-10-24T11:54:28.687Z",
+  "generatedAt": "2026-10-24T12:02:32.156Z",
   "target": "local server (python3 -m http.server) on this branch",
-  "commit": "4f777db",
+  "commit": "a339042",
   "playwright": "1.61.1",
   "specFile": "tests/evidence/151-trampoline-battle-jeremy-v3.spec.mjs",
   "checks": [
@@ -28,8 +28,8 @@
     {
       "check": "jeremy.v3 opens to its title screen and starts, with no new outside requests",
       "notes": [
-        "desktop: Just Bounce: Party Levels · round 1 · Brawl (Gravity Roulette), timer at 97.5%; outside hosts: fonts.googleapis.com, fonts.gstatic.com (Google Fonts, as jeremy.v2)",
-        "phone: Just Bounce: Party Levels · round 1 · Survival (It's Raining Everything), timer at 97.4%; outside hosts: fonts.googleapis.com, fonts.gstatic.com (Google Fonts, as jeremy.v2)"
+        "desktop: Just Bounce: Party Levels · round 1 · Score (Hoop Dreams), timer at 96.9%; outside hosts: fonts.googleapis.com, fonts.gstatic.com (Google Fonts, as jeremy.v2)",
+        "phone: Just Bounce: Party Levels · round 1 · Survival (Lava Rising), timer at 97.1%; outside hosts: fonts.googleapis.com, fonts.gstatic.com (Google Fonts, as jeremy.v2)"
       ],
       "desktop": {
         "status": "pass",
@@ -68,8 +68,8 @@
     {
       "check": "what's new plays: a race, Pure Chaos on the climbing tower, and the level buttons pause and play",
       "notes": [
-        "desktop: race: Car Wash of Doom (Party Levels · round 1 · Race), paused with the play/pause button and played again; climb + Pure Chaos: The Floor Is Lava (For Real) (Pure Chaos · round 1 · Brawl)",
-        "phone: race: King of the Hump (Party Levels · round 1 · Score), paused with the play/pause button and played again; climb + Pure Chaos: The Floor Is Lava (For Real) (Pure Chaos · round 1 · Brawl)"
+        "desktop: race: Avalanche! (Party Levels · round 1 · Survival), paused with the play/pause button and played again; climb + Pure Chaos: Slippy Sloppy Tower (Pure Chaos · round 1 · Brawl)",
+        "phone: race: Avalanche! (Party Levels · round 1 · Survival), paused with the play/pause button and played again; climb + Pure Chaos: Wrong-Way Escalators (Pure Chaos · round 1 · Race)"
       ],
       "desktop": {
         "status": "pass",
