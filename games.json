@@ -49,10 +49,15 @@
     "title": "Princess Lady Drive",
     "tagline": "Drive Queen Rosie around a town where everything is free.",
     "credit": "Designed by a 4-year-old",
-    "url": "https://jwildfire.github.io/princess-lady-drive/",
+    "url": "games/princess-lady-drive/jeremy.v2/",
     "repo": "https://github.com/jwildfire/princess-lady-drive",
     "color": "#ef5da8",
-    "tags": ["New", "Little kids"]
+    "tags": ["New", "Little kids"],
+    "default": "jeremy.v2",
+    "versions": [
+      { "id": "jeremy.v1", "url": "https://jwildfire.github.io/princess-lady-drive/", "made": "2026-10-22", "note": "The first version" },
+      { "id": "jeremy.v2", "url": "games/princess-lady-drive/jeremy.v2/", "made": "2026-10-23", "note": "More rooms in the castle!", "from": "jeremy.v1", "idea": 122 }
+    ]
   },
   {
     "slug": "stretcher-bearer",
