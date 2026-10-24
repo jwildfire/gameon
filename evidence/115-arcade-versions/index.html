@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Evidence 115-arcade-versions</title>
+<style>
+:root { color-scheme: light dark; --ok: #1a7f37; --bad: #cf222e; }
+body { margin: 0 auto; max-width: 1100px; padding: 16px; font: 16px/1.45 system-ui, sans-serif; background: Canvas; color: CanvasText; }
+h1 { font-size: 24px; margin: 0 0 4px; } h2 { font-size: 19px; margin: 28px 0 6px; }
+.head { font-weight: 700; color: var(--ok); }
+.meta { font-size: 14px; opacity: .75; }
+.s { display: inline-block; padding: 1px 8px; border-radius: 999px; border: 1px solid currentColor; font-size: 13px; margin: 2px 4px 2px 0; }
+.s.ok { color: var(--ok); } .s.bad { color: var(--bad); }
+.pair { display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap; margin: 8px 0; }
+.pair img { display: block; max-width: 100%; border: 1px solid #8886; border-radius: 6px; }
+.pair img.desktop { width: 640px; } .pair img.phone { width: 220px; }
+</style></head><body>
+<h1>Evidence: 115-arcade-versions</h1>
+<p class="head">PASS: 5 of 5 checks pass at desktop and phone widths.</p>
+<p class="meta">Against the local server (python3 -m http.server) on this branch, from commit d002f75, 2026-10-24 01:55 UTC. Spec: tests/evidence/115-arcade-versions.spec.mjs.</p>
+<section><h2>1. a game with versions says how many, and asks which one when it starts</h2><p><span class="s ok">Desktop 1280: pass</span> <span class="s ok">Phone 375: pass</span></p><ul><li>desktop: order: jeremy.v2 (Latest), jeremy.v1, then the fork notclay.v1</li><li>phone: order: jeremy.v2 (Latest), jeremy.v1, then the fork notclay.v1</li></ul><div class="pair"><a href="chooser-desktop.jpg"><img class="desktop" src="chooser-desktop.jpg" alt="a game with versions says how many, and asks which one when it starts: chooser-desktop.jpg" loading="lazy"></a><a href="chooser-phone.jpg"><img class="phone" src="chooser-phone.jpg" alt="a game with versions says how many, and asks which one when it starts: chooser-phone.jpg" loading="lazy"></a></div></section>
+<section><h2>2. picking a fork plays it, with the version, Update and GitHub links all following it</h2><p><span class="s ok">Desktop 1280: pass</span> <span class="s ok">Phone 375: pass</span></p><ul><li>desktop: frame, version dropdown, Update and GitHub all point at notclay.v1</li><li>phone: frame, version dropdown, Update and GitHub all point at notclay.v1</li></ul><div class="pair"><a href="playing-fork-desktop.jpg"><img class="desktop" src="playing-fork-desktop.jpg" alt="picking a fork plays it, with the version, Update and GitHub links all following it: playing-fork-desktop.jpg" loading="lazy"></a><a href="playing-fork-phone.jpg"><img class="phone" src="playing-fork-phone.jpg" alt="picking a fork plays it, with the version, Update and GitHub links all following it: playing-fork-phone.jpg" loading="lazy"></a></div></section>
+<section><h2>3. the player bar's dropdown switches versions</h2><p><span class="s ok">Desktop 1280: pass</span> <span class="s ok">Phone 375: pass</span></p><div class="pair"><a href="switched-version-desktop.jpg"><img class="desktop" src="switched-version-desktop.jpg" alt="the player bar's dropdown switches versions: switched-version-desktop.jpg" loading="lazy"></a><a href="switched-version-phone.jpg"><img class="phone" src="switched-version-phone.jpg" alt="the player bar's dropdown switches versions: switched-version-phone.jpg" loading="lazy"></a></div></section>
+<section><h2>4. the arcade remembers the last pick, and Cancel goes back</h2><p><span class="s ok">Desktop 1280: pass</span> <span class="s ok">Phone 375: pass</span></p><ul><li>desktop: notclay.v1 marked Last played; Cancel returned to the arcade</li><li>phone: notclay.v1 marked Last played; Cancel returned to the arcade</li></ul></section>
+<section><h2>5. a game with one version plays straight away, and Update opens the New Game page with it picked</h2><p><span class="s ok">Desktop 1280: pass</span> <span class="s ok">Phone 375: pass</span></p><ul><li>desktop: MazeAThon (creator ryan) is ryan.v1; Update → new/?game=mazeathon&amp;version=ryan.v1</li><li>phone: MazeAThon (creator ryan) is ryan.v1; Update → new/?game=mazeathon&amp;version=ryan.v1</li></ul><div class="pair"><a href="one-version-desktop.jpg"><img class="desktop" src="one-version-desktop.jpg" alt="a game with one version plays straight away, and Update opens the New Game page with it picked: one-version-desktop.jpg" loading="lazy"></a><a href="one-version-phone.jpg"><img class="phone" src="one-version-phone.jpg" alt="a game with one version plays straight away, and Update opens the New Game page with it picked: one-version-phone.jpg" loading="lazy"></a></div></section>
+</body></html>

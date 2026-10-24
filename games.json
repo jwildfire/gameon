@@ -1,6 +1,7 @@
 [
   {
     "slug": "super-sauce-boy",
+    "creator": "notclay",
     "title": "Super Sauce Boy",
     "tagline": "Leap, wall-jump and splat through spicy kitchen levels as a tiny drop of hot sauce.",
     "credit": "Designed by NotClay",
@@ -11,6 +12,7 @@
   },
   {
     "slug": "fancy-food-fight",
+    "creator": "jeremy",
     "title": "Fancy Food Fight",
     "tagline": "Splat the fanciest party in town with pies and spaghetti. Messiest wins!",
     "credit": "Designed by Jeremy",
@@ -21,6 +23,7 @@
   },
   {
     "slug": "mazeathon",
+    "creator": "ryan",
     "title": "MazeAThon",
     "tagline": "A pocketful of shapes. Three curious mazes. Some very cute monsters.",
     "credit": "Designed with Ryan",
@@ -31,6 +34,7 @@
   },
   {
     "slug": "trampoline-battle",
+    "creator": "jeremy",
     "title": "Trampoline Battle",
     "tagline": "Drop fighters onto a trampoline and bounce the other team off. Cow drops and chicken attacks included.",
     "credit": "Designed with my kids",
@@ -41,6 +45,7 @@
   },
   {
     "slug": "princess-lady-drive",
+    "creator": "jeremy",
     "title": "Princess Lady Drive",
     "tagline": "Drive Queen Rosie around a town where everything is free.",
     "credit": "Designed by a 4-year-old",
@@ -51,6 +56,7 @@
   },
   {
     "slug": "stretcher-bearer",
+    "creator": "jeremy",
     "title": "Stretcher Bearer",
     "tagline": "Carry the wounded in from the trenches as a WWI medic, from 1914 to 1918.",
     "credit": "Designed with my kids",
@@ -61,6 +67,7 @@
   },
   {
     "slug": "angry-dudes",
+    "creator": "jeremy",
     "title": "Angry Dudes",
     "tagline": "Sling troops, fire cannons and call in air strikes across 37 real battles from history.",
     "url": "https://jwildfire.github.io/angry-dudes/",
@@ -70,6 +77,7 @@
   },
   {
     "slug": "magic-friends",
+    "creator": "jeremy",
     "title": "Magic Friends, Up We Go!",
     "tagline": "A mermaid, a fairy and a unicorn climb 60 levels to bring back the sunrise.",
     "url": "https://jwildfire.github.io/magic-friends/",
@@ -79,6 +87,7 @@
   },
   {
     "slug": "timedout",
+    "creator": "jeremy",
     "title": "Timed Out",
     "tagline": "Put real events from Wikipedia in order. Three wrong guesses and you're timed out.",
     "url": "https://jwildfire.github.io/timedout/",
