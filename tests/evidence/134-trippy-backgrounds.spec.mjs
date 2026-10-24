@@ -220,7 +220,7 @@ test("the background pauses and the skip button hides while a game plays", async
 
 test("each of the ten Weird picks behind the arcade", async ({ page, shot, note, browserErrors }) => {
   test.setTimeout(90_000);
-  for (const [i, id] of picks.entries()) {
+  for (const [i, id] of picks.slice(0, 10).entries()) { // the #134 ten; #141 checks the rest
     await page.goto(`./?mode=weird&bg=${id}&bgInterval=9999`);
     await ready(page);
     expect(await current(page)).toBe(id);
@@ -228,7 +228,7 @@ test("each of the ten Weird picks behind the arcade", async ({ page, shot, note,
     expect((await canvasStats(page)).colours).toBeGreaterThan(8);
     await shot(`pick-${String(i + 1).padStart(2, "0")}-${id}`);
   }
-  note(picks.join(", "));
+  note(picks.slice(0, 10).join(", "));
   await noSidewaysScroll(page);
   expect(browserErrors).toEqual([]);
 });

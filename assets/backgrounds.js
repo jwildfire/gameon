@@ -1,6 +1,6 @@
-/* GameOn trippy backgrounds (#134).
+/* GameOn trippy backgrounds (#134, #141).
  *
- * Twenty animated backgrounds, one runner that cycles the best ten behind a page, and a
+ * Forty animated backgrounds, one runner that cycles the thirty picks behind a page, and a
  * preview helper for the gallery (artifacts/2026-10-24-backgrounds/). No dependencies.
  *
  *   <script src="assets/backgrounds.js" data-mount data-pause="#player:not([hidden])" defer></script>
@@ -300,7 +300,528 @@
   }
 
   // ---------------------------------------------------------------------------------------
-  // The twenty
+  // Twenty more (#141): canvas 2D helpers and backgrounds
+  // ---------------------------------------------------------------------------------------
+  // Smooth value noise, 0..1.
+  function hash2(x, y) {
+    var n = (Math.imul(x, 374761393) + Math.imul(y, 668265263)) | 0;
+    n = Math.imul(n ^ (n >>> 13), 1274126177);
+    return ((n ^ (n >>> 16)) >>> 0) / 4294967296;
+  }
+  function noise2(x, y) {
+    var xi = Math.floor(x), yi = Math.floor(y), u = x - xi, v = y - yi;
+    u = u * u * (3 - 2 * u); v = v * v * (3 - 2 * v);
+    var a = hash2(xi, yi), b = hash2(xi + 1, yi), c = hash2(xi, yi + 1), d = hash2(xi + 1, yi + 1);
+    return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
+  }
+  // HSL (hue in turns, s and l 0..1) into out[o..o+2] as 0..255.
+  function hslInto(hu, s, l, out, o) {
+    hu = (hu - Math.floor(hu)) * 12;
+    var a = s * (l < 0.5 ? l : 1 - l), k;
+    k = hu % 12; out[o] = 255 * (l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1)));
+    k = (hu + 8) % 12; out[o + 1] = 255 * (l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1)));
+    k = (hu + 4) % 12; out[o + 2] = 255 * (l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1)));
+  }
+  function hsla(h, s, l, a) {
+    return "hsla(" + (((h % 360) + 360) % 360).toFixed(0) + "," + s + "%," + l.toFixed(0) + "%," + a.toFixed(3) + ")";
+  }
+  // A small low-resolution grid drawn with ImageData and scaled up onto the buffer.
+  function grid(ctx, gw, gh) {
+    var c = doc.createElement("canvas");
+    c.width = gw; c.height = gh;
+    var g = c.getContext("2d");
+    return { canvas: c, ctx: g, img: g.createImageData(gw, gh) };
+  }
+
+  // Gray-Scott reaction-diffusion on a coarse grid: spots that grow, split and wander.
+  function reaction() {
+    var ctx, w, h, gw, gh, U, V, U2, V2, G, lut = new Uint8ClampedArray(256 * 3), nextSeed = 0;
+    function seed(n) {
+      for (var s = 0; s < n; s++) {
+        var cx = (Math.random() * gw) | 0, cy = (Math.random() * gh) | 0;
+        for (var y = -2; y <= 2; y++) for (var x = -2; x <= 2; x++) {
+          var i = ((cy + y + gh) % gh) * gw + ((cx + x + gw) % gw);
+          U[i] = 0.5; V[i] = 0.25 + Math.random() * 0.05;
+        }
+      }
+    }
+    function step(F, K) {
+      for (var y = 0; y < gh; y++) {
+        var up = ((y - 1 + gh) % gh) * gw, row = y * gw, dn = ((y + 1) % gh) * gw;
+        for (var x = 0; x < gw; x++) {
+          var l = x ? x - 1 : gw - 1, r = x < gw - 1 ? x + 1 : 0, i = row + x, u = U[i], v = V[i];
+          var uvv = u * v * v;
+          U2[i] = u + 0.2 * (U[row + l] + U[row + r] + U[up + x] + U[dn + x] - 4 * u) - uvv + F * (1 - u);
+          V2[i] = v + 0.1 * (V[row + l] + V[row + r] + V[up + x] + V[dn + x] - 4 * v) + uvv - (F + K) * v;
+        }
+      }
+      var s = U; U = U2; U2 = s; s = V; V = V2; V2 = s;
+    }
+    return {
+      init: function (c, W, H) {
+        ctx = c; w = W; h = H;
+        var cell = Math.max(2, Math.round(Math.min(w, h) / 70));
+        gw = Math.ceil(w / cell); gh = Math.ceil(h / cell);
+        U = new Float32Array(gw * gh).fill(1); V = new Float32Array(gw * gh);
+        U2 = new Float32Array(gw * gh); V2 = new Float32Array(gw * gh);
+        G = grid(ctx, gw, gh);
+        seed(Math.max(6, Math.round(gw * gh / 120)));
+        for (var i = 0; i < 700; i++) step(0.037, 0.064);
+      },
+      frame: function (t, dt) {
+        var F = 0.037 + 0.006 * Math.sin(t * 0.04), K = 0.0625 + 0.0015 * Math.sin(t * 0.04 + 1);
+        var n = Math.min(10, Math.max(1, Math.round(dt * 60 * 3)));
+        for (var i = 0; i < n; i++) step(F, K);
+        if (t > nextSeed) { seed(1); nextSeed = t + 3; }
+        for (i = 0; i < 256; i++) { var f = i / 255; hslInto(0.7 + f * 0.55 + t * 0.008, 0.9, 0.07 + 0.55 * f, lut, i * 3); }
+        var d = G.img.data;
+        for (i = 0; i < gw * gh; i++) {
+          var k = Math.min(255, Math.max(0, V[i] * 700)) | 0, o = i * 4;
+          d[o] = lut[k * 3]; d[o + 1] = lut[k * 3 + 1]; d[o + 2] = lut[k * 3 + 2]; d[o + 3] = 255;
+        }
+        G.ctx.putImageData(G.img, 0, 0);
+        ctx.imageSmoothingEnabled = true;
+        ctx.drawImage(G.canvas, 0, 0, w, h);
+      },
+      dispose: function () {}
+    };
+  }
+
+  // Neon wireframe ridges rolling towards you, each one a new colour.
+  function ridges() {
+    var ctx, w, h, sky, seed = rnd(0, 500), N = 40;
+    return {
+      init: function (c, W, H) {
+        ctx = c; w = W; h = H;
+        sky = ctx.createLinearGradient(0, 0, 0, h);
+        sky.addColorStop(0, "#04020c"); sky.addColorStop(0.3, "#22093d"); sky.addColorStop(1, "#05020e");
+      },
+      frame: function (t) {
+        ctx.fillStyle = sky; ctx.fillRect(0, 0, w, h);
+        var hz = h * 0.36, F = h * 0.32, fx = w * 0.5, pos = t * 1.1, step = Math.max(4, w / 110);
+        var glow = ctx.createLinearGradient(0, hz - h * 0.25, 0, hz + h * 0.05);
+        glow.addColorStop(0, "rgba(255,80,200,0)"); glow.addColorStop(1, "rgba(255,80,200,0.35)");
+        ctx.fillStyle = glow; ctx.fillRect(0, hz - h * 0.25, w, h * 0.3);
+        ctx.lineJoin = "round";
+        for (var r = Math.floor(pos) + N; r > pos; r--) {
+          var z = r - pos, d = 0.4 + z * 0.4;
+          var a = Math.min(1, (N - z) / 4, (z - 0.15) / 0.8);
+          if (a <= 0) continue;
+          var pts = [];
+          for (var x = -step; x <= w + step; x += step) {
+            var X = (x - w / 2) * d / fx, n = noise2(X * 1.1 + seed, r * 0.23);
+            var Y = (0.1 + n * n * 2.4) * (0.3 + Math.min(1, Math.abs(X) * 0.5));
+            pts.push(x, hz + F * (1 - Y) / d);
+          }
+          ctx.beginPath();
+          ctx.moveTo(0, h);
+          for (var j = 0; j < pts.length; j += 2) ctx.lineTo(pts[j], pts[j + 1]);
+          ctx.lineTo(w, h);
+          ctx.closePath();
+          ctx.globalAlpha = a;
+          ctx.fillStyle = "#0a0418"; ctx.fill();
+          ctx.beginPath();
+          for (j = 0; j < pts.length; j += 2) ctx[j ? "lineTo" : "moveTo"](pts[j], pts[j + 1]);
+          var hue = r * 11 + t * 10;
+          ctx.strokeStyle = hsla(hue, 100, 60, 0.3); ctx.lineWidth = Math.max(3, h / 90) / Math.sqrt(d); ctx.stroke();
+          ctx.strokeStyle = hsla(hue, 100, 68, 1); ctx.lineWidth = Math.max(1.2, h / 300) / Math.sqrt(d); ctx.stroke();
+        }
+        ctx.globalAlpha = 1;
+      },
+      dispose: function () {}
+    };
+  }
+
+  // A field of spinning cubes drifting towards you, flat shaded, outlined like the arcade cards.
+  function cubes() {
+    var ctx, w, h, list, bg;
+    var VX = [[-1, -1, -1], [1, -1, -1], [1, 1, -1], [-1, 1, -1], [-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1]];
+    var FACES = [[0, 1, 2, 3], [4, 5, 6, 7], [0, 3, 7, 4], [1, 2, 6, 5], [0, 1, 5, 4], [3, 2, 6, 7]];
+    var L = [-0.35, -0.55, -0.76];
+    function cube(z) {
+      var a = rnd(0, TAU), rr = rnd(1.3, 3.4);
+      return { x: Math.cos(a) * rr, y: Math.sin(a) * rr * 0.8, z: z, s: rnd(0.25, 0.45), ax: rnd(0, TAU), ay: rnd(0, TAU),
+        vx: rnd(-0.7, 0.7), vy: rnd(-0.7, 0.7), hue: rnd(0, 360) };
+    }
+    return {
+      init: function (c, W, H) {
+        ctx = c; w = W; h = H;
+        bg = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, Math.max(w, h) * 0.7);
+        bg.addColorStop(0, "#2a0f4a"); bg.addColorStop(1, "#090314");
+        list = [];
+        for (var i = 0; i < 26; i++) list.push(cube(rnd(1, 9)));
+      },
+      frame: function (t, dt) {
+        ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
+        var f = Math.min(w, h) * 0.9, spin = t * 0.05, cs = Math.cos(spin), sn = Math.sin(spin);
+        ctx.lineJoin = "round";
+        ctx.lineWidth = Math.max(1, Math.min(w, h) / 260);
+        list.forEach(function (c) { c.z -= 0.35 * dt; c.ax += c.vx * dt; c.ay += c.vy * dt; if (c.z < 0.8) { var n = cube(9); for (var k in n) c[k] = n[k]; } });
+        list.sort(function (a, b) { return b.z - a.z; });
+        for (var i = 0; i < list.length; i++) {
+          var c = list[i], alpha = Math.min(1, (9 - c.z) / 2, (c.z - 0.8) / 0.8);
+          if (alpha <= 0) continue;
+          var ca = Math.cos(c.ax), sa = Math.sin(c.ax), cb = Math.cos(c.ay), sb = Math.sin(c.ay);
+          var cx = c.x * cs - c.y * sn, cy = c.x * sn + c.y * cs, P = [];
+          for (var v = 0; v < 8; v++) {
+            var x = VX[v][0] * c.s, y = VX[v][1] * c.s, z = VX[v][2] * c.s;
+            var y1 = y * ca - z * sa, z1 = y * sa + z * ca;
+            var x2 = x * cb + z1 * sb, z2 = -x * sb + z1 * cb;
+            P.push([x2 + cx, y1 + cy, z2 + c.z]);
+          }
+          ctx.globalAlpha = alpha;
+          for (var fi = 0; fi < 6; fi++) {
+            var q = FACES[fi], A = P[q[0]], B = P[q[1]], D = P[q[3]];
+            var ux = B[0] - A[0], uy = B[1] - A[1], uz = B[2] - A[2], wx = D[0] - A[0], wy = D[1] - A[1], wz = D[2] - A[2];
+            var nx = uy * wz - uz * wy, ny = uz * wx - ux * wz, nz = ux * wy - uy * wx;
+            var mx = (A[0] + P[q[2]][0]) / 2, my = (A[1] + P[q[2]][1]) / 2, mz = (A[2] + P[q[2]][2]) / 2;
+            if (nx * (mx - cx) + ny * (my - cy) + nz * (mz - c.z) < 0) { nx = -nx; ny = -ny; nz = -nz; }
+            if (nx * mx + ny * my + nz * mz >= 0) continue;
+            var nl = Math.sqrt(nx * nx + ny * ny + nz * nz) || 1;
+            var shade = Math.max(0, (nx * L[0] + ny * L[1] + nz * L[2]) / nl);
+            ctx.beginPath();
+            for (var k = 0; k < 4; k++) { var p = P[q[k]]; ctx[k ? "lineTo" : "moveTo"](w / 2 + p[0] / p[2] * f, h / 2 + p[1] / p[2] * f); }
+            ctx.closePath();
+            ctx.fillStyle = hsla(c.hue + t * 12, 85, 28 + 38 * shade, 1);
+            ctx.fill();
+            ctx.strokeStyle = "#1d1a2f"; ctx.stroke();
+          }
+        }
+        ctx.globalAlpha = 1;
+      },
+      dispose: function () {}
+    };
+  }
+
+  // Fireflies wandering through a slow rainbow fog.
+  function fireflies() {
+    var ctx, w, h, flies, sprites = [], seed = rnd(0, 500);
+    return {
+      init: function (c, W, H) {
+        ctx = c; w = W; h = H;
+        for (var s = 0; s < 12; s++) {
+          var sp = doc.createElement("canvas"); sp.width = sp.height = 64;
+          var g = sp.getContext("2d"), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+          gr.addColorStop(0, "hsla(" + (s * 30) + ",100%,92%,1)");
+          gr.addColorStop(0.18, "hsla(" + (s * 30) + ",100%,70%,0.9)");
+          gr.addColorStop(1, "hsla(" + (s * 30) + ",100%,55%,0)");
+          g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
+          sprites.push(sp);
+        }
+        flies = [];
+        var n = Math.round(Math.min(90, Math.max(40, w * h / 3000)));
+        for (var i = 0; i < n; i++) flies.push({ x: rnd(0, w), y: rnd(0, h), r: rnd(0.012, 0.026) * Math.min(w, h), ph: rnd(0, TAU), rate: rnd(0.7, 1.5), hue: (Math.random() * 12) | 0 });
+      },
+      frame: function (t, dt) {
+        ctx.globalCompositeOperation = "source-over";
+        ctx.fillStyle = "#070414"; ctx.fillRect(0, 0, w, h);
+        ctx.globalCompositeOperation = "lighter";
+        var m = Math.max(w, h);
+        for (var b = 0; b < 5; b++) {
+          var bx = w * (0.5 + 0.45 * Math.sin(t * (0.05 + b * 0.013) + b * 2.1)), by = h * (0.5 + 0.45 * Math.cos(t * (0.04 + b * 0.011) + b * 1.3));
+          var g = ctx.createRadialGradient(bx, by, 0, bx, by, m * 0.6);
+          g.addColorStop(0, hsla(b * 72 + t * 8, 90, 50, 0.3)); g.addColorStop(1, hsla(b * 72 + t * 8, 90, 50, 0));
+          ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+        }
+        var sc = 2.5 / Math.min(w, h), v = Math.min(w, h) * 0.035;
+        for (var i = 0; i < flies.length; i++) {
+          var f = flies[i], a = noise2(f.x * sc + seed, f.y * sc + t * 0.05) * TAU * 2;
+          f.x += Math.cos(a) * v * dt; f.y += Math.sin(a) * v * dt;
+          if (f.x < -20) f.x += w + 40; if (f.x > w + 20) f.x -= w + 40;
+          if (f.y < -20) f.y += h + 40; if (f.y > h + 20) f.y -= h + 40;
+          ctx.globalAlpha = 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(t * f.rate + f.ph));
+          var R = f.r * 4;
+          ctx.drawImage(sprites[(f.hue + Math.floor(t / 12)) % 12], f.x - R, f.y - R, R * 2, R * 2);
+        }
+        ctx.globalAlpha = 1;
+        ctx.globalCompositeOperation = "source-over";
+      },
+      dispose: function () {}
+    };
+  }
+
+  // A blocky glitch picture with sorted colour streaks sliding down its columns.
+  function pixelsort() {
+    var ctx, w, h, gw, gh, G, cols, seed = rnd(0, 500), C = [0, 0, 0];
+    function streak(first) {
+      return { head: first ? rnd(-gh * 0.5, gh * 1.2) : rnd(-gh * 0.8, -2), len: rnd(0.15, 0.6) * gh, v: rnd(0.07, 0.22) * gh };
+    }
+    function base(x, y, t) {
+      return 0.62 + 0.45 * noise2(x * 0.05 + seed, y * 0.018 + t * 0.03) + t * 0.006;
+    }
+    return {
+      init: function (c, W, H) {
+        ctx = c; w = W; h = H;
+        var cell = Math.max(2, Math.round(Math.min(w, h) / 110));
+        gw = Math.ceil(w / cell); gh = Math.ceil(h / cell);
+        G = grid(ctx, gw, gh);
+        cols = [];
+        for (var x = 0; x < gw; x++) cols.push(Math.random() < 0.75 ? streak(true) : null);
+      },
+      frame: function (t, dt) {
+        var d = G.img.data;
+        for (var y = 0; y < gh; y++) {
+          for (var x = 0; x < gw; x++) {
+            var o = (y * gw + x) * 4, n2 = noise2(x * 0.02 - t * 0.02, y * 0.06 + seed);
+            hslInto(base(x, y, t), 0.85, 0.1 + 0.32 * n2 * n2, d, o);
+            d[o + 3] = 255;
+          }
+        }
+        for (x = 0; x < gw; x++) {
+          var s = cols[x];
+          if (!s) { if (Math.random() < dt * 0.15) cols[x] = streak(false); continue; }
+          s.head += s.v * dt;
+          var top = s.head - s.len;
+          if (top > gh) { cols[x] = Math.random() < 0.8 ? streak(false) : null; continue; }
+          var hu = base(x, Math.max(0, top), t);
+          for (y = Math.max(0, Math.ceil(top)); y <= Math.min(gh - 1, Math.floor(s.head)); y++) {
+            var f = (y - top) / s.len;
+            hslInto(hu + f * 0.08, 0.95, 0.14 + 0.5 * f, C, 0);
+            o = (y * gw + x) * 4; d[o] = C[0]; d[o + 1] = C[1]; d[o + 2] = C[2];
+          }
+        }
+        G.ctx.putImageData(G.img, 0, 0);
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(G.canvas, 0, 0, w, h);
+        ctx.imageSmoothingEnabled = true;
+      },
+      dispose: function () {}
+    };
+  }
+
+  // Text-mode plasma: a rolling wave drawn with ASCII characters, denser where it's brighter.
+  function ascii() {
+    var ctx, w, h, fs, cw, cols, rows, acc = 1, RAMP = " .:-=+*#%@".split("");
+    return {
+      init: function (c, W, H) {
+        ctx = c; w = W; h = H;
+        fs = Math.max(9, Math.round(Math.min(w, h) / 30));
+        cw = fs * 0.62;
+        cols = Math.ceil(w / cw); rows = Math.ceil(h / fs);
+      },
+      frame: function (t, dt) {
+        acc += dt;
+        if (acc < 1 / 30) return; // text only needs 30 fps
+        acc = 0;
+        ctx.fillStyle = "#0a0716"; ctx.fillRect(0, 0, w, h);
+        ctx.font = "700 " + fs + "px ui-monospace, Menlo, Consolas, monospace";
+        ctx.textBaseline = "top";
+        var m = Math.min(w, h);
+        for (var r = 0; r < rows; r++) {
+          for (var c = 0; c < cols; c++) {
+            var X = (c * cw - w / 2) / m, Y = (r * fs - h / 2) / m;
+            var v = 0.5 + 0.2 * Math.sin(X * 6 + t * 0.6) + 0.2 * Math.sin(Y * 5 - t * 0.45 + Math.sin(X * 3 + t * 0.25) * 2)
+              + 0.15 * Math.sin(Math.sqrt(X * X + Y * Y) * 10 - t * 0.8);
+            v = Math.max(0, Math.min(0.999, v));
+            var g = RAMP[(v * RAMP.length) | 0];
+            if (g === " ") continue;
+            ctx.fillStyle = hsla(v * 140 + X * 80 + t * 14, 90, 32 + 40 * v, 1);
+            ctx.fillText(g, c * cw, r * fs);
+          }
+        }
+      },
+      dispose: function () {}
+    };
+  }
+
+  // Big shapes bouncing off the edges like an old DVD logo, leaving rainbow trails and echoes.
+  function bounce() {
+    var ctx, w, h, shapes, acc = 0, stampAt = 0, BG = "#120a24";
+    function path(s) {
+      var r = s.r;
+      ctx.beginPath();
+      if (s.kind === 0) ctx.arc(0, 0, r, 0, TAU);
+      else if (s.kind === 4) { ctx.arc(0, 0, r, 0, TAU); ctx.moveTo(r * 0.5, 0); ctx.arc(0, 0, r * 0.5, 0, TAU, true); }
+      else {
+        var n = s.kind === 1 ? 3 : s.kind === 2 ? 4 : 10;
+        for (var i = 0; i < n; i++) {
+          var a = i / n * TAU - Math.PI / 2, rr = s.kind === 3 && i % 2 ? r * 0.45 : r;
+          ctx[i ? "lineTo" : "moveTo"](Math.cos(a) * rr, Math.sin(a) * rr);
+        }
+        ctx.closePath();
+      }
+    }
+    return {
+      init: function (c, W, H) {
+        ctx = c; w = W; h = H;
+        var m = Math.min(w, h);
+        shapes = [];
+        for (var k = 0; k < 6; k++) {
+          var r = m * rnd(0.1, 0.15), a = rnd(0, TAU), v = m * rnd(0.12, 0.2);
+          shapes.push({ kind: k % 5, r: r, x: rnd(r, w - r), y: rnd(r, h - r), vx: Math.cos(a) * v, vy: Math.sin(a) * v, ang: rnd(0, TAU), va: rnd(-0.6, 0.6), hue: k * 60 });
+        }
+        ctx.fillStyle = BG; ctx.fillRect(0, 0, w, h);
+      },
+      frame: function (t, dt) {
+        acc += perFrame(0.03, dt);
+        if (acc >= 0.06) { ctx.globalAlpha = acc; ctx.fillStyle = BG; ctx.fillRect(0, 0, w, h); ctx.globalAlpha = 1; acc = 0; }
+        var stamp = t >= stampAt;
+        if (stamp) stampAt = t + 0.2;
+        for (var i = 0; i < shapes.length; i++) {
+          var s = shapes[i];
+          s.x += s.vx * dt; s.y += s.vy * dt; s.ang += s.va * dt;
+          if (s.x < s.r) { s.x = s.r; s.vx = Math.abs(s.vx); } else if (s.x > w - s.r) { s.x = w - s.r; s.vx = -Math.abs(s.vx); }
+          if (s.y < s.r) { s.y = s.r; s.vy = Math.abs(s.vy); } else if (s.y > h - s.r) { s.y = h - s.r; s.vy = -Math.abs(s.vy); }
+          ctx.save();
+          ctx.translate(s.x, s.y); ctx.rotate(s.ang);
+          path(s);
+          ctx.fillStyle = hsla(s.hue + t * 30, 95, 60, 1);
+          ctx.fill("evenodd");
+          if (stamp) { ctx.lineWidth = Math.max(1.5, s.r * 0.06); ctx.strokeStyle = "#1d1a2f"; ctx.stroke(); }
+          ctx.restore();
+        }
+      },
+      dispose: function () {}
+    };
+  }
+
+  // Candy sprinkles tumbling down like snow.
+  function sprinkles() {
+    var ctx, w, h, list, bg, COLORS = ["#ff5f9e", "#ffd23f", "#3fd8ff", "#7dff6b", "#b48cff", "#ff8a3d", "#fffdf6"];
+    return {
+      init: function (c, W, H) {
+        ctx = c; w = W; h = H;
+        bg = ctx.createLinearGradient(0, 0, 0, h);
+        bg.addColorStop(0, "#2d1740"); bg.addColorStop(1, "#140a20");
+        var m = Math.min(w, h), n = Math.round(Math.min(320, Math.max(110, w * h / 1000)));
+        list = [];
+        for (var i = 0; i < n; i++) {
+          var z = rnd(0.45, 1);
+          list.push({ x: rnd(0, w), y: rnd(0, h), z: z, len: m * 0.045 * z, v: h * rnd(0.05, 0.1) * z, ang: rnd(0, TAU), spin: rnd(-1.8, 1.8), ph: rnd(0, TAU), c: pick(COLORS) });
+        }
+        list.sort(function (a, b) { return a.z - b.z; });
+      },
+      frame: function (t, dt) {
+        ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
+        ctx.lineCap = "round";
+        for (var i = 0; i < list.length; i++) {
+          var s = list[i];
+          s.y += s.v * dt; s.x += Math.sin(t * 0.7 + s.ph) * s.len * 0.8 * dt; s.ang += s.spin * dt;
+          if (s.y > h + s.len) { s.y = -s.len; s.x = rnd(0, w); }
+          var dx = Math.cos(s.ang) * s.len / 2, dy = Math.sin(s.ang) * s.len / 2;
+          ctx.globalAlpha = 0.45 + 0.55 * s.z;
+          ctx.strokeStyle = s.c; ctx.lineWidth = s.len * 0.34;
+          ctx.beginPath(); ctx.moveTo(s.x - dx, s.y - dy); ctx.lineTo(s.x + dx, s.y + dy); ctx.stroke();
+        }
+        ctx.globalAlpha = 1;
+      },
+      dispose: function () {}
+    };
+  }
+
+  // Particles following a slowly turning noise field, leaving silky trails coloured by direction.
+  function flowfield() {
+    var ctx, w, h, ps, acc = 0, seed = rnd(0, 500), BG = "#070312", BUCKETS = 12;
+    function spawn(p) { p.x = rnd(0, w); p.y = rnd(0, h); p.life = rnd(2, 6); return p; }
+    return {
+      init: function (c, W, H) {
+        ctx = c; w = W; h = H;
+        ps = [];
+        var n = Math.round(Math.min(1400, Math.max(350, w * h / 260)));
+        for (var i = 0; i < n; i++) ps.push(spawn({}));
+        ctx.fillStyle = BG; ctx.fillRect(0, 0, w, h);
+      },
+      frame: function (t, dt) {
+        acc += perFrame(0.02, dt);
+        if (acc >= 0.06) { ctx.globalAlpha = acc; ctx.fillStyle = BG; ctx.fillRect(0, 0, w, h); ctx.globalAlpha = 1; acc = 0; }
+        var m = Math.min(w, h), sc = 2.2 / m, v = m * 0.07, paths = [];
+        for (var b = 0; b < BUCKETS; b++) paths.push([]);
+        for (var i = 0; i < ps.length; i++) {
+          var p = ps[i];
+          p.life -= dt;
+          if (p.life <= 0 || p.x < 0 || p.x > w || p.y < 0 || p.y > h) { spawn(p); continue; }
+          var a = noise2(p.x * sc + seed, p.y * sc + t * 0.03) * TAU * 2;
+          var nx = p.x + Math.cos(a) * v * dt, ny = p.y + Math.sin(a) * v * dt;
+          var k = ((((a / TAU) % 1) + 1) % 1 * BUCKETS) | 0;
+          paths[k].push(p.x, p.y, nx, ny);
+          p.x = nx; p.y = ny;
+        }
+        ctx.lineWidth = Math.max(1.5, m / 200);
+        ctx.lineCap = "round";
+        for (b = 0; b < BUCKETS; b++) {
+          var q = paths[b];
+          if (!q.length) continue;
+          ctx.beginPath();
+          for (var j = 0; j < q.length; j += 4) { ctx.moveTo(q[j], q[j + 1]); ctx.lineTo(q[j + 2], q[j + 3]); }
+          ctx.strokeStyle = hsla(b / BUCKETS * 360 + t * 12, 100, 62, 0.9);
+          ctx.stroke();
+        }
+      },
+      dispose: function () {}
+    };
+  }
+
+  // Times-table string art: points round a circle joined to point i x m, with m slowly changing.
+  function stringart() {
+    var ctx, w, h, N = 240, GROUPS = 24;
+    return {
+      init: function (c, W, H) { ctx = c; w = W; h = H; },
+      frame: function (t) {
+        ctx.globalCompositeOperation = "source-over";
+        ctx.fillStyle = "#07040f"; ctx.fillRect(0, 0, w, h);
+        ctx.globalCompositeOperation = "lighter";
+        var cx = w / 2, cy = h / 2, R = Math.max(Math.min(w, h) * 0.45, Math.max(w, h) * 0.42), m = 7 - 5 * Math.cos(t * 0.035), rot = t * 0.03;
+        ctx.lineWidth = Math.max(0.8, R / 320);
+        for (var g = 0; g < GROUPS; g++) {
+          ctx.beginPath();
+          for (var i = g * N / GROUPS; i < (g + 1) * N / GROUPS; i++) {
+            var a1 = rot + TAU * i / N, a2 = rot + TAU * i * m / N;
+            ctx.moveTo(cx + Math.cos(a1) * R, cy + Math.sin(a1) * R);
+            ctx.lineTo(cx + Math.cos(a2) * R, cy + Math.sin(a2) * R);
+          }
+          ctx.strokeStyle = hsla(g / GROUPS * 360 + t * 18, 100, 60, 0.42);
+          ctx.stroke();
+        }
+        ctx.globalCompositeOperation = "source-over";
+      },
+      dispose: function () {}
+    };
+  }
+
+  // Nested neon rings tumbling on their own axes, like a gyroscope.
+  function gyro() {
+    var ctx, w, h, rings, SEG = 72;
+    return {
+      init: function (c, W, H) {
+        ctx = c; w = W; h = H;
+        rings = [];
+        for (var i = 0; i < 11; i++) rings.push({ r: 0.1 + i * 0.034, a: 0.1 + i * 0.021, b: 0.07 + i * 0.016, pa: rnd(0, TAU), pb: rnd(0, TAU) });
+      },
+      frame: function (t) {
+        ctx.globalCompositeOperation = "source-over";
+        ctx.fillStyle = "#08051a"; ctx.fillRect(0, 0, w, h);
+        ctx.globalCompositeOperation = "lighter";
+        var m = Math.max(Math.min(w, h), Math.max(w, h) * 0.9), cx = w / 2, cy = h / 2, D = m * 1.6;
+        ctx.lineCap = "round";
+        for (var i = 0; i < rings.length; i++) {
+          var g = rings[i], r = g.r * m, ax = t * g.a + g.pa, ay = t * g.b + g.pb;
+          var ca = Math.cos(ax), sa = Math.sin(ax), cb = Math.cos(ay), sb = Math.sin(ay), pts = [];
+          for (var j = 0; j <= SEG; j++) {
+            var th = TAU * j / SEG, x = Math.cos(th) * r, y = Math.sin(th) * r;
+            var y1 = y * ca, z1 = y * sa, x2 = x * cb + z1 * sb, z2 = -x * sb + z1 * cb, s = D / (D + z2);
+            pts.push(cx + x2 * s, cy + y1 * s, z2);
+          }
+          var hue = i * 33 + t * 15;
+          for (var pass = 0; pass < 2; pass++) {
+            ctx.beginPath();
+            for (j = 0; j < SEG; j++) {
+              var k = j * 3, front = pts[k + 2] + pts[k + 5] < 0;
+              if (front !== !!pass) continue;
+              ctx.moveTo(pts[k], pts[k + 1]); ctx.lineTo(pts[k + 3], pts[k + 4]);
+            }
+            ctx.strokeStyle = hsla(hue, 100, pass ? 62 : 45, pass ? 0.95 : 0.35);
+            ctx.lineWidth = Math.max(1, m / (pass ? 160 : 300));
+            ctx.stroke();
+          }
+        }
+        ctx.globalCompositeOperation = "source-over";
+      },
+      dispose: function () {}
+    };
+  }
+
+  // ---------------------------------------------------------------------------------------
+  // The forty
   // ---------------------------------------------------------------------------------------
   var ARCADE = ["#ff6b4a", "#ffd23f", "#3fd8ff", "#ff5fd2", "#7dff6b", "#b48cff"];
 
@@ -460,12 +981,142 @@
       " float d=p.y-y0;",
       " float band=exp(-max(d,0.)*3.5)*smoothstep(-.03,.04,d)*(.45+.55*fbm(vec2(x*5.,T*.15+fi)));",
       " col+=rainbow(fi*.22+x*.08+T*.02+.25)*band*.55;}",
-      "gl_FragColor=vec4(col,1.);}"].join("\n") }
+      "gl_FragColor=vec4(col,1.);}"].join("\n") },
+
+    // Twenty more (#141).
+    { id: "stained-glass", name: "Stained Glass", kind: "gl", frag: [
+      "void main(){vec2 u=U();vec2 p=u*4.2;vec2 ip=floor(p),fp=fract(p);",
+      "float d1=9.,d2=9.;vec2 cid=vec2(0.);",
+      "for(int j=-1;j<=1;j++)for(int i=-1;i<=1;i++){vec2 g=vec2(float(i),float(j));",
+      " vec2 o=vec2(h21(ip+g),h21(ip+g+19.7));o=.5+.4*sin(T*.06+TAU*o);",
+      " float d=length(g+o-fp);",
+      " if(d<d1){d2=d1;d1=d;cid=ip+g;}else if(d<d2){d2=d;}}",
+      "vec3 glass=rainbow(h21(cid)*.8+T*.012);",
+      "glass*=.6+.5*fbm(p*2.5+cid*3.);",
+      "float bx=dot(u,vec2(.8,.6))-sin(T*.09)*.9;",
+      "glass*=.55+.6*exp(-bx*bx*5.);",
+      "gl_FragColor=vec4(mix(vec3(.06,.05,.1),glass,smoothstep(.05,.11,d2-d1)),1.);}"].join("\n") },
+
+    { id: "reaction-diffusion", name: "Turing Spots", kind: "2d", res: 0.5, still: 4, make: reaction },
+
+    { id: "mandelbrot-dive", name: "Mandelbrot Dive", kind: "gl", still: 60, frag: [
+      "void main(){float z=.5-.5*cos(T*.035);float s=1.5*exp(-z*7.);",
+      "vec2 c=vec2(-.743643887,.131825904)+U()*rot(T*.03)*s;",
+      "vec2 q=vec2(0.);float n=0.;",
+      "for(int i=0;i<140;i++){q=vec2(q.x*q.x-q.y*q.y,2.*q.x*q.y)+c;if(dot(q,q)>256.)break;n+=1.;}",
+      "vec3 col=.06+.1*rainbow(T*.02);",
+      "if(n<139.){float sm=max(n-log2(log2(dot(q,q)))+4.,1.);",
+      " col=rainbow(log(sm)*.55+T*.02+.3)*(.25+.75*smoothstep(0.,1.,sm/50.));}",
+      "gl_FragColor=vec4(col,1.);}"].join("\n") },
+
+    { id: "neon-ridges", name: "Neon Ridges", kind: "2d", res: 0.6, still: 4, make: ridges },
+
+    { id: "op-art", name: "Op-Art Warp", kind: "gl", frag: [
+      "void main(){vec2 p=U();float r=length(p);",
+      "vec2 q=p*(1.+.45*sin(r*3.2-T*.25));",
+      "q*=rot(.5*sin(T*.06)+r*1.2*sin(T*.045));",
+      "q*=20.;",
+      "float m=smoothstep(-.07,.07,sin(q.x)*sin(q.y));",
+      "vec3 a=mix(vec3(1.,.98,.93),hsv(fract(T*.012+r*.2),.6,1.),.45),b=hsv(fract(T*.012+r*.2+.55),.7,.2);",
+      "gl_FragColor=vec4(mix(b,a,m),1.);}"].join("\n") },
+
+    { id: "cube-field", name: "Cube Field", kind: "2d", res: 0.6, still: 6, make: cubes },
+
+    { id: "liquid-chrome", name: "Liquid Chrome", kind: "gl", frag: [
+      "float f3(vec2 p){return .5*noise(p)+.25*noise(p*2.03+7.1)+.125*noise(p*4.01+3.3);}",
+      "float H(vec2 x){vec2 w=vec2(f3(x+T*.03),f3(x+4.1-T*.03));return f3(x*1.2+vec2(T*.05,-T*.04)+w*1.2);}",
+      "void main(){vec2 p=U()*1.6;float e=.02;float h=H(p);",
+      "vec2 g=vec2(H(p+vec2(e,0.))-h,H(p+vec2(0.,e))-h)/e;",
+      "vec3 n=normalize(vec3(-g*.5,1.));",
+      "vec3 r=reflect(vec3(0.,0.,-1.),n);",
+      "float y=r.y*.5+.5;",
+      "vec3 c=mix(vec3(.1,.06,.2),vec3(.8,.86,.98),smoothstep(.3,.85,y));",
+      "c+=rainbow(r.x*.8+T*.02)*.55*exp(-abs(y-.5)*5.);",
+      "c+=.55*pow(max(dot(n,normalize(vec3(.4,.6,1.))),0.),60.);",
+      "gl_FragColor=vec4(c*.9,1.);}"].join("\n") },
+
+    { id: "firefly-fog", name: "Firefly Fog", kind: "2d", res: 0.5, still: 6, make: fireflies },
+
+    { id: "truchet-tiles", name: "Truchet Tiles", kind: "gl", frag: [
+      "void main(){vec2 p=U()*6.+vec2(T*.15,T*.08);vec2 id=floor(p),f=fract(p)-.5;",
+      "float ph=T*.12+h21(id)*9.,o=mod(floor(ph),2.),k=smoothstep(.75,1.,fract(ph));",
+      "vec2 fa=vec2(o>.5?-f.x:f.x,f.y),fb=vec2(-fa.x,f.y);",
+      "float da=min(abs(length(fa-vec2(.5))-.5),abs(length(fa+vec2(.5))-.5));",
+      "float db=min(abs(length(fb-vec2(.5))-.5),abs(length(fb+vec2(.5))-.5));",
+      "float line=mix(smoothstep(.13,.09,da),smoothstep(.13,.09,db),k);",
+      "float halo=mix(smoothstep(.32,.1,da),smoothstep(.32,.1,db),k);",
+      "vec3 c=rainbow(dot(id,vec2(.07,.05))+T*.03+f.x*.15);",
+      "vec3 col=mix(vec3(.09,.07,.16),c,line)+c*.22*halo;",
+      "gl_FragColor=vec4(col,1.);}"].join("\n") },
+
+    { id: "pixel-sort", name: "Pixel Sort", kind: "2d", res: 0.5, still: 4, make: pixelsort },
+
+    { id: "halftone-wave", name: "Halftone Wave", kind: "gl", frag: [
+      "void main(){vec2 p=U()*rot(.35);float sc=22.;vec2 g=p*sc;vec2 id=floor(g),f=fract(g)-.5;",
+      "vec2 c=(id+.5)/sc;",
+      "float v=.5+.3*sin(c.x*5.+T*.5)+.2*sin(length(c-vec2(.3*sin(T*.1),.2*cos(T*.13)))*9.-T*.7);",
+      "float r=.06+.42*clamp(v,0.,1.);",
+      "vec3 col=rainbow(c.x*.35-c.y*.2+T*.03)*(.7+.3*v);",
+      "gl_FragColor=vec4(mix(vec3(.08,.06,.15),col,smoothstep(r,r-.09,length(f))),1.);}"].join("\n") },
+
+    { id: "ascii-wave", name: "ASCII Wave", kind: "2d", res: 0.75, still: 4, make: ascii },
+
+    { id: "nested-squares", name: "Nested Squares", kind: "gl", frag: [
+      "void main(){vec2 p=U();float r0=length(p);",
+      "vec2 q=p*rot(sin(T*.12)*.6+r0*1.6*sin(T*.07));",
+      "float v=max(abs(q.x),abs(q.y))*9.-T*.55;float f=fract(v);",
+      "float gap=smoothstep(0.,.12,f)*smoothstep(1.,.88,f);",
+      "gl_FragColor=vec4(rainbow(v*.07+T*.01)*(.3+.65*gap),1.);}"].join("\n") },
+
+    { id: "bounce-shapes", name: "Bounce House", kind: "2d", res: 0.6, still: 6, make: bounce },
+
+    { id: "vhs-dream", name: "VHS Dream", kind: "gl", frag: [
+      "vec3 sc(vec2 uv){vec3 c=hsv(fract(floor(uv.x*8.)/8.*.9+T*.008),.55,.85);",
+      " c=mix(c,hsv(fract(.5-floor(uv.x*8.)/8.*.9+T*.008),.6,.45),smoothstep(.3,.26,uv.y));",
+      " return c*(.8+.2*uv.y);}",
+      "void main(){vec2 uv=gl_FragCoord.xy/R;",
+      "float ty=fract(T*.045)*1.6-.3;float tb=exp(-(uv.y-ty)*(uv.y-ty)*180.);",
+      "float wob=.006*sin(uv.y*30.+T*1.3)+.004*sin(uv.y*7.-T*.8)+tb*.05*(noise(vec2(uv.y*40.,T*.5))-.5);",
+      "vec2 a=uv+vec2(wob,0.),o=vec2(.005,0.);",
+      "vec3 c=vec3(sc(a+o).r,sc(a).g,sc(a-o).b);",
+      "c+=tb*.12;",
+      "c*=.86+.14*sin(gl_FragCoord.y*1.5708);",
+      "vec2 vg=uv-.5;c*=1.-dot(vg,vg)*.3;",
+      "gl_FragColor=vec4(c,1.);}"].join("\n") },
+
+    { id: "sprinkles", name: "Sprinkle Snow", kind: "2d", res: 0.75, still: 6, make: sprinkles },
+
+    { id: "two-tone-goo", name: "Two-Tone Goo", kind: "gl", frag: [
+      "void main(){vec2 p=U();float asp=R.x/R.y;float A=0.,B=0.;",
+      "for(int i=0;i<10;i++){float fi=float(i);",
+      " vec2 c=vec2(sin(T*(.13+fi*.017)+fi*2.1)*.5*max(asp,1.),cos(T*(.11+fi*.021)+fi*1.3)*.45/min(asp,1.));",
+      " float rr=.11+.03*sin(fi*1.7);float w=rr*rr/dot(p-c,p-c);",
+      " if(i<5)A+=w;else B+=w;}",
+      "float f=A+B,side=(A-B)/f;",
+      "vec3 goo=mix(vec3(.3,.92,.74),vec3(1.,.38,.7),smoothstep(-.06,.06,side));",
+      "goo*=.82+.22*smoothstep(1.,4.,f);",
+      "vec3 ink=vec3(.11,.1,.18);",
+      "vec3 bg=mix(vec3(.16,.07,.26),vec3(.07,.04,.14),length(p));",
+      "vec3 col=mix(bg,ink,smoothstep(.8,.85,f));",
+      "col=mix(col,goo,smoothstep(.97,1.02,f));",
+      "col=mix(col,ink,smoothstep(.07,.03,abs(side))*smoothstep(.97,1.02,f));",
+      "gl_FragColor=vec4(col,1.);}"].join("\n") },
+
+    { id: "flow-field", name: "Flow Field", kind: "2d", res: 0.6, still: 8, make: flowfield },
+
+    { id: "string-art", name: "String Art", kind: "2d", res: 0.75, still: 6, make: stringart },
+
+    { id: "gyro-rings", name: "Gyro Rings", kind: "2d", res: 0.75, still: 6, make: gyro }
   ];
 
-  // The ten that cycle on the arcade, in order. Reasons live in the gallery.
+  // The ones that cycle on the arcade, in order: the first ten from #134, then the #141 picks,
+  // alternating shaders and canvas ones. Reasons live in the gallery.
   var PICKS = ["rainbow-plasma", "matrix-rain", "kaleidoscope", "lava-lamp", "rainbow-rain",
-    "hex-disco", "liquid-marble", "warp-speed", "rainbow-tunnel", "retro-sun"];
+    "hex-disco", "liquid-marble", "warp-speed", "rainbow-tunnel", "retro-sun",
+    "stained-glass", "neon-ridges", "mandelbrot-dive", "cube-field", "op-art", "flow-field",
+    "liquid-chrome", "firefly-fog", "truchet-tiles", "pixel-sort", "halftone-wave", "string-art",
+    "nested-squares", "bounce-shapes", "vhs-dream", "sprinkles", "two-tone-goo", "reaction-diffusion",
+    "gyro-rings", "ascii-wave"];
 
   var BY_ID = {};
   LIST.forEach(function (d) { BY_ID[d.id] = d; });
