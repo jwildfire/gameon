@@ -12,7 +12,7 @@ test("the Send button says Send to the Matrix and still sends", async ({ page, s
   await shot("ready");
   await page.locator("#send").click();
   await expect(page.locator("#handoff .msg")).toContainText("Sent to the Matrix!");
-  await expect(page.locator("#handoff .msg")).toContainText("press Submit");
+  await expect(page.locator("#handoff .msg")).toContainText("presses Submit");
   const opened = new URL(await page.evaluate(() => window.__opened[0]));
   expect(opened.origin + opened.pathname).toBe("https://github.com/jwildfire/gameon/issues/new");
   expect(opened.searchParams.get("maker")).toBe("Bean");
