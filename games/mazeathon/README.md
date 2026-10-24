@@ -24,6 +24,8 @@ Open `index.html` directly, or serve the repository with `python3 -m http.server
 
 Every new adventure generates three new mazes. `?seed=2026` reproduces the same layouts. Save keys use the `gameon.mazeathon.` prefix so they do not collide with other GameOn games.
 
+New mazes scatter four enclosed boost rooms throughout the full map, with entrances facing different directions. Their positions and which shape belongs in each location vary with the seed. Corridors grow around the rooms, so all keys and the exit are reachable while the rooms are locked. The first section still has early loops and route choices. Existing saves keep their original layouts; start a fresh adventure to try the scattered rooms.
+
 ## Files and verification
 
 - `world.js`: seeded generation, collision, line of sight, monster AI, boosts, progression, and save validation; independent of the DOM.

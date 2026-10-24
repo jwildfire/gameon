@@ -1,0 +1,414 @@
+<title>Two Grown-ups, One Builder</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="How Jeremy and Ryan work on GameOn together: one builder agent or two, where Ryan talks to the work (GitHub, Claude Tag, Jeremy's SMS pipeline), where decisions are recorded, who approves what, and a first week to try. Grounded in the MazeAThon night.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:ital,wght@0,500;0,700;0,800;1,500&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Same tokens and type as the other GameOn designs: one reading column, sunny yellow for
+   the things to act on, cards for options, tables that scroll sideways on a phone. */
+:root {
+  --paper: #fffcf2;
+  --ink: #1d1a2f;
+  --muted: #5e5872;
+  --rule: #e7e0cc;
+  --sun: #ffd23f;
+  --sun-soft: #fff1b8;
+  --pop: #e2502f;
+  --card: #ffffff;
+  --code-bg: #f6f1e1;
+  --ok: #1f8a4c;
+  --wait: #b7791f;
+  --stop: #c0392b;
+  --display: "Lilita One", "Arial Rounded MT Bold", "Trebuchet MS", sans-serif;
+  --body: "Nunito", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #17151f; --ink: #f4efe1; --muted: #b3acc4; --rule: #34303f;
+    --sun-soft: #3a3320; --pop: #ff7a5c; --card: #201d2a; --code-bg: #26222f;
+    --ok: #4cc27f; --wait: #e8b04a; --stop: #ff6b5b;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #17151f; --ink: #f4efe1; --muted: #b3acc4; --rule: #34303f;
+  --sun-soft: #3a3320; --pop: #ff7a5c; --card: #201d2a; --code-bg: #26222f;
+  --ok: #4cc27f; --wait: #e8b04a; --stop: #ff6b5b;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 500 17px/1.6 var(--body); }
+.page {
+  max-width: 860px; margin: 0 auto;
+  padding-block: 40px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 56px;
+}
+section { display: grid; gap: 16px; min-width: 0; }
+h1, h2, h3 { margin: 0; text-wrap: balance; font-weight: 400; }
+h1 { font: 400 clamp(44px, 9vw, 72px)/0.95 var(--display); }
+h1 span { color: var(--pop); }
+h2 { font: 400 30px/1.1 var(--display); }
+h3 { font: 800 18px/1.3 var(--body); }
+p { margin: 0; max-width: 65ch; }
+a { color: inherit; text-decoration-color: var(--pop); text-underline-offset: 3px; }
+code { font: 500 0.86em/1 var(--mono); background: var(--code-bg); padding: 2px 5px; border-radius: 4px; }
+ul.plain, ol.plain { margin: 0; padding-left: 20px; display: grid; gap: 6px; max-width: 65ch; }
+.eyebrow { font: 800 12px/1 var(--body); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.lede { font-size: 20px; line-height: 1.5; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 14px; color: var(--muted); }
+.note { font-size: 15px; color: var(--muted); }
+.callout { padding: 14px 18px; background: var(--sun-soft); border-radius: 12px; display: grid; gap: 8px; }
+.callout ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+
+.toc { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)); gap: 8px; }
+.toc a { display: grid; gap: 2px; padding: 12px; border-radius: 12px; background: var(--card); border: 1px solid var(--rule); text-decoration: none; }
+.toc b { font: 400 18px/1.1 var(--display); }
+.toc span { font-size: 13px; color: var(--muted); line-height: 1.35; }
+
+.step-head { display: grid; grid-template-columns: 52px 1fr; gap: 14px; align-items: center; }
+.num { width: 52px; height: 52px; border-radius: 50%; background: var(--sun); color: #1d1a2f; display: grid; place-items: center; font: 400 24px/1 var(--display); }
+.step-head p { font-size: 15px; color: var(--muted); }
+
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 22px; align-items: start; }
+.two > * { min-width: 0; }
+
+.table-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 12px; background: var(--card); }
+table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 14.5px; }
+th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--rule); }
+th { font: 800 12px/1.2 var(--body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+tr:last-child td { border-bottom: 0; }
+td.t { white-space: nowrap; font: 500 13px/1.6 var(--mono); color: var(--muted); }
+tr.hot td { background: var(--sun-soft); }
+.chip { display: inline-block; font: 800 12px/1 var(--body); padding: 5px 9px; border-radius: 999px; border: 2px solid currentColor; white-space: nowrap; }
+.c-go { color: var(--ok); }
+.c-wait { color: var(--wait); }
+.c-stop { color: var(--stop); }
+.c-pick { color: #1d1a2f; background: var(--sun); border-color: var(--sun); }
+
+.decide { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 12px; }
+.lane { padding: 16px; border-radius: 12px; background: var(--card); border: 1px solid var(--rule); display: grid; gap: 8px; align-content: start; }
+.lane.pick { border: 2px solid var(--sun); box-shadow: 4px 4px 0 var(--sun); }
+.lane h3 { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.lane .tag { font: 400 26px/1 var(--display); color: var(--pop); }
+.lane dl { margin: 0; display: grid; gap: 6px; font-size: 14.5px; }
+.lane dt { font: 800 11px/1.2 var(--body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.lane dd { margin: 0; }
+
+.checks { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: 10px; }
+.check { padding: 12px 14px; border-radius: 10px; background: var(--card); border: 1px solid var(--rule); display: grid; gap: 4px; align-content: start; }
+.check b { font-size: 15px; }
+.check span { font-size: 14px; color: var(--muted); }
+.check.good { border-left: 4px solid var(--ok); }
+.check.bad { border-left: 4px solid var(--stop); }
+
+.flow { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 120px), 1fr)); gap: 8px; }
+.flow li { display: grid; gap: 4px; align-content: start; padding: 12px 10px; border-radius: 12px; background: var(--card); border: 1px solid var(--rule); }
+.flow b { font: 400 18px/1 var(--display); }
+.flow span { font-size: 13px; color: var(--muted); line-height: 1.35; }
+.flow .who { font: 800 11px/1.2 var(--body); letter-spacing: 0.06em; text-transform: uppercase; color: var(--pop); }
+
+.arch { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)); gap: 10px; }
+.node { padding: 14px; border-radius: 12px; border: 2px solid var(--ink); background: var(--card); display: grid; gap: 6px; align-content: start; }
+.node b { font: 400 19px/1.05 var(--display); }
+.node span { font-size: 14px; color: var(--muted); }
+.node.new { border-style: dashed; }
+
+.week { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.week li { display: grid; grid-template-columns: 84px 1fr; gap: 14px; align-items: start; padding: 12px 14px; border-radius: 12px; background: var(--card); border: 1px solid var(--rule); }
+.week .d { font: 400 18px/1.1 var(--display); color: var(--pop); }
+.week .who { font: 800 11px/1.2 var(--body); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); display: block; margin-top: 4px; }
+.week p { font-size: 15.5px; }
+
+.qs { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; counter-reset: q; }
+.qs li { counter-increment: q; display: grid; grid-template-columns: 44px 1fr; gap: 14px; align-items: start; }
+.qs li::before { content: "Q" counter(q); display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--sun); color: #1d1a2f; font: 400 17px/1 var(--display); }
+.qs b { display: block; font-weight: 800; }
+.qs span { font-size: 15.5px; color: var(--muted); }
+.qs em { font-style: normal; font-weight: 800; color: var(--ink); }
+.sources { margin: 0; padding-left: 20px; display: grid; gap: 4px; font-size: 14px; color: var(--muted); }
+footer { font-size: 14px; color: var(--muted); border-top: 1px solid var(--rule); padding-top: 18px; display: grid; gap: 12px; }
+:focus-visible { outline: 3px solid var(--pop); outline-offset: 2px; }
+</style>
+
+<main class="page">
+
+  <header style="display:grid;gap:14px">
+    <div class="eyebrow">GameOn design · for Jeremy to react to</div>
+    <h1>Two Grown-ups, <span>One Builder</span></h1>
+    <p class="lede">How you and Ryan build GameOn together without your agents tripping over each other. It starts with what happened last night, lays out the options, then recommends a small setup to try for a week.</p>
+    <div class="meta"><span>23 October 2026</span><span>Task: <a href="https://github.com/jwildfire/gameon/issues/56">Design how Jeremy and Ryan collaborate (gameon#56)</a></span><span>Design only: nothing is set up yet</span><span>Questions at the end, numbered</span></div>
+  </header>
+
+  <section>
+    <h2>What this page answers</h2>
+    <ul class="toc">
+      <li><a href="#night"><b>Last night</b><span>What went wrong, minute by minute</span></a></li>
+      <li><a href="#builders"><b>One builder or two?</b><span>Four options, then a pick</span></a></li>
+      <li><a href="#channel"><b>Where Ryan talks</b><span>GitHub, Claude Tag, your SMS pipeline</span></a></li>
+      <li><a href="#record"><b>Where decisions live</b><span>And how a conflict reaches you fast</span></a></li>
+      <li><a href="#approve"><b>Who approves what</b><span>People decide, agents never do</span></a></li>
+      <li><a href="#ideas"><b>Ryan's kid's ideas</b><span>Through the Phase 0 flow</span></a></li>
+      <li><a href="#week"><b>The first week</b><span>Smallest setup, and how to tell</span></a></li>
+      <li><a href="#questions"><b>Questions</b><span>Eight, numbered</span></a></li>
+    </ul>
+  </section>
+
+  <section id="night">
+    <div class="eyebrow">The evidence</div>
+    <h2>What happened last night</h2>
+    <p>Both of you had agents working in the repo at the same time. Your Claude Code sessions act on GitHub as @jwildfire. Ryan's ChatGPT/Codex agent acts as @killjoy00. Times are Eastern.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>When</th><th>What happened</th><th>Where</th></tr></thead>
+        <tbody>
+          <tr><td class="t">8:57pm</td><td>Your decision is recorded: each game lives in its own repo; GameOn is the list, the arcade and the skills.</td><td><a href="https://github.com/jwildfire/gameon/issues/1#issuecomment-6354783651">#1</a></td></tr>
+          <tr><td class="t">9:04pm</td><td>Ryan's agent files an iPhone app objective. Three of its open questions were already open in the Blueprint. Your agent links them half an hour later.</td><td><a href="https://github.com/jwildfire/gameon/issues/20">#20</a></td></tr>
+          <tr><td class="t">9:05pm</td><td>Ryan's agent starts the tests task and opens its PR six minutes later.</td><td><a href="https://github.com/jwildfire/gameon/pull/22">#22</a></td></tr>
+          <tr><td class="t">9:36pm</td><td>Your agent reviews it: a stray quote breaks the deploy step, so every deploy would end red. One-character fix. It is still open this morning.</td><td><a href="https://github.com/jwildfire/gameon/pull/22#pullrequestreview-5622934514">#22 review</a></td></tr>
+          <tr><td class="t">9:37pm</td><td>Ryan's agent records the MazeAThon design, noting the game belongs in its own repo. It merges into dev a minute later.</td><td><a href="https://github.com/jwildfire/gameon/issues/23">#23</a></td></tr>
+          <tr><td class="t">9:43pm</td><td>A new task: build MazeAThon inside GameOn. It "supersedes the earlier suggestion", on Ryan's word in his own chat.</td><td><a href="https://github.com/jwildfire/gameon/issues/25">#25</a></td></tr>
+          <tr class="hot"><td class="t">9:44:12pm</td><td>Your agent flags the conflict with your decision and asks "@jwildfire and Ryan: which way?" Ryan is named but not tagged, so GitHub never tells him. And the comment is from your own account, so GitHub doesn't tell you either.</td><td><a href="https://github.com/jwildfire/gameon/issues/25#issuecomment-6355374434">#25 comment</a></td></tr>
+          <tr class="hot"><td class="t">9:44:40pm</td><td>28 seconds later Ryan's agent posts "Starting", citing Ryan's latest instruction.</td><td><a href="https://github.com/jwildfire/gameon/issues/25">#25</a></td></tr>
+          <tr><td class="t">12:00am</td><td>MazeAThon merges into dev, then its arcade card. Agents can merge their own task PRs into dev, so no person looked first.</td><td><a href="https://github.com/jwildfire/gameon/pull/27">#27</a>, <a href="https://github.com/jwildfire/gameon/pull/28">#28</a></td></tr>
+          <tr><td class="t">12:17am</td><td>The release won't merge: earlier releases were squashed onto main, so dev had lost main's history. Ryan's agent repairs it with a merge commit.</td><td><a href="https://github.com/jwildfire/gameon/issues/30">#30</a>, <a href="https://github.com/jwildfire/gameon/pull/31">#31</a></td></tr>
+          <tr><td class="t">5:51am</td><td>You read it all, approve and merge the release. MazeAThon is live in a layout that contradicts the record.</td><td><a href="https://github.com/jwildfire/gameon/pull/29">#29</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>What went wrong, in four parts</h3>
+    <div class="checks">
+      <div class="check bad"><b>1. The instruction was private</b><span>Ryan told his agent in his own chat. Nobody else could see it until the agent wrote it into an issue.</span></div>
+      <div class="check bad"><b>2. The flag reached nobody</b><span>It went to a GitHub thread. Ryan wasn't tagged, and your own agent's comments never notify you. A flag nobody sees doesn't do anything.</span></div>
+      <div class="check bad"><b>3. The latest chat beat the record</b><span>The agent treated its person's newest message as overriding a recorded decision. The other person never got a say.</span></div>
+      <div class="check bad"><b>4. It landed before anyone looked</b><span>Self-merge into dev is fast, which is good. But it meant the first human review of the disagreement was the release, the next morning.</span></div>
+    </div>
+    <h3>What went right</h3>
+    <div class="checks">
+      <div class="check good"><b>The walls held</b><span>No agent touched main or approved anything. The release waited for you.</span></div>
+      <div class="check good"><b>Review caught a real bug</b><span>The deploy-step quote would have turned every deploy red.</span></div>
+      <div class="check good"><b>The work was good</b><span>MazeAThon came with tests, a full playthrough and phone screenshots.</span></div>
+      <div class="check good"><b>The rules already learned</b><span>AGENTS.md now says: tell your person first, raise it with both, keep it cheap to undo (<a href="https://github.com/jwildfire/gameon/pull/50">#50</a>).</span></div>
+    </div>
+    <div class="callout"><p><b>The point.</b> The rules now cover part 3. Parts 1 and 2 are about the channel, not the rules: who can see an instruction, and who hears about a conflict. Better wording in AGENTS.md can't fix those. That's what the rest of this page is about.</p></div>
+  </section>
+
+  <section id="builders">
+    <div class="eyebrow">Question 1</div>
+    <h2>One builder or two?</h2>
+    <p>Four ways to set it up. "Builder" means the agent that commits to the GameOn repo. Any of you can still use any AI to think, brainstorm or sketch.</p>
+    <div class="decide">
+      <div class="lane pick">
+        <h3><span class="tag">A</span> One builder, two people steering</h3>
+        <p class="note">Claude is the only agent that commits to GameOn. You steer it from Claude Code, as now. Ryan steers the same builder from GitHub by writing <code>@claude</code> in an issue. Codex steps off the build.</p>
+        <dl>
+          <dt>Costs</dt><dd>Ryan gives up his own tool for building. His requests run on your Claude plan. GitHub comments are slower than chat.</dd>
+          <dt>Risks</dt><dd>Ryan feels like a guest in your setup. Your plan's limits are now shared.</dd>
+          <dt>Last night under A</dt><dd>Ryan's "build it here" is an <code>@claude</code> comment you can both see. The builder reads the decision in AGENTS.md and asks you both before starting.</dd>
+        </dl>
+      </div>
+      <div class="lane">
+        <h3><span class="tag">B</span> Two builders, hard lanes</h3>
+        <p class="note">Claude is the only agent in GameOn. Codex works only in game repos Ryan owns, which fits Decision 1. A finished game joins the arcade with a one-line list change made by Claude.</p>
+        <dl>
+          <dt>Costs</dt><dd>Two agents with two styles. Every game repo needs its own short AGENTS.md (the Blueprint's template).</dd>
+          <dt>Risks</dt><dd>The fun shared work (arcade, New Game page, skills) all sits in GameOn, so Ryan is locked out of it. Kid ideas sent through the New Game page get built by Claude anyway.</dd>
+          <dt>Last night under B</dt><dd>MazeAThon goes in Ryan's own repo. No conflict at all, but Ryan's agent never touches the arcade.</dd>
+        </dl>
+      </div>
+      <div class="lane">
+        <h3><span class="tag">C</span> Two builders, rules only</h3>
+        <p class="note">Today's setup: both agents in GameOn, kept apart by claims, file ownership and the conflict rule in AGENTS.md.</p>
+        <dl>
+          <dt>Costs</dt><dd>Nothing to set up.</dd>
+          <dt>Risks</dt><dd>Rules only work if both agents read them every time. Flags land in threads nobody watches. Two release habits produced the history repair. It has already gone wrong once.</dd>
+          <dt>Last night under C</dt><dd>It is last night.</dd>
+        </dl>
+      </div>
+      <div class="lane">
+        <h3><span class="tag">D</span> One coordinator you both talk to</h3>
+        <p class="note">A single always-on agent you and Ryan both chat with, for example Claude Tag in a shared Slack channel, or the Phase 1 pipeline session. It hands work to builders.</p>
+        <dl>
+          <dt>Costs</dt><dd>A Team plan and credits (Claude Tag), or real work on a pipeline you don't have yet.</dd>
+          <dt>Risks</dt><dd>More moving parts before you know what you need.</dd>
+          <dt>Last night under D</dt><dd>Ryan asks in the shared thread; you'd see it, if you were awake.</dd>
+        </dl>
+      </div>
+    </div>
+    <div class="callout">
+      <p><b>Recommendation: A now, D later.</b> Your instinct is right. Two agents committing to one repo means two private chats feeding one shared space. One builder means every instruction arrives where both of you can see it. Ryan keeps full steering rights; he just steers the same agent you do. If Ryan wants to keep Codex, B is the fair compromise: Codex in his own game repos, never in GameOn. D is where A grows once the pipeline runs on its own.</p>
+    </div>
+    <p class="note">"One builder" doesn't mean one process. Your local Claude Code sessions and Ryan's <code>@claude</code> runs are several sessions, but they share one model, one rulebook and one set of skills, and they claim work the same way. The difference from last night is that no one is steering in private.</p>
+  </section>
+
+  <section id="channel">
+    <div class="eyebrow">Question 2</div>
+    <h2>Where Ryan talks to the work</h2>
+    <p>Five options. The questions that matter: can the builder act on it directly, is it the record both of you and both agents can see, and what does it cost?</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Option</th><th>What Ryan does</th><th>Cost</th><th>Builder acts on it?</th><th>Is it the record?</th><th>Main catch</th></tr></thead>
+        <tbody>
+          <tr class="hot"><td><b>GitHub + <code>@claude</code></b><br><span class="chip c-pick">Pick</span></td><td>Writes "@claude …" in an issue or PR, from the GitHub phone app or the web.</td><td>No new bills. Public repos get free Actions minutes; runs use your Claude plan through a token.</td><td>Yes, directly</td><td>Yes</td><td>Comments aren't chat. Each mention starts a fresh run, so it's one request at a time.</td></tr>
+          <tr><td><b>Claude Tag</b> (Claude in Slack)</td><td>Tags @Claude in a shared channel. Either of you can steer the same thread.</td><td>Team plan: 2 seats minimum at $25 a seat monthly, plus usage credits loaded before anything runs.</td><td>Yes. Opens PRs as the Claude GitHub app.</td><td>No. Decisions would need copying into GitHub.</td><td>Not available on Max. You'd own a Team org and be Slack admin. Public beta.</td></tr>
+          <tr><td><b>Claude Code in Slack</b> (the earlier, per-person version)</td><td>Tags @Claude in a channel; it runs under his own Claude account.</td><td>Free Slack, but Ryan needs his own Claude Pro ($20 a month) or Max.</td><td>Yes, as whoever tagged it</td><td>No</td><td>Every person pays. Two accounts is close to two builders again.</td></tr>
+          <tr><td><b>A thread through your SMS pipeline</b> (OrangeBot)</td><td>Texts your assistant's number.</td><td>Twilio per-message fees, small.</td><td>Only through your assistant</td><td>Only if the pipeline copies it to GitHub</td><td>Built and registered as owner-only. See below.</td></tr>
+          <tr><td><b>A plain group chat</b> (iMessage, Discord)</td><td>Talks to you.</td><td>Free</td><td>No</td><td>No</td><td>Fixes the people side, not the agent side. Good as an extra.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="two">
+      <div style="display:grid;gap:10px">
+        <h3>A fair look at Claude Tag</h3>
+        <p class="note">It's the closest thing to what you described. Claude joins a Slack channel. Each thread is one session in its own cloud sandbox, and anyone in the thread can steer by replying. It can clone the repo, push branches and open PRs as the Claude GitHub app. Ryan wouldn't need a Claude account: anyone in the workspace can tag it, billed to your organization.</p>
+        <p class="note">The catch is the plan. Claude Tag runs only on Team and Enterprise, not on Pro or Max. You'd need a Team organization you own (two seats minimum), usage credits before anything runs, and a monthly spend cap. Whether a free Slack workspace works isn't documented. And Slack would become a second place where decisions get made, so each one would need copying into GitHub.</p>
+      </div>
+      <div style="display:grid;gap:10px">
+        <h3>A fair look at your SMS pipeline</h3>
+        <p class="note">From your public pages: OrangeBot is a Twilio number in front of an assistant on a dedicated server. It answers questions, manages your reminders and calendar, hands tasks to your tools, and texts you when background jobs finish. Its privacy policy says messages from any number but yours are ignored. (The pipeline's code isn't on this Mac, so this is from the pages, not the code.)</p>
+        <p class="note">Adding Ryan is doable but costly. The policy pages and the registered texting campaign describe one owner, so both would need checking. His texts would reach an assistant that can see your calendar, so he'd need a walled-off GameOn-only lane. Anything it posted to GitHub would post as you, which is last night's confusion in a new form. <b>As a pager for you, though, it's ideal:</b> the "text me when a job finishes" pattern already exists.</p>
+      </div>
+    </div>
+    <div class="callout">
+      <p><b>Recommendation.</b> Make GitHub both the channel and the record. Ryan drives the builder with <code>@claude</code> on issues. Your SMS pipeline texts <i>you</i> when something needs a decision or a release is waiting, which fits its owner-only design. Add a group text with Ryan for "hey, look at the MazeAThon task". Revisit Claude Tag if you ever move to a Team plan, or if you find you want a live, shared conversation with the builder.</p>
+    </div>
+  </section>
+
+  <section id="record">
+    <div class="eyebrow">Question 3</div>
+    <h2>Where decisions live, and how a conflict reaches you</h2>
+    <p>AGENTS.md already says where a decision is recorded: a comment on its issue quoting the person's words and date, plus an update to the design it changes. Keep that. Add three small things so a conflict can't sit unseen overnight.</p>
+    <div class="checks">
+      <div class="check"><b>A short "Decided" list in AGENTS.md</b><span>One line per decision, with a link to where it was settled. Every agent reads AGENTS.md on every run; not every agent opens the Blueprint.</span></div>
+      <div class="check"><b>A <code>needs-decision</code> label</b><span>The builder adds it when an ask conflicts with that list, and tags both of you by handle: @jwildfire and @killjoy00. Names without the @ notify nobody.</span></div>
+      <div class="check"><b>The builder waits</b><span>With one builder there's no race to win, so it stops on that item and does something else. Today's rule lets it do the work "cheap to undo" in the meantime (Q5).</span></div>
+      <div class="check"><b>A ping that reaches you</b><span>Your agent posts as you, so GitHub won't notify you about its own flags. Your SMS pipeline watches for the label and texts you. Ryan gets GitHub's notification because he's tagged.</span></div>
+    </div>
+    <ol class="flow">
+      <li><span class="who">Ryan or you</span><b>Ask</b><span>"@claude build MazeAThon in games/"</span></li>
+      <li><span class="who">Builder</span><b>Spot</b><span>Conflicts with Decision 1</span></li>
+      <li><span class="who">Builder</span><b>Flag</b><span><code>needs-decision</code>, tags you both</span></li>
+      <li><span class="who">Pipeline</span><b>Ping</b><span>Texts you within minutes</span></li>
+      <li><span class="who">You and Ryan</span><b>Settle</b><span>In the issue thread</span></li>
+      <li><span class="who">Builder</span><b>Record</b><span>Quote, date, Decided list</span></li>
+    </ol>
+  </section>
+
+  <section id="approve">
+    <div class="eyebrow">Question 4</div>
+    <h2>Who approves what</h2>
+    <p>Mostly what AGENTS.md says today, made explicit for the one-builder setup. Ryan and you are equal maintainers. Agents never decide or approve on their own.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Action</th><th>Jeremy</th><th>Ryan</th><th>Builder</th></tr></thead>
+        <tbody>
+          <tr><td>File or change an objective</td><td><span class="chip c-go">Yes</span></td><td><span class="chip c-go">Yes</span></td><td>Drafts only</td></tr>
+          <tr><td>Ask the builder to start a task</td><td><span class="chip c-go">Yes</span></td><td><span class="chip c-go">Yes</span></td><td>Only for work a skill hands it</td></tr>
+          <tr><td>Settle a project decision (where games live, how we work)</td><td colspan="2"><span class="chip c-wait">Both together</span> Changing a recorded one needs both too.</td><td><span class="chip c-stop">Never</span></td></tr>
+          <tr><td>What goes in a game</td><td colspan="2">The kid who designed it, through their own parent</td><td>Asks when unclear</td></tr>
+          <tr><td>Merge a task PR into dev</td><td>May</td><td>May</td><td><span class="chip c-go">Yes</span>, once its evidence is in</td></tr>
+          <tr><td>Approve a release to main</td><td colspan="2"><span class="chip c-wait">The other person</span> Whoever didn't ask for the work approves it.</td><td><span class="chip c-stop">Never</span> on its own</td></tr>
+          <tr><td>Merge a release into main</td><td><span class="chip c-go">Yes</span></td><td><span class="chip c-go">Yes</span></td><td><span class="chip c-stop">Never</span></td></tr>
+          <tr><td>Change AGENTS.md, workflows or skills</td><td colspan="2">Either asks, as its own task. Both see it in the release.</td><td>Does the task</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">One change from today's rule: "the other person" means whoever didn't ask for the work, not whoever didn't open the PR. With <code>@claude</code>, PRs may come from the Claude app rather than either of your accounts, so the PR's author no longer tells you who asked. Check what the first run produces.</p>
+  </section>
+
+  <section id="ideas">
+    <div class="eyebrow">Question 5</div>
+    <h2>How Ryan's kid's ideas get in</h2>
+    <p>The same way yours do: the <a href="../2026-10-23-new-game-pipeline/#phase0">Make a New Game Phase 0 flow</a>. The one change: "tell your agent" becomes "write <code>@claude</code> on the idea", so Ryan doesn't need his own agent.</p>
+    <ol class="flow">
+      <li><span class="who">Kid</span><b>Pitch</b><span>Talks or types on the New Game page</span></li>
+      <li><span class="who">Ryan</span><b>Submit</b><span>Reads the filled-in Game idea form, presses Submit</span></li>
+      <li><span class="who">Ryan</span><b>Eval</b><span>"@claude Evaluate game idea #N"</span></li>
+      <li><span class="who">Ryan</span><b>Build</b><span>"@claude Build game idea #N"</span></li>
+      <li><span class="who">Ryan</span><b>Check</b><span>"@claude Check the build for #N", a fresh run</span></li>
+      <li><span class="who">Kid and Ryan</span><b>Play</b><span>On dev, then Jeremy approves the release</span></li>
+    </ol>
+    <ul class="plain">
+      <li><b>The skills already exist</b>: evaluate, build and check, in <code>.claude/skills/</code> on dev. The <code>@claude</code> run checks out the repo, so it follows the same files your sessions do.</li>
+      <li><b>Ryan has the say on his kid's game.</b> You approve the release as the other person; that's a check that it's safe and plays, not a vote on the idea.</li>
+      <li><b>Ryan can still brainstorm with ChatGPT</b>, with or without his kid, and paste the result into the form. The kid's own words go in word for word.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>The moving parts</h2>
+    <div class="arch">
+      <div class="node"><b>GitHub</b><span>Issues, decisions, PRs, the record. Already there.</span></div>
+      <div class="node new"><b>@claude workflow</b><span>New. Lets you or Ryan start the builder from a comment. One run at a time.</span></div>
+      <div class="node"><b>Your Claude Code</b><span>Your sessions, as now. Same rules, same skills, same claims.</span></div>
+      <div class="node new"><b>The ping</b><span>New. Your SMS pipeline texts you on <code>needs-decision</code> and waiting releases.</span></div>
+      <div class="node"><b>Deploys</b><span>Already working: dev on every merge, main on every release.</span></div>
+    </div>
+    <p class="note">Dashed boxes are new. Nothing here is set up yet; this page is design only.</p>
+  </section>
+
+  <section id="week">
+    <div class="eyebrow">Try it</div>
+    <h2>The first week</h2>
+    <p>The smallest setup that tests the idea. You do the setup steps yourself; this task didn't create any accounts or integrations.</p>
+    <ol class="week">
+      <li><div><span class="d">Tonight</span><span class="who">You and Ryan</span></div><p>Ten minutes, on the phone or in the group text. Agree on A, or B if Ryan wants to keep Codex. Ryan tells his agent to stop opening PRs in GameOn. Decide who finishes the tests PR (#22): Ryan's agent pushes the one-character fix, or Ryan says in a comment that Claude can take it over.</p></li>
+      <li><div><span class="d">Day 1</span><span class="who">You</span></div><p>Run <code>/install-github-app</code> in GameOn and pick your subscription token, not an API key. In the workflow, add a concurrency group so only one <code>@claude</code> run goes at a time, a turn cap and a timeout. Only people with write access (you two) can trigger it; that's the default.</p></li>
+      <li><div><span class="d">Day 1</span><span class="who">Builder</span></div><p>A small shared-file task: the Decided list in AGENTS.md, the <code>needs-decision</code> label, and the "whoever didn't ask approves" wording.</p></li>
+      <li><div><span class="d">Day 2</span><span class="who">Ryan</span></div><p>First run, something small: "@claude, what's open and who's on it?" on any issue. Then a real one: evaluate an idea from his kid.</p></li>
+      <li><div><span class="d">Day 3</span><span class="who">You</span></div><p>Teach your SMS pipeline to text you when an issue gets <code>needs-decision</code> or a release PR is waiting. That's work in your pipeline, outside this repo.</p></li>
+      <li><div><span class="d">Days 4–6</span><span class="who">Ryan and his kid</span></div><p>One game end to end: pitch, evaluate, build, check, play on dev. You approve the release.</p></li>
+      <li><div><span class="d">Day 7</span><span class="who">You and Ryan</span></div><p>Fifteen minutes against the checks below. Keep it, tweak it, or try B or Claude Tag.</p></li>
+    </ol>
+    <div class="two">
+      <div style="display:grid;gap:10px">
+        <h3>It's working if</h3>
+        <div class="checks">
+          <div class="check good"><b>Ryan ships on his own</b><span>An idea goes from his kid to a dev link without you relaying anything.</span></div>
+          <div class="check good"><b>Conflicts surface in minutes</b><span>Each one shows up as <code>needs-decision</code> before work starts, and you hear within the hour.</span></div>
+          <div class="check good"><b>One builder in the log</b><span>No PR in GameOn from any other agent. No history repairs. No blocker PR left a day.</span></div>
+          <div class="check good"><b>Your plan holds up</b><span>Ryan's runs on top of yours don't hit your limits.</span></div>
+        </div>
+      </div>
+      <div style="display:grid;gap:10px">
+        <h3>It isn't if</h3>
+        <div class="checks">
+          <div class="check bad"><b>Ryan relays through you</b><span>"Can you ask Claude to…" texts mean GitHub is too clunky for him.</span></div>
+          <div class="check bad"><b>Runs stall</b><span>Builds time out or need too much back-and-forth for one-shot comments.</span></div>
+          <div class="check bad"><b>Codex creeps back</b><span>Ryan goes back to his own agent because it's faster. That's a sign to try B, not to force A.</span></div>
+          <div class="check bad"><b>It stops being fun</b><span>It's a hobby. If either of you dreads it, change it.</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="questions">
+    <h2>Questions for you</h2>
+    <ol class="qs">
+      <li><div><b>One builder for GameOn?</b><span>Is Ryan up for Codex stepping off the GameOn build (A)? Or do you offer B, Codex in his own game repos? <em>I'd ask him for A and offer B as the fallback.</em></span></div></li>
+      <li><div><b>Can Ryan's runs use your Claude plan?</b><span>A subscription token means his <code>@claude</code> runs share your Max limits. The other route is a separate API key with a spend cap. <em>I'd start on your plan and watch it for a week.</em></span></div></li>
+      <li><div><b>Should Ryan be in your SMS pipeline at all?</b><span>I'd keep it as your pager only. If you want Ryan texting in, it needs a walled-off GameOn lane, updated policy pages, a check of the texting registration, and a way to post to GitHub that isn't as you.</span></div></li>
+      <li><div><b>Claude Tag now or later?</b><span>It needs a Team plan (from $50 a month for two seats, plus credits). <em>I'd wait unless you want Team for other reasons.</em></span></div></li>
+      <li><div><b>Stop, or do it cheap?</b><span>When the builder hits a conflict, should it stop on that item until you both answer (my pick, with one builder), or keep today's rule of building it cheap to undo in the meantime?</span></div></li>
+      <li><div><b>Who breaks a tie?</b><span>If you and Ryan disagree on a project decision, does it stay open, or does one of you get the last word? Maybe you for the shared repo and Ryan for his own games.</span></div></li>
+      <li><div><b>MazeAThon's home</b><span>Settle it now: stay in <code>games/</code> as the exception, or move to its own repo? This ties to question 5 of the pipeline design, on where pipeline games live.</span></div></li>
+      <li><div><b>The tests PR</b><span>Ask Ryan to finish the tests PR (#22), or have Claude take it over with his OK in a comment?</span></div></li>
+    </ol>
+  </section>
+
+  <footer>
+    <p>Drafted by Claude Code (Opus 5.5) on 2026-10-23, from your request in chat, the GameOn issue threads from the night of 22 October, AGENTS.md on dev, and the sources below. Nothing was set up and nobody was messaged.</p>
+    <ul class="sources">
+      <li>GameOn: <a href="https://github.com/jwildfire/gameon/issues/1#issuecomment-6354783651">Decision 1 (#1)</a>, <a href="https://github.com/jwildfire/gameon/issues/20">iPhone objective (#20)</a>, <a href="https://github.com/jwildfire/gameon/pull/22">tests PR (#22)</a>, <a href="https://github.com/jwildfire/gameon/issues/25">MazeAThon build (#25)</a>, <a href="https://github.com/jwildfire/gameon/issues/30">history repair (#30)</a>, <a href="https://github.com/jwildfire/gameon/pull/29">release (#29)</a>, <a href="https://github.com/jwildfire/gameon/pull/50">AGENTS.md hardening (#50)</a>, <a href="../2026-10-22-gameon-design/">GameOn Blueprint</a>, <a href="../2026-10-23-new-game-pipeline/">Make a New Game</a>.</li>
+      <li>Claude Tag: <a href="https://claude.com/docs/claude-tag/overview.md">overview</a>, <a href="https://claude.com/docs/claude-tag/concepts/how-it-works.md">how it works</a>, <a href="https://claude.com/docs/claude-tag/admins/setup-overview.md">setup and plan requirements</a>, <a href="https://claude.com/docs/claude-tag/admins/restrict-access.md">restricting access</a>, <a href="https://claude.com/docs/claude-tag/admins/set-spend-limit.md">spend limits</a>, <a href="https://claude.com/docs/claude-tag/admins/configure-github.md">GitHub</a>.</li>
+      <li>Claude Code: <a href="https://code.claude.com/docs/en/github-actions">GitHub Actions and @claude</a>, <a href="https://code.claude.com/docs/en/slack">Claude Code in Slack (earlier version)</a>. Prices: <a href="https://claude.com/pricing">claude.com/pricing</a>. Actions minutes: <a href="https://docs.github.com/en/billing/managing-billing-for-your-products/managing-billing-for-github-actions/about-billing-for-github-actions">GitHub billing</a>.</li>
+      <li>Your SMS pipeline: <a href="https://jwildfire.github.io/orangebot/">OrangeBot</a>, <a href="https://jwildfire.github.io/sms-privacy/">privacy policy</a>, <a href="https://jwildfire.github.io/sms-terms/">terms</a>.</li>
+    </ul>
+  </footer>
+</main>

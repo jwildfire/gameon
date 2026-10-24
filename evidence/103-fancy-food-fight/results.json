@@ -1,0 +1,154 @@
+{
+  "spec": "103-fancy-food-fight",
+  "passed": true,
+  "headline": "PASS: 7 of 7 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-23T12:04:31.624Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "f0a7016",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/103-fancy-food-fight.spec.mjs",
+  "checks": [
+    {
+      "check": "the title screen opens and the game starts with nothing loaded from the internet",
+      "notes": [
+        "desktop: 4 foods on the tray, Duck button, Round 1 of 3; no requests outside the site",
+        "phone: 4 foods on the tray, Duck button, Round 1 of 3; no requests outside the site"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "title-desktop.jpg",
+          "playing-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "title-phone.jpg",
+          "playing-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "throwing food splats a fancy guest and scores, and a real tap throws",
+      "notes": [
+        "desktop: a guest splat scored 25; a click on the wall made a new splat",
+        "phone: a guest splat scored 25; a click on the wall made a new splat"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "splat-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "splat-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "three hits bring the chandelier down for a huge mess",
+      "notes": [
+        "desktop: Mess Meter 0% → 23%, score 220",
+        "phone: Mess Meter 0% → 20%, score 220"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "chandelier-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "chandelier-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Duck makes a guest's throw miss, and without it you get splatted",
+      "notes": [
+        "desktop: ducking: the pie flew over; not ducking: SPLAT",
+        "phone: ducking: the pie flew over; not ducking: SPLAT"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "splatted-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "splatted-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "each round ends with the Messiest crown, and the next round starts",
+      "notes": [
+        "desktop: You made the most mess. The crown is yours!",
+        "phone: You made the most mess. The crown is yours!"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "round-over-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "round-over-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "saves only under gameon.fancy-food-fight.",
+      "notes": [],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "Fancy Food Fight has a card in the arcade and plays in its frame",
+      "notes": [
+        "desktop: card first in the arcade; plays inside the frame; GitHub button opens its folder",
+        "phone: card first in the arcade; plays inside the frame; GitHub button opens its folder"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "in-arcade-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "in-arcade-phone.jpg"
+        ],
+        "error": null
+      }
+    }
+  ]
+}

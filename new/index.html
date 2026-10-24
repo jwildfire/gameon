@@ -1,0 +1,566 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>New Game · GameOn</title>
+<meta name="description" content="Tell GameOn your game idea by talking or typing, and a grown-up sends it to be built.">
+<meta name="theme-color" content="#ffd23f">
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;800&display=swap">
+<style>
+/* Same toy shelf as the arcade: sunny wall, chunky outlined cards. One look on purpose. */
+:root {
+  --wall: #ffd23f;
+  --ink: #1d1a2f;
+  --card: #fffdf6;
+  --muted: #5b5670;
+  --pop: #ff6b4a;
+  --soft: #e9dfb8;
+  --display: "Lilita One", "Arial Rounded MT Bold", "Trebuchet MS", sans-serif;
+  --body: "Nunito", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --line: 3px solid var(--ink);
+  --lift: 5px 5px 0 var(--ink);
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body { margin: 0; background: var(--wall); color: var(--ink); font: 600 16px/1.45 var(--body); -webkit-tap-highlight-color: transparent; }
+[hidden] { display: none !important; }
+:focus-visible { outline: 3px solid var(--pop); outline-offset: 3px; }
+a { color: inherit; }
+
+.page {
+  max-width: 1040px; margin: 0 auto;
+  padding-block: max(20px, env(safe-area-inset-top, 0px)) max(40px, env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 22px;
+}
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.back { display: inline-flex; align-items: center; gap: 6px; height: 38px; padding: 0 14px; border: var(--line); border-radius: 999px; background: var(--card); text-decoration: none; font-weight: 800; }
+.back svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.top-right { display: flex; align-items: center; gap: 12px; }
+.gh-link { display: inline-flex; align-items: center; gap: 6px; height: 38px; padding: 0 12px; border: var(--line); border-radius: 999px; background: var(--card); text-decoration: none; font-weight: 800; }
+.gh-link svg { width: 18px; height: 18px; fill: currentColor; }
+@media (max-width: 420px) { .mark { display: none; } }
+.mark { font: 400 30px/1 var(--display); color: var(--card); -webkit-text-stroke: 2px var(--ink); paint-order: stroke fill; text-shadow: 3px 3px 0 var(--ink); }
+.mark span { color: var(--pop); }
+h1 { margin: 0; font: 400 clamp(38px, 8vw, 64px)/0.95 var(--display); text-wrap: balance; }
+
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 24px; align-items: start; }
+.cols > * { min-width: 0; }
+.card { background: var(--card); border: var(--line); border-radius: 20px; box-shadow: var(--lift); padding: 18px; display: grid; gap: 14px; }
+
+.tabs { display: grid; grid-template-columns: 1fr 1fr; background: var(--card); border: var(--line); border-radius: 999px; padding: 4px; }
+.tabs button { font: 800 16px/1 var(--body); border: 0; border-radius: 999px; padding: 11px; background: transparent; color: var(--ink); cursor: pointer; }
+.tabs button[aria-pressed="true"] { background: var(--ink); color: var(--wall); }
+
+.mic { justify-self: center; width: 116px; height: 116px; border-radius: 50%; border: var(--line); background: var(--pop); display: grid; place-items: center; cursor: pointer; box-shadow: 0 5px 0 var(--ink); }
+.mic:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--ink); }
+.mic svg { width: 48px; height: 48px; fill: var(--card); }
+.mic.on { animation: pulse 1.2s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { box-shadow: 0 5px 0 var(--ink), 0 0 0 0 rgba(255,107,74,.55); } 50% { box-shadow: 0 5px 0 var(--ink), 0 0 0 16px rgba(255,107,74,0); } }
+@media (prefers-reduced-motion: reduce) { .mic.on { animation: none; } }
+.hint { text-align: center; color: var(--muted); font-weight: 800; }
+.live { min-height: 3.2em; font-size: 18px; }
+.live .interim { color: var(--muted); }
+
+label.lbl { font: 400 20px/1.1 var(--display); }
+textarea { width: 100%; min-height: 140px; resize: vertical; border: 2.5px solid var(--ink); border-radius: 12px; padding: 12px; font: 600 17px/1.45 var(--body); background: #fff; color: var(--ink); }
+.count { justify-self: end; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.count.over { color: #b3261e; font-weight: 800; }
+
+.who { display: grid; gap: 8px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font: 800 14px/1 var(--body); padding: 8px 12px; border: 2.5px solid var(--ink); border-radius: 999px; background: #fff; color: var(--ink); cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--wall); }
+input[type="text"] { width: 100%; border: 2.5px solid var(--ink); border-radius: 12px; padding: 10px 12px; font: 700 17px/1.2 var(--body); background: #fff; color: var(--ink); }
+
+/* "What are you making?": a new game, or a change to one already in the arcade */
+.making { display: grid; gap: 8px; }
+.making select { width: 100%; min-width: 0; appearance: none; -webkit-appearance: none; border: 2.5px solid var(--ink); border-radius: 12px; padding: 10px 40px 10px 12px; font: 800 17px/1.2 var(--body); color: var(--ink); cursor: pointer;
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%231d1a2f' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 12px center / 18px 18px; text-overflow: ellipsis; }
+.making .sub { font: 800 14px/1.2 var(--body); color: var(--muted); }
+
+.go { font: 400 24px/1 var(--display); border: var(--line); border-radius: 16px; background: var(--ink); color: var(--wall); padding: 16px; cursor: pointer; box-shadow: 0 5px 0 rgba(0,0,0,.25); }
+.go:disabled { opacity: .45; cursor: not-allowed; }
+.msg { padding: 12px 14px; border-radius: 12px; background: var(--wall); border: 2px solid var(--ink); font-weight: 800; }
+.msg.warn { background: #ffe2dc; }
+.handoff { display: grid; gap: 10px; }
+.handoff p { margin: 0; }
+.linkbox { font: 600 13px/1.4 ui-monospace, Menlo, monospace; word-break: break-all; background: #fff; border: 2px dashed var(--ink); border-radius: 10px; padding: 10px; }
+.side h2 { margin: 0; font: 400 26px/1 var(--display); }
+.side p { margin: 0; color: var(--ink); }
+.steps { margin: 0; padding-left: 22px; display: grid; gap: 6px; }
+
+.side-col { display: grid; gap: 24px; }
+.line-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.line-msg { color: var(--muted); font-weight: 800; }
+.ideas { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.idea { border: 2.5px solid var(--ink); border-radius: 14px; background: #fff; padding: 12px 14px; display: grid; gap: 7px; }
+.idea-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.idea-top b { font: 400 19px/1.1 var(--display); min-width: 0; overflow-wrap: anywhere; }
+.idea p { margin: 0; font-size: 14px; color: var(--muted); }
+.idea .by { font-size: 13px; font-weight: 800; }
+.idea a.play { justify-self: start; font: 400 16px/1 var(--display); text-decoration: none; background: var(--ink); color: var(--wall); border-radius: 10px; padding: 8px 12px; }
+.status { flex-shrink: 0; font: 800 12px/1 var(--body); padding: 5px 9px; border-radius: 999px; border: 2px solid var(--ink); background: var(--card); white-space: nowrap; }
+.status.live { background: var(--ink); color: var(--wall); }
+.status.stop { background: #ffe2dc; }
+.dots { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.dots i { height: 7px; border-radius: 4px; background: var(--soft); }
+.dots i.d { background: var(--ink); }
+.dots i.now { background: var(--pop); }
+</style>
+</head>
+<body>
+<main class="page">
+  <div class="top">
+    <a class="back" href="../"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Arcade</a>
+    <div class="top-right">
+      <a class="gh-link" id="gh-link" href="https://github.com/jwildfire/gameon" target="_blank" rel="noopener"><svg class="gh" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 0-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6 0-3.2 0 0 1-.3 3.4 1.2a11.5 11.5 0 0 1 6 0C17 4.6 18 5 18 5c.6 1.6.2 2.8.1 3.2.8.8 1.3 1.9 1.3 3.1 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>GitHub</a>
+      <div class="mark" aria-hidden="true">Game<span>On</span></div>
+    </div>
+  </div>
+  <h1 id="heading">What's your game?</h1>
+
+  <div class="cols">
+    <section class="card" id="tell" aria-label="Tell us your game">
+      <div class="making">
+        <label class="lbl" for="making">What are you making?</label>
+        <select id="making">
+          <option value="" selected>A new game</option>
+        </select>
+        <div class="making" id="version-box" hidden>
+          <label class="sub" for="version">Which version should it start from?</label>
+          <select id="version"></select>
+        </div>
+      </div>
+
+      <div class="tabs" role="group" aria-label="How do you want to tell us?">
+        <button type="button" id="tab-talk" aria-pressed="true">Talk</button>
+        <button type="button" id="tab-type" aria-pressed="false">Type</button>
+      </div>
+
+      <div id="talk-pane" class="talk">
+        <div style="display:grid;gap:10px">
+          <button type="button" class="mic" id="mic" aria-label="Tap to talk"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12h-2z"/></svg></button>
+          <div class="hint" id="mic-hint">Tap the button and tell us your game</div>
+          <div class="live" id="live" aria-live="polite"></div>
+        </div>
+      </div>
+
+      <div id="no-speech" class="msg warn" hidden>Talking doesn't work in this browser. Type your idea instead, or ask a grown-up to help.</div>
+
+      <div id="idea-box" style="display:grid;gap:8px">
+        <label class="lbl" for="idea" id="idea-label">Here's your idea</label>
+        <textarea id="idea" maxlength="1200" placeholder="A game where..."></textarea>
+        <div class="count" id="count">0 / 1000</div>
+      </div>
+
+      <div class="who">
+        <label class="lbl" for="maker">Who's making it?</label>
+        <div class="chips" id="chips"></div>
+        <input type="text" id="maker" maxlength="20" autocomplete="off" placeholder="A nickname, not your real name">
+      </div>
+
+      <div class="msg" id="ask" hidden>What happens in your game? Tell us a bit more.</div>
+      <button type="button" class="go" id="send" disabled>Send to a grown-up</button>
+
+      <div class="handoff" id="handoff" hidden>
+        <div class="msg">Great idea! A grown-up will check it on GitHub and press <b>Submit</b>.</div>
+        <p>If GitHub didn't open, a grown-up can use this link:</p>
+        <a class="linkbox" id="issue-link" target="_blank" rel="noopener"></a>
+        <button type="button" class="chip" id="another" style="justify-self:start">Make another one</button>
+      </div>
+    </section>
+
+    <div class="side-col">
+    <section class="side card" id="line" aria-labelledby="line-title">
+      <div class="line-head"><h2 id="line-title">The idea line</h2><button type="button" class="chip" id="refresh">Refresh</button></div>
+      <p class="line-msg" id="line-msg">Loading ideas…</p>
+      <ol class="ideas" id="ideas"></ol>
+    </section>
+    <aside class="side card" aria-label="How it works">
+      <h2>How it works</h2>
+      <ol class="steps">
+        <li>Tell us your game. Talk or type.</li>
+        <li>Read it back and fix anything that came out wrong.</li>
+        <li>A grown-up sends it to GameOn on GitHub.</li>
+        <li>An AI thinks about it, then builds it.</li>
+        <li>A grown-up checks it, and it shows up in the arcade.</li>
+      </ol>
+      <p style="color:var(--muted)">For grown-ups: Send opens GitHub's Game idea form with everything filled in. Read it, take out anything private, and press Submit. Then tell your agent "Evaluate game idea #N".</p>
+    </aside>
+    </div>
+  </div>
+</main>
+
+<script>
+(function () {
+  var REPO = "https://github.com/jwildfire/gameon";
+  var MAX = 1000, MIN_WORDS = 5;
+  var NICK_KEY = "gameon.arcade.nicknames";
+
+  var $ = function (id) { return document.getElementById(id); };
+  var tabTalk = $("tab-talk"), tabType = $("tab-type"), talkPane = $("talk-pane");
+  var mic = $("mic"), micHint = $("mic-hint"), live = $("live"), noSpeech = $("no-speech");
+  var idea = $("idea"), ideaLabel = $("idea-label"), count = $("count");
+  var maker = $("maker"), chips = $("chips"), ask = $("ask"), send = $("send");
+  var handoff = $("handoff"), issueLink = $("issue-link"), tell = $("tell");
+
+  var told = "typing";       // "talking" once any words came from the microphone
+  var mode = "talk";
+  var target = null;         // null for a new game, else { slug, title, version } to update
+
+  // ---------- What are you making? ----------
+  // A new game, or a change to a game in games.json (docs/game-versions.md). An entry without
+  // `versions` has one version, {creator}.v1. `creator` defaults to jeremy until every entry
+  // has one.
+  var making = $("making"), versionBox = $("version-box"), versionSel = $("version"), heading = $("heading");
+  var gamesBySlug = {};
+  var params = new URLSearchParams(location.search);
+
+  function versionsOf(g) {
+    if (Array.isArray(g.versions) && g.versions.length) return g.versions.filter(function (v) { return v && v.id; });
+    return [{ id: (g.creator || "jeremy") + ".v1" }];
+  }
+  function changeQuestion() { return "What should change in " + target.title + "?"; }
+
+  function fillVersions(g, want) {
+    var list = versionsOf(g);
+    versionSel.innerHTML = "";
+    list.forEach(function (v) {
+      var o = document.createElement("option");
+      o.value = v.id;
+      o.textContent = v.id + (v.id === g.default ? " (the main one)" : "") + (v.note ? " · " + v.note : "");
+      versionSel.appendChild(o);
+    });
+    var ids = list.map(function (v) { return v.id; });
+    versionSel.value = ids.indexOf(want) >= 0 ? want : ids.indexOf(g.default) >= 0 ? g.default : ids[0];
+    versionBox.hidden = false;
+  }
+
+  function pickGame(slug, want) {
+    var g = gamesBySlug[slug];
+    if (!g) {
+      target = null;
+      making.value = "";
+      versionBox.hidden = true;
+      versionSel.innerHTML = "";
+    } else {
+      making.value = slug;
+      fillVersions(g, want);
+      target = { slug: g.slug, title: g.title || g.slug, version: versionSel.value };
+    }
+    heading.textContent = target ? changeQuestion() : "What's your game?";
+    tell.setAttribute("aria-label", target ? "Tell us the change" : "Tell us your game");
+    idea.placeholder = target ? "Make it so..." : "A game where...";
+    ideaLabel.textContent = target ? changeQuestion() : mode === "talk" ? "Here's your idea" : "Type your game idea";
+    if (!listening && !idea.value.trim()) micHint.textContent = idleHint();
+  }
+  making.addEventListener("change", function () { pickGame(making.value); });
+  versionSel.addEventListener("change", function () { if (target) target.version = versionSel.value; });
+
+  var gamesReady = fetch("../games.json").then(function (r) {
+    if (!r.ok) throw new Error("http " + r.status);
+    return r.json();
+  }).then(function (list) {
+    (Array.isArray(list) ? list : []).forEach(function (g) {
+      if (!g || !g.slug || gamesBySlug[g.slug]) return;
+      gamesBySlug[g.slug] = g;
+      var o = document.createElement("option");
+      o.value = g.slug;
+      o.textContent = g.title || g.slug;
+      making.appendChild(o);
+    });
+    // new/?game={slug}&version={id} comes from a game's Update button; an unknown slug stays a new game.
+    if (params.get("game")) pickGame(params.get("game"), params.get("version"));
+    making.dataset.ready = "true";
+    return gamesBySlug;
+  }).catch(function () { making.dataset.ready = "true"; return gamesBySlug; });
+
+  // ---------- Talk or type ----------
+  var Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var rec = null, listening = false, finalText = "";
+
+  function setMode(m) {
+    mode = m;
+    tabTalk.setAttribute("aria-pressed", String(m === "talk"));
+    tabType.setAttribute("aria-pressed", String(m === "type"));
+    talkPane.hidden = m !== "talk" || !Recognition;
+    noSpeech.hidden = !(m === "talk" && !Recognition);
+    ideaLabel.textContent = target ? changeQuestion() : m === "talk" ? "Here's your idea" : "Type your game idea";
+    if (m === "type") { stopListening(); idea.focus(); }
+  }
+  tabTalk.addEventListener("click", function () { setMode("talk"); });
+  tabType.addEventListener("click", function () { setMode("type"); });
+
+  function startListening() {
+    if (!Recognition) return;
+    rec = new Recognition();
+    rec.lang = "en-US";
+    rec.continuous = true;
+    rec.interimResults = true;
+    finalText = idea.value.trim() ? idea.value.trim() + " " : "";
+    rec.onresult = function (e) {
+      var interim = "";
+      for (var i = e.resultIndex; i < e.results.length; i++) {
+        var t = e.results[i][0].transcript;
+        if (e.results[i].isFinal) finalText += t.trim() + " ";
+        else interim += t;
+      }
+      idea.value = finalText.trim().slice(0, MAX);
+      live.innerHTML = "";
+      if (interim) { var s = document.createElement("span"); s.className = "interim"; s.textContent = interim; live.appendChild(s); }
+      told = "talking";
+      update();
+    };
+    rec.onerror = function (e) {
+      micHint.textContent = e.error === "not-allowed" ? "The microphone is turned off for this page. Type your idea instead." : "Couldn't hear that. Tap to try again.";
+      stopListening(true);
+    };
+    rec.onend = function () { if (listening) stopListening(); };
+    try { rec.start(); } catch (err) { return; }
+    listening = true;
+    mic.classList.add("on");
+    mic.setAttribute("aria-label", "Tap to stop");
+    micHint.textContent = "Listening… tap to stop";
+  }
+  function stopListening(keepHint) {
+    if (rec) { try { rec.stop(); } catch (err) {} }
+    listening = false;
+    mic.classList.remove("on");
+    mic.setAttribute("aria-label", "Tap to talk");
+    live.textContent = "";
+    if (!keepHint) micHint.textContent = idea.value.trim() ? "Read it below. Fix anything, or tap to add more." : idleHint();
+  }
+  function idleHint() { return target ? "Tap the button and tell us what to change" : "Tap the button and tell us your game"; }
+  mic.addEventListener("click", function () { listening ? stopListening() : startListening(); });
+
+  // ---------- Nicknames ----------
+  function loadNicks() { try { return JSON.parse(localStorage.getItem(NICK_KEY) || "[]").slice(0, 6); } catch (e) { return []; } }
+  function saveNick(n) {
+    try {
+      var list = loadNicks().filter(function (x) { return x !== n; });
+      list.unshift(n);
+      localStorage.setItem(NICK_KEY, JSON.stringify(list.slice(0, 6)));
+    } catch (e) {}
+  }
+  function renderChips() {
+    chips.innerHTML = "";
+    loadNicks().forEach(function (n) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "chip"; b.textContent = n;
+      b.setAttribute("aria-pressed", String(maker.value.trim() === n));
+      b.addEventListener("click", function () { maker.value = n; update(); renderChips(); });
+      chips.appendChild(b);
+    });
+  }
+  function cleanNick(s) { return s.replace(/[^\p{L}\p{N} '\-]/gu, "").replace(/\s+/g, " ").trim().slice(0, 20); }
+
+  // ---------- Validate and send ----------
+  function words(s) { return s.trim() ? s.trim().split(/\s+/).length : 0; }
+  function update() {
+    var text = idea.value, n = text.length;
+    count.textContent = n + " / " + MAX;
+    count.classList.toggle("over", n > MAX);
+    send.disabled = !text.trim() || n > MAX || !cleanNick(maker.value);
+    if (words(text) >= MIN_WORDS) ask.hidden = true;
+  }
+  idea.addEventListener("input", update);
+  maker.addEventListener("input", function () { update(); renderChips(); });
+
+  // upd is null for a new game, or { slug, title, version } for an update (docs/game-versions.md).
+  function issueUrl(text, nick, how, upd) {
+    var p = new URLSearchParams();
+    p.set("template", "game-idea.yml");
+    p.set("title", upd ? "Update to " + upd.title + " from " + nick : "Game idea from " + nick);
+    p.set("idea", text);
+    p.set("maker", nick);
+    p.set("told_by", how);
+    if (upd) { p.set("game", upd.slug); p.set("version", upd.version); }
+    // If GitHub opens a blank issue instead of the form (the form only works once it's on
+    // main), the body and labels still arrive. Same layout as the form, so the idea line
+    // reads the nickname (and the game being updated) either way.
+    p.set("body", "### The idea, word for word\n\n" + text + "\n\n" +
+      (upd ? "### Game to update\n\n" + upd.slug + "\n\n### Starting version\n\n" + upd.version + "\n\n" : "") +
+      "### Made by\n\n" + nick + "\n\n### Told by\n\n" + how + "\n");
+    p.set("labels", upd ? "game-idea,update,status: submitted" : "game-idea,status: submitted");
+    return REPO + "/issues/new?" + p.toString();
+  }
+  window.gameonIssueUrl = issueUrl; // used by the evidence tests
+
+  send.addEventListener("click", function () {
+    var text = idea.value.trim().replace(/\s+\n/g, "\n");
+    var nick = cleanNick(maker.value);
+    if (words(text) < MIN_WORDS) { ask.hidden = false; idea.focus(); return; }
+    if (!nick || text.length > MAX) return;
+    stopListening();
+    saveNick(nick);
+    var url = issueUrl(text, nick, told, target);
+    issueLink.href = url;
+    issueLink.textContent = url;
+    handoff.hidden = false;
+    send.hidden = true;
+    var w = window.open(url, "_blank", "noopener");
+    handoff.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    return w;
+  });
+
+  $("another").addEventListener("click", function () {
+    idea.value = ""; told = "typing"; handoff.hidden = true; send.hidden = false;
+    setMode(Recognition ? "talk" : "type"); update(); idea.blur();
+  });
+
+  // ---------- The idea line ----------
+  // Reads public game-idea issues and their eval comments. Two API calls, cached for a minute.
+  var API = "https://api.github.com/repos/jwildfire/gameon";
+  var CACHE_KEY = "gameon.arcade.ideas";
+  var STATUS = {
+    "status: submitted":      { words: "Got your idea!",         step: 1 },
+    "status: evaluating":     { words: "Thinking about it",      step: 2 },
+    "status: needs more":     { words: "Tell us more",           step: 2 },
+    "status: needs approval": { words: "Waiting for a grown-up", step: 3 },
+    "status: approved":       { words: "In line to be built",    step: 3 },
+    "status: building":       { words: "Being built",            step: 4 },
+    "status: checking":       { words: "Getting checked",        step: 5 },
+    "status: on dev":         { words: "Almost ready",           step: 6 },
+    "status: published":      { words: "Play it now!",           step: 7 },
+    "status: not built":      { words: "Not this time",          step: 0 }
+  };
+  var ideasEl = $("ideas"), lineMsg = $("line-msg");
+
+  function evalFrom(body) {
+    var m = /^<!-- gameon-eval (\{.*?\}) -->/.exec(body || "");
+    if (!m) return null;
+    try { return JSON.parse(m[1]); } catch (e) { return null; }
+  }
+  function makerFrom(body) {
+    var m = /###\s*Made by\s*\n+\s*([^\n]+)/.exec(body || "");
+    return m ? m[1].trim().slice(0, 20) : "Someone";
+  }
+  function gameFrom(body) {
+    var m = /###\s*Game to update\s*\n+\s*([^\n]+)/.exec(body || "");
+    return m ? m[1].trim().slice(0, 60) : "";
+  }
+  function updateTitle(slug) {
+    var g = gamesBySlug[slug];
+    return "Update to " + (g && g.title ? g.title : slug || "a game");
+  }
+  function slugify(s) { return (s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
+  function ago(iso) {
+    var s = (Date.now() - new Date(iso).getTime()) / 1000;
+    if (s < 90) return "just now";
+    if (s < 3600) return Math.round(s / 60) + " min ago";
+    if (s < 86400) return Math.round(s / 3600) + " hr ago";
+    var d = Math.round(s / 86400);
+    return d === 1 ? "yesterday" : d + " days ago";
+  }
+
+  function getJSON(url) {
+    return fetch(url, { headers: { "Accept": "application/vnd.github+json" } }).then(function (r) {
+      if (r.status === 403 || r.status === 429) { var e = new Error("limit"); e.kind = "limit"; throw e; }
+      if (!r.ok) { var e2 = new Error("http " + r.status); e2.kind = "http"; throw e2; }
+      return r.json();
+    });
+  }
+
+  function loadIdeas(force) {
+    try {
+      var c = JSON.parse(sessionStorage.getItem(CACHE_KEY) || "null");
+      if (!force && c && Date.now() - c.at < 60000) return Promise.resolve(c.data);
+    } catch (e) {}
+    return Promise.all([
+      getJSON(API + "/issues?labels=game-idea&state=all&sort=created&direction=desc&per_page=30"),
+      getJSON(API + "/issues/comments?sort=created&direction=desc&per_page=100")
+    ]).then(function (res) {
+      var evals = {};
+      res[1].forEach(function (c) {
+        var ev = evalFrom(c.body);
+        var n = (c.issue_url || "").split("/").pop();
+        if (ev && !evals[n]) evals[n] = ev;          // newest first, so the first one wins
+      });
+      var data = res[0].filter(function (i) {
+        var names = (i.labels || []).map(function (l) { return l.name; });
+        return !i.pull_request && names.indexOf("test") === -1;
+      }).map(function (i) {
+        var names = i.labels.map(function (l) { return l.name; });
+        var st = names.filter(function (n) { return STATUS[n]; })[0] || "status: submitted";
+        var upd = names.indexOf("update") >= 0;
+        return { number: i.number, created: i.created_at, maker: makerFrom(i.body), status: st, ev: evals[String(i.number)] || null,
+                 update: upd, game: upd ? gameFrom(i.body) : "" };
+      });
+      try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ at: Date.now(), data: data })); } catch (e) {}
+      return data;
+    });
+  }
+
+  function renderIdeas(list) {
+    ideasEl.innerHTML = "";
+    if (!list.length) { lineMsg.textContent = "No ideas yet. Yours could be the first!"; lineMsg.hidden = false; return; }
+    lineMsg.hidden = true;
+    list.slice(0, 12).forEach(function (it) {
+      var s = STATUS[it.status], ev = it.ev;
+      var li = document.createElement("li"); li.className = "idea";
+      var top = document.createElement("div"); top.className = "idea-top";
+      // An update is named after the game it changes, with or without an eval.
+      var b = document.createElement("b"); b.textContent = it.update ? updateTitle(it.game) : ev && ev.title ? ev.title : "A new idea";
+      var chip = document.createElement("span");
+      chip.className = "status" + (it.status === "status: published" ? " live" : it.status === "status: not built" ? " stop" : "");
+      chip.textContent = s.words;
+      top.appendChild(b); top.appendChild(chip); li.appendChild(top);
+
+      var p = document.createElement("p");
+      if (it.status === "status: needs more" && ev && ev.question) p.textContent = ev.question;
+      else if (it.status === "status: not built" && ev && ev.reason) p.textContent = ev.reason;
+      else p.textContent = ev && ev.one_liner ? ev.one_liner : "Just sent. A short description shows up once it's been read.";
+      li.appendChild(p);
+
+      if (s.step > 0) {
+        var dots = document.createElement("div"); dots.className = "dots"; dots.setAttribute("aria-hidden", "true");
+        for (var k = 1; k <= 7; k++) { var dot = document.createElement("i"); if (k < s.step || (k === s.step && s.step === 7)) dot.className = "d"; else if (k === s.step) dot.className = "now"; dots.appendChild(dot); }
+        li.appendChild(dots);
+      }
+      if (it.status === "status: published" && it.update && gamesBySlug[it.game]) {
+        var ua = document.createElement("a"); ua.className = "play";
+        ua.href = "../#" + it.game + (ev && ev.version ? "@" + encodeURIComponent(ev.version) : ""); ua.textContent = "Play it";
+        li.appendChild(ua);
+      } else if (it.status === "status: published" && !it.update && ev && ev.title) {
+        var a = document.createElement("a"); a.className = "play"; a.href = "../#" + slugify(ev.title); a.textContent = "Play it";
+        li.appendChild(a);
+      }
+      var by = document.createElement("span"); by.className = "by"; by.textContent = it.maker + " · " + ago(it.created);
+      li.appendChild(by);
+      ideasEl.appendChild(li);
+    });
+  }
+
+  function showIdeas(force) {
+    lineMsg.hidden = false;
+    if (!ideasEl.children.length) lineMsg.textContent = "Loading ideas…";
+    // Updates are titled from games.json, so wait for it (it never fails; titles fall back to the slug).
+    Promise.all([loadIdeas(force), gamesReady]).then(function (r) { renderIdeas(r[0]); }).catch(function (e) {
+      ideasEl.innerHTML = "";
+      lineMsg.hidden = false;
+      lineMsg.textContent = e && e.kind === "limit"
+        ? "GitHub needs a short break. Try again in a few minutes."
+        : "Can't reach GitHub right now. Check the internet and tap Refresh.";
+    });
+  }
+  $("refresh").addEventListener("click", function () { showIdeas(true); });
+  window.gameonShowIdeas = showIdeas; // used by the evidence tests
+
+  // ---------- Start ----------
+  showIdeas(false);
+  var last = loadNicks()[0];
+  if (last) maker.value = last;
+  renderChips();
+  setMode(Recognition ? "talk" : "type");
+  update();
+})();
+</script>
+</body>
+</html>

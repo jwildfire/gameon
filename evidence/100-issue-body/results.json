@@ -1,0 +1,50 @@
+{
+  "spec": "100-issue-body",
+  "passed": true,
+  "headline": "PASS: 2 of 2 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-23T11:34:32.529Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "a43f0d6",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/100-issue-body.spec.mjs",
+  "checks": [
+    {
+      "check": "Send carries the body and labels as well as the form fields",
+      "notes": [
+        "desktop: address is 460 characters; body has the idea, Made by and Told by sections",
+        "phone: address is 460 characters; body has the idea, Made by and Told by sections"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "sent-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "sent-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "a 1,000-character idea still fits in one address",
+      "notes": [
+        "desktop: 987-character idea → 2264-character address (GitHub allows about 8,000)",
+        "phone: 987-character idea → 2264-character address (GitHub allows about 8,000)"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    }
+  ]
+}

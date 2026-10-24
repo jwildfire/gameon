@@ -15,7 +15,7 @@ body:
     id: definition_of_done
     attributes:
       label: Definition of done
-      description: "What is true when the whole objective is done, and how anyone can check it. Write it so it can fail."
+      description: "The requirements: what is true when the whole objective is done, one checkable line each, and how anyone can check it. Write it so it can fail. Too many lines for one short list means it is two objectives."
       placeholder: |
         - End state:
         - Proof:

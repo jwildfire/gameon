@@ -1,0 +1,53 @@
+name: Game idea
+description: A kid's game idea, usually sent from the New Game page in the arcade. A grown-up reads it here and presses Submit.
+title: "Game idea from {nickname}"
+labels: ["game-idea", "status: submitted"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This idea came from the [New Game page](https://jwildfire.github.io/gameon/new/). Read it before you submit: fix anything the speech-to-text got wrong, and take out anything a kid shouldn't post publicly (real names, addresses, schools). Then press Submit, and tell your agent "Evaluate game idea #N".
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: The idea, word for word
+      description: "Exactly what the kid said or typed. Keep their words; the eval writes the build brief."
+    validations:
+      required: true
+
+  - type: input
+    id: game
+    attributes:
+      label: Game to update
+      description: "For a change to a game already in the arcade: its slug from games.json. Blank for a new game."
+      placeholder: "fancy-food-fight"
+    validations:
+      required: false
+
+  - type: input
+    id: version
+    attributes:
+      label: Starting version
+      description: "The version the change starts from, like jeremy.v1. Blank for a new game."
+      placeholder: "jeremy.v1"
+    validations:
+      required: false
+
+  - type: input
+    id: maker
+    attributes:
+      label: Made by
+      description: "A nickname, never a real name."
+      placeholder: "Rocket"
+    validations:
+      required: true
+
+  - type: input
+    id: told_by
+    attributes:
+      label: Told by
+      description: "talking (speech-to-text, read back by the kid before sending) or typing"
+      placeholder: "talking"
+    validations:
+      required: true

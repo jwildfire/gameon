@@ -1,0 +1,98 @@
+{
+  "spec": "107-mazeathon-playfeel",
+  "passed": true,
+  "headline": "PASS: 4 of 4 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-23T13:52:31.087Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "111fc7a",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/107-mazeathon-playfeel.spec.mjs",
+  "checks": [
+    {
+      "check": "a new adventure has early choices that work with keyboard and phone controls",
+      "notes": [
+        "desktop: Seed 2026: both paths from camp are playable using arrow keys. Model regressions also check 100 seeds.",
+        "phone: Seed 2026: both paths from camp are playable using the visible direction buttons. Model regressions also check 100 seeds."
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "opening-choices-desktop.jpg",
+          "opening-map-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "opening-choices-phone.jpg",
+          "opening-map-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "hugging a wall keeps its face visible and the floor behind it hidden, including after continuing",
+      "notes": [
+        "desktop: Controlled save fixture beside the opening pillar; pushing into it stops at the collision boundary. The adjacent wall is discovered and the occluded floor stays undiscovered. Continue retains the layout.",
+        "phone: Controlled save fixture beside the opening pillar; pushing into it stops at the collision boundary. The adjacent wall is discovered and the occluded floor stays undiscovered. Continue retains the layout."
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "close-wall-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "close-wall-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "small monsters show a stationary warning before moving",
+      "notes": [
+        "desktop: Controlled save near a real generated small monster, with a shield so the chase can be observed. Its ! warning lasts 0.75 seconds, with no movement. Then it chases. The unit suite separately checks unshielded corner encounters and loss of sight.",
+        "phone: Controlled save near a real generated small monster, with a shield so the chase can be observed. Its ! warning lasts 0.75 seconds, with no movement. Then it chases. The unit suite separately checks unshielded corner encounters and loss of sight."
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "small-monster-warning-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "small-monster-warning-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "big monsters show a stationary warning before moving",
+      "notes": [
+        "desktop: Controlled save near a real generated guardian, with a shield so the chase can be observed. Its ! warning lasts 1.2 seconds, with no movement. Then it chases. The unit suite separately checks unshielded corner encounters and loss of sight.",
+        "phone: Controlled save near a real generated guardian, with a shield so the chase can be observed. Its ! warning lasts 1.2 seconds, with no movement. Then it chases. The unit suite separately checks unshielded corner encounters and loss of sight."
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "big-monster-warning-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "big-monster-warning-phone.jpg"
+        ],
+        "error": null
+      }
+    }
+  ]
+}
