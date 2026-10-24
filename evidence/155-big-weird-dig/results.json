@@ -2,9 +2,9 @@
   "spec": "155-big-weird-dig",
   "passed": true,
   "headline": "PASS: 9 of 9 checks pass at desktop and phone widths.",
-  "generatedAt": "2026-10-24T13:05:20.075Z",
+  "generatedAt": "2026-10-24T13:28:13.003Z",
   "target": "local server (python3 -m http.server) on this branch",
-  "commit": "ca87f57",
+  "commit": "43842ed",
   "playwright": "1.61.1",
   "specFile": "tests/evidence/155-big-weird-dig.spec.mjs",
   "checks": [
@@ -35,7 +35,7 @@
       "check": "the bulldozer digs a real tunnel with the real controls: the keyboard on a laptop, the arrow pad on a phone",
       "notes": [
         "desktop: arrow keys: dug 6 cells, down to row 4 and across to column 4; fuel 100 → 96",
-        "phone: arrow pad (one thumb, slid from down to right): dug 6 cells, down to row 4 and across to column 4; fuel 100 → 96"
+        "phone: arrow pad (one thumb, slid from down to right): dug 7 cells, down to row 5 and across to column 4; fuel 100 → 95"
       ],
       "desktop": {
         "status": "pass",
@@ -97,8 +97,8 @@
     {
       "check": "every one of the 8 levels can be beaten in the real game",
       "notes": [
-        "desktop: won every level (game seconds, starting fuel → fuel left): 1: 6s, fuel 100 → 87; 2: 12s, fuel 85 → 85; 3: 14s, fuel 75 → 69; 4: 14s, fuel 70 → 57; 5: 17s, fuel 65 → 49; 6: 21s, fuel 60 → 63; 7: 29s, fuel 60 → 57; 8: 30s, fuel 60 → 47",
-        "phone: won every level (game seconds, starting fuel → fuel left): 1: 6s, fuel 100 → 87; 2: 12s, fuel 85 → 85; 3: 14s, fuel 75 → 69; 4: 14s, fuel 70 → 57; 5: 17s, fuel 65 → 49; 6: 20s, fuel 60 → 65; 7: 30s, fuel 60 → 53; 8: 31s, fuel 60 → 47"
+        "desktop: won every level (game seconds, starting fuel → fuel left): 1: 6s, fuel 100 → 87; 2: 12s, fuel 85 → 85; 3: 14s, fuel 75 → 69; 4: 14s, fuel 70 → 57; 5: 21s, fuel 65 → 64; 6: 21s, fuel 60 → 63; 7: 30s, fuel 60 → 52; 8: 21s, fuel 60 → 50",
+        "phone: won every level (game seconds, starting fuel → fuel left): 1: 6s, fuel 100 → 87; 2: 12s, fuel 85 → 85; 3: 14s, fuel 75 → 69; 4: 14s, fuel 70 → 57; 5: 16s, fuel 65 → 48; 6: 22s, fuel 60 → 54; 7: 29s, fuel 60 → 56; 8: 21s, fuel 60 → 47"
       ],
       "desktop": {
         "status": "pass",
@@ -118,8 +118,8 @@
     {
       "check": "the game pauses, Restart starts the level over, and running out of fuel offers a retry",
       "notes": [
-        "desktop: paused at 0.73s and the clock stayed put; Restart put the bulldozer back on top with a fresh clock; an empty tank showed “Out of fuel!” and Try again refilled it",
-        "phone: paused at 0.82s and the clock stayed put; Restart put the bulldozer back on top with a fresh clock; an empty tank showed “Out of fuel!” and Try again refilled it"
+        "desktop: paused at 0.75s and the clock stayed put; Restart put the bulldozer back on top with a fresh clock; an empty tank showed “Out of fuel!” and Try again refilled it",
+        "phone: paused at 0.77s and the clock stayed put; Restart put the bulldozer back on top with a fresh clock; an empty tank showed “Out of fuel!” and Try again refilled it"
       ],
       "desktop": {
         "status": "pass",
@@ -175,10 +175,10 @@
       }
     },
     {
-      "check": "Big Weird Dig has the first card in the arcade and plays in its frame",
+      "check": "Big Weird Dig has the first card after the Editor's Choice games and plays in its frame",
       "notes": [
-        "desktop: card first in the arcade with its 800x450 cover; plays inside the frame; GitHub button opens its folder",
-        "phone: card first in the arcade with its 800x450 cover; plays inside the frame; GitHub button opens its folder"
+        "desktop: card first after the 1 Editor's Choice card(s), with its 800x450 cover; plays inside the frame; GitHub button opens its folder",
+        "phone: card first after the 1 Editor's Choice card(s), with its 800x450 cover; plays inside the frame; GitHub button opens its folder"
       ],
       "desktop": {
         "status": "pass",
