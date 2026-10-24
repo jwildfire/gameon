@@ -2,9 +2,9 @@
   "spec": "135-header-row",
   "passed": true,
   "headline": "PASS: 3 of 3 checks pass at desktop and phone widths.",
-  "generatedAt": "2026-10-24T04:39:02.505Z",
+  "generatedAt": "2026-10-24T04:39:23.816Z",
   "target": "local server (python3 -m http.server) on this branch",
-  "commit": "4194911",
+  "commit": "376b44d",
   "playwright": "1.61.1",
   "specFile": "tests/evidence/135-header-row.spec.mjs",
   "checks": [
