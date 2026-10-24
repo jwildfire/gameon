@@ -1,5 +1,15 @@
 [
   {
+    "slug": "super-sauce-boy",
+    "title": "Super Sauce Boy",
+    "tagline": "Leap, wall-jump and splat through spicy kitchen levels as a tiny drop of hot sauce.",
+    "credit": "Designed by NotClay",
+    "url": "games/super-sauce-boy/",
+    "repo": "https://github.com/jwildfire/gameon",
+    "color": "#e5281b",
+    "tags": ["New", "Platformer", "1 player", "Turn sideways"]
+  },
+  {
     "slug": "fancy-food-fight",
     "title": "Fancy Food Fight",
     "tagline": "Splat the fanciest party in town with pies and spaghetti. Messiest wins!",
