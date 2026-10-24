@@ -1,6 +1,6 @@
 ---
 name: gameon-build
-description: Build a GameOn game from an approved game-idea issue and open its PR into dev. Use when asked to "build game idea #N" or to turn an evaluated kid's idea into a playable GameOn game.
+description: Build a GameOn game from an approved game-idea issue and open its PR into dev, or, for an update idea, build the game's next version or a fork in games/{slug}/{version}/. Use when asked to "build game idea #N" or to turn an evaluated kid's idea into a playable GameOn game or game version.
 ---
 
 # Build a game from an idea
@@ -19,6 +19,7 @@ gh issue view N -R jwildfire/gameon --json title,labels,comments,assignees
 
 - The idea must carry `status: approved`, or the person steering you must say in chat to build it anyway. Otherwise stop and say what status it's in.
 - Find the latest eval comment (first line starts `<!-- gameon-eval`). Its build brief is your spec; its `title` and slug name the game.
+- **Update or new game?** If the eval's JSON line has `"update": true`, this idea changes an existing game: claim it as below (say `Starting: building <title> <version>.`), then follow [Updates and forks](#updates-and-forks) in place of steps 2 to 6. Otherwise carry on with step 2.
 - Claim: assign whoever is steering you, comment `Starting: building <title>.`, and move the label: `gh issue edit N --add-label "status: building" --remove-label "status: approved"`.
 
 ## 2. Where it lives
@@ -33,7 +34,7 @@ git fetch -q && git worktree add .claude/worktrees/N-<slug> -b N-<slug> origin/d
 
 ## 3. The walls
 
-- **Only your files:** `games/<slug>/`, `assets/covers/<slug>.jpg`, and one new entry in `games.json`. Nothing else: no workflows, templates, AGENTS.md, other games, or the arcade page.
+- **Only your files:** `games/<slug>/`, `assets/covers/<slug>.jpg`, one new entry in `games.json`, and the build's evidence spec and folder (`tests/evidence/N-<slug>.spec.mjs` and `evidence/N-<slug>/`, which `docs/evidence.md` requires). Nothing else: no workflows, templates, AGENTS.md, other games, or the arcade page.
 - **No network in the game:** no `fetch`, `XMLHttpRequest`, `WebSocket`, `EventSource`, `sendBeacon`, no scripts, iframes, images or forms pointing at other sites. Google Fonts is the one allowed exception; prefer system fonts. The game must work offline.
 - **No tricks:** no `eval`, `new Function`, minified or obfuscated blobs, analytics or tracking.
 - **Saves:** every `localStorage` key starts with `gameon.<slug>.`; wrap storage in try/catch so blocked storage doesn't break the game.
@@ -70,8 +71,207 @@ git fetch -q && git worktree add .claude/worktrees/N-<slug> -b N-<slug> origin/d
 
 Aim for a good first version in about 90 minutes of work; ship what plays rather than everything in the brief, and list what you cut. Then prove it, following `docs/evidence.md` if it exists (otherwise: Playwright screenshots at 375 and 1280 wide of the title screen and a moment of play, plus no console errors).
 
+Run your spec as `npm run evidence -- tests/evidence/<branch>`, with the `tests/evidence/` prefix. In a worktree named after the branch, the bare branch name matches every spec's path and rewrites other tasks' evidence folders (the Super Sauce Boy build, #112). If that happens, restore them with `git checkout -- evidence/` before you commit.
+
 ## 6. Open the PR and hand off
 
 - PR into **dev**, titled `Build <title> from game idea #N`, using the repo's PR template. Put `Builds game idea #N` in the body (not `Closes`), the evidence, and what was cut.
 - Move the label: `gh issue edit N --add-label "status: checking" --remove-label "status: building"`, and comment the PR link on the idea.
 - Tell the person steering you: the PR link, and the next command to give **a different, fresh agent session**: "Check the build for #N".
+- The check step merges only once the PR's Evidence run is completed with conclusion `success`. If that run fails, fix it on your branch before you hand off.
+
+## Updates and forks
+
+When the eval has `"update": true`, you build a new version of an existing game. The spec is [`docs/game-versions.md`](../../../docs/game-versions.md); read it first. The eval's update brief is your spec: what changes, what stays, the starting version, the new version id, and whether it's a creator's update or a fork. The eval's JSON line gives you `game` (the slug), `from` (the starting version), `version` and `fork`.
+
+Nothing is overwritten: the starting version, every other version, and a first version that lives in its own repo stay exactly as they are.
+
+### U1. Work out the version id
+
+Work it out again from dev now, because another version may have landed since the eval. Use the same creator as the eval (the entry's `creator`; if it has none, the maker of the game's first idea, then the creator table in `docs/game-versions.md`, then `jeremy`):
+
+```bash
+git fetch -q && git show origin/dev:games.json | SLUG=<slug> MAKER="<Made by, exactly>" CREATOR=<creator> python3 -c '
+import json, os, re, sys
+g = next(x for x in json.load(sys.stdin) if x["slug"] == os.environ["SLUG"])
+creator = g.get("creator") or os.environ["CREATOR"]
+user = re.sub(r"[^a-z0-9]", "", os.environ["MAKER"].lower())
+vs = g.get("versions") or [{"id": creator + ".v1", "url": g["url"]}]
+n = 1 + max([int(v["id"].rsplit(".v", 1)[1]) for v in vs if v["id"].rsplit(".v", 1)[0] == user], default=0)
+print(json.dumps({"user": user, "creator": creator, "fork": user != creator, "version": f"{user}.v{n}" if user else None,
+  "default": g.get("default", creator + ".v1"), "versions": {v["id"]: v["url"] for v in vs}}))'
+```
+
+- Then look for other open PRs building a version of the same game: `gh pr list -R jwildfire/gameon --state open --search "<title> in:title" --json number,title`. A title of the form "Update <title> to <id> from game idea #…" or "Fork <title> as <id> from game idea #…" whose `<id>` starts with your username claims that number; take the next number after the highest one claimed.
+- If your `version` differs from the eval's, use yours and say so in the PR's Notes and in your comment on the idea. If `fork` differs from the eval's, stop and ask the person steering you.
+- If `from` isn't in `versions`, use `default` and say so.
+- The starting version's url is `versions[from]`.
+
+Work in a worktree off dev named after the idea, the game and the version, with the dot as a dash: `N-<slug>-<user>-v<n>` (e.g. `121-fancy-food-fight-notclay-v1`).
+
+```bash
+git worktree add .claude/worktrees/<branch> -b <branch> origin/dev
+```
+
+### U2. Copy the starting version
+
+The new version lives in `games/<slug>/<version>/`. That folder must not exist on dev yet. Copy the starting version into it whole, then commit the copy on its own (`Copy <title> <from> as the start of <version>`) before you change anything, so the change is easy to review.
+
+- **The starting version's url starts with `games/`** (in this repo):
+
+  ```bash
+  SRC=<the starting version's url>    # e.g. games/fancy-food-fight/ or games/fancy-food-fight/jeremy.v2/
+  DEST=games/<slug>/<version>
+  mkdir -p "$DEST" && rsync -a --exclude='/*.v[0-9]*/' "$SRC" "$DEST/"
+  ```
+
+  The exclude skips the game's other version folders when the starting version is the first one at `games/<slug>/`.
+- **The starting version is a first version in its own repo** (its url starts `https://`; `<repo>` is the last part of the entry's `repo`). Copy that repo's files at its default branch into a scratch folder outside this repo, then into the version folder. Never commit, push, open a PR or change anything in the original repo.
+
+  ```bash
+  TMP=$(mktemp -d)
+  gh repo clone jwildfire/<repo> "$TMP/src" -- --depth 1
+  DEST=games/<slug>/<version>
+  mkdir -p "$DEST" && rsync -a --exclude='.git' --exclude='.github' --exclude='node_modules' --exclude='/ios/' --exclude='/android/' "$TMP/src/" "$DEST/"
+  rm -rf "$TMP"
+  ```
+
+  Keep the repo's build script and its sources if it has them (Princess Lady Drive and Magic Friends build `index.html` from `src/` with `build.sh`): make your change in the sources and rerun the build, so the committed `index.html` matches. If the copy is over about 2 MB, remove what the game never loads and list what you left out in the PR's Notes.
+- **Make it play from its new folder.** It has to run from `games/<slug>/<version>/index.html` with no server. Look for paths that break when moved: absolute paths (`src="/`, `href="/`, `url(/`), `../` out of the folder, and links to the starting version's own site that load its files. Make them relative to the version folder. Commit that as part of the copy if the copy didn't play without it.
+
+### U3. Make the change
+
+Build what the update brief says changes, and keep what it says stays. The same time box as step 5: ship what plays and list what you cut.
+
+**The walls for an update** (in place of step 3's file list; the other walls still hold):
+- **Only your files:** the new `games/<slug>/<version>/` folder; that game's entry in `games.json`; `assets/covers/<slug>.jpg`, for a creator's update only; and your evidence spec and folder (`tests/evidence/<branch>.spec.mjs`, `evidence/<branch>/`). Never the starting version, another version, another game's entry, or the arcade.
+- **No network, no tricks:** as step 3, for everything you add. A first version from its own repo may already have outside calls (Timed Out reads Wikipedia and is tagged "Needs internet"). Leave those as they are, add none, and list them in the PR's Notes so the check can tell them apart from new ones.
+
+**Saves stay compatible.** All versions of a game share its save area.
+- The new version must read what the starting version saved without breaking: same keys, same format, or it copes with both.
+- If it needs a different save format, use new keys, `gameon.<slug>.<version>.…`, and leave the old keys and their format alone.
+- New keys always start `gameon.<slug>.`. Keys the starting version already used without that prefix (some first versions in their own repos predate the rule) may be kept, unchanged, so old saves still load.
+- Wrap storage in try/catch, as step 3 says.
+
+### U4. The version's own files
+
+The version folder is a complete, standalone game: its own `index.html`, `README.md` and `gameon.json`.
+
+- **`README.md`:** keep the copied one, with the original idea at the top, and add this at the end (create the file with just a `# <title>` heading first if the copy had none):
+
+  ```markdown
+  ## <version>: <version note from the brief>
+
+  Update idea from <nickname> (game idea #N), word for word:
+
+  > <the kid's words, exactly>
+
+  Started from <from>. <One or two lines on what changed.>
+  ```
+- **`gameon.json`:** keep the copied one (if the copy had none, start from `{"name": "<slug>", "title": "<title>"}`). Keep the original's `name`, `title`, `credit`, `idea`, `made`, `built_with` and `idea_issue` as they are. If it has a `path`, set it to `games/<slug>/<version>/`. Then set `version` and `from`, and add one item at the end of `updates` (create the list if it's missing):
+
+  ```json
+  "version": "notclay.v1",
+  "from": "jeremy.v1",
+  "updates": [
+    { "version": "notclay.v1", "from": "jeremy.v1", "idea": "<the kid's words, exactly>", "by": "<nickname from Made by>", "made": "YYYY-MM-DD", "built_with": "<your model>", "idea_issue": N }
+  ]
+  ```
+
+  A creator's update may also change `tagline`, `players` or `sideways` if the change does. A fork doesn't.
+
+### U5. The `games.json` entry
+
+Change only this game's entry, and leave every other line of the file exactly as it is. Run this from the worktree; it rewrites just this entry and refuses to save if anything else would change:
+
+- `FORK` is `true` or `false`; `NOTE` is the brief's version note; `MADE` is today.
+- `V1_MADE` is used only when the entry has no `versions` yet, as the first version's date: for a game in `games/`, `git log --diff-filter=A --format=%as -- games/<slug>/index.html | tail -1`; for a game in its own repo, `gh api repos/jwildfire/<repo> --jq .created_at | cut -c1-10`.
+
+```bash
+SLUG=<slug> CREATOR=<creator> VERSION=<version> FROM=<from> NOTE="<version note>" IDEA=N FORK=<true|false> MADE=$(date +%F) V1_MADE=<date> python3 - <<'EOF'
+import json, os
+def spans(text):
+    out, depth, start, in_str, esc = [], 0, None, False, False
+    for i, ch in enumerate(text):
+        if in_str:
+            if esc: esc = False
+            elif ch == "\\": esc = True
+            elif ch == '"': in_str = False
+        elif ch == '"': in_str = True
+        elif ch in "[{":
+            depth += 1
+            if depth == 2 and ch == "{": start = i
+        elif ch in "]}":
+            if depth == 2 and ch == "}": out.append((start, i + 1))
+            depth -= 1
+    return out
+def render(entry):
+    lines = []
+    for k, v in entry.items():
+        if k == "versions":
+            items = ["      { " + json.dumps(x, ensure_ascii=False)[1:-1] + " }" for x in v]
+            lines.append('    "versions": [\n' + ",\n".join(items) + "\n    ]")
+        else:
+            lines.append("    " + json.dumps(k) + ": " + json.dumps(v, ensure_ascii=False))
+    return "{\n" + ",\n".join(lines) + "\n  }"
+e = os.environ
+text = open("games.json", encoding="utf-8").read()
+games = json.loads(text)
+i = [g["slug"] for g in games].index(e["SLUG"])
+entry = dict(games[i])
+creator = entry.setdefault("creator", e["CREATOR"])
+entry.setdefault("default", f"{creator}.v1")
+if "versions" not in entry:
+    entry["versions"] = [{"id": f"{creator}.v1", "url": entry["url"], "made": e["V1_MADE"], "note": "The first version"}]
+ids = [v["id"] for v in entry["versions"]]
+assert e["VERSION"] not in ids, "that version already exists"
+assert e["FROM"] in ids, "the starting version isn't in this entry"
+new = {"id": e["VERSION"], "url": f"games/{e['SLUG']}/{e['VERSION']}/", "made": e["MADE"],
+       "note": e["NOTE"], "from": e["FROM"], "idea": int(e["IDEA"])}
+entry["versions"] = entry["versions"] + [new]
+if e["FORK"] == "false":
+    entry["default"], entry["url"] = new["id"], new["url"]
+a, b = spans(text)[i]
+out = text[:a] + render(entry) + text[b:]
+check = json.loads(out)
+assert check[i] == entry and check[:i] + check[i+1:] == games[:i] + games[i+1:]
+open("games.json", "w", encoding="utf-8").write(out)
+print(json.dumps(entry, indent=2, ensure_ascii=False))
+EOF
+git diff games.json
+```
+
+What it does, so you can check the diff:
+- adds `creator` if it's missing (never changes an existing one);
+- adds `default` (`{creator}.v1`) and a `versions` list, with `{creator}.v1` at the existing `url` first, if they're missing;
+- appends the new version with `id`, `url`, `made`, `note`, `from` and `idea`;
+- **for a creator's update only**, moves `default` and the top-level `url` to the new version. A fork leaves both alone.
+
+Don't change the entry's other fields for a fork. For a creator's update you may change `tagline`, `tags` or `color` by hand afterwards, only if the change calls for it, and say so in the PR. Don't move the entry in the list.
+
+**The cover**, for a creator's update only and only if the title screen changed: replace `assets/covers/<slug>.jpg` with an 800 × 450 screenshot of the new version's title screen. A fork never touches the cover.
+
+### U6. Evidence
+
+Follow `docs/evidence.md`. Write `tests/evidence/<branch>.spec.mjs` and run it as `npm run evidence -- tests/evidence/<branch>` (with the prefix; see step 5). It proves, at both widths:
+
+1. **The new version plays:** `games/<slug>/<version>/` opens to its title screen and starts, with no console errors and no requests outside the site except ones the starting version already made.
+2. **The change works:** do the thing the brief says changes, assert it, then `shot()` it. One or two checks.
+3. **What stays still works:** a short run through the core loop.
+4. **Saves are compatible:** seed `localStorage` with what the starting version saves (`page.addInitScript` before `page.goto`, using keys and values you saw it write), load the new version, and assert it loads them without errors and shows that progress. Assert any new keys start `gameon.<slug>.`.
+5. **The starting version still plays:**
+   - In `games/`: load its url, see its title screen and start it, with no console errors.
+   - In its own repo: don't load the live site (local runs swap outside games for a stand-in). Assert from `games.json` that its version still points at its original url.
+6. **In the arcade:** if dev's arcade can open a version (`#<slug>@<version>` opens it in the frame), show the new version playing there; for a creator's update, show the game's card plays it by default. If the arcade can't do that yet, say so in Notes; the folder checks above are the proof.
+
+Then run every spec: `npm run evidence:check -- --workers=2`. If an older spec fails only because of this update's intended change (a creator's update moved the game's `url`, and an old check expects the old one), change just those expectations in that spec, don't regenerate its evidence folder, and name the spec and why in the PR's Notes. That's the only other file you may touch.
+
+### U7. Open the PR and hand off
+
+- Merge the latest dev into your branch first. If `games.json` conflicts because another version of this game landed, redo U1 and U5 on the fresh entry; if your number is now taken, rename the folder to the next free number.
+- PR into **dev**, titled `Update <title> to <version> from game idea #N` for a creator's update, or `Fork <title> as <version> from game idea #N` for a fork, using the repo's PR template. Put `Builds game idea #N` in the body (not `Closes`), then:
+  - the version, the version it started from, and creator's update or fork;
+  - the evidence, with a link to `evidence/<branch>/README.md`;
+  - what changed, what stayed, and what was cut;
+  - Notes: the files you changed; for a copy from its own repo, which repo and commit you copied and anything you left out; outside calls inherited from the starting version; any older spec you changed and why.
+- Then as step 6: move the label to `status: checking`, comment the PR link on the idea, and tell the person steering you the PR link and the next command for a fresh session: "Check the build for #N".
