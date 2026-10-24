@@ -63,3 +63,11 @@ Every fighter gets a random hat, face gear and back piece (capes, wings, jetpack
 ## How it was made
 
 Built with Claude (Opus 5.5) over a few evening sessions starting 2026-10-21. The kids dictated prompts and I steered. Published as a Claude artifact.
+
+## jeremy.v3: 100 levels, racing, climbing and Pure Chaos
+
+Update idea from Jeremy (game idea #151), word for word:
+
+> Bring in the latest from jwildfire/trampoline-battle
+
+Started from jeremy.v2. Copied from jwildfire/trampoline-battle at f0316e558238b5cee2a068c27b3ac1b09fbb64b6, 15 commits after bdc9ea670b824b66623414bdbb59872de7bb437a. New since jeremy.v2: trampoline levels 21 to 100 on three level shelves, an engine picker (Bounce, Race, Climb, Whatever) with 20 racing and 20 climbing levels, Pure Chaos mode, a menu built around Just Bounce and More stuff, "You tell me" rounds with a Done? button, Shuffle settings, and back, play/pause and next buttons for levels. The race and climb idea pages are in `design/`, and notes on adding levels are in `levels/`.
