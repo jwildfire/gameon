@@ -489,12 +489,17 @@ html[data-mode="weird"] .wordmark[data-style="19"] .wm-on { color: #ffb703; }
   // Shrink the letters, not the heading, when a wide font would overrun the title's room.
   function fit() {
     if (!weird()) { mark.style.removeProperty("--fit"); return; }
-    mark.style.setProperty("--fit", "1");
-    var room = FIT * parseFloat(getComputedStyle(mark).fontSize);
-    mark.style.width = "max-content"; // the title's own width, as laid out
-    var wide = mark.offsetWidth;
+    var room = FIT * parseFloat(getComputedStyle(mark).fontSize), k = 1;
+    mark.style.width = "max-content"; // measure the title's own width, as laid out
+    // Some systems snap letters to whole pixels, so shrinking isn't exactly in proportion:
+    // measure again after each shrink, a few times at most.
+    for (var pass = 0; pass < 4; pass++) {
+      mark.style.setProperty("--fit", k.toFixed(3));
+      var wide = mark.offsetWidth;
+      if (wide <= room) break;
+      k *= (room / wide) * 0.995;
+    }
     mark.style.width = "";
-    if (wide > room) mark.style.setProperty("--fit", (room / wide).toFixed(3));
   }
   function show(n, look) {
     i = (n + WORDS.length) % WORDS.length;

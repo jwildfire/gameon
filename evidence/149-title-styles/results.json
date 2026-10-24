@@ -1,10 +1,10 @@
 {
   "spec": "149-title-styles",
-  "passed": false,
-  "headline": "FAIL: 1 of 3 checks pass at desktop and phone widths.",
-  "generatedAt": "2026-10-24T11:26:35.104Z",
+  "passed": true,
+  "headline": "PASS: 3 of 3 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-24T11:36:26.389Z",
   "target": "local server (python3 -m http.server) on this branch",
-  "commit": "ffe3631",
+  "commit": "a8b850a",
   "playwright": "1.61.1",
   "specFile": "tests/evidence/149-title-styles.spec.mjs",
   "checks": [
@@ -32,9 +32,9 @@
         "phone: 20 looks in order, each with a new font and two-tone colors: Classic, Bungee, Press Start 2P, Creepster, Bangers, Pacifico, Monoton, Shrikhand, Titan One, Fredericka the Great, Righteous, Lobster, Rubik Glitch, Bungee Shade, Chewy, Faster One, Rampart One, Silkscreen, Fascinate, Rubik Moonrocks; all 19 fonts loaded"
       ],
       "desktop": {
-        "status": "FAIL",
+        "status": "pass",
         "screenshots": [],
-        "error": "Test timeout of 30000ms exceeded."
+        "error": null
       },
       "phone": {
         "status": "pass",
@@ -45,14 +45,16 @@
     {
       "check": "every look fits with the widest titles: one line, no sideways scroll, the header holds still",
       "notes": [
-        "desktop: 1600px: 200 title-and-look pairs (20 looks × the 10 widest titles) fit on one line with the header unmoved; widest is SplashOn in Bungee Shade at 311px",
-        "desktop: 1280px: 200 title-and-look pairs (20 looks × the 10 widest titles) fit on one line with the header unmoved; widest is SplashOn in Bungee Shade at 311px",
-        "phone: 375px: 200 title-and-look pairs (20 looks × the 10 widest titles) fit on one line with the header unmoved; widest is BananaOn in Bungee Shade at 224px"
+        "desktop: 1600px: 200 title-and-look pairs (20 looks × the 10 widest titles) fit on one line with the header unmoved; widest is WiggleOn in Monoton at 309px",
+        "desktop: 1280px: 200 title-and-look pairs (20 looks × the 10 widest titles) fit on one line with the header unmoved; widest is WiggleOn in Bungee at 308px",
+        "phone: 375px: 200 title-and-look pairs (20 looks × the 10 widest titles) fit on one line with the header unmoved; widest is NoodleOn in Monoton at 222px"
       ],
       "desktop": {
-        "status": "FAIL",
-        "screenshots": [],
-        "error": "Test timeout of 30000ms exceeded."
+        "status": "pass",
+        "screenshots": [
+          "all-20-looks-desktop.jpg"
+        ],
+        "error": null
       },
       "phone": {
         "status": "pass",

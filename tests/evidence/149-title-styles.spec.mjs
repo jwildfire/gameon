@@ -72,11 +72,8 @@ test("every look fits with the widest titles: one line, no sideways scroll, the 
           window.gameonShowTitle(words.indexOf(w), k);
           const range = document.createRange();
           range.selectNodeContents(h);
-          const fitNow = h.style.getPropertyValue("--fit") || "1";
-          h.style.width = "max-content"; const maxc = h.offsetWidth; h.style.width = "";
-          const spans = [...h.children].map(c => `${c.offsetWidth}/${getComputedStyle(c).fontSize}/${getComputedStyle(c).fontFamily.split(",")[0]}`).join(" ");
           out.push({
-            fitNow, maxc, spans, fs: getComputedStyle(h).fontSize, loaded: document.fonts.check(`40px "${window.gameonTitleStyle()}"`, h.textContent),
+            fit: h.style.getPropertyValue("--fit") || "1",
             text: h.textContent, style: window.gameonTitleStyle(), word: r("#wordmark"), ink: range.getBoundingClientRect().width,
             mast: r(".masthead").height, lede: r("#tagline"), gh: r("#gh-home"),
             scroll: document.documentElement.scrollWidth, width: innerWidth
@@ -91,7 +88,7 @@ test("every look fits with the widest titles: one line, no sideways scroll, the 
     for (const m of all) {
       expect(m.scroll, `${m.style} ${m.text}`).toBeLessThanOrEqual(m.width);
       expect(m.word.right, `${m.style} ${m.text}`).toBeLessThanOrEqual(m.width);
-      expect(m.ink, `${m.style} ${m.text} fit=${m.fitNow} maxContent=${m.maxc} fontSize=${m.fs} spans=${m.spans} loaded=${m.loaded} box=${m.word.width}`).toBeLessThanOrEqual(m.word.width + 1);
+      expect(m.ink, `${m.style} ${m.text} (letters at ${m.fit})`).toBeLessThanOrEqual(m.word.width + 1);
       expect(Math.abs(m.word.height - first.word.height), `${m.style} ${m.text}`).toBeLessThanOrEqual(1);
       expect(Math.abs(m.mast - first.mast), `${m.style} ${m.text}`).toBeLessThanOrEqual(1);
       expect(Math.abs(m.lede.x - first.lede.x), `${m.style} ${m.text}`).toBeLessThanOrEqual(1);
