@@ -1,0 +1,170 @@
+{
+  "spec": "139-trampoline-battle-jeremy-v2",
+  "passed": true,
+  "headline": "PASS: 8 of 8 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-24T05:39:53.366Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "bcc458c",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/139-trampoline-battle-jeremy-v2.spec.mjs",
+  "checks": [
+    {
+      "check": "jeremy.v2 is the repo at bdc9ea6: same files, byte for byte, except what the copy leaves out",
+      "notes": [
+        "desktop: index.html and design/level-ideas.html match the repo's git blobs at bdc9ea6; README.md is the repo's plus the jeremy.v2 section; gameon.json added; .claude/launch.json left out; no path fixes needed",
+        "phone: index.html and design/level-ideas.html match the repo's git blobs at bdc9ea6; README.md is the repo's plus the jeremy.v2 section; gameon.json added; .claude/launch.json left out; no path fixes needed"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "jeremy.v2 opens to its title screen and starts, with no new outside requests",
+      "notes": [
+        "desktop: default game: Party Levels · round 1 · Survival (It's Raining Everything), timer at 97.1%; outside hosts: fonts.googleapis.com, fonts.gstatic.com (Google Fonts, as jeremy.v1)",
+        "phone: default game: Party Levels · round 1 · Survival (It's Raining Everything), timer at 97.4%; outside hosts: fonts.googleapis.com, fonts.gstatic.com (Google Fonts, as jeremy.v1)"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "title-desktop.jpg",
+          "party-play-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "title-phone.jpg",
+          "party-play-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "what's new works: five modes, Survival starts, the skin switches to 8-Bit Arcade, and the level ideas page opens",
+      "notes": [
+        "desktop: modes: Battle, Party Levels, Survival, Pile-Up, Endless; Survival live in the 8-Bit Arcade skin; design/level-ideas.html loads",
+        "phone: modes: Battle, Party Levels, Survival, Pile-Up, Endless; Survival live in the 8-Bit Arcade skin; design/level-ideas.html loads"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "survival-8bit-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "survival-8bit-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "what stays still works: Battle drops a fighter and fights, and Esc goes back to the menu",
+      "notes": [
+        "desktop: Battle: wave 1 aim → both teams drop → fight; Esc opens the menu (pause / start over)",
+        "phone: Battle: wave 1 aim → both teams drop → fight; Esc opens the menu (pause / start over)"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "battle-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "battle-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "saves: a jeremy.v1 save loads without errors and stays as it was, and the repo site's newer saves carry over",
+      "notes": [
+        "desktop: tb3-settings (Zoom, vs Computer, Battle, Crayon) loads in jeremy.v2 and saves target 5; tb2-settings untouched, and jeremy.v1 still shows Rocket, vs Computer. jeremy.v2 doesn't read tb2-settings (the repo's code), so a jeremy.v1 player starts jeremy.v2 with default settings",
+        "phone: tb3-settings (Zoom, vs Computer, Battle, Crayon) loads in jeremy.v2 and saves target 5; tb2-settings untouched, and jeremy.v1 still shows Rocket, vs Computer. jeremy.v2 doesn't read tb2-settings (the repo's code), so a jeremy.v1 player starts jeremy.v2 with default settings"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "jeremy.v1 still plays from its folder",
+      "notes": [
+        "desktop: games/trampoline-battle/jeremy.v1/ title screen, then started, no console errors",
+        "phone: games/trampoline-battle/jeremy.v1/ title screen, then started, no console errors"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "v1-play-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "v1-play-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "games.json makes jeremy.v2 the default, records its source, and still offers jeremy.v1",
+      "notes": [
+        "desktop: default jeremy.v2; jeremy.v2 source jwildfire/trampoline-battle@bdc9ea6; jeremy.v1 still at games/trampoline-battle/jeremy.v1/",
+        "phone: default jeremy.v2; jeremy.v2 source jwildfire/trampoline-battle@bdc9ea6; jeremy.v1 still at games/trampoline-battle/jeremy.v1/"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "the arcade plays jeremy.v2 by default, and the version picker offers jeremy.v1",
+      "notes": [
+        "desktop: card → picker (jeremy.v2 Latest, jeremy.v1) → jeremy.v2 plays in the frame; #trampoline-battle@jeremy.v1 opens jeremy.v1",
+        "phone: card → picker (jeremy.v2 Latest, jeremy.v1) → jeremy.v2 plays in the frame; #trampoline-battle@jeremy.v1 opens jeremy.v1"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "arcade-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "arcade-phone.jpg"
+        ],
+        "error": null
+      }
+    }
+  ]
+}

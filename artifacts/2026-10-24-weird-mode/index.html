@@ -1,0 +1,422 @@
+<title>Weird Mode Plans</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Where GameOn's Weird mode goes next: more arcade weirdness, four ways it could change gameplay, a mode dropdown (Normal, Weird, Fun, Silly, Calm), and vibe scores on every game.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:ital,wght@0,500;0,700;0,800;1,500&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Same tokens and type as the other GameOn designs: one reading column, sunny yellow for
+   the things to act on, cards for options, tables that scroll sideways on a phone.
+   The four mode colors (weird, fun, silly, calm) tag every idea that belongs to a mode. */
+:root {
+  --paper: #fffcf2;
+  --ink: #1d1a2f;
+  --muted: #5e5872;
+  --rule: #e7e0cc;
+  --sun: #ffd23f;
+  --sun-soft: #fff1b8;
+  --pop: #e2502f;
+  --card: #ffffff;
+  --code-bg: #f6f1e1;
+  --ok: #1f8a4c;
+  --wait: #b7791f;
+  --stop: #c0392b;
+  --weird: #7b3fe4;
+  --fun: #d9480f;
+  --silly: #c2255c;
+  --calm: #1c7c8c;
+  --display: "Lilita One", "Arial Rounded MT Bold", "Trebuchet MS", sans-serif;
+  --body: "Nunito", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #17151f; --ink: #f4efe1; --muted: #b3acc4; --rule: #34303f;
+    --sun-soft: #3a3320; --pop: #ff7a5c; --card: #201d2a; --code-bg: #26222f;
+    --ok: #4cc27f; --wait: #e8b04a; --stop: #ff6b5b;
+    --weird: #b28cff; --fun: #ff9a5c; --silly: #ff7aa8; --calm: #5fc8d6;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #17151f; --ink: #f4efe1; --muted: #b3acc4; --rule: #34303f;
+  --sun-soft: #3a3320; --pop: #ff7a5c; --card: #201d2a; --code-bg: #26222f;
+  --ok: #4cc27f; --wait: #e8b04a; --stop: #ff6b5b;
+  --weird: #b28cff; --fun: #ff9a5c; --silly: #ff7aa8; --calm: #5fc8d6;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 500 17px/1.6 var(--body); }
+.page {
+  max-width: 860px; margin: 0 auto;
+  padding-block: 40px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 56px;
+}
+section { display: grid; gap: 16px; min-width: 0; }
+h1, h2, h3 { margin: 0; text-wrap: balance; font-weight: 400; }
+h1 { font: 400 clamp(44px, 9vw, 72px)/0.95 var(--display); }
+h1 span { color: var(--weird); display: inline-block; transform: rotate(-3deg); }
+h2 { font: 400 30px/1.1 var(--display); }
+h3 { font: 800 18px/1.3 var(--body); }
+p { margin: 0; max-width: 65ch; }
+a { color: inherit; text-decoration-color: var(--pop); text-underline-offset: 3px; }
+code { font: 500 0.86em/1 var(--mono); background: var(--code-bg); padding: 2px 5px; border-radius: 4px; }
+ul.plain { margin: 0; padding-left: 20px; display: grid; gap: 6px; max-width: 65ch; }
+.eyebrow { font: 800 12px/1 var(--body); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.lede { font-size: 20px; line-height: 1.5; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 14px; color: var(--muted); }
+.note { font-size: 15px; color: var(--muted); }
+.callout { padding: 14px 18px; background: var(--sun-soft); border-radius: 12px; display: grid; gap: 8px; }
+.callout ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+
+.toc { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)); gap: 8px; }
+.toc a { display: grid; gap: 2px; padding: 12px; border-radius: 12px; background: var(--card); border: 1px solid var(--rule); text-decoration: none; height: 100%; }
+.toc b { font: 400 18px/1.1 var(--display); }
+.toc span { font-size: 13px; color: var(--muted); line-height: 1.35; }
+
+.ideas { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: 10px; }
+.idea { padding: 12px 14px; border-radius: 10px; background: var(--card); border: 1px solid var(--rule); display: grid; gap: 4px; align-content: start; }
+.idea b { font-size: 15.5px; }
+.idea span { font-size: 14px; color: var(--muted); }
+.idea .for { font: 800 11px/1.2 var(--body); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+
+.ladder { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.rung { padding: 16px 18px; border-radius: 12px; background: var(--card); border: 1px solid var(--rule); display: grid; gap: 10px; }
+.rung.pick { border: 2px solid var(--sun); box-shadow: 4px 4px 0 var(--sun); }
+.rung-head { display: grid; grid-template-columns: 52px 1fr; gap: 14px; align-items: center; }
+.rung-head .num { width: 52px; height: 52px; border-radius: 50%; background: var(--sun); color: #1d1a2f; display: grid; place-items: center; font: 400 24px/1 var(--display); }
+.rung-head h3 { font: 400 22px/1.1 var(--display); }
+.rung-head p { font-size: 14.5px; color: var(--muted); }
+.rung dl { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 10px 18px; font-size: 15px; }
+.rung dl > div { display: grid; gap: 2px; align-content: start; min-width: 0; }
+.rung dt { font: 800 11px/1.2 var(--body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.rung dd { margin: 0; }
+.chip { display: inline-block; font: 800 12px/1 var(--body); padding: 5px 9px; border-radius: 999px; border: 2px solid currentColor; white-space: nowrap; vertical-align: middle; }
+.c-go { color: var(--ok); }
+.c-wait { color: var(--wait); }
+.c-pick { color: #1d1a2f; background: var(--sun); border-color: var(--sun); }
+
+pre { margin: 0; padding: 12px 14px; background: var(--code-bg); border-radius: 10px; overflow-x: auto; font: 500 13.5px/1.55 var(--mono); }
+
+.table-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 12px; background: var(--card); }
+table { border-collapse: collapse; width: 100%; min-width: 660px; font-size: 14.5px; }
+th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--rule); }
+th { font: 800 12px/1.2 var(--body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+tr:last-child td { border-bottom: 0; }
+td.m { font: 400 18px/1.2 var(--display); white-space: nowrap; }
+.mw { color: var(--weird); } .mf { color: var(--fun); } .ms { color: var(--silly); } .mc { color: var(--calm); }
+
+/* Vibe demo */
+.demo { padding: 16px; border-radius: 14px; border: 2px solid var(--ink); background: var(--card); display: grid; gap: 14px; }
+.demo-bar { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; }
+.demo-bar label { font: 800 13px/1 var(--body); }
+.demo select { font: 700 16px/1.2 var(--body); padding: 8px 12px; border-radius: 10px; border: 2px solid var(--ink); background: var(--paper); color: var(--ink); }
+.demo-bar .note { flex: 1 1 220px; min-width: 0; }
+.games { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: 8px; }
+.game { display: grid; grid-template-columns: 10px 1fr; gap: 10px; padding: 10px 12px 10px 0; border-radius: 10px; border: 1px solid var(--rule); background: var(--paper); overflow: hidden; transition: opacity .2s; }
+.game .swatch { border-radius: 0; }
+.game b { font: 400 17px/1.1 var(--display); display: block; }
+.game .vibes { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 6px; font: 500 12px/1.2 var(--mono); color: var(--muted); }
+.game .vibes span.on { color: var(--ink); font-weight: 500; }
+.game.dim { opacity: .45; }
+.dots { letter-spacing: 1px; }
+
+.order { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; counter-reset: s; }
+.order li { counter-increment: s; display: grid; grid-template-columns: 44px 1fr; gap: 14px; align-items: start; padding: 12px 14px; border-radius: 12px; background: var(--card); border: 1px solid var(--rule); }
+.order li::before { content: counter(s); display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--ink); color: var(--paper); font: 400 20px/1 var(--display); }
+.order b { display: block; }
+.order span { font-size: 15px; color: var(--muted); }
+
+.qs { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; counter-reset: q; }
+.qs li { counter-increment: q; display: grid; grid-template-columns: 44px 1fr; gap: 14px; align-items: start; }
+.qs li::before { content: "Q" counter(q); display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--sun); color: #1d1a2f; font: 400 17px/1 var(--display); }
+.qs b { display: block; font-weight: 800; }
+.qs span { font-size: 15.5px; color: var(--muted); }
+.qs em { font-style: normal; font-weight: 800; color: var(--ink); }
+footer { font-size: 14px; color: var(--muted); border-top: 1px solid var(--rule); padding-top: 18px; display: grid; gap: 12px; }
+:focus-visible { outline: 3px solid var(--pop); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { h1 span { transform: none; } .game { transition: none; } }
+</style>
+
+<main class="page">
+
+<header style="display:grid;gap:16px">
+  <p class="eyebrow">GameOn design · Weird mode ideas (#142)</p>
+  <h1>Weird mode, <span>next</span></h1>
+  <p class="lede">Weird mode ships in v0.3 as a costume for the arcade: trippy backgrounds, random taglines and a shuffle button. The games themselves don't notice. This doc collects ideas for more weirdness, lays out four ways Weird could change how games play, and adds two of Jeremy's ideas: a dropdown of modes (Weird, Fun, Silly, Calm) and vibe scores on every game.</p>
+  <div class="meta">
+    <span>October 24, 2026</span>
+    <span>Objective: couch co-op (#128)</span>
+    <span>Related: co-op skill and input kit (#131), first co-op game (#132)</span>
+  </div>
+</header>
+
+<nav aria-label="Sections">
+  <ul class="toc">
+    <li><a href="#today"><b>Today</b><span>What Weird does in v0.3</span></a></li>
+    <li><a href="#arcade"><b>More arcade weirdness</b><span>Ideas that need no game changes</span></a></li>
+    <li><a href="#gameplay"><b>Changing gameplay</b><span>Four options, from easy to big</span></a></li>
+    <li><a href="#modes"><b>A mode dropdown</b><span>Normal, Weird, Fun, Silly, Calm</span></a></li>
+    <li><a href="#vibes"><b>Vibe scores</b><span>Label games, surface them in the list</span></a></li>
+    <li><a href="#plan"><b>Plan and questions</b><span>What to build first, what to decide</span></a></li>
+  </ul>
+</nav>
+
+<section id="today">
+  <p class="eyebrow">Where we are</p>
+  <h2>What Weird does in v0.3</h2>
+  <ul class="plain">
+    <li>A <b>Normal | Weird</b> switch in the arcade header, remembered per browser (<code>gameon.arcade.mode</code>) and settable with <code>?mode=weird</code>.</li>
+    <li><b>Weird</b>: ten animated backgrounds (Matrix Rain, Rainbow Plasma, Hypno Spiral, Tie-Dye and friends) cycling every few seconds, plus a tagline that rotates through 53 lines. Twenty more backgrounds are being built tonight (#141).</li>
+    <li><b>Normal</b>: a plain colored wall and the fixed tagline "Think of a Game? Make it, play it, change it!"</li>
+    <li>A <b>shuffle</b> button in the bottom-right corner. In Weird it jumps to a random background; in Normal it picks a new wall pattern.</li>
+    <li>Safety already built in: no fast flashing, a still frame for reduced motion, backgrounds pause while a game is open, and phones are capped at 30 frames a second.</li>
+  </ul>
+  <p class="note">The mode is already a single attribute (<code>&lt;html data-mode&gt;</code>) and an event (<code>gameon:mode</code>). Everything below builds on those two hooks.</p>
+</section>
+
+<section id="arcade">
+  <p class="eyebrow">Cheap and fun</p>
+  <h2>More arcade weirdness</h2>
+  <p>These change the arcade around the games. Each one is a small PR and needs nothing from the games.</p>
+  <div class="ideas">
+    <div class="idea"><span class="for mw">Weird</span><b>Wobbly game cards</b><span>Cards tilt a few degrees and jiggle on hover or tap, like jelly.</span></div>
+    <div class="idea"><span class="for mw">Weird</span><b>Background of the day</b><span>The day's date picks the first background, so everyone in the family sees the same one tonight.</span></div>
+    <div class="idea"><span class="for ms">Silly</span><b>Googly-eye cursor</b><span>Eyes on the game cards follow the pointer around the arcade.</span></div>
+    <div class="idea"><span class="for mf">Fun</span><b>Surprise me</b><span>A button that picks a random game, weighted toward the current mode's vibe.</span></div>
+    <div class="idea"><span class="for mf">Fun</span><b>Launch confetti</b><span>A one-second sticker burst when a game opens. Never covers the game once it has loaded.</span></div>
+    <div class="idea"><span class="for ms">Silly</span><b>Silly sound board</b><span>Boing, honk and slide-whistle on taps. Off until someone taps the speaker, and one tap mutes.</span></div>
+    <div class="idea"><span class="for mw">Weird</span><b>Secret code</b><span>Typing up-up-down-down (or a controller combo) unlocks a hidden background and tagline set.</span></div>
+    <div class="idea"><span class="for mw">Weird</span><b>Kid-made backgrounds</b><span>A "Make a background" choice on the New Game page, built and checked by the same pipeline as games.</span></div>
+    <div class="idea"><span class="for mf">Fun</span><b>Your taglines</b><span>Kids send tagline ideas through the idea form; good ones join the rotation with their name.</span></div>
+    <div class="idea"><span class="for mc">Calm</span><b>Weird-o-meter</b><span>A slider from "a little" to "very" that sets how fast and busy the backgrounds are.</span></div>
+  </div>
+</section>
+
+<section id="gameplay">
+  <p class="eyebrow">The big question</p>
+  <h2>Four ways Weird could change gameplay</h2>
+  <p>Jeremy wants Weird to affect how games play eventually. The options form a ladder: each rung costs more and changes more. They aren't exclusive. The recommendation is to climb them in order.</p>
+
+  <ol class="ladder">
+    <li class="rung pick">
+      <div class="rung-head"><span class="num">A</span><div><h3>Effects on the game window <span class="chip c-pick">Start here</span></h3><p>No changes to any game</p></div></div>
+      <p>The arcade already shows each game in a frame. In Weird mode, the arcade can bend that frame: a slow color drift (hue rotation), a gentle wobble, a mirror flip, a squash-and-stretch bounce, chunky pixels. It works on all nine games tomorrow.</p>
+      <dl>
+        <div><dt>Cost</dt><dd>One PR to the arcade player. A few CSS filters and transforms, plus a picker in the player bar.</dd></div>
+        <div><dt>Limits</dt><dd>It changes the look, never the rules. A mirror flips text and controls, which is the joke but confuses little kids, so it's opt-in.</dd></div>
+        <div><dt>Watch for</dt><dd>Phone speed (filters on a game frame are costly; test on a real phone) and motion sickness: no wobble with reduced motion.</dd></div>
+      </dl>
+    </li>
+    <li class="rung">
+      <div class="rung-head"><span class="num">B</span><div><h3>A small mutator contract <span class="chip c-go">Pilot next</span></h3><p>Games opt in, one at a time</p></div></div>
+      <p>The arcade tells each game which mode is on and which <b>mutators</b> are active. A game that knows about them changes its own physics or art. Games that don't simply ignore them.</p>
+      <pre>// arcade opens the game with
+games/trampoline-battle/jeremy.v2/?mode=weird&amp;mods=lowgrav,bighead
+
+// a tiny shared helper the game includes
+if (GameOn.mods.has("lowgrav")) gravity *= 0.4;
+document.addEventListener("gameon:mods", e =&gt; restyle(e.detail));</pre>
+      <p>A standard menu keeps it simple. Each game lists the ones it supports in <code>games.json</code> (<code>"mods": ["lowgrav", "bighead"]</code>), and the player bar only offers those.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Mutator</th><th>What changes</th><th>Fits</th></tr></thead>
+          <tbody>
+            <tr><td><code>lowgrav</code></td><td>Gravity at 40%. Floaty jumps.</td><td>Trampoline Battle, Super Sauce Boy, Angry Dudes</td></tr>
+            <tr><td><code>bighead</code></td><td>Characters get giant heads; hit boxes stay the same.</td><td>Any game with characters</td></tr>
+            <tr><td><code>tiny</code></td><td>Everyone is half size.</td><td>Platformers, MazeAThon</td></tr>
+            <tr><td><code>fast</code> / <code>slowmo</code></td><td>Game speed at 1.5× or 0.6×.</td><td>Anything with a game loop</td></tr>
+            <tr><td><code>mirror</code></td><td>Left and right controls swap.</td><td>Two-player games, as a handicap</td></tr>
+            <tr><td><code>bouncy</code></td><td>Everything bounces off everything.</td><td>Physics games</td></tr>
+            <tr><td><code>confetti</code></td><td>Confetti and a honk on every point scored.</td><td>Any game with a score</td></tr>
+            <tr><td><code>palette</code></td><td>A random color palette each round.</td><td>Any game with drawn shapes</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <dl>
+        <div><dt>Cost</dt><dd>One shared helper (<code>assets/gameon-mods.js</code>), then a small update per game. The build skill adds two or three mutators to every new game by default.</dd></div>
+        <div><dt>Limits</dt><dd>Mutators change feel, never unlock content or save anything. The frozen version stays the same; the flag only applies while it's on.</dd></div>
+        <div><dt>Ties in</dt><dd>This is the same plumbing the couch co-op kit (#131) needs for controllers and player counts. Build it once.</dd></div>
+      </dl>
+    </li>
+    <li class="rung">
+      <div class="rung-head"><span class="num">C</span><div><h3>Weird versions from the pipeline <span class="chip c-wait">Let it happen</span></h3><p>Uses the version system we already have</p></div></div>
+      <p>A kid sends an update idea, "Trampoline Battle but on the moon with cats," and the pipeline builds it as a new version tagged <i>weird</i>. In Weird mode the arcade opens the weird version by default when one exists; in Normal it opens the regular one.</p>
+      <dl>
+        <div><dt>Cost</dt><dd>A <code>"vibe"</code> tag on versions and one rule in the arcade. The builds come through the normal idea flow.</dd></div>
+        <div><dt>Limits</dt><dd>Versions drift apart: a fix to the regular game doesn't reach the weird one. Fine for one-off jokes, bad for games we keep improving.</dd></div>
+        <div><dt>Best for</dt><dd>Kids' wild ideas that rewrite a game. No contract needed.</dd></div>
+      </dl>
+    </li>
+    <li class="rung">
+      <div class="rung-head"><span class="num">D</span><div><h3>Couch co-op chaos events <span class="chip c-wait">Later, with #132</span></h3><p>Party-game moments built on B</p></div></div>
+      <p>Every 30 to 60 seconds in a multiplayer game, a banner counts down "3… 2… 1… <b>GRAVITY FLIP!</b>" and a mutator switches on for ten seconds. Others: swap sides, everyone huge, slow-mo, lights off with flashlights. This is the Mario Party and Overcooked feeling that makes grown-ups and kids yell at the couch.</p>
+      <dl>
+        <div><dt>Cost</dt><dd>An event timer in the shared helper, plus game support for the mutators it fires.</dd></div>
+        <div><dt>Limits</dt><dd>Always warned three seconds ahead, short, fair to every player, one at a time, and off in Calm.</dd></div>
+        <div><dt>Best for</dt><dd>The first couch co-op game (#132), designed with chaos events from day one.</dd></div>
+      </dl>
+    </li>
+  </ol>
+</section>
+
+<section id="modes">
+  <p class="eyebrow">Jeremy's idea</p>
+  <h2>A dropdown of modes</h2>
+  <p>"Maybe people can pick other modes in a dropdown with weird. fun. silly. calm." The Normal | Weird switch becomes a mode picker. Each mode is a bundle: a background set, a tagline set, sounds, which window effects and mutators it may turn on, and which games float to the top of the list.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Mode</th><th>Arcade looks like</th><th>Taglines</th><th>Games get</th><th>Sorts by</th></tr></thead>
+      <tbody>
+        <tr><td class="m">Normal</td><td>Plain wall; shuffle picks a pattern</td><td>The fixed one</td><td>Nothing changes</td><td>Newest first (today's order)</td></tr>
+        <tr><td class="m mw">Weird</td><td>Trippy shaders: Matrix, plasma, spirals</td><td>Random strange lines</td><td>Wobble, hue drift, <code>lowgrav</code>, <code>mirror</code>, chaos events</td><td>Weird score</td></tr>
+        <tr><td class="m mf">Fun</td><td>Bright confetti, party colors</td><td>Hype-man lines ("Rematch!")</td><td>Sounds on, <code>confetti</code>, <code>fast</code></td><td>Fun score</td></tr>
+        <tr><td class="m ms">Silly</td><td>Bouncy cards, googly eyes, goofy fonts</td><td>Jokes and puns</td><td><code>bighead</code>, <code>bouncy</code>, squeaky sounds</td><td>Silly score</td></tr>
+        <tr><td class="m mc">Calm</td><td>Slow soft gradients, no fast motion</td><td>Gentle lines</td><td><code>slowmo</code>, no timers where a game allows, no chaos events</td><td>Calm score</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <ul class="plain">
+    <li><b>On a phone</b> the picker is a native dropdown; on a wide screen it can stay a row of buttons. The shuffle button keeps working inside any mode.</li>
+    <li><b>Code</b>: <code>mode.js</code> already treats the mode as a word on <code>&lt;html&gt;</code>. Adding modes means a small registry (backgrounds, taglines, allowed effects per mode) and widening the one check that only accepts "normal" or "weird".</li>
+    <li><b>Calm and reduced motion</b> fit together. A browser that asks for reduced motion could start in Calm instead of getting a still frame of Weird.</li>
+    <li><b>Games</b> read the same word through rung B, so a game can tune itself per mode without knowing about the arcade.</li>
+  </ul>
+</section>
+
+<section id="vibes">
+  <p class="eyebrow">Jeremy's other idea</p>
+  <h2>Vibe scores on every game</h2>
+  <p>"Maybe we just classify the games based on how weird fun etc they are and surface those in list somehow." Give each game a score from 0 to 3 on the same four words as the modes. Then the modes and the games speak one language: picking a mode changes how the arcade looks <i>and</i> which games come first.</p>
+  <pre>// games.json, per game
+"vibe": { "weird": 1, "fun": 3, "silly": 2, "calm": 0 }</pre>
+  <ul class="plain">
+    <li><b>Who scores</b>: the evaluate skill drafts scores for every new idea, the same way it scores fun and safety today. A person (or a kids' vote) can change them in the issue.</li>
+    <li><b>Showing it</b>: four small dot meters on each card, filter chips above the list ("Calm games"), the mode's sort order, and a Surprise me button weighted by the mode.</li>
+    <li><b>Existing games</b>: the scores below are first guesses for the kids to argue about. Play with the dropdown to see the sort.</li>
+  </ul>
+
+  <div class="demo" aria-label="Vibe sort demo">
+    <div class="demo-bar">
+      <label for="demo-mode">Mode</label>
+      <select id="demo-mode">
+        <option value="normal">Normal</option>
+        <option value="weird">Weird</option>
+        <option value="fun">Fun</option>
+        <option value="silly">Silly</option>
+        <option value="calm">Calm</option>
+      </select>
+      <span class="note" id="demo-note">Normal keeps today's order.</span>
+    </div>
+    <ul class="games" id="demo-games"></ul>
+  </div>
+  <p class="note">Draft scores, not measured. Games scoring 0 on the mode's word are dimmed rather than hidden, so nothing disappears from the list.</p>
+</section>
+
+<section>
+  <p class="eyebrow">Ground rules</p>
+  <h2>Safety limits for every mode</h2>
+  <div class="callout">
+    <ul>
+      <li>No flashing faster than three times a second, in backgrounds, effects or chaos events.</li>
+      <li>Reduced motion means no wobble, no tilt, no fast motion; start in Calm or show a still frame.</li>
+      <li>Effects never cover the controls or the text a player needs to read.</li>
+      <li>Mirror and upside-down are opt-in, never a mode's default.</li>
+      <li>Sounds only after a tap, always with a mute that's one tap away.</li>
+      <li>Chaos events are warned three seconds ahead, last about ten seconds, and never fire in Calm or single-player games.</li>
+      <li>Normal stays truly normal: no effects, no mutators. Getting back to Normal is always one tap.</li>
+      <li>Mutators never change a saved game or a frozen version. They live only while switched on.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="plan">
+  <p class="eyebrow">Recommendation</p>
+  <h2>What to build, in order</h2>
+  <ol class="order">
+    <li><div><b>Mode dropdown with Normal, Weird and Calm</b><span>Calm is cheap (slow backgrounds, gentle taglines) and pairs with reduced motion. Fun and Silly follow once their backgrounds and taglines exist.</span></div></li>
+    <li><div><b>Vibe scores in games.json</b><span>Dots on the cards, filter chips, and sorting by the current mode. The evaluate skill starts drafting scores for new ideas.</span></div></li>
+    <li><div><b>Effects on the game window (A)</b><span>A small picker in the player bar for Weird and Silly. Every game gets something weird with no rebuilds.</span></div></li>
+    <li><div><b>Mutator contract (B), piloted on Trampoline Battle</b><span>Three mutators in one two-player game, then folded into the couch co-op kit (#131) so new games get them for free.</span></div></li>
+    <li><div><b>Chaos events (D) in the first co-op game</b><span>Designed in from the start with #132. Weird versions (C) keep arriving through the idea form whenever a kid asks.</span></div></li>
+  </ol>
+</section>
+
+<section>
+  <p class="eyebrow">For Jeremy and Ryan</p>
+  <h2>Questions</h2>
+  <ol class="qs">
+    <li><div><b>Which modes go in the first dropdown?</b><span>Recommend <em>Normal, Weird and Calm</em> first, then Fun and Silly. Or all five at once with thinner Fun and Silly sets?</span></div></li>
+    <li><div><b>Should switching mode change the games on its own?</b><span>Recommend <em>yes for supported games, with a "Normal game" toggle in the player bar</em>. The other choice is off until a player taps "Make it weird".</span></div></li>
+    <li><div><b>Who sets vibe scores?</b><span>Recommend <em>the evaluator drafts, kids vote to change</em>. The vote could be a reaction on the game's issue.</span></div></li>
+    <li><div><b>Are mirror controls too mean for the little kids?</b><span>Recommend keeping mirror and upside-down <em>opt-in only</em>, never part of default Weird.</span></div></li>
+    <li><div><b>Should reduced-motion browsers start in Calm?</b><span>Recommend <em>yes</em>. They get a mode built for them instead of a frozen Weird background.</span></div></li>
+    <li><div><b>Which mode should a first-time visitor see?</b><span>Today it's Normal. Weird is the more surprising first impression; Normal is easier to read.</span></div></li>
+  </ol>
+</section>
+
+<footer>
+  <p>Issue: Weird mode ideas design doc (#142). Objective: couch co-op (#128). Built on the Weird mode release (v0.3) and the backgrounds design from October 24.</p>
+  <p>---<br>Drafted by Claude Code (Opus 5.5)</p>
+</footer>
+
+</main>
+
+<script>
+(function () {
+  var GAMES = [
+    { t: "Super Sauce Boy", c: "#e5281b", v: { weird: 2, fun: 3, silly: 2, calm: 0 } },
+    { t: "Fancy Food Fight", c: "#ff6f9c", v: { weird: 1, fun: 3, silly: 3, calm: 0 } },
+    { t: "MazeAThon", c: "#6c5ce7", v: { weird: 1, fun: 2, silly: 1, calm: 2 } },
+    { t: "Trampoline Battle", c: "#00a8e8", v: { weird: 1, fun: 3, silly: 2, calm: 0 } },
+    { t: "Princess Lady Drive", c: "#f78fb3", v: { weird: 1, fun: 2, silly: 2, calm: 2 } },
+    { t: "Stretcher Bearer", c: "#8d6e63", v: { weird: 0, fun: 1, silly: 0, calm: 1 } },
+    { t: "Angry Dudes", c: "#e67e22", v: { weird: 1, fun: 2, silly: 2, calm: 0 } },
+    { t: "Magic Friends, Up We Go!", c: "#2ecc71", v: { weird: 1, fun: 2, silly: 1, calm: 3 } },
+    { t: "Timed Out", c: "#34495e", v: { weird: 1, fun: 2, silly: 0, calm: 1 } }
+  ];
+  var KEYS = ["weird", "fun", "silly", "calm"];
+  var NOTES = {
+    normal: "Normal keeps today's order.",
+    weird: "Weird puts the strangest games first.",
+    fun: "Fun puts the most exciting games first.",
+    silly: "Silly puts the goofiest games first.",
+    calm: "Calm puts the gentlest games first."
+  };
+  var list = document.getElementById("demo-games");
+  var sel = document.getElementById("demo-mode");
+  var note = document.getElementById("demo-note");
+  function dots(n) { return "●".repeat(n) + "○".repeat(3 - n); }
+  function render() {
+    var m = sel.value;
+    var rows = GAMES.map(function (g, i) { return { g: g, i: i }; });
+    if (m !== "normal") rows.sort(function (a, b) { return (b.g.v[m] - a.g.v[m]) || (a.i - b.i); });
+    list.innerHTML = "";
+    rows.forEach(function (r) {
+      var g = r.g;
+      var li = document.createElement("li");
+      li.className = "game" + (m !== "normal" && g.v[m] === 0 ? " dim" : "");
+      var sw = document.createElement("span");
+      sw.className = "swatch"; sw.style.background = g.c;
+      var body = document.createElement("div");
+      var b = document.createElement("b"); b.textContent = g.t;
+      var vibes = document.createElement("div"); vibes.className = "vibes";
+      KEYS.forEach(function (k) {
+        var s = document.createElement("span");
+        if (k === m) s.className = "on";
+        s.innerHTML = k + " <span class=\"dots\">" + dots(g.v[k]) + "</span>";
+        vibes.appendChild(s);
+      });
+      body.appendChild(b); body.appendChild(vibes);
+      li.appendChild(sw); li.appendChild(body);
+      list.appendChild(li);
+    });
+    note.textContent = NOTES[m];
+  }
+  sel.addEventListener("change", render);
+  render();
+})();
+</script>
