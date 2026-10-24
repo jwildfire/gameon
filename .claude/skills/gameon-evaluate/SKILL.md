@@ -20,7 +20,7 @@ gh issue view N -R jwildfire/gameon --json title,body,labels,author,assignees,co
 - It must carry `game-idea`. If it already has an eval comment (a comment whose first line starts `<!-- gameon-eval`), stop and say so unless you were asked to re-evaluate.
 - Assign whoever is steering you and comment `Starting: evaluating this idea.` (with the drafted-by footer).
 - Move the label: `gh issue edit N --add-label "status: evaluating" --remove-label "status: submitted"`. Exactly one `status:` label at a time; always remove the previous one.
-- **New game or update?** It's an **update** if it carries the `update` label, or its body has a `### Game to update` section. An update changes an existing game, so follow [Updates](#updates-and-forks) below in place of steps 2 to 4, then come back for step 5. Anything else is a new game: carry on with step 2.
+- **New game or update?** It's an **update** if it carries the `update` label, or its `### Game to update` section holds a real slug. The Game idea form has optional "Game to update" and "Starting version" fields, so a new-game idea shows those headings with `_No response_` (or nothing) under them: that is a new game, not an update. An update changes an existing game, so follow [Updates](#updates-and-forks) below in place of steps 2 to 4, then come back for step 5. Anything else is a new game: carry on with step 2.
 
 ## 2. Score (pass A)
 
@@ -96,8 +96,8 @@ The spec is [`docs/game-versions.md`](../../../docs/game-versions.md). Read it f
 ### U1. Read the game and its starting version
 
 From the issue body:
-- **Game to update**: the game's slug (e.g. `fancy-food-fight`).
-- **Starting version**: a version id (e.g. `jeremy.v1`).
+- **Game to update**: the game's slug (e.g. `fancy-food-fight`). Blank or `_No response_` counts as missing.
+- **Starting version**: a version id (e.g. `jeremy.v1`). Blank or `_No response_` counts as missing.
 - **Made by**: the maker's nickname.
 
 Then read the game's entry from dev, never from your local checkout:
@@ -106,7 +106,7 @@ Then read the game's entry from dev, never from your local checkout:
 git fetch -q && git show origin/dev:games.json | python3 -c 'import json,sys; print(json.dumps([g for g in json.load(sys.stdin) if g["slug"] == sys.argv[1]], indent=2, ensure_ascii=False))' <slug>
 ```
 
-- **No entry with that slug** (or no "Game to update" section, only the label): the result is **needs more**, asking "Which game do you want to change?". Don't guess.
+- **No entry with that slug** (or, with only the `update` label, a "Game to update" that's missing, blank or `_No response_`): the result is **needs more**, asking "Which game do you want to change?". Don't guess.
 - **The creator** is the entry's `creator`. If the entry has none, work it out in this order and use the first that answers:
   1. the game's first idea: if `games/<slug>/gameon.json` on dev has an `idea_issue`, the username of that issue's "Made by";
   2. the creator table in `docs/game-versions.md`;
