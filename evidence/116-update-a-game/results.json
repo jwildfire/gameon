@@ -1,0 +1,134 @@
+{
+  "spec": "116-update-a-game",
+  "passed": true,
+  "headline": "PASS: 6 of 6 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-24T01:55:23.959Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "6cb2567",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/116-update-a-game.spec.mjs",
+  "checks": [
+    {
+      "check": "A new game is picked by default and Send builds the same address as before",
+      "notes": [
+        "desktop: 9 games listed after \"A new game\"; a new game's address has no game or version and the same title, body and labels as before",
+        "phone: 9 games listed after \"A new game\"; a new game's address has no game or version and the same title, body and labels as before"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "new-game-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "new-game-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "picking a game shows its versions",
+      "notes": [
+        "desktop: MazeAThon has one version (jeremy.v1); Fancy Food Fight with three versions starts on its default, jeremy.v2",
+        "phone: MazeAThon has one version (jeremy.v1); Fancy Food Fight with three versions starts on its default, jeremy.v2"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "versions-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "versions-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "new/?game=fancy-food-fight&version=jeremy.v1 pre-picks that game and version",
+      "notes": [
+        "desktop: version from the address wins, then the game's default; an unknown game falls back to A new game",
+        "phone: version from the address wins, then the game's default; an unknown game falls back to A new game"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "prepicked-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "prepicked-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Send for an update names the game and starting version",
+      "notes": [
+        "desktop: title \"Update to Fancy Food Fight from Bean\", game=fancy-food-fight, version=jeremy.v1, labels game-idea,update,status: submitted",
+        "phone: title \"Update to Fancy Food Fight from Bean\", game=fancy-food-fight, version=jeremy.v1, labels game-idea,update,status: submitted"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "update-sent-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "update-sent-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the idea line shows an update as Update to {Game}",
+      "notes": [
+        "desktop: an update to fancy-food-fight reads \"Update to Fancy Food Fight\"; a slug not in games.json reads as the slug; a new idea is unchanged",
+        "phone: an update to fancy-food-fight reads \"Update to Fancy Food Fight\"; a slug not in games.json reads as the slug; a new idea is unchanged"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "idea-line-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "idea-line-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "nothing scrolls sideways in update mode",
+      "notes": [
+        "desktop: 1280px wide; the pickers, idea box and Send fit",
+        "phone: 375px wide; the pickers, idea box and Send fit"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    }
+  ]
+}
