@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timed Out</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Start Screen -->
+    <div id="screen-start" class="screen active">
+        <div class="start-content">
+            <div class="logo-icon">⏳</div>
+            <h1 class="title">TIMED OUT</h1>
+            <p class="subtitle">Place historical events in order</p>
+            <p class="description">Events are pulled from Wikipedia. Place each one in the right spot on the timeline. Three wrong guesses and you're timed out!</p>
+            <div class="difficulty-select">
+                <p class="difficulty-label">Choose your difficulty</p>
+                <div class="difficulty-buttons">
+                    <button class="btn-difficulty easy" data-difficulty="easy">
+                        <span class="diff-icon">🟢</span>
+                        <span class="diff-name">Easy</span>
+                        <span class="diff-desc">Major world events</span>
+                    </button>
+                    <button class="btn-difficulty medium" data-difficulty="medium">
+                        <span class="diff-icon">🟡</span>
+                        <span class="diff-name">Medium</span>
+                        <span class="diff-desc">Less famous milestones</span>
+                    </button>
+                    <button class="btn-difficulty hard" data-difficulty="hard">
+                        <span class="diff-icon">🔴</span>
+                        <span class="diff-name">Hard</span>
+                        <span class="diff-desc">Only for history buffs</span>
+                    </button>
+                </div>
+                <div class="event-count-picker">
+                    <label class="event-count-label"># of Events: <span id="event-count-display">20</span></label>
+                    <input type="range" id="event-count" class="event-count-slider" min="10" max="30" value="20" step="5" />
+                    <div class="event-count-range"><span>10</span><span>30</span></div>
+                </div>
+                <div class="custom-divider"><span>or</span></div>
+                <button class="btn-endless" id="btn-endless">♾️ Endless Mode</button>
+                <div class="custom-divider"><span>or pick a topic</span></div>
+                <div class="category-buttons" id="category-buttons">
+                    <button class="btn-category" data-category="presidents">🇺🇸 Presidents</button>
+                    <button class="btn-category" data-category="space">🚀 Space</button>
+                    <button class="btn-category" data-category="videogames">🎮 Video Games</button>
+                    <button class="btn-category" data-category="wars">⚔️ Wars</button>
+                    <button class="btn-category" data-category="sports">🏅 Sports</button>
+                    <button class="btn-category" data-category="music">🎵 Music</button>
+                    <button class="btn-category" data-category="movies">🎬 Movies & TV</button>
+                    <button class="btn-category" data-category="science">🔬 Science</button>
+                    <button class="btn-category" data-category="ancient">🏛️ Ancient World</button>
+                    <button class="btn-category" data-category="food">🍔 Food & Drink</button>
+                </div>
+                <div class="dad-mode-row">
+                    <label class="dad-toggle-label" for="dad-mode-toggle">
+                        <input type="checkbox" id="dad-mode-toggle" class="dad-toggle-input">
+                        <span class="dad-toggle-switch"></span>
+                        <span class="dad-toggle-text">👓 Dad Mode</span>
+                    </label>
+                    <span class="dad-toggle-hint">Hover cards to zoom</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dad Mode Hover Tooltip -->
+    <div id="dad-tooltip" class="dad-tooltip" aria-hidden="true"></div>
+
+    <!-- Loading Screen -->
+    <div id="screen-loading" class="screen">
+        <div class="loading-content">
+            <div class="hourglass-spinner">⏳</div>
+            <p class="loading-text">Gathering historical events...</p>
+            <p class="loading-sub" id="loading-status">Searching Wikipedia...</p>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="screen-game" class="screen">
+        <header class="game-header">
+            <div class="header-left">
+                <div class="header-score">Score: <span id="score">0</span></div>
+                <div class="header-remaining">Left: <span id="remaining">0</span></div>
+            </div>
+            <div class="header-title">TIMED OUT</div>
+            <div class="header-right">
+                <div class="header-lives" id="lives"></div>
+                <button class="btn-menu" id="btn-menu-game" title="Main Menu">✕</button>
+            </div>
+        </header>
+
+        <div class="current-card-area">
+            <div id="current-card" class="event-card mystery">
+                <div class="card-label">PLACE THIS EVENT</div>
+                <p class="card-text" id="current-event-text"></p>
+                <div class="card-year">????</div>
+                <button id="btn-read-clue" class="btn-read-clue" title="Read clue aloud" aria-label="Read clue aloud">🔊</button>
+            </div>
+            <button id="btn-reset-events" class="btn-reset-events hidden">🔄 Reset Events</button>
+        </div>
+
+        <p class="instruction" id="instruction">Tap a slot to place this event on the timeline</p>
+
+        <div class="timeline-wrapper">
+            <div class="timeline-scroll">
+                <div class="timeline-line"></div>
+                <div class="timeline-content" id="timeline"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Toast -->
+    <div id="feedback-toast" class="feedback-toast"></div>
+
+    <!-- Game Over Screen -->
+    <div id="screen-gameover" class="screen">
+        <div class="gameover-content">
+            <div class="gameover-icon" id="gameover-icon">⏰</div>
+            <h1 class="gameover-title" id="gameover-title">TIMED OUT!</h1>
+            <p class="gameover-message" id="gameover-message"></p>
+            <div class="final-score-display">
+                <span class="final-score-number" id="final-score">0</span>
+                <span class="final-score-label">events placed correctly</span>
+            </div>
+            <div class="final-timeline-wrapper">
+                <div class="final-timeline" id="final-timeline"></div>
+            </div>
+            <div class="gameover-buttons">
+                <button id="btn-replay" class="btn-primary">Play Again</button>
+                <button id="btn-menu-gameover" class="btn-secondary">Main Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

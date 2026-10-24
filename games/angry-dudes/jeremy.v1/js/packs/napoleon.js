@@ -1,0 +1,123 @@
+// Battle pack: Napoleon's Wars · Ratisbon (1809) and the farms of Waterloo (1815)
+// (pack format is described at the top of ww2.js)
+(window.ANGRY_PACKS = window.ANGRY_PACKS || []).push({
+  id: "napoleon",
+  name: "Napoleon's Wars",
+  years: "1809–1815",
+  side: "French army",
+  foe: "Austrian and Allied armies",
+  icon: "guard_grenadier",
+  blurb: "Storm town walls with voltigeurs, send in the Old Guard, chop gates with sappers and charge with the cuirassiers.",
+  props: { bunker: "gabion", pennant: ["#2b4a8c", "#efe9d8"] },
+
+  units: {
+    voltigeur:  { name: "Voltigeur", kind: "sling", sprite: "voltigeur", w: 12, h: 16, density: 0.003, best: "austrian",
+                  tap: "shout", shout: "VIVE L'EMPEREUR!", hint: "Quick light infantry. Drag back to aim, let go to launch. Tap in the air to shout." },
+    grenadier:  { name: "Old Guard", kind: "sling", sprite: "guard_grenadier", w: 12, h: 18, density: 0.008, power: 1.8, best: "brick",
+                  tap: "pound", shout: "THE GUARD!", hint: "Napoleon's toughest soldiers. Heavy, so pull back hard. Tap in the air to slam straight down." },
+    sapper:     { name: "Sapper", kind: "sling", sprite: "sapper", w: 12, h: 18, density: 0.004, power: 1.3, best: "door",
+                  tap: "dash", dash: 15, pierce: 2, pierceDmg: 6, shout: "SAPEURS!",
+                  hint: "Bearded axemen who broke down gates. Tap mid-flight and he chops through up to two things." },
+    cannon:     { name: "12-pounder", kind: "fire", sprite: "proj_cannonball", gunner: "cannon", w: 6, h: 6, round: true, density: 0.03, best: "brick",
+                  power: 2.4, bounce: 0.25, speed: 1.1, hint: "Napoleon was an artillery officer. Iron cannonballs bounce and smash through brick." },
+    howitzer:   { name: "Howitzer", kind: "fire", sprite: "proj_mortarshell", gunner: "mortar_1781", w: 8, h: 8, round: true, density: 0.006, best: "guardsman",
+                  fuse: 2400, bounce: 0.2, wind: true, boom: { r: 38, p: 4 }, hint: "Lobs an exploding shell over walls. It goes off a couple of seconds after landing." },
+    cuirassier: { name: "Cuirassiers", kind: "drive", sprite: "cuirassier", w: 30, h: 26, ox: 2, density: 0.004, best: "hedge",
+                  speed: 2, push: 0.7, hp: 6, tap: "ram", ramSpeed: 3.4, shout: "CHARGE!",
+                  hint: "Heavy cavalry in steel breastplates. Tap to ride out, then tap again to charge." },
+    battery:    { name: "Grand battery", kind: "air", style: "rain", icon: "cannon", count: 8, gap: 16, every: 180, vx: 3, vy: 0, say: "FIRE!", sound: "thump",
+                  proj: { sprite: "proj_cannonball", w: 6, h: 6, round: true, density: 0.03, power: 2.2, bounce: 0.2 },
+                  hint: "Tap a target and a long row of French guns fires eight cannonballs at it." }
+  },
+  order: ["voltigeur", "grenadier", "sapper", "cannon", "howitzer", "cuirassier", "battery"],
+
+  blocks: {
+    Q: { key: "brick", name: "Brick wall", hp: 4.5, density: 0.004, pts: 400, debris: ["#b9533a", "#d9c4aa"] },
+    C: { key: "stone", name: "Town wall", hp: 6, density: 0.0045, pts: 500, debris: ["#a39b8b", "#cbc4b4"] },
+    H: { key: "hedge", name: "Hedge", hp: 1.5, density: 0.001, pts: 100, debris: ["#3e6638", "#6fa852"] },
+    T: { key: "thatch", name: "Haystack", hp: 1, density: 0.0008, pts: 100, debris: ["#d9b44a", "#9c7a2c"] },
+    W: { key: "wood", name: "Crates", hp: 2.2, density: 0.0015, pts: 200, debris: ["#a8693a", "#5e3a1d"] },
+    D: { key: "door", name: "Gate", hp: 3, density: 0.002, pts: 300, debris: ["#a8693a", "#26282e"] },
+    K: { key: "keg", name: "Powder keg", hp: 0.5, density: 0.002, pts: 300, debris: ["#a8693a", "#26282e"], explodes: { r: 38, p: 4 }, fire: true },
+    "=": { key: "tiles", sprite: "tiles", slab: true, hp: 3, density: 0.003, pts: 400, debris: ["#b9533a", "#7d3424"] },
+    "~": { key: "wood", sprite: "wood", slab: true, hp: 2.5, density: 0.0015, pts: 300, debris: ["#a8693a", "#5e3a1d"] }
+  },
+  defenders: {
+    a: { key: "austrian", name: "Austrian soldier", w: 12, h: 17, hp: 1.6, density: 0.002, pts: 500 },
+    A: { key: "austrian_general", name: "Austrian general", w: 12, h: 17, hp: 4, density: 0.0025, pts: 5000 },
+    g: { key: "guardsman", name: "Guardsman", w: 12, h: 17, hp: 1.8, density: 0.002, pts: 500 },
+    r: { key: "green_rifleman", name: "Rifleman", w: 12, h: 17, hp: 1.5, density: 0.002, pts: 1000,
+         react: { type: "shooter", range: 120, height: 55, say: "BANG!", sound: "shot", muzzle: { x: -7, y: -8 } } },
+    B: { key: "baring", name: "Major Baring", w: 12, h: 17, hp: 4, density: 0.0025, pts: 5000 },
+    M: { key: "officer_1815", name: "Colonel Macdonell", w: 12, h: 17, hp: 4, density: 0.0025, pts: 5000 },
+    c: { key: "cannon", sprite: "british_cannon", name: "British cannon", w: 26, h: 12, hp: 3.5, density: 0.006, pts: 3000, cells: 2,
+         react: { type: "antitank", every: 1800, range: 340, muzzle: { x: -17, y: -4 }, vx: -12, vy: -0.5,
+                  shell: { sprite: "proj_cannonball", w: 6, h: 6, round: true, density: 0.01, enemy: true, impact: true, boom: { r: 16, p: 2.5 } } } }
+  },
+
+  themes: {
+    danube:   { sky: ["#74b4e6", "#9ccaef", "#cbe3f5"], sun: "#ffe25a", clouds: true, hills: ["#8fb87e", "#6f9e60"], trees: "oak", split: 9999,
+                left:  { top: "#5aa548", hi: "#8bd06a", base: "#7a5634", lo: "#5a3c22" },
+                right: { top: "#5aa548", hi: "#8bd06a", base: "#7a5634", lo: "#5a3c22" } },
+    waterloo: { sky: ["#7f8f9f", "#a2afba", "#cdd3d6"], clouds: true, cloud: "#e2e5e6", hills: ["#7a9a5a", "#5f8048"], trees: "oak", treeColor: "#3e6638",
+                split: 9999,
+                left:  { top: "#6f9a3c", hi: "#94b85a", base: "#6b4a2b", lo: "#4f361f" },
+                right: { top: "#6f9a3c", hi: "#94b85a", base: "#6b4a2b", lo: "#4f361f" } },
+    smoke:    { sky: ["#8d8a80", "#aaa596", "#cfc8b4"], clouds: true, cloud: "#d9d4c4", hills: ["#7a8a5a", "#627248"], trees: "oak", treeColor: "#3e5a32",
+                split: 9999,
+                left:  { top: "#6f9a3c", hi: "#94b85a", base: "#6b4a2b", lo: "#4f361f" },
+                right: { top: "#6f9a3c", hi: "#94b85a", base: "#6b4a2b", lo: "#4f361f" } }
+  },
+
+  levels: [
+    {
+      id: "ratisbon", name: "Ratisbon", date: "April 23, 1809", theme: "danube", width: 800,
+      history: "Napoleon's army had to cross a ditch and climb the old walls of Ratisbon (Regensburg), held by the Austrians. When the first ladder parties were driven back, Marshal Lannes grabbed a ladder himself, and his soldiers rushed forward to follow him. That same day Napoleon was hit in the foot by a spent bullet, but it only left a bruise.",
+      tip: "Don't come up short in the ditch! Cannonballs knock defenders right off the wall.",
+      fortX: 480,
+      trenches: [{ x: 420, w: 48, d: 22 }],
+      fort: [
+        "a....A...",
+        "CC..===..",
+        "CC..Q.Q..",
+        "CC..QKQ.a",
+        "CCDaQQQ.H"
+      ],
+      arsenal: { voltigeur: 4, grenadier: 1, cannon: 2 },
+      wind: 0
+    },
+    {
+      id: "lahayesainte", name: "La Haye Sainte", date: "June 18, 1815", theme: "waterloo", width: 920,
+      history: "At the Battle of Waterloo, a walled farm called La Haye Sainte stood right in front of the middle of the Duke of Wellington's line. About 400 green-coated riflemen of the King's German Legion under Major Baring held it for most of the day. The French finally took it in the evening, when the defenders ran out of rifle ammunition.",
+      tip: "The riflemen shoot down troops that fly low. Lob howitzer shells into the farmyard, and send a sapper at the gate.",
+      fortX: 470,
+      fort: [
+        "..........B......",
+        "r.......=====....",
+        "QQ......Q...Q..r.",
+        "QQ..H...Q.g.Q.Q.Q",
+        "QQD.H.g.QKTrQ.QDQ"
+      ],
+      arsenal: { voltigeur: 2, grenadier: 1, sapper: 2, cannon: 2, howitzer: 1, cuirassier: 1 },
+      wind: 2
+    },
+    {
+      id: "hougoumont", name: "Hougoumont", date: "June 18, 1815", theme: "smoke", width: 1100,
+      history: "Hougoumont was a walled farm with a château, a chapel and an orchard, guarded by British Guards and German soldiers. A huge French officer, Lieutenant Legros, smashed open the north gate with an axe and a few dozen French soldiers rushed in, but Colonel Macdonell and his men shoved the gate shut again. Hougoumont held out all day, and Napoleon lost the battle.",
+      tip: "This is a big one! Use the grand battery on the château, and save a sapper for the north gate at the far end.",
+      fortX: 460,
+      fort: [
+        ".................g....................",
+        "...............=====..................",
+        "...............Q...Q..................",
+        "...............Q.r.Q..................",
+        ".......r......=========.....g.........",
+        "......=====...Q...Q...Q....======.....",
+        "HH....QQD.Q...Q...Q.T.Q....QDD..Q.....",
+        "HH.r..QQDgQ...Q.gKQ.T.Q....QDDM.Q..c-."
+      ],
+      arsenal: { voltigeur: 3, grenadier: 2, sapper: 2, cannon: 2, howitzer: 1, cuirassier: 1, battery: 1 },
+      wind: 2
+    }
+  ]
+});
