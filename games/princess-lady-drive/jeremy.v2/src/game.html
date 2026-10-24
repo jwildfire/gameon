@@ -933,7 +933,7 @@ function popTreat() {
   else tr = pick(PLAIN_TREATS);
   r.treat = tr; r.popT = 2.4; r.mix = [];
   Sound.pop(); after(0.15, () => Sound.fanfare());
-  confetti(480, 330, 50); emit(480, 330, 1, { kind: 'emoji', e: tr[0], angle: -Math.PI / 2, speed: 260, drag: 2.5, g: 120, life: 1.6, size: 26 });
+  confetti(480, 330, 50); sparkle(480, 260, 24);
   toast(tr[0], `Surprise! A ${tr[1]}!`, true);
   after(1.1, () => { if (room === r) { bubble('Yum yum!', { x: P.x, y: P.y - 80 }, 1.8); hearts(P.x, P.y - 50, 7); } });
 }
@@ -3026,7 +3026,7 @@ window.princessLadyDrive = Object.freeze({
     mode: S.mode, room: room ? room.kind : null, sub: !!(room && room.sub), x: P.x, y: P.y, sit: P.sit ? P.sit.t : null,
     party: !!(room && room.party), look: room && room.look ? room.look.name : null, flag: room && room.flag != null ? room.flag : null,
     blocks: room && room.blocks != null ? room.blocks : null, treat: room && room.treat ? room.treat[1] : null, mix: room && room.mix ? room.mix.length : null,
-    doll: !!(room && room.dollT > 0), pets: [...S.pets], balloons: S.balloons.length, deco: [...S.deco], items: room ? room.items.map(it => ({ t: it.t, x: it.x, y: it.y })) : [],
+    doll: !!(room && room.dollT > 0), tiles: room && room.lit ? Object.keys(room.lit).length : 0, inv: { ...S.inv }, pets: [...S.pets], balloons: S.balloons.length, deco: [...S.deco], items: room ? room.items.map(it => ({ t: it.t, x: it.x, y: it.y })) : [],
     doors: CASTLE_DOORS.map(d => ({ kind: d.kind, x: d.x, y: WALLH + 30 })), w: room ? room.w : W, h: room ? room.h : H,
   }),
   toScreen: (x, y) => { const r = cvs.getBoundingClientRect(), z = curZoom(); return { x: r.left + vw / 2 + (x - cam.x) * z, y: r.top + vh / 2 + (y - cam.y) * z }; },
