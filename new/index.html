@@ -118,7 +118,7 @@ input[type="text"] { width: 100%; border: 2.5px solid var(--ink); border-radius:
    so the heading gets a card and the page leaves room for the skip button in the corner. */
 .top-right { flex-wrap: wrap; justify-content: flex-end; }
 html[data-mode="weird"] h1 { justify-self: start; background: var(--card); border: var(--line); border-radius: 18px; box-shadow: var(--lift); padding: 6px 16px 10px; }
-html[data-mode="weird"] .page { padding-bottom: max(88px, env(safe-area-inset-bottom, 0px)); }
+.page { padding-bottom: max(88px, env(safe-area-inset-bottom, 0px)); } /* room for the corner control (Shuffle, and Next in Weird) */
 </style>
 </head>
 <body>

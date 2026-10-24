@@ -299,7 +299,7 @@ html[data-mode="weird"] .lede.fading { opacity: 1; color: transparent; }
 /* In the wide header row the card leaves less room for words, so it holds three lines, centred. */
 @media (min-width: 760px) { html[data-mode="weird"] .lede { display: flex; align-items: center; min-height: calc(4.35em + 18px); padding: 6px 12px; } }
 @media (prefers-reduced-motion: reduce) { html[data-mode="weird"] .lede { transition: none; } }
-html[data-mode="weird"] .home { padding-bottom: max(88px, env(safe-area-inset-bottom, 0px)); }
+.home { padding-bottom: max(88px, env(safe-area-inset-bottom, 0px)); } /* room for the corner control (Shuffle, and Next in Weird) */
 </style>
 </head>
 <body>

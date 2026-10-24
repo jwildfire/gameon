@@ -1,0 +1,90 @@
+{
+  "spec": "138-shuffle",
+  "passed": true,
+  "headline": "PASS: 4 of 4 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-24T05:33:26.470Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "211b59e",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/138-shuffle.spec.mjs",
+  "checks": [
+    {
+      "check": "in Normal, shuffle changes the wall, and the pick sticks and follows to the New Game page",
+      "notes": [
+        "desktop: sunny → mint-stripes; kept after a reload and on the New Game page",
+        "phone: sunny → bubblegum-checks; kept after a reload and on the New Game page"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "normal-shuffled-desktop.jpg",
+          "new-game-same-wall-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "normal-shuffled-phone.jpg",
+          "new-game-same-wall-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "every wall is light enough for the dark text (contrast at least 7:1)",
+      "notes": [
+        "desktop: 12 walls, all at least 7:1 against the dark text",
+        "phone: 12 walls, all at least 7:1 against the dark text"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "in Weird, shuffle moves to the next background",
+      "notes": [
+        "desktop: warp-speed → matrix-rain",
+        "phone: retro-sun → lava-lamp"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "Shuffle sits in the bottom-right corner, on screen, and hides while a game plays",
+      "notes": [
+        "desktop: 1280px: Shuffle in the bottom-right corner, everything on screen, hidden in the game player",
+        "phone: 375px: Shuffle in the bottom-right corner, everything on screen, hidden in the game player"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "fits-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "fits-phone.jpg"
+        ],
+        "error": null
+      }
+    }
+  ]
+}
