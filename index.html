@@ -61,7 +61,9 @@ a { color: inherit; }
   paint-order: stroke fill;
   text-shadow: 5px 5px 0 var(--ink);
 }
-.wordmark span { color: var(--pop); }
+.wordmark { white-space: nowrap; }
+.wordmark .wm-on { color: var(--pop); }
+.wordmark .wm-word { display: inline-block; }
 .lede { margin: 0; font-size: clamp(17px, 2.4vw, 21px); font-weight: 800; max-width: 34ch; text-wrap: balance; min-height: 2.9em; transition: opacity 350ms ease; }
 .lede.fading { opacity: 0; }
 @media (prefers-reduced-motion: reduce) { .lede { transition: none; } }
@@ -299,6 +301,66 @@ html[data-mode="weird"] .lede.fading { opacity: 1; color: transparent; }
 /* In the wide header row the card leaves less room for words, so it holds three lines, centred. */
 @media (min-width: 760px) { html[data-mode="weird"] .lede { display: flex; align-items: center; min-height: calc(4.35em + 18px); padding: 6px 12px; } }
 @media (prefers-reduced-motion: reduce) { html[data-mode="weird"] .lede { transition: none; } }
+/* The logo's rotating titles (#145): the first word wobbles into a new one, "On" stays put. In
+   the wide row the logo has the widest title's width (4.6em), so the tagline doesn't
+   shuffle sideways, and is a little smaller so that width matches Normal's "GameOn" and the
+   tagline card keeps its room. */
+@media (min-width: 760px) { html[data-mode="weird"] .wordmark { width: 4.6em; font-size: clamp(48px, 5.3vw, 68px); } }
+/* On phones GitHub sits in the logo's top-right corner, so the logo shrinks just enough for the
+   widest title (about 4.6em) to stay clear of it. */
+@media (max-width: 759px) { html[data-mode="weird"] .wordmark { font-size: min(clamp(56px, 12vw, 104px), calc((100vw - 148px) / 4.65)); } }
+.wordmark .wm-word.wobble { animation: wm-wobble 440ms ease-in-out; transform-origin: 50% 80%; }
+@keyframes wm-wobble {
+  0% { transform: none; }
+  40% { transform: rotate(-6deg) scale(0.85); }
+  70% { transform: rotate(4deg) scale(1.06); }
+  100% { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) { .wordmark .wm-word.wobble { animation: none; } }
+/* Title styles: every new title also gets a new look (font, colors, outline, shadow). Style 0
+   is the classic logo above. The heading's height is pinned so taller fonts can't nudge the
+   header, and the script shrinks the letters (--fit) when a wide font would overrun 4.55em.
+   The fonts load only once Weird mode is on. */
+html[data-mode="weird"] .wordmark { height: 0.9em; }
+html[data-mode="weird"] .wordmark > span { display: inline-block; font-size: calc(var(--fit, 1) * 1em); }
+html[data-mode="weird"] .wordmark[data-style="1"] { font-family: "Bungee", var(--display); color: #ffd23f; -webkit-text-stroke: 3px #1d1a2f; text-shadow: 4px 4px 0 #1d1a2f, 8px 8px 0 #ff3ea5; }
+html[data-mode="weird"] .wordmark[data-style="1"] .wm-on { color: #ff3ea5; }
+html[data-mode="weird"] .wordmark[data-style="2"] { font-family: "Press Start 2P", monospace; color: #39ff14; -webkit-text-stroke: 2px #000; text-shadow: 4px 4px 0 #000; letter-spacing: -0.02em; }
+html[data-mode="weird"] .wordmark[data-style="2"] .wm-on { color: #ff4fd8; }
+html[data-mode="weird"] .wordmark[data-style="3"] { font-family: "Creepster", var(--display); color: #b6ff3b; -webkit-text-stroke: 3px #2a0033; text-shadow: 0 6px 0 #2a0033; letter-spacing: 0.03em; }
+html[data-mode="weird"] .wordmark[data-style="3"] .wm-on { color: #ff7b00; }
+html[data-mode="weird"] .wordmark[data-style="4"] { font-family: "Bangers", var(--display); color: #fff; -webkit-text-stroke: 3px #000; text-shadow: 5px 5px 0 #e4002b; letter-spacing: 0.04em; }
+html[data-mode="weird"] .wordmark[data-style="4"] .wm-on { color: #ffdd00; }
+html[data-mode="weird"] .wordmark[data-style="5"] { font-family: "Pacifico", cursive; color: #ffe3f1; -webkit-text-stroke: 3px #5b1a8a; text-shadow: 4px 4px 0 #5b1a8a; letter-spacing: 0; }
+html[data-mode="weird"] .wordmark[data-style="5"] .wm-on { color: #ff5fa2; }
+html[data-mode="weird"] .wordmark[data-style="6"] { font-family: "Monoton", var(--display); color: #00f0ff; -webkit-text-stroke: 0; text-shadow: 3px 3px 0 #10002b, 0 0 8px #00f0ff; }
+html[data-mode="weird"] .wordmark[data-style="6"] .wm-on { color: #ff2bd6; }
+html[data-mode="weird"] .wordmark[data-style="7"] { font-family: "Shrikhand", var(--display); color: #ff9f1c; -webkit-text-stroke: 3px #3d0c02; text-shadow: 5px 5px 0 #3d0c02; }
+html[data-mode="weird"] .wordmark[data-style="7"] .wm-on { color: #2ec4b6; }
+html[data-mode="weird"] .wordmark[data-style="8"] { font-family: "Titan One", var(--display); color: #7df9ff; -webkit-text-stroke: 3px #002a5c; text-shadow: 0 5px 0 #002a5c, 0 9px 0 #ff5aa5; }
+html[data-mode="weird"] .wordmark[data-style="8"] .wm-on { color: #ffe600; }
+html[data-mode="weird"] .wordmark[data-style="9"] { font-family: "Fredericka the Great", var(--display); color: #fff8e7; -webkit-text-stroke: 1.5px #1d1a2f; text-shadow: 3px 3px 0 #1d1a2f; }
+html[data-mode="weird"] .wordmark[data-style="9"] .wm-on { color: #ffcf33; }
+html[data-mode="weird"] .wordmark[data-style="10"] { font-family: "Righteous", var(--display); color: #c77dff; -webkit-text-stroke: 3px #10002b; text-shadow: 5px 5px 0 #10002b; }
+html[data-mode="weird"] .wordmark[data-style="10"] .wm-on { color: #72efdd; }
+html[data-mode="weird"] .wordmark[data-style="11"] { font-family: "Lobster", cursive; color: #ff5d73; -webkit-text-stroke: 3px #3a0ca3; text-shadow: 4px 4px 0 #3a0ca3; letter-spacing: 0; }
+html[data-mode="weird"] .wordmark[data-style="11"] .wm-on { color: #fff275; }
+html[data-mode="weird"] .wordmark[data-style="12"] { font-family: "Rubik Glitch", var(--display); color: #fff; -webkit-text-stroke: 2px #000; text-shadow: -4px 0 0 #ff0055, 4px 0 0 #00e5ff; }
+html[data-mode="weird"] .wordmark[data-style="12"] .wm-on { color: #00ffd5; }
+html[data-mode="weird"] .wordmark[data-style="13"] { font-family: "Bungee Shade", var(--display); color: #ffd60a; -webkit-text-stroke: 0; text-shadow: 3px 3px 0 #1d1a2f; }
+html[data-mode="weird"] .wordmark[data-style="13"] .wm-on { color: #ff006e; }
+html[data-mode="weird"] .wordmark[data-style="14"] { font-family: "Chewy", var(--display); color: #a0ff6e; -webkit-text-stroke: 3px #213a00; text-shadow: 4px 4px 0 #213a00; }
+html[data-mode="weird"] .wordmark[data-style="14"] .wm-on { color: #ff8fab; }
+html[data-mode="weird"] .wordmark[data-style="15"] { font-family: "Faster One", var(--display); color: #ff3c38; -webkit-text-stroke: 2px #1d1a2f; text-shadow: 6px 3px 0 #1d1a2f; }
+html[data-mode="weird"] .wordmark[data-style="15"] .wm-on { color: #ffd166; }
+html[data-mode="weird"] .wordmark[data-style="16"] { font-family: "Rampart One", var(--display); color: #fff; -webkit-text-stroke: 0; text-shadow: 4px 4px 0 #240046; }
+html[data-mode="weird"] .wordmark[data-style="16"] .wm-on { color: #c77dff; }
+html[data-mode="weird"] .wordmark[data-style="17"] { font-family: "Silkscreen", monospace; color: #fefae0; -webkit-text-stroke: 2px #000; text-shadow: 4px 4px 0 #3a86ff, 8px 8px 0 #000; }
+html[data-mode="weird"] .wordmark[data-style="17"] .wm-on { color: #ff6b4a; }
+html[data-mode="weird"] .wordmark[data-style="18"] { font-family: "Fascinate", var(--display); color: #f72585; -webkit-text-stroke: 3px #1d1a2f; text-shadow: 5px 5px 0 #4cc9f0; }
+html[data-mode="weird"] .wordmark[data-style="18"] .wm-on { color: #4cc9f0; }
+html[data-mode="weird"] .wordmark[data-style="19"] { font-family: "Rubik Moonrocks", var(--display); color: #e0e1dd; -webkit-text-stroke: 2px #0d1b2a; text-shadow: 5px 5px 0 #0d1b2a; }
+html[data-mode="weird"] .wordmark[data-style="19"] .wm-on { color: #ffb703; }
 .home { padding-bottom: max(88px, env(safe-area-inset-bottom, 0px)); } /* room for the corner control (Shuffle, and Next in Weird) */
 </style>
 </head>
@@ -306,7 +368,7 @@ html[data-mode="weird"] .lede.fading { opacity: 1; color: transparent; }
 
 <main class="home" id="home">
   <header class="masthead">
-    <h1 class="wordmark">Game<span>On</span></h1>
+    <h1 class="wordmark" id="wordmark" aria-label="GameOn"><span class="wm-word" id="wm-word">Game</span><span class="wm-on">On</span></h1>
     <div class="corner">
       <a class="gh-home" id="gh-home" href="https://github.com/jwildfire/gameon" target="_blank" rel="noopener"><svg class="gh" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 0-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6 0-3.2 0 0 1-.3 3.4 1.2a11.5 11.5 0 0 1 6 0C17 4.6 18 5 18 5c.6 1.6.2 2.8.1 3.2.8.8 1.3 1.9 1.3 3.1 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>GitHub</a>
       <div class="mode-switch" role="group" aria-label="Arcade mode"><button type="button" data-mode-set="normal" aria-pressed="true">Normal</button><button type="button" data-mode-set="weird" aria-pressed="false">Weird</button></div>
@@ -386,6 +448,98 @@ html[data-mode="weird"] .lede.fading { opacity: 1; color: transparent; }
   }
   window.gameonTaglines = LINES.slice();
   window.gameonNextTagline = function () { show(i + 1); return LINES[i]; };
+  document.addEventListener("gameon:mode", apply);
+  apply();
+})();
+
+// Logo titles (#145): Normal mode is always "GameOn". Weird mode starts on "GameOn" and swaps
+// the first word every 6.5 s, half a beat after the tagline, so the two take turns. "On"
+// stays orange; the h1's aria-label keeps it "GameOn" for screen readers. With reduced motion
+// the word still changes, just without the wobble. ?titleInterval=<seconds> speeds it up.
+(function () {
+  var WORDS = ["Game", "Flame", "Llama", "Dream", "Glitch", "Party", "Bounce", "Noodle", "Zoom", "Jelly", "Space", "Goose", "Pizza", "Wiggle", "Beam", "Robot", "Banana", "Taco", "Dino", "Combo", "Rocket", "Bubble", "Disco", "Waffle", "Pickle", "Turbo", "Splash", "Giggle", "Sauce", "Lava", "Comet", "Pixel"];
+  // Each title also gets the next of 20 looks (CSS: .wordmark[data-style]). Style 0 is the
+  // classic logo; the rest each need one Google font, loaded the first time Weird mode is on.
+  var STYLES = ["Classic", "Bungee", "Press Start 2P", "Creepster", "Bangers", "Pacifico", "Monoton", "Shrikhand", "Titan One", "Fredericka the Great", "Righteous", "Lobster", "Rubik Glitch", "Bungee Shade", "Chewy", "Faster One", "Rampart One", "Silkscreen", "Fascinate", "Rubik Moonrocks"];
+  var FIT = 4.55; // the widest a title may be, in ems of the heading (the room the header leaves it)
+  var mark = document.getElementById("wordmark");
+  var word = document.getElementById("wm-word");
+  var secs = parseFloat(new URLSearchParams(location.search).get("titleInterval"));
+  var every = secs > 0 ? secs * 1000 : 6500;
+  var i = 0, s = 0, timer = 0, swap = 0, fonts = null;
+  function weird() { return !!window.gameonMode && window.gameonMode.get() === "weird"; }
+  function still() { return !!window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches; }
+  function loadFonts() {
+    if (fonts) return fonts;
+    var link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "https://fonts.googleapis.com/css2?" + STYLES.slice(1).map(function (f) { return "family=" + f.replace(/ /g, "+"); }).join("&") + "&display=swap";
+    fonts = new Promise(function (done) {
+      link.onload = function () {
+        // Ask for every letter: some fonts (Rampart One) come in slices, and a slice that
+        // arrives after the title is measured would make it wider than its room.
+        var abc = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        Promise.all(STYLES.slice(1).map(function (f) { return document.fonts.load('40px "' + f + '"', abc).catch(function () {}); })).then(function () { fit(); done(); });
+      };
+      link.onerror = function () { done(); };
+    });
+    document.head.appendChild(link);
+    return fonts;
+  }
+  // Shrink the letters, not the heading, when a wide font would overrun the title's room.
+  function fit() {
+    if (!weird()) { mark.style.removeProperty("--fit"); return; }
+    var room = FIT * parseFloat(getComputedStyle(mark).fontSize), k = 1;
+    mark.style.width = "max-content"; // measure the title's own width, as laid out
+    // Some systems snap letters to whole pixels, so shrinking isn't exactly in proportion:
+    // measure again after each shrink, a few times at most.
+    for (var pass = 0; pass < 4; pass++) {
+      mark.style.setProperty("--fit", k.toFixed(3));
+      var wide = mark.offsetWidth;
+      if (wide <= room) break;
+      k *= (room / wide) * 0.995;
+    }
+    mark.style.width = "";
+  }
+  function show(n, look) {
+    i = (n + WORDS.length) % WORDS.length;
+    s = ((look === undefined ? n : look) % STYLES.length + STYLES.length) % STYLES.length;
+    word.textContent = WORDS[i];
+    if (weird() && s) mark.setAttribute("data-style", s); else mark.removeAttribute("data-style");
+    fit();
+  }
+  function next() {
+    if (still()) { show(i + 1, s + 1); return; }
+    word.classList.remove("wobble");
+    void word.offsetWidth; // restart the animation
+    word.classList.add("wobble");
+    clearTimeout(swap);
+    swap = setTimeout(function () { if (weird()) show(i + 1, s + 1); }, 180); // at the wobble's squeeze
+  }
+  function stop() {
+    clearTimeout(timer); clearInterval(timer); clearTimeout(swap);
+    timer = swap = 0;
+    word.classList.remove("wobble");
+  }
+  function apply() {
+    stop();
+    show(0, 0);
+    if (!weird()) return;
+    loadFonts();
+    timer = setTimeout(function () {
+      if (!document.hidden) next();
+      timer = setInterval(function () { if (!document.hidden) next(); }, every);
+    }, every / 2);
+  }
+  word.addEventListener("animationend", function () { word.classList.remove("wobble"); });
+  window.gameonTitles = WORDS.map(function (w) { return w + "On"; });
+  window.gameonNextTitle = function () { show(i + 1, s + 1); return WORDS[i] + "On"; };
+  window.gameonTitleStyles = STYLES.slice();
+  window.gameonTitleStyle = function () { return STYLES[s]; };
+  // Test hook: show word n in look k, and a promise that settles once Weird's fonts are in.
+  window.gameonShowTitle = function (n, k) { show(n, k); return WORDS[i] + "On"; };
+  window.gameonTitleFonts = function () { return loadFonts(); };
+  if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener("loadingdone", fit);
   document.addEventListener("gameon:mode", apply);
   apply();
 })();

@@ -1,0 +1,110 @@
+{
+  "spec": "145-weird-titles",
+  "passed": true,
+  "headline": "PASS: 5 of 5 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-24T06:16:49.696Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "a878f7e",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/145-weird-titles.spec.mjs",
+  "checks": [
+    {
+      "check": "Normal mode shows GameOn and it never changes",
+      "notes": [
+        "desktop: GameOn for 3 s with the interval shortened to 0.5 s (?titleInterval=0.5): no change",
+        "phone: GameOn for 3 s with the interval shortened to 0.5 s (?titleInterval=0.5): no change"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "normal-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "normal-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Weird mode starts on GameOn, then swaps in a new ___On title half a beat after the tagline",
+      "notes": [
+        "desktop: 32 titles; GameOn held past 3 s, became FlameOn by 4 s, held, then LlamaOn by 10.5 s (6.5 s later); heading still named GameOn",
+        "phone: 32 titles; GameOn held past 3 s, became FlameOn by 4 s, held, then LlamaOn by 10.5 s (6.5 s later); heading still named GameOn"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "weird-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "weird-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "switching modes starts and stops the rotation without a reload, and Normal restores GameOn",
+      "notes": [
+        "desktop: Weird showed FlameOn, LlamaOn, DreamOn, GlitchOn; back in Normal it read GameOn at once and held for 2.4 s",
+        "phone: Weird showed FlameOn, LlamaOn, DreamOn, GlitchOn; back in Normal it read GameOn at once and held for 2.4 s"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "every title fits: no sideways scroll, no wrapping, and the header doesn't move",
+      "notes": [
+        "desktop: 1600px: all 32 titles fit on one line in the one-row header; widest is BananaOn at 311px; header 109px tall throughout",
+        "desktop: 1280px: all 32 titles fit on one line in the one-row header; widest is BananaOn at 310px; header 109px tall throughout",
+        "phone: 375px: all 32 titles fit on one line, clear of GitHub; widest is BananaOn at 223px; header 197px tall throughout"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "widest-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "widest-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "with reduced motion the title still changes in Weird mode, with no wobble",
+      "notes": [
+        "desktop: reduced motion: the title changed (to FlameOn) and kept changing, with no animation running; Normal restored GameOn",
+        "phone: reduced motion: the title changed (to FlameOn) and kept changing, with no animation running; Normal restored GameOn"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    }
+  ]
+}
