@@ -45,8 +45,11 @@ test("on a phone the header stacks and nothing overflows", async ({ page, shot, 
   expect(browserErrors).toEqual([]);
 });
 
-test("the tagline rotates through Jeremy's lines and 50 more, and holds still for reduced motion", async ({ page, note, browserErrors }) => {
+// Since #134 the rotation is Weird mode's; Normal mode (the default) holds the first line.
+test("the tagline holds Jeremy's line in Normal mode, rotates through 50 more in Weird mode, and holds still for reduced motion", async ({ page, note, browserErrors }) => {
   await page.goto("./");
+  await expect(page.locator("#tagline")).toHaveText("Think of a Game? Make it, play it, change it!");
+  await page.goto("./?mode=weird");
   const lines = await page.evaluate(() => window.gameonTaglines);
   expect(lines.length).toBe(53);
   expect(lines.slice(0, 2)).toEqual(["Think of a Game? Make it, play it, change it!", "Think of a Game? Make it. Then make it better."]);
@@ -65,6 +68,6 @@ test("the tagline rotates through Jeremy's lines and 50 more, and holds still fo
   const still = await page.locator("#tagline").textContent();
   await page.waitForTimeout(7500);
   expect(await page.locator("#tagline").textContent()).toBe(still);
-  note(`${lines.length} taglines; the line changes on its own, the header height stays put for every line, and reduced motion holds one line`);
+  note(`${lines.length} taglines; Normal holds the first, in Weird the line changes on its own, the header height stays put for every line, and reduced motion holds one line`);
   expect(browserErrors).toEqual([]);
 });

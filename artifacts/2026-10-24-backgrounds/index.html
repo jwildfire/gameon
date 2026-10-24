@@ -55,7 +55,7 @@ h2 { margin: 8px 0 0; font: 400 clamp(28px, 4.5vw, 40px)/1 var(--display); }
 <main class="page">
   <a class="back" href="../../">&larr; Arcade</a>
   <h1>Trippy <span>Backgrounds</span></h1>
-  <p class="lede">Jeremy asked for "some trippy backgrounds. matrix, phsycadelic rainbow. make 20, pick the best 10 and cycle through them". Here are all twenty, running live. The top ten take turns behind the arcade, swapping every 30 to 45 seconds.</p>
+  <p class="lede">Jeremy asked for "some trippy backgrounds. matrix, phsycadelic rainbow. make 20, pick the best 10 and cycle through them". Here are all twenty, running live. The top ten take turns behind the arcade and the New Game page in Weird mode (the Normal | Weird switch by the GitHub button), swapping every 30 to 45 seconds.</p>
   <p class="how">How they were picked: each one was screenshotted behind the arcade at desktop size at 1, 4 and 8 seconds, then judged on wow, on how different the ten are from each other, on how well the cards and words still read on top, and on speed. A pixel check sampled each one 20 times a second for 3 seconds: none flips big areas between bright and dark, and all ran at a full 60 frames a second on a laptop. Code: <a href="https://github.com/jwildfire/gameon/blob/dev/assets/backgrounds.js">assets/backgrounds.js</a>.</p>
 
   <h2>The top 10</h2>
@@ -99,7 +99,7 @@ h2 { margin: 8px 0 0; font: 400 clamp(28px, 4.5vw, 40px)/1 var(--display); }
     li.innerHTML = '<article class="tile" data-bg="' + d.id + '"><div class="screen"><canvas aria-hidden="true"></canvas>' +
       '<span class="rank">' + (inTop ? rank : "Cut") + '</span></div><div class="info"><h3></h3>' +
       '<span class="kind">' + (d.kind === "gl" ? "WebGL shader" : "Canvas 2D") + '</span><p></p>' +
-      (inTop ? '<a class="try" href="../../?bg=' + d.id + '">Try it behind the arcade</a>' : '') + '</div></article>';
+      (inTop ? '<a class="try" href="../../?mode=weird&bg=' + d.id + '">Try it behind the arcade</a>' : '') + '</div></article>';
     li.querySelector("h3").textContent = d.name;
     li.querySelector("p").textContent = notes[d.id] || "";
     return li;

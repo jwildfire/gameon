@@ -17,7 +17,8 @@
  * Runner: crossfades to the next pick every 30-45 s (?bgInterval=<seconds> shortens it, and
  * ?bg=<id> starts on one background), pauses when the tab is hidden or `data-pause` matches,
  * shows a still frame under prefers-reduced-motion, renders at reduced resolution (GL at half
- * of CSS pixels) and caps phones at 30 fps. "Off" is saved as gameon.arcade.bg = "off".
+ * of CSS pixels) and caps phones at 30 fps. It only runs in Weird mode (assets/mode.js, loaded
+ * first): in Normal mode the canvas stays hidden and nothing is drawn.
  */
 (function (win, doc) {
   "use strict";
@@ -587,7 +588,8 @@
   }
 
   // ---------------------------------------------------------------------------------------
-  // The runner: one full-page canvas behind the content, cycling the picks.
+  // The runner: one full-page canvas behind the content, cycling the picks. It only runs in
+  // Weird mode (assets/mode.js); in Normal mode nothing is drawn and the wall stays yellow.
   // ---------------------------------------------------------------------------------------
   var CSS = [
     ".gob-canvas{position:fixed;inset:0;width:100%;height:100%;z-index:-1;display:block;pointer-events:none}",
@@ -597,24 +599,25 @@
     " background:var(--card,#fffdf6);color:var(--ink,#1d1a2f);border:3px solid var(--ink,#1d1a2f);border-radius:999px;",
     " box-shadow:4px 4px 0 var(--ink,#1d1a2f);font:800 14px/1 var(--body,system-ui,sans-serif)}",
     ".gob-name{padding:0 4px 0 10px;font:400 17px/1 var(--display,sans-serif);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}",
-    ".gob-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:40px;min-width:40px;padding:0 12px;flex-shrink:0;",
-    " border:2.5px solid var(--ink,#1d1a2f);border-radius:999px;background:var(--wall,#ffd23f);color:var(--ink,#1d1a2f);font:inherit;cursor:pointer}",
-    ".gob-btn:hover{background:var(--pop,#ff6b4a);color:var(--card,#fffdf6)}",
-    ".gob-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}",
-    ".gob-next{padding:0}",
-    ".gob-ctl.is-off .gob-next,.gob-ctl.is-off .gob-name{display:none}",
+    ".gob-next{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;flex-shrink:0;padding:0;",
+    " border:2.5px solid var(--ink,#1d1a2f);border-radius:999px;background:var(--wall,#ffd23f);color:var(--ink,#1d1a2f);cursor:pointer}",
+    ".gob-next:hover{background:var(--pop,#ff6b4a);color:var(--card,#fffdf6)}",
+    ".gob-next svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}",
     "@media (max-width:520px){.gob-name{display:none}}"
   ].join("\n");
 
   var ICON_NEXT = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l9 7-9 7zM18 5v14"/></svg>';
-  var ICON_SPARK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/></svg>';
 
   var runner = null;
+
+  function currentMode() {
+    if (win.gameonMode) return win.gameonMode.get();
+    return doc.documentElement.getAttribute("data-mode") === "weird" ? "weird" : "normal";
+  }
 
   function mount(opts) {
     if (runner) return runner;
     opts = opts || {};
-    var KEY = "gameon.arcade.bg";
     var root = doc.documentElement;
     var q = new URLSearchParams(win.location.search);
     var mqReduce = win.matchMedia ? win.matchMedia("(prefers-reduced-motion: reduce)") : null;
@@ -623,19 +626,7 @@
     var secs = parseFloat(q.get("bgInterval"));
     var nextDelay = secs > 0 ? function () { return secs; } : function () { return rnd(30, 45); };
     var FADE = secs > 0 ? Math.min(2.5, secs / 3) : 2.5, SKIP_FADE = 0.6;
-
-    var order = (opts.ids || PICKS).filter(function (id) { return BY_ID[id]; });
-    if (!hasGL()) {
-      order = order.filter(function (id) { return BY_ID[id].kind === "2d"; });
-      if (!order.length) order = LIST.filter(function (d) { return d.kind === "2d"; }).map(function (d) { return d.id; });
-    }
-    var want = q.get("bg"), idx;
-    if (want && BY_ID[want] && (BY_ID[want].kind === "2d" || hasGL())) {
-      if (order.indexOf(want) < 0) order.unshift(want);
-      idx = order.indexOf(want);
-    } else {
-      idx = (Math.random() * order.length) | 0;
-    }
+    var want = q.get("bg");
 
     var style = doc.createElement("style");
     style.textContent = CSS;
@@ -644,31 +635,43 @@
     var canvas = doc.createElement("canvas");
     canvas.className = "gob-canvas";
     canvas.setAttribute("aria-hidden", "true");
+    canvas.hidden = true;
     doc.body.insertBefore(canvas, doc.body.firstChild);
     var ctx = canvas.getContext("2d", { alpha: false });
 
     var ctl = doc.createElement("div");
     ctl.className = "gob-ctl";
-    ctl.setAttribute("role", "group");
-    ctl.setAttribute("aria-label", "Trippy background");
+    ctl.hidden = true;
     ctl.innerHTML = '<span class="gob-name"></span>' +
-      '<button type="button" class="gob-btn gob-next" aria-label="Next background" title="Next background">' + ICON_NEXT + '</button>' +
-      '<button type="button" class="gob-btn gob-toggle">' + ICON_SPARK + '<span class="gob-label"></span></button>';
+      '<button type="button" class="gob-next" aria-label="Next background" title="Next background">' + ICON_NEXT + '</button>';
     doc.body.appendChild(ctl);
-    var nameEl = ctl.querySelector(".gob-name"), nextBtn = ctl.querySelector(".gob-next"),
-      toggleBtn = ctl.querySelector(".gob-toggle"), labelEl = ctl.querySelector(".gob-label");
-    root.classList.add("gob-ready");
+    var nameEl = ctl.querySelector(".gob-name"), nextBtn = ctl.querySelector(".gob-next");
 
-    var on = true;
-    try { on = win.localStorage.getItem(KEY) !== "off"; } catch (e) {}
+    var order = null, idx = 0;
     var W = 0, H = 0, cur = null, old = null, fade = 1, fadeLen = FADE, elapsed = 0, nextAt = nextDelay();
-    var raf = 0, last = 0, frames = 0, state = "", stillDone = false, paused = false;
+    var raf = 0, last = 0, frames = 0, state = "", stillDone = false, paused = false, sized = false;
+
+    // Decided the first time Weird mode starts, so Normal mode never touches WebGL.
+    function pickOrder() {
+      order = (opts.ids || PICKS).filter(function (id) { return BY_ID[id]; });
+      if (!hasGL()) {
+        order = order.filter(function (id) { return BY_ID[id].kind === "2d"; });
+        if (!order.length) order = LIST.filter(function (d) { return d.kind === "2d"; }).map(function (d) { return d.id; });
+      }
+      if (want && BY_ID[want] && (BY_ID[want].kind === "2d" || hasGL())) {
+        if (order.indexOf(want) < 0) order.unshift(want);
+        idx = order.indexOf(want);
+      } else {
+        idx = (Math.random() * order.length) | 0;
+      }
+    }
 
     function size() {
       var w = win.innerWidth, h = Math.max(win.innerHeight, root.clientHeight);
       var k = Math.min(1, 1600 / Math.max(w, h));
       W = Math.max(32, Math.round(w * k)); H = Math.max(32, Math.round(h * k));
       canvas.width = W; canvas.height = H;
+      sized = true;
     }
 
     function make(i) {
@@ -681,12 +684,7 @@
 
     function label() {
       nameEl.textContent = cur ? cur.name : "";
-      root.setAttribute("data-bg", cur ? cur.id : "");
-      ctl.classList.toggle("is-off", !on);
-      toggleBtn.setAttribute("aria-pressed", String(on));
-      labelEl.textContent = on ? "Off" : "Trippy!";
-      toggleBtn.title = on ? "Switch the trippy background off" : "Turn the trippy background on";
-      toggleBtn.setAttribute("aria-label", on ? "Switch the trippy background off" : "Turn the trippy background on");
+      if (cur) root.setAttribute("data-bg", cur.id); else root.removeAttribute("data-bg");
     }
 
     function draw(dt) {
@@ -729,13 +727,35 @@
       stillDone = true;
     }
 
+    // Weird mode starting: pick up where the cycle was, or start it at a random pick.
+    function wake() {
+      if (!order) pickOrder();
+      if (!sized) size();
+      if (!cur) {
+        cur = make(idx);
+        elapsed = 0; nextAt = nextDelay();
+        if (cur) cur.paint(ctx, 0, 1);
+      }
+      label();
+    }
+
+    // Normal mode: let go of everything, so nothing keeps running or holding memory.
+    function sleep() {
+      if (old) { old.dispose(); old = null; fade = 1; }
+      if (cur) { cur.dispose(); cur = null; }
+      stillDone = false;
+      label();
+    }
+
     function update() {
+      var weird = currentMode() === "weird";
       var reduce = !!(mqReduce && mqReduce.matches);
-      var s = !on ? "off" : paused ? "paused" : doc.hidden ? "hidden" : reduce ? "still" : "running";
-      canvas.hidden = !on;
-      ctl.hidden = paused;
-      root.classList.toggle("gob-on", on);
+      var s = !weird ? "normal" : paused ? "paused" : doc.hidden ? "hidden" : reduce ? "still" : "running";
+      if (weird) wake();
+      canvas.hidden = !weird;
+      ctl.hidden = !weird || paused;
       if (s === state) return;
+      var was = state;
       state = s;
       root.setAttribute("data-bg-state", s);
       if (s === "running") {
@@ -744,18 +764,12 @@
       } else if (raf) {
         win.cancelAnimationFrame(raf); raf = 0;
       }
+      if (s === "normal" && was) sleep();
       if (s === "still" && !stillDone) still();
     }
 
-    function setOn(v) {
-      on = !!v;
-      try { win.localStorage.setItem(KEY, on ? "on" : "off"); } catch (e) {}
-      label();
-      update();
-    }
-
     function next() {
-      if (!on || !cur) return false;
+      if (state === "normal" || !cur) return false;
       if (state === "running") return advance(SKIP_FADE);
       var p = make(idx + 1);
       if (!p) return false;
@@ -767,9 +781,9 @@
     }
 
     nextBtn.addEventListener("click", next);
-    toggleBtn.addEventListener("click", function () { setOn(!on); });
+    doc.addEventListener("gameon:mode", update);
 
-    var resizeTimer = 0, lastW = 0, lastH = 0;
+    var resizeTimer = 0, lastW = win.innerWidth, lastH = win.innerHeight;
     win.addEventListener("resize", function () {
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(function () {
@@ -777,6 +791,7 @@
         // Ignore the phone address bar sliding in and out: only real size changes re-render.
         if (w === lastW && Math.abs(h - lastH) < lastH * 0.25) return;
         lastW = w; lastH = h;
+        if (!sized) return;
         size();
         if (old) { old.dispose(); old = null; fade = 1; }
         if (cur) cur.resize(W, H);
@@ -798,11 +813,6 @@
       paused = !!doc.querySelector(opts.pause);
     }
 
-    lastW = win.innerWidth; lastH = win.innerHeight;
-    size();
-    cur = make(idx);
-    label();
-    if (cur) cur.paint(ctx, 0, 1);
     update();
 
     runner = {
@@ -810,10 +820,8 @@
       get name() { return cur ? cur.name : null; },
       get state() { return state; },
       get frames() { return frames; },
-      get on() { return on; },
-      get order() { return order.slice(); },
+      get order() { return order ? order.slice() : null; },
       next: next,
-      setOn: setOn,
       canvas: canvas
     };
     api.runner = runner;

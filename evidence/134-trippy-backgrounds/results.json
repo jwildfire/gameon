@@ -1,39 +1,102 @@
 {
   "spec": "134-trippy-backgrounds",
   "passed": true,
-  "headline": "PASS: 8 of 8 checks pass at desktop and phone widths.",
-  "generatedAt": "2026-10-24T04:50:45.326Z",
+  "headline": "PASS: 9 of 9 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-24T05:07:02.836Z",
   "target": "local server (python3 -m http.server) on this branch",
-  "commit": "4194911",
+  "commit": "159e1bf",
   "playwright": "1.61.1",
   "specFile": "tests/evidence/134-trippy-backgrounds.spec.mjs",
   "checks": [
     {
-      "check": "a trippy background draws behind the arcade, light on frames",
+      "check": "the default is Normal: the yellow wall, the fixed tagline, nothing drawing",
       "notes": [
-        "desktop: showing retro-sun, 668 colours on a 1280x800 canvas, about 60 fps",
-        "phone: showing rainbow-rain, 90 colours on a 375x812 canvas, about 30 fps"
+        "desktop: Normal: wall #ffd23f, no frames drawn in 7 s, tagline held on \"Think of a Game? Make it, play it, change it!\"",
+        "phone: Normal: wall #ffd23f, no frames drawn in 7 s, tagline held on \"Think of a Game? Make it, play it, change it!\""
       ],
       "desktop": {
         "status": "pass",
         "screenshots": [
-          "arcade-desktop.jpg"
+          "normal-desktop.jpg"
         ],
         "error": null
       },
       "phone": {
         "status": "pass",
         "screenshots": [
-          "arcade-phone.jpg"
+          "normal-phone.jpg"
         ],
         "error": null
       }
     },
     {
-      "check": "the cycle crossfades to the next background by itself",
+      "check": "switching to Weird starts the backgrounds and rotating taglines, no reload",
       "notes": [
-        "desktop: matrix-rain moved on to kaleidoscope (interval shortened to 2 s with ?bgInterval=2; normally 30 to 45 s)",
-        "phone: rainbow-tunnel moved on to retro-sun (interval shortened to 2 s with ?bgInterval=2; normally 30 to 45 s)"
+        "desktop: Weird: hex-disco on a 1280x800 canvas (548 colours), about 61 fps; tagline moved on from \"Thought up by people. Built by robots. Played by everyone.\"",
+        "phone: Weird: kaleidoscope on a 375x812 canvas (399 colours), about 30 fps; tagline moved on from \"Your idea. Our robots. Everyone's controller.\""
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "weird-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "weird-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Weird survives a reload and carries to the New Game page",
+      "notes": [
+        "desktop: after a reload: Weird; New Game page: Weird, showing matrix-rain",
+        "phone: after a reload: Weird; New Game page: Weird, showing matrix-rain"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "new-game-weird-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "new-game-weird-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "switching back to Normal stops everything",
+      "notes": [
+        "desktop: Normal again: canvas hidden, no frames in 7 s, fixed tagline, and the New Game page follows",
+        "phone: Normal again: canvas hidden, no frames in 7 s, fixed tagline, and the New Game page follows"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "new-game-normal-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "new-game-normal-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "in Weird mode the cycle crossfades to the next background by itself",
+      "notes": [
+        "desktop: rainbow-tunnel moved on to retro-sun (interval shortened to 2 s with ?bgInterval=2; normally 30 to 45 s)",
+        "phone: rainbow-plasma moved on to matrix-rain (interval shortened to 2 s with ?bgInterval=2; normally 30 to 45 s)"
       ],
       "desktop": {
         "status": "pass",
@@ -49,7 +112,7 @@
     {
       "check": "the skip button changes the background",
       "notes": [
-        "desktop: skip: rainbow-tunnel → retro-sun",
+        "desktop: skip: liquid-marble → warp-speed",
         "phone: skip: retro-sun → rainbow-plasma"
       ],
       "desktop": {
@@ -68,31 +131,10 @@
       }
     },
     {
-      "check": "off brings back the yellow wall and stays off after a reload",
+      "check": "reduced motion in Weird mode gets a still frame and one tagline",
       "notes": [
-        "desktop: after a reload: canvas hidden, wall back to #ffd23f, gameon.arcade.bg = off",
-        "phone: after a reload: canvas hidden, wall back to #ffd23f, gameon.arcade.bg = off"
-      ],
-      "desktop": {
-        "status": "pass",
-        "screenshots": [
-          "off-desktop.jpg"
-        ],
-        "error": null
-      },
-      "phone": {
-        "status": "pass",
-        "screenshots": [
-          "off-phone.jpg"
-        ],
-        "error": null
-      }
-    },
-    {
-      "check": "reduced motion gets a still frame",
-      "notes": [
-        "desktop: still frame of rainbow-rain: no frames drawn in 1.5 s, pixels unchanged",
-        "phone: still frame of matrix-rain: no frames drawn in 1.5 s, pixels unchanged"
+        "desktop: still frame of retro-sun: no frames and the same pixels and tagline (\"Ideas welcome. Controllers recommended.\") for 7 s",
+        "phone: still frame of rainbow-rain: no frames and the same pixels and tagline (\"Remix any game. Make it yours.\") for 7 s"
       ],
       "desktop": {
         "status": "pass",
@@ -110,10 +152,10 @@
       }
     },
     {
-      "check": "the background pauses and the control hides while a game plays",
+      "check": "the background pauses and the skip button hides while a game plays",
       "notes": [
-        "desktop: playing Super Sauce Boy: paused, no frames drawn in 1.2 s, control hidden; back home it runs again",
-        "phone: playing Super Sauce Boy: paused, no frames drawn in 1.2 s, control hidden; back home it runs again"
+        "desktop: playing Super Sauce Boy: paused, no frames drawn in 1.2 s, skip hidden; back home it runs again",
+        "phone: playing Super Sauce Boy: paused, no frames drawn in 1.2 s, skip hidden; back home it runs again"
       ],
       "desktop": {
         "status": "pass",
@@ -127,28 +169,7 @@
       }
     },
     {
-      "check": "the New Game page cycles the same backgrounds behind its cards",
-      "notes": [
-        "desktop: showing rainbow-plasma",
-        "phone: showing liquid-marble"
-      ],
-      "desktop": {
-        "status": "pass",
-        "screenshots": [
-          "new-game-desktop.jpg"
-        ],
-        "error": null
-      },
-      "phone": {
-        "status": "pass",
-        "screenshots": [
-          "new-game-phone.jpg"
-        ],
-        "error": null
-      }
-    },
-    {
-      "check": "each of the ten picks behind the arcade",
+      "check": "each of the ten Weird picks behind the arcade",
       "notes": [
         "desktop: rainbow-plasma, matrix-rain, kaleidoscope, lava-lamp, rainbow-rain, hex-disco, liquid-marble, warp-speed, rainbow-tunnel, retro-sun",
         "phone: rainbow-plasma, matrix-rain, kaleidoscope, lava-lamp, rainbow-rain, hex-disco, liquid-marble, warp-speed, rainbow-tunnel, retro-sun"

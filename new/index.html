@@ -6,6 +6,7 @@
 <title>New Game · GameOn</title>
 <meta name="description" content="Say what you want to play, an AI builds it, and you play it with your friends.">
 <meta name="theme-color" content="#ffd23f">
+<script src="../assets/mode.js"></script>
 <link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -113,10 +114,11 @@ input[type="text"] { width: 100%; border: 2.5px solid var(--ink); border-radius:
 .dots i { height: 7px; border-radius: 4px; background: var(--soft); }
 .dots i.d { background: var(--ink); }
 .dots i.now { background: var(--pop); }
-/* Trippy backgrounds (assets/backgrounds.js, #134): the heading gets a card behind it, and
-   the page leaves room for the corner control. */
-html.gob-on h1 { justify-self: start; background: var(--card); border: var(--line); border-radius: 18px; box-shadow: var(--lift); padding: 6px 16px 10px; }
-html.gob-ready .page { padding-bottom: max(88px, env(safe-area-inset-bottom, 0px)); }
+/* Normal | Weird (assets/mode.js, #134). Weird mode puts trippy backgrounds behind the page,
+   so the heading gets a card and the page leaves room for the skip button in the corner. */
+.top-right { flex-wrap: wrap; justify-content: flex-end; }
+html[data-mode="weird"] h1 { justify-self: start; background: var(--card); border: var(--line); border-radius: 18px; box-shadow: var(--lift); padding: 6px 16px 10px; }
+html[data-mode="weird"] .page { padding-bottom: max(88px, env(safe-area-inset-bottom, 0px)); }
 </style>
 </head>
 <body>
@@ -124,6 +126,7 @@ html.gob-ready .page { padding-bottom: max(88px, env(safe-area-inset-bottom, 0px
   <div class="top">
     <a class="back" href="../"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Arcade</a>
     <div class="top-right">
+      <div class="mode-switch" role="group" aria-label="Arcade mode"><button type="button" data-mode-set="normal" aria-pressed="true">Normal</button><button type="button" data-mode-set="weird" aria-pressed="false">Weird</button></div>
       <a class="gh-link" id="gh-link" href="https://github.com/jwildfire/gameon" target="_blank" rel="noopener"><svg class="gh" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 0-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6 0-3.2 0 0 1-.3 3.4 1.2a11.5 11.5 0 0 1 6 0C17 4.6 18 5 18 5c.6 1.6.2 2.8.1 3.2.8.8 1.3 1.9 1.3 3.1 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>GitHub</a>
       <div class="mark" aria-hidden="true">Game<span>On</span></div>
     </div>
