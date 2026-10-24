@@ -161,7 +161,8 @@ test("jeremy.v1 still plays from its folder", async ({ page, shot, note, browser
 
 test("games.json makes jeremy.v2 the default, records its source, and still offers jeremy.v1", async ({ note }) => {
   const g = games.find(x => x.slug === SLUG);
-  expect(g).toMatchObject({ creator: "jeremy", default: "jeremy.v2", url: V2, repo: "https://github.com/jwildfire/trampoline-battle" });
+  // jeremy.v3 (game idea #151) is the default now, so this no longer checks default and url.
+  expect(g).toMatchObject({ creator: "jeremy", repo: "https://github.com/jwildfire/trampoline-battle" });
   const v1 = g.versions.find(v => v.id === "jeremy.v1"), v2 = g.versions.find(v => v.id === "jeremy.v2");
   expect(v1).toMatchObject({ url: V1, source: { repo: SOURCE.repo, commit: "669e7fec4eb86f0e599376a5aa5ccd832d0dae83" } });
   expect(v2).toMatchObject({ url: V2, from: "jeremy.v1", idea: 139, note: "New modes, party levels, costumes, weapons and skins", source: SOURCE });
@@ -173,11 +174,10 @@ test("the arcade plays jeremy.v2 by default, and the version picker offers jerem
   await page.locator(`#shelf .cart[href="#${SLUG}"]`).click();
   await expect(page.locator("#chooser")).toBeVisible();
   const items = page.locator("#ver-list .ver-item");
-  await expect(items).toHaveCount(2);
-  await expect(items.nth(0)).toContainText("jeremy.v2");
-  await expect(items.nth(0)).toContainText("Latest");
-  await expect(items.nth(1)).toContainText("jeremy.v1");
-  await items.nth(0).click();
+  // Since jeremy.v3 (game idea #151) jeremy.v2 is no longer first or Latest; pick it by name.
+  await expect(items.filter({ hasText: "jeremy.v2" })).toHaveCount(1);
+  await expect(items.filter({ hasText: "jeremy.v1" })).toHaveCount(1);
+  await items.filter({ hasText: "jeremy.v2" }).click();
   await expect(page).toHaveURL(new RegExp(`#${SLUG}@jeremy\\.v2$`));
   await expect(page.locator("#frame")).toHaveAttribute("src", V2);
   const game = page.frameLocator("#frame");
