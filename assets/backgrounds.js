@@ -599,14 +599,16 @@
     " background:var(--card,#fffdf6);color:var(--ink,#1d1a2f);border:3px solid var(--ink,#1d1a2f);border-radius:999px;",
     " box-shadow:4px 4px 0 var(--ink,#1d1a2f);font:800 14px/1 var(--body,system-ui,sans-serif)}",
     ".gob-name{padding:0 4px 0 10px;font:400 17px/1 var(--display,sans-serif);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}",
-    ".gob-next{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;flex-shrink:0;padding:0;",
+    ".gob-next,.gob-shuffle{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;flex-shrink:0;padding:0;",
     " border:2.5px solid var(--ink,#1d1a2f);border-radius:999px;background:var(--wall,#ffd23f);color:var(--ink,#1d1a2f);cursor:pointer}",
-    ".gob-next:hover{background:var(--pop,#ff6b4a);color:var(--card,#fffdf6)}",
-    ".gob-next svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}",
+    ".gob-next:hover,.gob-shuffle:hover{background:var(--pop,#ff6b4a);color:var(--card,#fffdf6)}",
+    "html[data-mode=normal] .gob-name,html[data-mode=normal] .gob-next{display:none}",
+    ".gob-next svg,.gob-shuffle svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}",
     "@media (max-width:520px){.gob-name{display:none}}"
   ].join("\n");
 
   var ICON_NEXT = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l9 7-9 7zM18 5v14"/></svg>';
+  var ICON_SHUFFLE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h3.5c2 0 3.2 1 4.3 2.7l2.4 4.6c1.1 1.7 2.3 2.7 4.3 2.7H21M3 17h3.5c1.3 0 2.3-.5 3.1-1.3M14.4 8.3c.8-.8 1.8-1.3 3.1-1.3H21M18 4l3 3-3 3M18 14l3 3-3 3"/></svg>';
 
   var runner = null;
 
@@ -643,6 +645,7 @@
     ctl.className = "gob-ctl";
     ctl.hidden = true;
     ctl.innerHTML = '<span class="gob-name"></span>' +
+      '<button type="button" class="gob-shuffle" data-shuffle aria-label="Shuffle the background" title="Shuffle the background">' + ICON_SHUFFLE + '</button>' +
       '<button type="button" class="gob-next" aria-label="Next background" title="Next background">' + ICON_NEXT + '</button>';
     doc.body.appendChild(ctl);
     var nameEl = ctl.querySelector(".gob-name"), nextBtn = ctl.querySelector(".gob-next");
@@ -701,9 +704,9 @@
       }
     }
 
-    function advance(len) {
+    function advance(len, to) {
       if (old || !cur) return false;
-      var next = make(idx + 1);
+      var next = make(to == null ? idx + 1 : to);
       if (!next || next.id === cur.id) return false;
       old = cur; cur = next; fade = 0; fadeLen = len; elapsed = 0; nextAt = nextDelay();
       label();
@@ -753,7 +756,7 @@
       var s = !weird ? "normal" : paused ? "paused" : doc.hidden ? "hidden" : reduce ? "still" : "running";
       if (weird) wake();
       canvas.hidden = !weird;
-      ctl.hidden = !weird || paused;
+      ctl.hidden = paused;
       if (s === state) return;
       var was = state;
       state = s;
@@ -768,10 +771,11 @@
       if (s === "still" && !stillDone) still();
     }
 
-    function next() {
+    function next(to) {
       if (state === "normal" || !cur) return false;
-      if (state === "running") return advance(SKIP_FADE);
-      var p = make(idx + 1);
+      if (typeof to !== "number") to = idx + 1;
+      if (state === "running") return advance(SKIP_FADE, to);
+      var p = make(to);
       if (!p) return false;
       if (old) { old.dispose(); old = null; }
       cur.dispose(); cur = p; elapsed = 0;
@@ -780,7 +784,12 @@
       return true;
     }
 
-    nextBtn.addEventListener("click", next);
+    nextBtn.addEventListener("click", function () { next(); });
+    // A random different background, for the Shuffle button (assets/mode.js calls it in Weird mode).
+    function shuffle() {
+      if (!order || order.length < 2) return next();
+      return next((idx + 1 + Math.floor(Math.random() * (order.length - 1))) % order.length);
+    }
     doc.addEventListener("gameon:mode", update);
 
     var resizeTimer = 0, lastW = win.innerWidth, lastH = win.innerHeight;
@@ -821,7 +830,8 @@
       get state() { return state; },
       get frames() { return frames; },
       get order() { return order ? order.slice() : null; },
-      next: next,
+      next: function () { return next(); },
+      shuffle: shuffle,
       canvas: canvas
     };
     api.runner = runner;
