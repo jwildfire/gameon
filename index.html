@@ -272,6 +272,10 @@ a { color: inherit; }
 @media (prefers-reduced-motion: reduce) {
   .cart, .cart:hover, .cart:active { transition: none; transform: none; }
 }
+/* Trippy backgrounds (assets/backgrounds.js, #134): words that sit on the wall get a card
+   behind them, and the page leaves room for the corner control. */
+html.gob-on .lede, html.gob-on .foot { justify-self: start; background: var(--card); border: var(--line); border-radius: 14px; box-shadow: var(--lift); padding: 8px 14px; }
+html.gob-ready .home { padding-bottom: max(88px, env(safe-area-inset-bottom, 0px)); }
 </style>
 </head>
 <body>
@@ -552,5 +556,6 @@ a { color: inherit; }
     });
 })();
 </script>
+<script src="assets/backgrounds.js" data-mount data-pause="#player:not([hidden])" defer></script>
 </body>
 </html>

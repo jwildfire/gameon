@@ -113,6 +113,10 @@ input[type="text"] { width: 100%; border: 2.5px solid var(--ink); border-radius:
 .dots i { height: 7px; border-radius: 4px; background: var(--soft); }
 .dots i.d { background: var(--ink); }
 .dots i.now { background: var(--pop); }
+/* Trippy backgrounds (assets/backgrounds.js, #134): the heading gets a card behind it, and
+   the page leaves room for the corner control. */
+html.gob-on h1 { justify-self: start; background: var(--card); border: var(--line); border-radius: 18px; box-shadow: var(--lift); padding: 6px 16px 10px; }
+html.gob-ready .page { padding-bottom: max(88px, env(safe-area-inset-bottom, 0px)); }
 </style>
 </head>
 <body>
@@ -562,5 +566,6 @@ input[type="text"] { width: 100%; border: 2.5px solid var(--ink); border-radius:
   update();
 })();
 </script>
+<script src="../assets/backgrounds.js" data-mount defer></script>
 </body>
 </html>

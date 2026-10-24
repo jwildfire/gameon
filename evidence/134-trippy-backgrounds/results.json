@@ -1,0 +1,190 @@
+{
+  "spec": "134-trippy-backgrounds",
+  "passed": true,
+  "headline": "PASS: 8 of 8 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-24T04:50:45.326Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "4194911",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/134-trippy-backgrounds.spec.mjs",
+  "checks": [
+    {
+      "check": "a trippy background draws behind the arcade, light on frames",
+      "notes": [
+        "desktop: showing retro-sun, 668 colours on a 1280x800 canvas, about 60 fps",
+        "phone: showing rainbow-rain, 90 colours on a 375x812 canvas, about 30 fps"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "arcade-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "arcade-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the cycle crossfades to the next background by itself",
+      "notes": [
+        "desktop: matrix-rain moved on to kaleidoscope (interval shortened to 2 s with ?bgInterval=2; normally 30 to 45 s)",
+        "phone: rainbow-tunnel moved on to retro-sun (interval shortened to 2 s with ?bgInterval=2; normally 30 to 45 s)"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "the skip button changes the background",
+      "notes": [
+        "desktop: skip: rainbow-tunnel → retro-sun",
+        "phone: skip: retro-sun → rainbow-plasma"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "skip-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "skip-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "off brings back the yellow wall and stays off after a reload",
+      "notes": [
+        "desktop: after a reload: canvas hidden, wall back to #ffd23f, gameon.arcade.bg = off",
+        "phone: after a reload: canvas hidden, wall back to #ffd23f, gameon.arcade.bg = off"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "off-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "off-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "reduced motion gets a still frame",
+      "notes": [
+        "desktop: still frame of rainbow-rain: no frames drawn in 1.5 s, pixels unchanged",
+        "phone: still frame of matrix-rain: no frames drawn in 1.5 s, pixels unchanged"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "reduced-motion-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "reduced-motion-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the background pauses and the control hides while a game plays",
+      "notes": [
+        "desktop: playing Super Sauce Boy: paused, no frames drawn in 1.2 s, control hidden; back home it runs again",
+        "phone: playing Super Sauce Boy: paused, no frames drawn in 1.2 s, control hidden; back home it runs again"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "the New Game page cycles the same backgrounds behind its cards",
+      "notes": [
+        "desktop: showing rainbow-plasma",
+        "phone: showing liquid-marble"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "new-game-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "new-game-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "each of the ten picks behind the arcade",
+      "notes": [
+        "desktop: rainbow-plasma, matrix-rain, kaleidoscope, lava-lamp, rainbow-rain, hex-disco, liquid-marble, warp-speed, rainbow-tunnel, retro-sun",
+        "phone: rainbow-plasma, matrix-rain, kaleidoscope, lava-lamp, rainbow-rain, hex-disco, liquid-marble, warp-speed, rainbow-tunnel, retro-sun"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "pick-01-rainbow-plasma-desktop.jpg",
+          "pick-02-matrix-rain-desktop.jpg",
+          "pick-03-kaleidoscope-desktop.jpg",
+          "pick-04-lava-lamp-desktop.jpg",
+          "pick-05-rainbow-rain-desktop.jpg",
+          "pick-06-hex-disco-desktop.jpg",
+          "pick-07-liquid-marble-desktop.jpg",
+          "pick-08-warp-speed-desktop.jpg",
+          "pick-09-rainbow-tunnel-desktop.jpg",
+          "pick-10-retro-sun-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "pick-01-rainbow-plasma-phone.jpg",
+          "pick-02-matrix-rain-phone.jpg",
+          "pick-03-kaleidoscope-phone.jpg",
+          "pick-04-lava-lamp-phone.jpg",
+          "pick-05-rainbow-rain-phone.jpg",
+          "pick-06-hex-disco-phone.jpg",
+          "pick-07-liquid-marble-phone.jpg",
+          "pick-08-warp-speed-phone.jpg",
+          "pick-09-rainbow-tunnel-phone.jpg",
+          "pick-10-retro-sun-phone.jpg"
+        ],
+        "error": null
+      }
+    }
+  ]
+}
