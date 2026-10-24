@@ -84,7 +84,15 @@ Run your spec as `npm run evidence -- tests/evidence/<branch>`, with the `tests/
 
 When the eval has `"update": true`, you build a new version of an existing game. The spec is [`docs/game-versions.md`](../../../docs/game-versions.md); read it first. The eval's update brief is your spec: what changes, what stays, the starting version, the new version id, and whether it's a creator's update or a fork. The eval's JSON line gives you `game` (the slug), `from` (the starting version), `version` and `fork`.
 
-Nothing is overwritten: the starting version, every other version, and a first version that lives in its own repo stay exactly as they are.
+Nothing is overwritten: the starting version and every other version stay exactly as they are.
+
+**Imports.** If the eval's JSON line also has `"import": true`, the idea is "Bring in the latest from jwildfire/<repo>": new commits in a game's own repo, brought in as the creator's next version ([Games that also live in their own repo](../../../docs/game-versions.md#games-that-also-live-in-their-own-repo)). Follow U1 to U7 with these differences:
+- **U1:** it's always the creator's update (`fork` is `false`), whoever is in "Made by". The branch is `N-<slug>-<creator>-v<n>` as usual.
+- **U2:** the starting point is the repo at its current HEAD, not the starting version's folder. Use the import copy in U2 below.
+- **U3:** there's no change to make: the repo's new commits are the change. Don't edit the copy beyond what U2 needs for it to play from its folder. Outside calls and save keys already in the repo's code are inherited; list any that are new since the last `source.commit` in the PR's Notes (`gh api repos/jwildfire/<repo>/compare/<old commit>...<new commit>`).
+- **U4:** the README section quotes the idea as usual and says `Copied from jwildfire/<repo> at <new commit>, <n> commits after <old commit>.`
+- **U5:** set `SOURCE_REPO=jwildfire/<repo>` and `SOURCE_COMMIT=<new commit>` so the new version records `source`.
+- **U6:** in place of check 2, prove the folder is the repo at that commit: `diff -r` against the scratch clone shows only what U2 left out and the path fixes you list. Check 4 seeds what the starting version saves, as usual.
 
 ### U1. Work out the version id
 
@@ -126,17 +134,18 @@ The new version lives in `games/<slug>/<version>/`. That folder must not exist o
   ```
 
   The exclude skips the game's other version folders when the starting version is the first one at `games/<slug>/`.
-- **The starting version is a first version in its own repo** (its url starts `https://`; `<repo>` is the last part of the entry's `repo`). Copy that repo's files at its default branch into a scratch folder outside this repo, then into the version folder. Never commit, push, open a PR or change anything in the original repo.
+- **An import** (`"import": true`; `<repo>` is the last part of the entry's `repo`, or of the newest version's `source.repo`). Copy the repo's files at its default branch's HEAD into a scratch folder outside this repo, then into the version folder, the way the first six were frozen (#124). Never commit, push, open a PR or change anything in the original repo.
 
   ```bash
   TMP=$(mktemp -d)
   gh repo clone jwildfire/<repo> "$TMP/src" -- --depth 1
+  git -C "$TMP/src" rev-parse HEAD     # the new source.commit
   DEST=games/<slug>/<version>
-  mkdir -p "$DEST" && rsync -a --exclude='.git' --exclude='.github' --exclude='node_modules' --exclude='/ios/' --exclude='/android/' "$TMP/src/" "$DEST/"
-  rm -rf "$TMP"
+  mkdir -p "$DEST" && git -C "$TMP/src" ls-files | grep -vE '^(\.github/|\.gitignore$|\.nojekyll$|node_modules/|ios/|android/)' > "$TMP/files"
+  rsync -a --files-from="$TMP/files" "$TMP/src/" "$DEST/"
   ```
 
-  Keep the repo's build script and its sources if it has them (Princess Lady Drive and Magic Friends build `index.html` from `src/` with `build.sh`): make your change in the sources and rerun the build, so the committed `index.html` matches. If the copy is over about 2 MB, remove what the game never loads and list what you left out in the PR's Notes.
+  Copy what the repo's site serves. Leave out build tooling the site doesn't need (`build.sh` and `src/` in Princess Lady Drive and Magic Friends, whose sites serve the built `index.html`; `tools/` in Angry Dudes), and list what you left out in the PR's Notes. Keep the scratch clone until U6 is done, then `rm -rf "$TMP"`.
 - **Make it play from its new folder.** It has to run from `games/<slug>/<version>/index.html` with no server. Look for paths that break when moved: absolute paths (`src="/`, `href="/`, `url(/`), `../` out of the folder, and links to the starting version's own site that load its files. Make them relative to the version folder. Commit that as part of the copy if the copy didn't play without it.
 
 ### U3. Make the change
@@ -185,6 +194,7 @@ The version folder is a complete, standalone game: its own `index.html`, `README
 Change only this game's entry, and leave every other line of the file exactly as it is. Run this from the worktree; it rewrites just this entry and refuses to save if anything else would change:
 
 - `FORK` is `true` or `false`; `NOTE` is the brief's version note; `MADE` is today.
+- `SOURCE_REPO` and `SOURCE_COMMIT`: for an import only, the repo and its commit you copied; leave them unset otherwise.
 - `V1_MADE` is used only when the entry has no `versions` yet, as the first version's date: for a game in `games/`, `git log --diff-filter=A --format=%as -- games/<slug>/index.html | tail -1`; for a game in its own repo, `gh api repos/jwildfire/<repo> --jq .created_at | cut -c1-10`.
 
 ```bash
@@ -228,6 +238,8 @@ assert e["VERSION"] not in ids, "that version already exists"
 assert e["FROM"] in ids, "the starting version isn't in this entry"
 new = {"id": e["VERSION"], "url": f"games/{e['SLUG']}/{e['VERSION']}/", "made": e["MADE"],
        "note": e["NOTE"], "from": e["FROM"], "idea": int(e["IDEA"])}
+if e.get("SOURCE_COMMIT"):
+    new["source"] = {"repo": e["SOURCE_REPO"], "commit": e["SOURCE_COMMIT"]}
 entry["versions"] = entry["versions"] + [new]
 if e["FORK"] == "false":
     entry["default"], entry["url"] = new["id"], new["url"]
@@ -244,7 +256,7 @@ git diff games.json
 What it does, so you can check the diff:
 - adds `creator` if it's missing (never changes an existing one);
 - adds `default` (`{creator}.v1`) and a `versions` list, with `{creator}.v1` at the existing `url` first, if they're missing;
-- appends the new version with `id`, `url`, `made`, `note`, `from` and `idea`;
+- appends the new version with `id`, `url`, `made`, `note`, `from` and `idea`, plus `source` for an import;
 - **for a creator's update only**, moves `default` and the top-level `url` to the new version. A fork leaves both alone.
 
 Don't change the entry's other fields for a fork. For a creator's update you may change `tagline`, `tags` or `color` by hand afterwards, only if the change calls for it, and say so in the PR. Don't move the entry in the list.

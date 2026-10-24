@@ -72,6 +72,15 @@ An update adds a version of an existing game in `games/<slug>/<version>/` and do
 
 Work out the creator and what the version should be, independently of the build: the creator is the entry's `creator` on dev, or if it has none, the maker of the game's first idea (`idea_issue` in `games/<slug>/gameon.json`), then the creator table in `docs/game-versions.md`, then `jeremy`. The username is the idea's "Made by", lowercased, letters and digits only. It's a fork exactly when the username isn't the creator.
 
+**An import** (the eval's JSON line has `"import": true`, and the idea is "Bring in the latest from jwildfire/<repo>") is always the creator's update, and its version folder is a copy of that repo at the new version's `source.commit` rather than a change to the starting version ([Games that also live in their own repo](../../../docs/game-versions.md#games-that-also-live-in-their-own-repo)). Clone the repo read-only into a scratch folder and compare:
+
+```bash
+SRC=$(mktemp -d)/src && gh repo clone jwildfire/<repo> "$SRC" -- --filter=blob:none -q && git -C "$SRC" checkout -q <source.commit>
+diff -r --exclude=.git "$SRC" games/<slug>/<version>
+```
+
+The only differences allowed are files the build skill's U2 leaves out (`.github`, `.gitignore`, `.nojekyll`, `ios/`, `android/`, build scripts and their sources), the path fixes the PR's Notes list, and the version's own `README.md` section and `gameon.json`. In checks 1, 2 and 4, a hit that's in the repo at that commit is inherited, not new. In check 6, "the change" is that the copy plays like the repo's site. In check 7, the size limit is measured against the repo. Run the entry check with `IMPORT=true`.
+
 What changes in each check:
 
 1. **Stays home.** Run both greps on the version folder, not all of `games/<slug>/`. A hit that's also in the starting version, unchanged, is inherited: list it as "inherited from `<from>`" and it doesn't fail. Compare with the starting version's folder, or for a first version in its own repo, a read-only clone in a scratch folder (`gh repo clone jwildfire/<repo> "$(mktemp -d)/src" -- --depth 1`). Any new hit fails.
@@ -112,7 +121,7 @@ What changes in each check:
 
 ### The `games.json` entry check
 
-Run this in the check worktree with `FORK` `true` or `false` as you worked it out above, and `CREATOR` the creator you worked out (it's only used if dev's entry has no `creator`). It must print `PASS`:
+Run this in the check worktree with `FORK` `true` or `false` as you worked it out above, `CREATOR` the creator you worked out (it's only used if dev's entry has no `creator`), and `IMPORT=true` for an import. It must print `PASS`:
 
 ```bash
 BASE=$(git merge-base origin/dev HEAD) HEAD=HEAD SLUG=<slug> VERSION=<version> FORK=<true|false> IDEA=N CREATOR=<creator> python3 - <<'EOF'
@@ -164,7 +173,12 @@ need(v.get("id") == ver and v.get("url") == f"games/{slug}/{ver}/", "new version
 need(v.get("from") in [x["id"] for x in before], f"from {v.get('from')!r} isn't a version on dev")
 need(v.get("idea") == idea, "new version's idea isn't this issue")
 need(bool(re.fullmatch(r"\d{4}-\d\d-\d\d", str(v.get("made", "")))) and bool(v.get("note")), "made or note missing")
-need(set(v) <= {"id", "url", "made", "note", "from", "idea"}, f"unexpected fields in the new version: {sorted(set(v) - {'id', 'url', 'made', 'note', 'from', 'idea'})}")
+allowed = {"id", "url", "made", "note", "from", "idea"} | ({"source"} if e.get("IMPORT") == "true" else set())
+need(set(v) <= allowed, f"unexpected fields in the new version: {sorted(set(v) - allowed)}")
+if e.get("IMPORT") == "true":
+    src = v.get("source") or {}
+    need(not fork and re.fullmatch(r"jwildfire/[A-Za-z0-9._-]+", str(src.get("repo", ""))) and re.fullmatch(r"[0-9a-f]{40}", str(src.get("commit", ""))),
+         "an import is a creator's update whose source names jwildfire/<repo> and a full commit sha")
 old_default = old.get("default", f"{creator}.v1")
 if fork:
     need(new.get("default") == old_default and new["url"] == old["url"], "a fork moved default or url")
@@ -179,6 +193,6 @@ print("PASS" if not fails else "FAIL\n- " + "\n- ".join(fails))
 EOF
 ```
 
-It checks: no other entry or line changed; `creator` added if missing and never changed; exactly one version added, with the existing ones unchanged; the new version's `id`, `url`, `from`, `idea`, `made` and `note`; the number is new for that username; and `default` and `url` moved for a creator's update and only then. A fork also may not change the game's other fields. If it prints a `NOTE` for a creator's update, judge whether the brief calls for those changes.
+It checks: no other entry or line changed; `creator` added if missing and never changed; exactly one version added, with the existing ones unchanged; the new version's `id`, `url`, `from`, `idea`, `made` and `note`; the number is new for that username; and `default` and `url` moved for a creator's update and only then; for an import, that `source` names the repo and a full commit. A fork also may not change the game's other fields. If it prints a `NOTE` for a creator's update, judge whether the brief calls for those changes.
 
 **Pass and fail** are as in sections 3 and 4, including the green Evidence run before you merge. On pass, the links you check and post are the version's: `https://jwildfire.github.io/gameon/dev/games/<slug>/<version>/`, plus `https://jwildfire.github.io/gameon/dev/#<slug>@<version>` if the arcade can open versions, and `#<slug>` for a creator's update (it should now play the new version). The release PR lists it as "<title> <version>" with its dev link.
