@@ -38,14 +38,15 @@
     "title": "Trampoline Battle",
     "tagline": "Drop fighters onto a trampoline and bounce the other team off. Cow drops and chicken attacks included.",
     "credit": "Made by Jeremy and the kids",
-    "url": "games/trampoline-battle/jeremy.v2/",
+    "url": "games/trampoline-battle/jeremy.v3/",
     "repo": "https://github.com/jwildfire/trampoline-battle",
     "color": "#ff6b4a",
     "tags": ["New", "1–2 players", "Turn sideways"],
-    "default": "jeremy.v2",
+    "default": "jeremy.v3",
     "versions": [
       { "id": "jeremy.v1", "url": "games/trampoline-battle/jeremy.v1/", "made": "2026-10-22", "note": "The first version", "source": {"repo": "jwildfire/trampoline-battle", "commit": "669e7fec4eb86f0e599376a5aa5ccd832d0dae83"} },
-      { "id": "jeremy.v2", "url": "games/trampoline-battle/jeremy.v2/", "made": "2026-10-24", "note": "New modes, party levels, costumes, weapons and skins", "from": "jeremy.v1", "idea": 139, "source": {"repo": "jwildfire/trampoline-battle", "commit": "bdc9ea670b824b66623414bdbb59872de7bb437a"} }
+      { "id": "jeremy.v2", "url": "games/trampoline-battle/jeremy.v2/", "made": "2026-10-24", "note": "New modes, party levels, costumes, weapons and skins", "from": "jeremy.v1", "idea": 139, "source": {"repo": "jwildfire/trampoline-battle", "commit": "bdc9ea670b824b66623414bdbb59872de7bb437a"} },
+      { "id": "jeremy.v3", "url": "games/trampoline-battle/jeremy.v3/", "made": "2026-10-24", "note": "100 levels, racing, climbing and Pure Chaos", "from": "jeremy.v2", "idea": 151, "source": {"repo": "jwildfire/trampoline-battle", "commit": "f0316e558238b5cee2a068c27b3ac1b09fbb64b6"} }
     ]
   },
   {

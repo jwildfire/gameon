@@ -1,0 +1,1267 @@
+<title>Race Level Ideas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&amp;family=Nunito:wght@600;700;800;900&amp;display=swap">
+<style>
+/* Design doc for the Trampoline Battle race engine: 100 racing mini-game ideas ranked by fun + chaos. Same comic world as the game: night-purple page, white ink-bordered cards with hard drop shadows, Bungee + Nunito. */
+:root {
+  --night: #231e48;
+  --night-2: #2f2860;
+  --night-3: #3a3270;
+  --ink: #16132c;
+  --card: #ffffff;
+  --card-2: #efeefe;
+  --sun: #ffc928;
+  --red: #ec4a2f;
+  --blue: #2f6fe0;
+  --fun: #ffc928;
+  --chaos: #ff4f9a;
+  --muted: #5d5888;
+  --on-night: #f4f2ff;
+  --on-night-dim: #b8b2e6;
+  --t-race: #c6f2c4;
+  --t-survival: #ffd5b0;
+  --t-derby: #ffc4ba;
+  --t-stunt: #c4ecff;
+  --t-collect: #fff0a0;
+  --t-distance: #b8f0e6;
+  --t-king: #e2d3ff;
+  --t-reflex: #ffcdeb;
+  --t-puzzle: #d3dbff;
+  --display: 'Bungee', 'Arial Black', Impact, sans-serif;
+  --ui: 'Nunito', ui-rounded, 'Segoe UI', system-ui, sans-serif;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { background: var(--night); }
+body {
+  margin: 0;
+  background: var(--night);
+  color: var(--on-night);
+  font-family: var(--ui);
+  font-weight: 700;
+  line-height: 1.4;
+  overflow-x: hidden;
+}
+.wrap {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding-top: 28px;
+  padding-bottom: 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
+
+/* ---------- header ---------- */
+header { display: grid; gap: 14px; margin-bottom: 22px; }
+.eyebrow { font-family: var(--display); font-size: 13px; letter-spacing: .08em; color: var(--sun); margin: 0; }
+h1 {
+  font-family: var(--display); font-weight: 400; margin: 0;
+  font-size: clamp(30px, 6vw, 56px); line-height: 1.02;
+  color: var(--card);
+  text-shadow: 3px 3px 0 var(--ink), 0 0 0 var(--ink);
+  -webkit-text-stroke: 1.5px var(--ink);
+  paint-order: stroke fill;
+}
+h1 span { color: var(--sun); }
+.lede { margin: 0; max-width: 62ch; font-size: 17px; color: var(--on-night-dim); font-weight: 700; }
+.lede b { color: var(--on-night); }
+.legend { display: flex; flex-wrap: wrap; gap: 10px; }
+.chip {
+  display: flex; align-items: center; gap: 10px; min-width: 0;
+  background: var(--card); color: var(--ink);
+  border: 3px solid var(--ink); border-radius: 14px; box-shadow: 0 4px 0 var(--ink);
+  padding: 8px 12px; font-size: 14px; max-width: 100%;
+}
+.chip .sw { flex: none; width: 34px; height: 14px; border: 2px solid var(--ink); border-radius: 4px; }
+.chip b { font-family: var(--display); font-weight: 400; font-size: 13px; letter-spacing: .03em; }
+.chip.built .sw { background: var(--sun); width: auto; height: auto; padding: 1px 7px; font-family: var(--display); font-size: 11px; border-radius: 999px; }
+
+/* ---------- filters ---------- */
+.filters {
+  position: sticky; top: 0; z-index: 5;
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  padding: 12px 0;
+  background: var(--night);
+  border-bottom: 3px solid var(--night-3);
+  margin-bottom: 22px;
+}
+.filters button {
+  background: var(--card); color: var(--ink);
+  border: 3px solid var(--ink); border-radius: 999px;
+  box-shadow: 0 3px 0 var(--ink);
+  padding: 5px 12px; font-weight: 900; font-size: 14px;
+  transition: transform .08s;
+}
+.filters button:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.filters button[aria-pressed="true"] { background: var(--sun); }
+.filters button.built-btn[aria-pressed="true"] { background: var(--sun); }
+.filters .count { margin-left: auto; color: var(--on-night-dim); font-size: 14px; font-weight: 800; }
+
+/* ---------- sections + grid ---------- */
+section { margin-bottom: 34px; }
+section h2 {
+  font-family: var(--display); font-weight: 400; font-size: clamp(18px, 3.4vw, 26px);
+  margin: 0 0 4px; color: var(--card); letter-spacing: .02em;
+}
+section h2 em { font-style: normal; color: var(--sun); }
+section .sub { margin: 0 0 16px; color: var(--on-night-dim); font-size: 15px; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr));
+  gap: 20px;
+}
+.card {
+  min-width: 0;
+  background: var(--card); color: var(--ink);
+  border: 3px solid var(--ink); border-radius: 18px;
+  box-shadow: 0 6px 0 var(--ink);
+  padding: 12px 12px 14px;
+  display: flex; flex-direction: column; gap: 9px;
+  position: relative;
+}
+.card.built { background: #fffbea; box-shadow: 0 6px 0 var(--ink), 0 0 0 4px var(--sun), 0 6px 0 4px var(--sun); }
+.card .top { display: flex; align-items: flex-start; gap: 10px; min-width: 0; }
+.rank {
+  flex: none; font-family: var(--display); font-size: 22px; line-height: 1;
+  background: var(--night); color: var(--card);
+  border: 3px solid var(--ink); border-radius: 12px;
+  min-width: 48px; text-align: center; padding: 7px 5px 5px;
+}
+.card.built .rank { background: var(--sun); color: var(--ink); }
+.nm { min-width: 0; flex: 1; display: grid; gap: 4px; }
+.nm h3 { margin: 0; font-family: var(--display); font-weight: 400; font-size: 17px; line-height: 1.12; overflow-wrap: anywhere; }
+.tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.tag, .badge {
+  font-size: 12px; font-weight: 900; line-height: 1;
+  border: 2px solid var(--ink); border-radius: 999px; padding: 3px 8px 3px;
+  white-space: nowrap;
+}
+.badge { background: var(--ink); color: var(--sun); font-family: var(--display); font-weight: 400; font-size: 10.5px; letter-spacing: .06em; padding: 4px 8px 3px; }
+.tag[data-t="Race"] { background: var(--t-race); }
+.tag[data-t="Survival"] { background: var(--t-survival); }
+.tag[data-t="Derby"] { background: var(--t-derby); }
+.tag[data-t="Stunt"] { background: var(--t-stunt); }
+.tag[data-t="Collect"] { background: var(--t-collect); }
+.tag[data-t="Distance"] { background: var(--t-distance); }
+.tag[data-t="King"] { background: var(--t-king); }
+.tag[data-t="Reflex"] { background: var(--t-reflex); }
+.tag[data-t="Puzzle"] { background: var(--t-puzzle); }
+.mock {
+  display: block; width: 100%; height: auto; aspect-ratio: 240 / 150;
+  border: 3px solid var(--ink); border-radius: 12px; background: var(--night-2);
+}
+.pitch { margin: 0; font-weight: 900; font-size: 15px; line-height: 1.3; }
+.scores { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; }
+.bars { display: grid; gap: 5px; min-width: 0; }
+.bar { display: grid; grid-template-columns: 52px minmax(0, 1fr) 20px; gap: 6px; align-items: center; font-size: 12px; font-weight: 900; }
+.bar .lb { font-family: var(--display); font-weight: 400; font-size: 10.5px; letter-spacing: .04em; color: var(--muted); }
+.cells { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 2px; border: 2px solid var(--ink); border-radius: 6px; padding: 2px; background: var(--card-2); }
+.cells i { display: block; height: 8px; border-radius: 2px; background: transparent; }
+.bar.fun .cells i.on { background: var(--fun); box-shadow: inset 0 -2px 0 rgba(22,19,44,.25); }
+.bar.chaos .cells i.on { background: var(--chaos); box-shadow: inset 0 -2px 0 rgba(22,19,44,.25); }
+.bar .v { text-align: right; font-variant-numeric: tabular-nums; }
+.total {
+  width: 54px; height: 54px; border-radius: 50%;
+  border: 3px solid var(--ink); background: var(--night); color: var(--card);
+  display: grid; place-items: center; text-align: center;
+  font-family: var(--display); font-size: 19px; line-height: 1;
+  box-shadow: 0 3px 0 var(--ink);
+}
+.total small { display: block; font-size: 8px; letter-spacing: .06em; color: var(--sun); margin-top: 2px; }
+.card.built .total { background: var(--sun); color: var(--ink); }
+.card.built .total small { color: var(--ink); }
+.how { margin: 0; font-size: 14px; color: #3d3866; font-weight: 700; }
+.how b { color: var(--ink); font-weight: 900; }
+.empty { color: var(--on-night-dim); font-size: 16px; padding: 30px 0; text-align: center; }
+footer { color: var(--on-night-dim); font-size: 13px; text-align: center; padding-top: 10px; }
+
+@media (max-width: 480px) {
+  .filters { position: static; }
+  .filters .count { width: 100%; margin-left: 0; }
+  .filters button { font-size: 13px; padding: 4px 10px; }
+  .lede { font-size: 15.5px; }
+}
+@media (prefers-reduced-motion: reduce) { .filters button { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Trampoline Battle &middot; race engine design doc</p>
+    <h1>100 Race <span>Ideas</span></h1>
+    <p class="lede">Side-view racing with funny cars driven by the same floppy ragdoll fighters. Every round each player gets a random vehicle (bathtub, shopping cart, hot dog, couch, toilet, giant shoe&hellip;) and the controls stay simple: <b>gas, brake, hop, honk</b>. Each idea has a little mockup and is ranked by <b>fun + chaos</b>; the 20 we are building first were picked for fun, a spread of rulesets, and what the new engine can do.</p>
+    <div class="legend" aria-label="Score legend">
+      <div class="chip"><span class="sw" style="background: var(--fun)"></span><span><b>FUN 1&ndash;10</b> &nbsp;how hard the kids laugh and yell &ldquo;again!&rdquo;</span></div>
+      <div class="chip"><span class="sw" style="background: var(--chaos)"></span><span><b>CHAOS 1&ndash;10</b> &nbsp;how wild, flaily and unpredictable it gets</span></div>
+      <div class="chip built"><span class="sw">BUILDING</span><span>the first 20 to build (ranks 1&ndash;20)</span></div>
+    </div>
+  </header>
+
+  <nav class="filters" id="filters" aria-label="Filter ideas"></nav>
+
+  <section id="secBuilt">
+    <h2>Building <em>first</em></h2>
+    <p class="sub">Ranks 1&ndash;20: high scorers chosen so every ruleset gets a turn, all buildable with the race engine plus one small custom mechanic each.</p>
+    <div class="grid" id="gridBuilt"></div>
+  </section>
+  <section id="secPool">
+    <h2>The idea <em>pool</em></h2>
+    <p class="sub">Ranks 21&ndash;100, sorted by total score.</p>
+    <div class="grid" id="gridPool"></div>
+  </section>
+  <p class="empty" id="empty" hidden>No ideas match that filter.</p>
+  <footer>Gas, brake, hop, honk. Big crashes send your driver flying, and you respawn at the last checkpoint.</footer>
+</div>
+
+<script>
+'use strict';
+// ======================================================================
+// Mockup renderer: every idea carries a compact spec; this draws it on a
+// 240x150 logical canvas in the game's comic style (ink outlines, flat fills).
+// ======================================================================
+const INK = '#16132c', SUN = '#ffc928', RED = '#ec4a2f', BLUE = '#2f6fe0', WHITE = '#ffffff';
+const W = 240, H = 150;
+const TEAM = { r: RED, b: BLUE, n: '#a3a8bd', o: '#ff9f1c', g: '#3fbf5f', p: '#a45cff', y: SUN, k: '#4a4560', w: WHITE, h: 'rgba(255,255,255,.55)' };
+const TH = {
+  day: { sky: ['#5fb6ff', '#c9ecff'], d: 'sun' },
+  farm: { sky: ['#79c7f2', '#fff1c4'], d: 'clouds' },
+  dusk: { sky: ['#3b2f73', '#e67a8a'], d: 'stars' },
+  night: { sky: ['#120b33', '#3d1a6e'], d: 'stars' },
+  space: { sky: ['#05060f', '#1b2140'], d: 'stars' },
+  sunset: { sky: ['#ff9d5c', '#ffe29a'], d: 'sun' },
+  sea: { sky: ['#7ec8ff', '#e3f6ff'], d: 'clouds' },
+  lava: { sky: ['#2b0a1a', '#ff7b3a'], d: 'embers' },
+  ice: { sky: ['#a9d8ff', '#f0f9ff'], d: 'snow' },
+  party: { sky: ['#ffb3d9', '#fff0f7'], d: 'confetti' },
+  storm: { sky: ['#2e3448', '#7d8aa3'], d: 'rain' },
+  jungle: { sky: ['#79c7f2', '#d8f5b0'], d: 'leaves' },
+  cave: { sky: ['#1a1426', '#3b2f4a'], d: 'none' },
+  neon: { sky: ['#120b33', '#3d1a6e'], d: 'grid' },
+  room: { sky: ['#f7d9a8', '#fff3dc'], d: 'wall' },
+  gym: { sky: ['#ffe2b8', '#fff6e6'], d: 'wall' },
+  kitchen: { sky: ['#bfe8e0', '#f4fff9'], d: 'tiles' },
+  desert: { sky: ['#ffb36b', '#ffe7b0'], d: 'sun' },
+  dark: { sky: ['#07060f', '#141028'], d: 'none' },
+  candy: { sky: ['#ffd1f0', '#d6f0ff'], d: 'confetti' },
+  factory: { sky: ['#56607a', '#9aa6bf'], d: 'girders' },
+  dojo: { sky: ['#f3e3c3', '#fff7e8'], d: 'wall' },
+  circus: { sky: ['#ff6b6b', '#ffd6a0'], d: 'stripes' },
+  deep: { sky: ['#0f4c81', '#47a3d8'], d: 'bubbles' }
+};
+const FL = {
+  grass: ['#5cbf4a', '#3f9a33'], lava: ['#ff7a00', '#c41e00'], water: ['#2a8fd6', '#155a96'],
+  pit: ['#0d0b1c', '#05040c'], ice: ['#ffffff', '#cfe6f7'], snow: ['#ffffff', '#dfeaf5'],
+  sand: ['#f2d48a', '#d9b25e'], road: ['#5a5f6e', '#3e4250'], mud: ['#7a5a3a', '#5a3f26'],
+  wood: ['#c98b52', '#a56a36'], carpet: ['#c0457a', '#93305b'], tile: ['#3d2a6e', '#291c4d'],
+  griddle: ['#3a3a44', '#24242c'], track: ['#8a7a6a', '#5f5245'], foam: ['#e8f6ff', '#bfe0f5']
+};
+const R = (d) => d * Math.PI / 180;
+
+function rng(seed) { let a = seed >>> 0; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function inkS(c, w) { c.strokeStyle = INK; c.lineWidth = w || 1.6; c.lineJoin = 'round'; c.lineCap = 'round'; }
+function fs(c, fill, w) { if (fill) { c.fillStyle = fill; c.fill(); } if (w !== 0) { inkS(c, w); c.stroke(); } }
+function rr(c, x, y, w, h, r) { r = Math.min(r, Math.abs(w) / 2, Math.abs(h) / 2); c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+function circ(c, x, y, r) { c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); }
+function ell(c, x, y, rx, ry, rot) { c.beginPath(); c.ellipse(x, y, rx, ry, rot || 0, 0, Math.PI * 2); }
+function poly(c, pts) { c.beginPath(); pts.forEach((p, i) => i ? c.lineTo(p[0], p[1]) : c.moveTo(p[0], p[1])); c.closePath(); }
+function line(c, x1, y1, x2, y2, col, w) { c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.strokeStyle = col || INK; c.lineWidth = w || 1.6; c.lineCap = 'round'; c.stroke(); }
+function iline(c, x1, y1, x2, y2, col, w) { line(c, x1, y1, x2, y2, INK, w + 2); line(c, x1, y1, x2, y2, col, w); }
+function star(c, x, y, r, n, inner) { n = n || 5; inner = inner || r * .45; c.beginPath(); for (let i = 0; i < n * 2; i++) { const a = -Math.PI / 2 + i * Math.PI / n, rad = i % 2 ? inner : r; c.lineTo(x + Math.cos(a) * rad, y + Math.sin(a) * rad); } c.closePath(); }
+
+function text(c, x, y, s, size, col, box) {
+  size = size || 9;
+  c.font = `${size}px Bungee, 'Arial Black', Impact, sans-serif`;
+  c.textAlign = 'center'; c.textBaseline = 'middle';
+  if (box) {
+    const w = c.measureText(s).width + 10;
+    rr(c, x - w / 2, y - size * .75, w, size * 1.5, 4); fs(c, box === true ? WHITE : box, 1.6);
+    c.fillStyle = col || INK; c.fillText(s, x, y + size * .06);
+    return;
+  }
+  c.lineJoin = 'round'; c.strokeStyle = INK; c.lineWidth = Math.max(2.2, size * .32); c.strokeText(s, x, y);
+  c.fillStyle = col || WHITE; c.fillText(s, x, y);
+}
+
+function arrowHead(c, x, y, ang, col, sz) {
+  sz = sz || 5;
+  c.save(); c.translate(x, y); c.rotate(ang);
+  poly(c, [[sz * .6, 0], [-sz * .7, -sz * .7], [-sz * .7, sz * .7]]); fs(c, col, 1.2);
+  c.restore();
+}
+function arrow(c, x1, y1, x2, y2, col, both) {
+  col = col || SUN;
+  const a = Math.atan2(y2 - y1, x2 - x1), k = 3;
+  const sx = both ? x1 + Math.cos(a) * k : x1, sy = both ? y1 + Math.sin(a) * k : y1;
+  iline(c, sx, sy, x2 - Math.cos(a) * k, y2 - Math.sin(a) * k, col, 1.8);
+  arrowHead(c, x2, y2, a, col);
+  if (both) arrowHead(c, x1, y1, a + Math.PI, col);
+}
+function carrow(c, cx, cy, r, a0, a1, col) {
+  col = col || SUN;
+  c.beginPath(); c.arc(cx, cy, r, R(a0), R(a1), a1 < a0); c.strokeStyle = INK; c.lineWidth = 3.8; c.lineCap = 'round'; c.stroke();
+  c.beginPath(); c.arc(cx, cy, r, R(a0), R(a1), a1 < a0); c.strokeStyle = col; c.lineWidth = 1.8; c.stroke();
+  const ex = cx + Math.cos(R(a1)) * r, ey = cy + Math.sin(R(a1)) * r;
+  arrowHead(c, ex, ey, R(a1) + (a1 > a0 ? Math.PI / 2 : -Math.PI / 2), col);
+}
+function dline(c, pts, col) {
+  c.save(); c.setLineDash([2.5, 3]); c.beginPath(); pts.forEach((p, i) => i ? c.lineTo(p[0], p[1]) : c.moveTo(p[0], p[1]));
+  c.strokeStyle = col || WHITE; c.lineWidth = 1.6; c.lineCap = 'round'; c.stroke(); c.restore();
+}
+
+// ---------------- backdrop + floor ----------------
+function backdrop(c, th, seed) {
+  const T = TH[th] || TH.day, g = c.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, T.sky[0]); g.addColorStop(1, T.sky[1]);
+  c.fillStyle = g; c.fillRect(0, 0, W, H);
+  const rnd = rng(seed * 97 + 13);
+  switch (T.d) {
+    case 'sun': circ(c, 212, 22, 10); fs(c, SUN, 1.6); break;
+    case 'clouds': for (let i = 0; i < 2; i++) cloud(c, 40 + i * 140 + rnd() * 30, 16 + rnd() * 14, .7, 'rgba(255,255,255,.85)', 0); break;
+    case 'stars': case 'embers': for (let i = 0; i < 22; i++) { c.fillStyle = T.d === 'stars' ? 'rgba(255,255,255,.8)' : 'rgba(255,200,80,.8)'; c.fillRect(rnd() * W, rnd() * 90, 1.4, 1.4); } break;
+    case 'snow': for (let i = 0; i < 26; i++) { circ(c, rnd() * W, rnd() * 120, 1.1); c.fillStyle = WHITE; c.fill(); } break;
+    case 'confetti': { const cols = [RED, BLUE, SUN, '#3fbf5f', '#a45cff']; for (let i = 0; i < 24; i++) { c.fillStyle = cols[i % 5]; c.save(); c.translate(rnd() * W, rnd() * 100); c.rotate(rnd() * 3); c.fillRect(-1.5, -.8, 3, 1.6); c.restore(); } break; }
+    case 'rain': c.strokeStyle = 'rgba(200,220,255,.5)'; c.lineWidth = 1; for (let i = 0; i < 30; i++) { const x = rnd() * W, y = rnd() * 120; c.beginPath(); c.moveTo(x, y); c.lineTo(x - 3, y + 7); c.stroke(); } break;
+    case 'grid': c.strokeStyle = 'rgba(255,79,154,.25)'; c.lineWidth = 1; for (let x = -120; x < W + 120; x += 24) { c.beginPath(); c.moveTo(W / 2 + (x - W / 2) * .3, 40); c.lineTo(x, H); c.stroke(); } for (let y = 50; y < H; y += 14) { c.beginPath(); c.moveTo(0, y); c.lineTo(W, y); c.stroke(); } break;
+    case 'wall': c.fillStyle = 'rgba(22,19,44,.06)'; for (let x = 0; x < W; x += 16) c.fillRect(x, 0, 8, H); break;
+    case 'tiles': c.strokeStyle = 'rgba(22,19,44,.08)'; c.lineWidth = 1; for (let x = 0; x < W; x += 14) { c.beginPath(); c.moveTo(x, 0); c.lineTo(x, H); c.stroke(); } for (let y = 0; y < H; y += 14) { c.beginPath(); c.moveTo(0, y); c.lineTo(W, y); c.stroke(); } break;
+    case 'girders': c.strokeStyle = 'rgba(22,19,44,.22)'; c.lineWidth = 2; for (let x = 0; x < W; x += 40) { c.beginPath(); c.moveTo(x, 0); c.lineTo(x + 40, 40); c.moveTo(x + 40, 0); c.lineTo(x, 40); c.stroke(); } break;
+    case 'stripes': c.fillStyle = 'rgba(255,255,255,.22)'; for (let x = -40; x < W; x += 28) { poly(c, [[x, 0], [x + 14, 0], [W / 2, -60]]); c.beginPath(); c.moveTo(x, H); c.lineTo(x + 14, H); c.lineTo(W / 2, -10); c.closePath(); c.fill(); } break;
+    case 'leaves': c.fillStyle = 'rgba(47,154,74,.55)'; for (let i = 0; i < 8; i++) { ell(c, rnd() * W, rnd() * 18, 14, 6, rnd()); c.fill(); } break;
+    case 'bubbles': for (let i = 0; i < 14; i++) { circ(c, rnd() * W, rnd() * 120, 1 + rnd() * 2.5); c.strokeStyle = 'rgba(255,255,255,.6)'; c.lineWidth = 1; c.stroke(); } break;
+  }
+}
+function floor(c, fl, fy, seed) {
+  if (!fl || fl === 'none') return;
+  const F = FL[fl]; if (!F) return;
+  const g = c.createLinearGradient(0, fy, 0, H); g.addColorStop(0, F[0]); g.addColorStop(1, F[1]);
+  c.fillStyle = g; c.fillRect(-2, fy, W + 4, H - fy + 2);
+  const rnd = rng(seed * 31 + 7);
+  c.save();
+  switch (fl) {
+    case 'grass': c.strokeStyle = 'rgba(22,19,44,.3)'; c.lineWidth = 1; for (let x = 4; x < W; x += 9) { c.beginPath(); c.moveTo(x, fy + 6 + rnd() * 8); c.lineTo(x + 2, fy + 2 + rnd() * 8); c.stroke(); } break;
+    case 'lava': for (let i = 0; i < 9; i++) { circ(c, rnd() * W, fy + 5 + rnd() * (H - fy - 6), 1.5 + rnd() * 2); fs(c, '#ffd23a', 1); } break;
+    case 'water': c.strokeStyle = 'rgba(255,255,255,.7)'; c.lineWidth = 1.3; for (let y = fy + 6; y < H; y += 7) { c.beginPath(); for (let x = 0; x <= W; x += 4) c.lineTo(x, y + Math.sin(x / 7 + y) * 1.2); c.stroke(); } break;
+    case 'road': c.fillStyle = SUN; for (let x = 6; x < W; x += 26) c.fillRect(x, fy + (H - fy) / 2 - 1, 13, 2.4); break;
+    case 'track': c.fillStyle = '#5a3f26'; for (let x = 2; x < W; x += 12) c.fillRect(x, fy + 4, 6, H - fy - 4); c.fillStyle = '#c9ccd6'; c.fillRect(0, fy + 2, W, 2.5); break;
+    case 'wood': c.strokeStyle = 'rgba(22,19,44,.25)'; c.lineWidth = 1; for (let x = 0; x < W; x += 20) { c.beginPath(); c.moveTo(x, fy); c.lineTo(x, H); c.stroke(); } break;
+    case 'sand': c.fillStyle = 'rgba(120,80,30,.35)'; for (let i = 0; i < 30; i++) c.fillRect(rnd() * W, fy + 3 + rnd() * (H - fy - 4), 1.3, 1.3); break;
+    case 'tile': c.strokeStyle = 'rgba(255,79,154,.35)'; c.lineWidth = 1; for (let x = 0; x < W; x += 16) { c.beginPath(); c.moveTo(x, fy); c.lineTo(x, H); c.stroke(); } break;
+    case 'mud': for (let i = 0; i < 8; i++) { ell(c, rnd() * W, fy + 5 + rnd() * 12, 4, 1.6); c.fillStyle = 'rgba(40,25,10,.5)'; c.fill(); } break;
+    case 'carpet': c.fillStyle = 'rgba(255,255,255,.15)'; for (let x = 0; x < W; x += 12) c.fillRect(x, fy + 4, 6, 3); break;
+  }
+  c.restore();
+  line(c, -2, fy, W + 2, fy, INK, 2);
+}
+function cloud(c, x, y, s, col, w) {
+  c.beginPath();
+  [[0, 0, 9], [10, -4, 8], [19, 1, 7], [-9, 2, 6]].forEach(p => { c.moveTo(x + p[0] * s + p[2] * s, y + p[1] * s); c.arc(x + p[0] * s, y + p[1] * s, p[2] * s, 0, Math.PI * 2); });
+  c.fillStyle = col || WHITE; c.fill();
+  if (w !== 0) { inkS(c, w || 1.4); c.stroke(); c.beginPath(); [[0, 0, 9], [10, -4, 8], [19, 1, 7], [-9, 2, 6]].forEach(p => { c.moveTo(x + p[0] * s + (p[2] - 1.2) * s, y + p[1] * s); c.arc(x + p[0] * s, y + p[1] * s, (p[2] - 1.2) * s, 0, Math.PI * 2); }); c.fillStyle = col || WHITE; c.fill(); }
+}
+
+// ---------------- trampolines ----------------
+// [x1, x2, y, style, y2, color]; style letters: g legs, f floating, m moves sideways, u moves up/down,
+// v vanishing, s shrinking, G golden, r danger red, I ice, J jelly, p bouncy pink, w sandy, M metal,
+// c/C conveyor right/left, x cracked, i invisible, L lily pad
+function tramp(c, t, fy) {
+  let [x1, x2, y, st, y2, col] = t; st = st || ''; if (y2 == null) y2 = y;
+  const has = (k) => st.indexOf(k) >= 0;
+  const len = Math.hypot(x2 - x1, y2 - y), ang = Math.atan2(y2 - y, x2 - x1);
+  if (has('g')) {
+    [.12, .88].forEach(f => { const lx = x1 + (x2 - x1) * f, ly = y + (y2 - y) * f; iline(c, lx, ly + 2, lx + (f < .5 ? -5 : 5), fy, '#6b6590', 1.6); });
+  }
+  const fill = col || (has('G') ? SUN : has('r') ? RED : has('I') ? '#bfe6ff' : has('p') ? '#ff8cc6' : has('w') ? '#e8c27a' : has('M') ? '#a9b2c4' : has('L') ? '#55c25a' : has('J') ? '#5fe0b0' : '#3a3270');
+  c.save();
+  c.translate(x1, y); c.rotate(ang);
+  if (has('v')) { c.globalAlpha = .6; c.setLineDash([3, 2]); }
+  if (has('i')) { c.globalAlpha = .35; c.setLineDash([1.5, 2.5]); }
+  const h = 5.5;
+  if (has('J')) {
+    c.beginPath(); c.moveTo(0, 0);
+    for (let x = 0; x <= len; x += 3) c.lineTo(x, -Math.sin(x / len * Math.PI * 3) * 4 - h / 2);
+    for (let x = len; x >= 0; x -= 3) c.lineTo(x, -Math.sin(x / len * Math.PI * 3) * 4 + h / 2);
+    c.closePath(); fs(c, fill, 1.6);
+  } else {
+    rr(c, 0, -h / 2, len, h, 2.6); fs(c, has('i') ? 'rgba(255,255,255,.4)' : fill, 1.6);
+  }
+  c.setLineDash([]);
+  if (!col && !has('G') && !has('I') && !has('L') && !has('J') && !has('i') && !has('M') && len > 18) {
+    rr(c, -1, -h / 2 - .5, 6, h + 1, 2); fs(c, SUN, 1.3);
+    rr(c, len - 5, -h / 2 - .5, 6, h + 1, 2); fs(c, SUN, 1.3);
+  }
+  if (has('c') || has('C')) {
+    const d = has('c') ? 1 : -1; c.strokeStyle = WHITE; c.lineWidth = 1.2;
+    for (let x = 10; x < len - 8; x += 8) { c.beginPath(); c.moveTo(x - d * 1.5, -1.8); c.lineTo(x + d * 1.5, 0); c.lineTo(x - d * 1.5, 1.8); c.stroke(); }
+  }
+  if (has('x')) { c.strokeStyle = INK; c.lineWidth = 1; c.beginPath(); c.moveTo(len * .45, -h / 2); c.lineTo(len * .5, 0); c.lineTo(len * .44, 1); c.lineTo(len * .52, h / 2); c.stroke(); }
+  if (has('G')) { c.fillStyle = WHITE; star(c, len * .25, -7, 2.4, 4); c.fill(); star(c, len * .75, -9, 2, 4); c.fill(); }
+  c.restore();
+  const mx = (x1 + x2) / 2, my = (y + y2) / 2;
+  if (has('m')) arrow(c, mx - 13, my + 9, mx + 13, my + 9, SUN, true);
+  if (has('u')) arrow(c, x2 + 7, my - 10, x2 + 7, my + 10, SUN, true);
+  if (has('s')) { arrow(c, x1 - 13, y - 9, x1 + 1, y - 9, '#ff4f9a'); arrow(c, x2 + 13, y2 - 9, x2 - 1, y2 - 9, '#ff4f9a'); }
+  if (has('f') && !has('i')) { c.strokeStyle = 'rgba(255,255,255,.7)'; c.lineWidth = 1; [x1 + 6, mx, x2 - 6].forEach(px => { c.beginPath(); c.moveTo(px - 2, y + 6); c.lineTo(px + 2, y + 6); c.stroke(); }); }
+}
+
+// ---------------- fighters ----------------
+const POSE = {
+  s: { hip: [0, -8], neck: [0, -15], legs: [[-3, 0], [3, 0]], arms: [[-5, -8], [5, -8]] },
+  j: { hip: [0, -8], neck: [0, -15], legs: [[-5, -1], [5, -1]], arms: [[-6, -22], [6, -22]] },
+  k: { hip: [0, -8], neck: [-1, -15], legs: [[9, -10], [-3, 0]], arms: [[-7, -14], [6, -20]] },
+  w: { hip: [0, -8], neck: [0, -15], legs: [[-6, -3], [4, 1]], arms: [[-8, -21], [8, -11]] },
+  x: { hip: [0, -8], neck: [0, -15], legs: [[-5, 0], [5, 0]], arms: [[-8, -16], [8, -16]] },
+  d: { hip: [0, -5], neck: [4, -10], legs: [[-4, 0], [4, 0]], arms: [[9, -6], [-1, -4]] },
+  p: { hip: [0, -8], neck: [0, -15], legs: [[-3, 0], [3, 0]], arms: [[-7, -17], [8, -15]] },
+  c: { hip: [0, -7], neck: [0, -14], legs: [[-4, -6], [4, -6]], arms: [[-6, -9], [6, -9]] }
+};
+function fighter(c, x, y, tm, pose, s, rot, prop) {
+  const P = POSE[pose || 's'] || POSE.s, col = TEAM[tm] || tm || TEAM.n;
+  s = s || 1;
+  c.save(); c.translate(x, y); c.scale(s, s);
+  if (rot) { c.translate(0, -8); c.rotate(R(rot)); c.translate(0, 8); }
+  if (tm === 'h') c.globalAlpha = .55;
+  const [hx, hy] = P.hip, [nx, ny] = P.neck;
+  const limbs = [[nx, ny, hx, hy], ...P.legs.map(l => [hx, hy, l[0], l[1]]), ...P.arms.map(a => [nx, ny + 1, a[0], a[1]])];
+  limbs.forEach(l => line(c, l[0], l[1], l[2], l[3], INK, 3.6));
+  limbs.forEach(l => line(c, l[0], l[1], l[2], l[3], col, 1.7));
+  const hdx = nx + (nx - hx) * .55, hdy = ny - 4.4;
+  circ(c, hdx, hdy, 3.8); fs(c, col, 1.4);
+  c.fillStyle = INK; c.fillRect(hdx + .4, hdy - 1.2, 1, 1.4); c.fillRect(hdx + 2, hdy - 1.2, 1, 1.4);
+  if (prop === 'pogo') { line(c, 0, 0, 0, 10, INK, 3.4); line(c, 0, 0, 0, 10, '#c9ccd6', 1.6); line(c, -4, 2, 4, 2, INK, 2); c.strokeStyle = INK; c.lineWidth = 1; c.beginPath(); for (let i = 0; i < 5; i++) { c.lineTo(i % 2 ? 2 : -2, 4 + i * 1.3); } c.stroke(); }
+  if (prop === 'car') { rr(c, -9, -9, 18, 9, 3); fs(c, col, 1.4); circ(c, -5, 1, 2.2); fs(c, INK, 0); circ(c, 5, 1, 2.2); fs(c, INK, 0); }
+  if (prop === 'robot') { rr(c, hdx - 4.5, hdy - 4.5, 9, 9, 1.5); fs(c, '#c9ccd6', 1.4); c.fillStyle = col; c.fillRect(hdx - 2.5, hdy - 1.5, 5, 2); line(c, hdx, hdy - 4.5, hdx, hdy - 8, INK, 1.2); }
+  if (prop === 'helmet') { c.beginPath(); c.arc(hdx, hdy - .5, 4.6, Math.PI, 0); c.closePath(); fs(c, '#c9ccd6', 1.3); }
+  if (prop === 'basket') { rr(c, hdx - 5, hdy - 10, 10, 6, 1.5); fs(c, '#c98b52', 1.3); }
+  if (prop === 'bat') { line(c, P.arms[1][0], P.arms[1][1], P.arms[1][0] + 8, P.arms[1][1] - 9, INK, 3.6); line(c, P.arms[1][0], P.arms[1][1], P.arms[1][0] + 8, P.arms[1][1] - 9, '#c98b52', 2); }
+  if (prop === 'brolly') { line(c, P.arms[1][0], P.arms[1][1], P.arms[1][0], P.arms[1][1] - 9, INK, 1.4); c.beginPath(); c.arc(P.arms[1][0], P.arms[1][1] - 9, 6, Math.PI, 0); c.closePath(); fs(c, '#ff4f9a', 1.3); }
+  if (prop === 'flag') { line(c, P.arms[1][0], P.arms[1][1], P.arms[1][0], P.arms[1][1] - 12, INK, 1.4); poly(c, [[P.arms[1][0], P.arms[1][1] - 12], [P.arms[1][0] + 8, P.arms[1][1] - 9.5], [P.arms[1][0], P.arms[1][1] - 7]]); fs(c, BLUE, 1.2); }
+  if (prop === 'mallet') { rr(c, P.arms[1][0] - 3, P.arms[1][1] - 3, 6, 6, 3); fs(c, SUN, 1.2); }
+  if (prop === 'crown') { poly(c, [[hdx - 4, hdy - 3.5], [hdx - 4, hdy - 8], [hdx - 2, hdy - 5.5], [hdx, hdy - 9], [hdx + 2, hdy - 5.5], [hdx + 4, hdy - 8], [hdx + 4, hdy - 3.5]]); fs(c, SUN, 1.2); }
+  c.restore();
+}
+
+// ---------------- objects (falling things, weapons, props) ----------------
+function obj(c, x, y, k, s) {
+  s = s || 8;
+  c.save(); c.translate(x, y);
+  const u = s / 8; // unit
+  switch (k) {
+    case 'bomb': circ(c, 0, 1, s); fs(c, '#2a2540', 1.5); line(c, s * .5, -s * .6, s * .9, -s * 1.15, '#c9a36a', 1.6); c.fillStyle = SUN; star(c, s * .95, -s * 1.25, 3 * u + 1, 6); c.fill(); circ(c, -s * .35, -s * .2, s * .22); c.fillStyle = 'rgba(255,255,255,.5)'; c.fill(); break;
+    case 'bowl': circ(c, 0, 0, s); fs(c, '#3b3b8f', 1.5); c.fillStyle = INK; [[-2, -3], [1.5, -4], [0, -.5]].forEach(p => { circ(c, p[0] * u, p[1] * u, 1.1 * u); c.fill(); }); break;
+    case 'ball': circ(c, 0, 0, s); fs(c, WHITE, 0); [[RED, -90], [BLUE, 30], [SUN, 150]].forEach(w => { c.beginPath(); c.moveTo(0, 0); c.arc(0, 0, s, R(w[1]), R(w[1] + 60)); c.closePath(); c.fillStyle = w[0]; c.fill(); }); circ(c, 0, 0, s); fs(c, null, 1.5); circ(c, 0, 0, s * .2); fs(c, WHITE, 1); break;
+    case 'dodge': circ(c, 0, 0, s); fs(c, '#ff5a5a', 1.5); c.beginPath(); c.arc(-s * .9, 0, s * .9, -1, 1); inkS(c, 1); c.stroke(); break;
+    case 'bball': circ(c, 0, 0, s); fs(c, '#ff8a2a', 1.5); inkS(c, 1); c.beginPath(); c.moveTo(-s, 0); c.lineTo(s, 0); c.moveTo(0, -s); c.lineTo(0, s); c.stroke(); c.beginPath(); c.arc(-s * 1.1, 0, s * .8, -.9, .9); c.stroke(); c.beginPath(); c.arc(s * 1.1, 0, s * .8, Math.PI - .9, Math.PI + .9); c.stroke(); break;
+    case 'soccer': circ(c, 0, 0, s); fs(c, WHITE, 1.5); c.save(); c.fillStyle = INK; c.beginPath(); for (let i = 0; i < 5; i++) { const a = -Math.PI / 2 + i * Math.PI * 2 / 5; c.lineTo(Math.cos(a) * s * .38, Math.sin(a) * s * .38); } c.closePath(); c.fill(); c.restore(); break;
+    case 'golf': circ(c, 0, 0, s * .6); fs(c, WHITE, 1.3); break;
+    case 'baseball': circ(c, 0, 0, s); fs(c, WHITE, 1.4); c.strokeStyle = RED; c.lineWidth = 1; c.beginPath(); c.arc(-s * 1.2, 0, s * .9, -.7, .7); c.stroke(); c.beginPath(); c.arc(s * 1.2, 0, s * .9, Math.PI - .7, Math.PI + .7); c.stroke(); break;
+    case 'puck': ell(c, 0, 0, s, s * .45); fs(c, '#2a2540', 1.4); break;
+    case 'cball': c.strokeStyle = 'rgba(255,255,255,.8)'; c.lineWidth = 1.2; for (let i = -1; i <= 1; i++) { c.beginPath(); c.moveTo(-s * 1.4, i * s * .55); c.lineTo(-s * 3, i * s * .55); c.stroke(); } circ(c, 0, 0, s); fs(c, '#2a2540', 1.4); break;
+    case 'meteor': { c.save(); c.rotate(R(-35)); c.beginPath(); c.moveTo(-s * .2, -s * .9); c.quadraticCurveTo(s * 3, -s * .3, s * 3.6, 0); c.quadraticCurveTo(s * 3, s * .3, -s * .2, s * .9); c.closePath(); fs(c, '#ffb43a', 1.3); c.restore(); circ(c, 0, 0, s); fs(c, '#8a5a3b', 1.5); c.fillStyle = '#5a3a24'; circ(c, -s * .3, -s * .2, s * .25); c.fill(); circ(c, s * .3, s * .35, s * .18); c.fill(); break; }
+    case 'anvil': poly(c, [[-s, -s * .5], [s * 1.1, -s * .5], [s * .6, 0], [s * .35, 0], [s * .55, s * .7], [-s * .55, s * .7], [-s * .35, 0], [-s * .6, 0], [-s * 1.3, -s * .2]]); fs(c, '#4a4f5e', 1.4); break;
+    case 'piano': rr(c, -s, -s * .7, s * 2, s * 1.2, 2); fs(c, '#221d33', 1.4); c.fillStyle = WHITE; c.fillRect(-s * .85, s * .05, s * 1.7, s * .35); c.fillStyle = INK; for (let i = -3; i <= 3; i++) c.fillRect(i * s * .24 - .4, s * .05, .8, s * .35); line(c, -s * .8, s * .5, -s * .8, s * .9, INK, 1.4); line(c, s * .8, s * .5, s * .8, s * .9, INK, 1.4); break;
+    case 'cow': ell(c, 0, 0, s, s * .62); fs(c, WHITE, 1.4); c.fillStyle = INK; ell(c, -s * .35, -s * .1, s * .25, s * .18); c.fill(); ell(c, s * .3, s * .2, s * .2, s * .15); c.fill(); [-.6, -.25, .25, .6].forEach(f => line(c, f * s, s * .5, f * s, s * .95, INK, 1.6)); ell(c, s * 1.05, -s * .3, s * .42, s * .34); fs(c, WHITE, 1.3); ell(c, s * 1.25, -s * .2, s * .22, s * .16); fs(c, '#ffb3c8', 1); break;
+    case 'crate': rr(c, -s, -s, s * 2, s * 2, 1.5); fs(c, '#c98b52', 1.5); inkS(c, 1.1); c.beginPath(); c.moveTo(-s, -s); c.lineTo(s, s); c.moveTo(s, -s); c.lineTo(-s, s); c.stroke(); c.font = `${s}px Bungee, sans-serif`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = WHITE; c.fillText('?', 0, 1); break;
+    case 'fish': ell(c, 0, 0, s, s * .5); fs(c, '#ff9f1c', 1.4); poly(c, [[-s * .9, 0], [-s * 1.6, -s * .5], [-s * 1.6, s * .5]]); fs(c, '#ff9f1c', 1.3); circ(c, s * .5, -s * .1, 1); c.fillStyle = INK; c.fill(); break;
+    case 'pan': line(c, s * .8, 0, s * 2, -s * .3, INK, 3.4); circ(c, 0, 0, s); fs(c, '#2a2540', 1.4); circ(c, -s * .25, -s * .25, s * .3); c.fillStyle = 'rgba(255,255,255,.25)'; c.fill(); break;
+    case 'hammer': iline(c, 0, 0, s * 1.4, s * 1.4, '#c98b52', 2.2); c.save(); c.rotate(R(45)); rr(c, -s * .9, -s * .55, s * 1.8, s * 1.1, 2); fs(c, '#8a90a3', 1.4); c.restore(); break;
+    case 'noodle': c.save(); c.rotate(R(-30)); rr(c, -s * 1.6, -s * .3, s * 3.2, s * .6, s * .3); fs(c, '#5fe0b0', 1.4); c.restore(); break;
+    case 'plunger': iline(c, 0, -s * 1.3, 0, s * .2, '#c98b52', 1.8); c.beginPath(); c.arc(0, s * .7, s * .7, Math.PI, 0); c.closePath(); fs(c, RED, 1.3); break;
+    case 'snow': circ(c, 0, 0, s); fs(c, WHITE, 1.4); break;
+    case 'egg': ell(c, 0, 0, s * .7, s); fs(c, '#fffaf0', 1.4); break;
+    case 'chick': circ(c, 0, 0, s); fs(c, SUN, 1.4); poly(c, [[s * .8, -s * .1], [s * 1.4, s * .1], [s * .8, s * .3]]); fs(c, '#ff9f1c', 1); c.fillStyle = INK; c.fillRect(s * .3, -s * .35, 1.2, 1.2); break;
+    case 'rock': poly(c, [[-s, s * .3], [-s * .6, -s * .6], [s * .2, -s * .8], [s, -s * .1], [s * .7, s * .6], [-s * .4, s * .7]]); fs(c, '#8a8fa0', 1.4); break;
+    case 'star': star(c, 0, 0, s, 5); fs(c, SUN, 1.3); break;
+    case 'boot': poly(c, [[-s * .6, -s * 1.2], [s * .4, -s * 1.2], [s * .4, -s * .1], [s * 1.2, s * .1], [s * 1.3, s * .6], [-s * .7, s * .6]]); fs(c, '#8a5a3b', 1.6); c.fillStyle = INK; c.fillRect(-s * .7, s * .45, s * 2, s * .18); break;
+    case 'pin': c.beginPath(); c.moveTo(0, -s); c.bezierCurveTo(s * .45, -s, s * .3, -s * .3, s * .2, -s * .2); c.bezierCurveTo(s * .7, s * .2, s * .5, s, 0, s); c.bezierCurveTo(-s * .5, s, -s * .7, s * .2, -s * .2, -s * .2); c.bezierCurveTo(-s * .3, -s * .3, -s * .45, -s, 0, -s); fs(c, WHITE, 1.2); c.fillStyle = RED; c.fillRect(-s * .25, -s * .45, s * .5, s * .15); break;
+    case 'pillow': rr(c, -s, -s * .6, s * 2, s * 1.2, s * .5); fs(c, '#fff2f8', 1.4); break;
+    case 'candy': poly(c, [[-s * .6, 0], [-s * 1.2, -s * .5], [-s * 1.2, s * .5]]); fs(c, '#ff8cc6', 1); poly(c, [[s * .6, 0], [s * 1.2, -s * .5], [s * 1.2, s * .5]]); fs(c, '#ff8cc6', 1); circ(c, 0, 0, s * .65); fs(c, '#ff4f9a', 1.2); break;
+    case 'melon': c.beginPath(); c.arc(0, -s * .3, s, 0, Math.PI); c.closePath(); fs(c, '#3fbf5f', 1.4); c.beginPath(); c.arc(0, -s * .3, s * .78, 0, Math.PI); c.closePath(); fs(c, '#ff5a6a', 0); break;
+    case 'apple': circ(c, 0, 0, s); fs(c, '#ec3a3a', 1.4); ell(c, s * .35, -s * 1.05, s * .35, s * .18, -.5); fs(c, '#3fbf5f', 1); break;
+    case 'banana': c.beginPath(); c.arc(0, -s * .6, s * 1.1, R(30), R(150)); c.arc(0, -s * 1.1, s * 1.2, R(145), R(35), true); c.closePath(); fs(c, SUN, 1.3); break;
+    case 'sushi': rr(c, -s, -s * .5, s * 2, s, 2); fs(c, WHITE, 1.3); rr(c, -s, -s * .75, s * 2, s * .45, 2); fs(c, '#ff8a6a', 1.1); c.fillStyle = INK; c.fillRect(-s * .2, -s * .75, s * .4, s * 1.25); break;
+    case 'plate': ell(c, 0, s * .4, s * 1.3, s * .35); fs(c, '#ffd23a', 1.2); break;
+    case 'chest': rr(c, -s, -s * .4, s * 2, s * 1.2, 1.5); fs(c, '#8a5a3b', 1.4); c.beginPath(); c.moveTo(-s, -s * .4); c.quadraticCurveTo(0, -s * 1.3, s, -s * .4); c.closePath(); fs(c, '#a56a36', 1.4); c.fillStyle = SUN; c.fillRect(-s * .15, -s * .6, s * .3, s * .7); break;
+    case 'gem': poly(c, [[0, -s], [s * .8, -s * .2], [0, s], [-s * .8, -s * .2]]); fs(c, '#5fe8ff', 1.3); break;
+    case 'popcorn': c.beginPath(); [[0, 0, .55], [.45, -.2, .45], [-.45, -.15, .45], [.1, -.55, .4]].forEach(p => { c.moveTo(p[0] * s + p[2] * s, p[1] * s); c.arc(p[0] * s, p[1] * s, p[2] * s, 0, Math.PI * 2); }); fs(c, '#fff6d0', 1.2); circ(c, 0, 0, s * .2); c.fillStyle = SUN; c.fill(); break;
+    case 'ghost': c.beginPath(); c.arc(0, -s * .2, s * .8, Math.PI, 0); c.lineTo(s * .8, s * .8); for (let i = 0; i < 4; i++) c.lineTo(s * .8 - (i + .5) * s * .4, s * (i % 2 ? .8 : .55)); c.lineTo(-s * .8, s * .8); c.closePath(); fs(c, '#f4f2ff', 1.4); c.fillStyle = INK; ell(c, -s * .28, -s * .25, s * .13, s * .2); c.fill(); ell(c, s * .28, -s * .25, s * .13, s * .2); c.fill(); break;
+    case 'bee': ell(c, -s * .1, -s * .7, s * .4, s * .3, -.4); fs(c, 'rgba(255,255,255,.9)', 1); ell(c, 0, 0, s * .75, s * .5); fs(c, SUN, 1.3); c.fillStyle = INK; c.fillRect(-s * .15, -s * .45, s * .22, s * .9); c.fillRect(s * .3, -s * .4, s * .18, s * .8); break;
+    case 'hive': [[0, -s * .6, .55], [0, -s * .1, .8], [0, s * .45, .65]].forEach(p => { ell(c, p[0], p[1], s * p[2], s * .32); fs(c, '#e8b94a', 1.3); }); circ(c, 0, s * .1, s * .15); c.fillStyle = INK; c.fill(); break;
+    case 'crown': poly(c, [[-s, s * .5], [-s, -s * .5], [-s * .5, 0], [0, -s * .8], [s * .5, 0], [s, -s * .5], [s, s * .5]]); fs(c, SUN, 1.4); break;
+    case 'duck': ell(c, 0, s * .2, s, s * .55); fs(c, SUN, 1.3); circ(c, s * .55, -s * .45, s * .45); fs(c, SUN, 1.3); poly(c, [[s * .95, -s * .45], [s * 1.4, -s * .35], [s * .95, -s * .25]]); fs(c, '#ff9f1c', 1); break;
+    case 'vac': ell(c, 0, 0, s * 1.6, s * .6); fs(c, '#4a4f5e', 1.5); ell(c, 0, -s * .2, s * 1.1, s * .3); fs(c, '#8a90a3', 1.1); circ(c, s * .7, -s * .25, s * .15); c.fillStyle = '#5fe8ff'; c.fill(); break;
+    case 'note': ell(c, 0, s * .5, s * .45, s * .32, -.4); fs(c, INK, 0); line(c, s * .38, s * .4, s * .38, -s * .8, INK, 1.4); line(c, s * .38, -s * .8, s * .85, -s * .5, INK, 1.4); break;
+    case 'pellet': circ(c, 0, 0, s * 1.6); c.fillStyle = 'rgba(255,201,40,.3)'; c.fill(); circ(c, 0, 0, s * .8); fs(c, SUN, 1.2); break;
+    case 'stal': poly(c, [[-s * .6, -s], [s * .6, -s], [0, s * 1.2]]); fs(c, '#8a8fa0', 1.3); break;
+    case 'teddy': circ(c, -s * .55, -s * 1.15, s * .3); fs(c, '#a56a36', 1.2); circ(c, s * .55, -s * 1.15, s * .3); fs(c, '#a56a36', 1.2); ell(c, 0, s * .45, s * .75, s * .7); fs(c, '#a56a36', 1.3); circ(c, 0, -s * .7, s * .62); fs(c, '#a56a36', 1.3); ell(c, 0, -s * .55, s * .25, s * .18); fs(c, '#e8c9a0', 1); break;
+    case 'gear': c.beginPath(); for (let i = 0; i < 16; i++) { const a = i * Math.PI / 8, rad = i % 2 ? s * .75 : s; c.lineTo(Math.cos(a) * rad, Math.sin(a) * rad); } c.closePath(); fs(c, '#a9b2c4', 1.3); circ(c, 0, 0, s * .3); fs(c, INK, 0); break;
+    case 'spatula': iline(c, s * .6, s * .3, s * 2.6, s * 1.2, '#2a2540', 2); poly(c, [[-s * 1.4, -s * .2], [s * .7, -s * .2], [s * .8, s * .7], [-s * 1.3, s * .9]]); fs(c, '#c9ccd6', 1.4); break;
+    case 'chair': rr(c, -s * .7, -s * 1.2, s * .3, s * 2.2, 1); fs(c, '#a56a36', 1.2); rr(c, -s * .7, -s * .1, s * 1.5, s * .3, 1); fs(c, '#a56a36', 1.2); line(c, s * .7, s * .2, s * .7, s, INK, 1.6); break;
+    case 'book': rr(c, -s * .8, -s * .55, s * 1.6, s * 1.1, 1); fs(c, '#a45cff', 1.3); c.fillStyle = WHITE; c.fillRect(-s * .8, s * .3, s * 1.6, s * .15); break;
+    case 'clock': circ(c, 0, 0, s); fs(c, '#fff7e8', 1.4); line(c, 0, 0, 0, -s * .65, INK, 1.4); line(c, 0, 0, s * .45, s * .1, INK, 1.4); break;
+    case 'snail': ell(c, 0, s * .45, s * 1.3, s * .3); fs(c, '#c6e86a', 1.2); circ(c, -s * .1, -s * .1, s * .7); fs(c, '#d98a5a', 1.4); c.beginPath(); c.arc(-s * .1, -s * .1, s * .35, 0, Math.PI * 1.6); inkS(c, 1); c.stroke(); line(c, s * 1, s * .2, s * 1.2, -s * .4, INK, 1.1); break;
+    case 'target': [[1, RED], [.66, WHITE], [.33, RED]].forEach(r => { circ(c, 0, 0, s * r[0]); fs(c, r[1], 1.2); }); break;
+    case 'pinata': rr(c, -s, -s * .4, s * 1.6, s * .9, 2); fs(c, '#ff4f9a', 1.3); rr(c, s * .3, -s * 1, s * .55, s * .9, 2); fs(c, SUN, 1.3); [-.7, -.2, .3].forEach(f => line(c, f * s, s * .5, f * s, s * .95, INK, 1.6)); c.fillStyle = '#5fe0b0'; c.fillRect(-s * .6, -s * .4, s * .25, s * .9); c.fillStyle = BLUE; c.fillRect(-s * .1, -s * .4, s * .25, s * .9); break;
+    case 'tumble': circ(c, 0, 0, s); fs(c, null, 0); c.strokeStyle = '#a56a36'; c.lineWidth = 1; for (let i = 0; i < 5; i++) { c.beginPath(); c.arc(0, 0, s * (.4 + i * .13), i, i + 3.5); c.stroke(); } break;
+    case 'spark': star(c, 0, 0, s, 8, s * .5); fs(c, SUN, 1.3); break;
+    case 'feather': ell(c, 0, 0, s * .35, s, .6); fs(c, WHITE, 1); break;
+    case 'sock': poly(c, [[-s * .3, -s], [s * .3, -s], [s * .3, s * .3], [s * .9, s * .4], [s * .9, s * .9], [-s * .3, s * .9]]); fs(c, '#5fe0b0', 1.2); break;
+    case 'marble': circ(c, 0, 0, s); fs(c, 'rgba(95,232,255,.8)', 1.2); c.beginPath(); c.arc(0, 0, s * .6, .3, 2); c.strokeStyle = RED; c.lineWidth = 1.2; c.stroke(); break;
+    case 'block': rr(c, -s, -s, s * 2, s * 2, 1.5); fs(c, '#ff9f1c', 1.4); c.font = `${s * 1.2}px Bungee, sans-serif`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = INK; c.fillText('A', 0, s * .1); break;
+    case 'domino': rr(c, -s * .4, -s, s * .8, s * 2, 1); fs(c, WHITE, 1.3); line(c, -s * .4, 0, s * .4, 0, INK, 1); break;
+    case 'candle': rr(c, -s * .3, -s * .3, s * .6, s * 1.2, 1); fs(c, '#fff7e8', 1.2); ell(c, 0, -s * .65, s * .2, s * .35); c.fillStyle = SUN; c.fill(); break;
+    case 'disco': circ(c, 0, 0, s); fs(c, '#c9ccd6', 1.4); c.strokeStyle = 'rgba(22,19,44,.4)'; c.lineWidth = .7; for (let i = -2; i <= 2; i++) { c.beginPath(); c.moveTo(i * s * .35, -s); c.lineTo(i * s * .35, s); c.moveTo(-s, i * s * .35); c.lineTo(s, i * s * .35); c.stroke(); } line(c, 0, -s, 0, -s * 3, INK, 1); break;
+    case 'giant': ell(c, 0, 0, s * 1.3, s * 1.1); fs(c, '#8fd18a', 2); line(c, -s * .6, -s * .1, -s * .2, -s * .1, INK, 2); line(c, s * .2, -s * .1, s * .6, -s * .1, INK, 2); ell(c, 0, s * .45, s * .3, s * .15); fs(c, '#5a3a24', 1); break;
+    case 'heli': circ(c, 0, 0, s); fs(c, null, 0); break;
+    case 'umbrella': c.beginPath(); c.arc(0, 0, s, Math.PI, 0); c.closePath(); fs(c, '#ff4f9a', 1.3); line(c, 0, 0, 0, s * 1.2, INK, 1.4); break;
+    case 'basket': rr(c, -s, -s * .4, s * 2, s, 2); fs(c, '#c98b52', 1.4); break;
+    case 'spider': circ(c, 0, 0, s * .55); fs(c, INK, 0); for (let i = 0; i < 4; i++) { line(c, -s * .3, 0, -s * 1.1, -s * .6 + i * .4 * s, INK, 1); line(c, s * .3, 0, s * 1.1, -s * .6 + i * .4 * s, INK, 1); } break;
+    case 'croc': ell(c, 0, 0, s * 1.4, s * .4); fs(c, '#3f9a33', 1.3); break;
+    default: circ(c, 0, 0, s); fs(c, '#ff4f9a', 1.4);
+  }
+  c.restore();
+}
+
+// ---------------- scene elements ----------------
+function elBase(c, e, S) {
+  const [k] = e;
+  switch (k) {
+    case 'f': fighter(c, e[1], e[2], e[3], e[4], e[5], e[6], e[7]); break;
+    case 'o': obj(c, e[1], e[2], e[3], e[4]); break;
+    case 'txt': text(c, e[1], e[2], e[3], e[4], e[5], e[6]); break;
+    case 'arr': arrow(c, e[1], e[2], e[3], e[4], e[5], e[6]); break;
+    case 'carr': carrow(c, e[1], e[2], e[3], e[4], e[5], e[6]); break;
+    case 'dline': dline(c, e[1], e[2]); break;
+    case 'blk': rr(c, e[1], e[2], e[3], e[4], e[6] == null ? 2 : e[6]); fs(c, e[5] || '#8a90a3', 1.6); break;
+    case 'poly': poly(c, e[1]); fs(c, e[2], e[3] == null ? 1.6 : e[3]); break;
+    case 'w': iline(c, e[1], e[2], e[3], e[4], e[5] || RED, 4); break;
+    case 'rope': line(c, e[1], e[2], e[3], e[4], e[5] || '#7a4d2a', e[6] || 1.4); break;
+    case 'post': iline(c, e[1], e[2], e[1], e[3], e[4] || '#a56a36', 2.4); break;
+    case 'cloud': cloud(c, e[1], e[2], e[3] || 1, e[4]); break;
+    case 'shadow': ell(c, e[1], e[2], e[3], e[3] * .25); c.fillStyle = 'rgba(22,19,44,.45)'; c.fill(); break;
+    case 'warn': { c.save(); c.setLineDash([3, 2]); ell(c, e[1], e[2], e[3], e[3] * .35); c.strokeStyle = '#ff2a4a'; c.lineWidth = 2; c.stroke(); c.restore(); text(c, e[1], e[2] - e[3] * .35 - 7, '!', 9, '#ff2a4a'); break; }
+    case 'hole': { const [, x, y, r] = e; poly(c, [[x - r, y - 1], [x - r * .6, y - 3.5], [x - r * .2, y - 1.5], [x + r * .3, y - 4], [x + r, y - 1], [x + r * .7, y + 3.5], [x + r * .1, y + 2], [x - r * .5, y + 4]]); fs(c, '#0d0b1c', 1.3); break; }
+    case 'net': { const [, x, y1, y2] = e; c.strokeStyle = 'rgba(22,19,44,.55)'; c.lineWidth = .8; for (let y = y1 + 4; y < y2 - 30; y += 4) { c.beginPath(); c.moveTo(x - 3, y); c.lineTo(x + 3, y); c.stroke(); } iline(c, x, y1, x, y2, WHITE, 2); rr(c, x - 4, y1, 8, 28, 1); c.strokeStyle = INK; c.lineWidth = 1.2; c.stroke(); break; }
+    case 'bump': circ(c, e[1], e[2], e[3]); fs(c, e[4] || '#ff4f9a', 1.6); circ(c, e[1], e[2], e[3] * .5); fs(c, WHITE, 1.2); break;
+    case 'pend': { const [, px, py, bx, by, r] = e; c.save(); c.setLineDash([2, 2]); line(c, px, py, bx, by, INK, 1.8); c.restore(); circ(c, bx, by, r); fs(c, '#4a4f5e', 1.8); circ(c, bx - r * .35, by - r * .35, r * .25); c.fillStyle = 'rgba(255,255,255,.35)'; c.fill(); break; }
+    case 'can': { const [, x, y, d] = e; c.save(); c.translate(x, y); c.scale(d, 1); rr(c, -6, -5, 18, 9, 3); fs(c, '#2a2540', 1.5); circ(c, -2, 5, 4); fs(c, '#a56a36', 1.4); c.restore(); break; }
+    case 'sw': { const [, cx, cy, len, ang] = e; iline(c, cx, cy, cx, S.fy, '#8a90a3', 2.4); c.save(); c.translate(cx, cy); c.rotate(R(ang)); c.strokeStyle = 'rgba(255,255,255,.7)'; c.lineWidth = 1; for (let i = 1; i <= 3; i++) { c.beginPath(); c.moveTo(len * .3, -6 - i * 3); c.lineTo(len, -6 - i * 3); c.stroke(); } rr(c, 0, -4, len, 8, 4); fs(c, '#ff8cc6', 1.6); c.restore(); circ(c, cx, cy, 5); fs(c, SUN, 1.5); break; }
+    case 'coin': circ(c, e[1], e[2], 4); fs(c, SUN, 1.3); line(c, e[1], e[2] - 2, e[1], e[2] + 2, '#c98b1a', 1.2); break;
+    case 'bal': { const [, x, y, t] = e, col = TEAM[t] || t; c.beginPath(); c.moveTo(x, y + 8); c.quadraticCurveTo(x + 3, y + 13, x, y + 17); c.strokeStyle = INK; c.lineWidth = 1; c.stroke(); ell(c, x, y, 5.5, 7); fs(c, col, 1.4); poly(c, [[x, y + 6.5], [x - 2, y + 9], [x + 2, y + 9]]); fs(c, col, 1); ell(c, x - 2, y - 3, 1.2, 2); c.fillStyle = 'rgba(255,255,255,.6)'; c.fill(); break; }
+    case 'mole': { const [, x, y, t] = e; ell(c, x, y, 10, 3); fs(c, '#0d0b1c', 1.2); const col = t === 'g' ? SUN : t === 'b' ? '#2a2540' : '#8a5a3b'; c.beginPath(); c.arc(x, y - 1, 7, Math.PI, 0); c.lineTo(x + 7, y); c.lineTo(x - 7, y); c.closePath(); fs(c, col, 1.4); c.fillStyle = t === 'b' ? WHITE : INK; c.fillRect(x - 3.5, y - 6, 1.4, 1.6); c.fillRect(x + 2, y - 6, 1.4, 1.6); circ(c, x, y - 3.5, 1.4); c.fillStyle = '#ff8cc6'; c.fill(); if (t === 'b') { line(c, x + 4, y - 7, x + 7, y - 11, '#c9a36a', 1.4); c.fillStyle = SUN; star(c, x + 7.5, y - 11.5, 2.5, 6); c.fill(); } if (t === 'g') { c.fillStyle = WHITE; star(c, x - 9, y - 9, 2.2, 4); c.fill(); } break; }
+    case 'bell': { const [, x, y] = e; line(c, x, 0, x, y - 6, INK, 1.2); c.beginPath(); c.moveTo(x - 7, y + 5); c.quadraticCurveTo(x - 6, y - 7, x, y - 7); c.quadraticCurveTo(x + 6, y - 7, x + 7, y + 5); c.closePath(); fs(c, SUN, 1.5); circ(c, x, y + 6, 2); fs(c, '#c98b1a', 1.1); break; }
+    case 'hoop': { const [, x, y, d] = e; rr(c, x - (d > 0 ? 0 : 4), y - 16, 4, 22, 1); fs(c, WHITE, 1.4); const rx = x + d * 11; ell(c, rx, y + 2, 7, 2); c.strokeStyle = INK; c.lineWidth = 3.4; c.stroke(); c.strokeStyle = '#ff8a2a'; c.lineWidth = 1.8; c.stroke(); c.strokeStyle = 'rgba(255,255,255,.9)'; c.lineWidth = .8; for (let i = -1; i <= 1; i++) { c.beginPath(); c.moveTo(rx + i * 5, y + 3); c.lineTo(rx + i * 2.5, y + 11); c.stroke(); } break; }
+    case 'goal': { const [, x, y, w, h] = e; c.strokeStyle = 'rgba(22,19,44,.35)'; c.lineWidth = .7; for (let i = 3; i < w; i += 3) { c.beginPath(); c.moveTo(x + i, y); c.lineTo(x + i, y + h); c.stroke(); } for (let i = 3; i < h; i += 3) { c.beginPath(); c.moveTo(x, y + i); c.lineTo(x + w, y + i); c.stroke(); } rr(c, x, y, w, h, 1); c.strokeStyle = INK; c.lineWidth = 3.4; c.stroke(); c.strokeStyle = WHITE; c.lineWidth = 1.6; c.stroke(); break; }
+    case 'zones': { const [, x1, x2, y, cols, noLegs] = e, n = cols.length, w = (x2 - x1) / n; if (!noLegs) { iline(c, x1 + 8, y + 2, x1 + 3, S.fy, '#6b6590', 1.6); iline(c, x2 - 8, y + 2, x2 - 3, S.fy, '#6b6590', 1.6); } cols.forEach((col, i) => { rr(c, x1 + i * w, y - 3, w, 6, 1.5); fs(c, col, 1.6); }); break; }
+    case 'piano': { const [, x1, x2, y, n, down] = e, w = (x2 - x1) / n; iline(c, x1 + 6, y + 2, x1 + 2, S.fy, '#6b6590', 1.6); iline(c, x2 - 6, y + 2, x2 - 2, S.fy, '#6b6590', 1.6); for (let i = 0; i < n; i++) { rr(c, x1 + i * w + .5, y - 3 + (i === down ? 2.5 : 0), w - 1, 7, 1.5); fs(c, i === down ? SUN : WHITE, 1.5); } for (let i = 1; i < n; i++) { if (i % 7 === 3 || i % 7 === 0) continue; rr(c, x1 + i * w - 2.5, y - 6, 5, 5, 1); fs(c, INK, 0); } break; }
+    case 'fin': { const [, x, y] = e; poly(c, [[x - 6, y], [x + 1, y - 10], [x + 5, y]]); fs(c, '#7d8aa3', 1.4); c.strokeStyle = 'rgba(255,255,255,.85)'; c.lineWidth = 1.2; c.beginPath(); c.moveTo(x - 11, y + 1); c.lineTo(x + 10, y + 1); c.stroke(); break; }
+    case 'shark': { const [, x, y, d] = e; c.save(); c.translate(x, y); c.scale(d, 1); c.rotate(R(-20)); c.beginPath(); c.moveTo(-18, 0); c.quadraticCurveTo(-4, -10, 14, -2); c.quadraticCurveTo(16, 2, 12, 4); c.quadraticCurveTo(-4, 8, -18, 0); c.closePath(); fs(c, '#8a96b0', 1.6); poly(c, [[-2, -6], [3, -14], [6, -5]]); fs(c, '#8a96b0', 1.4); poly(c, [[-17, 0], [-24, -7], [-22, 5]]); fs(c, '#8a96b0', 1.4); c.fillStyle = WHITE; poly(c, [[6, 3], [8, 1], [9, 3], [11, 1], [12, 3.5]]); c.fill(); c.fillStyle = INK; c.fillRect(8, -2.5, 1.5, 1.5); c.restore(); break; }
+    case 'laser': { const [, x1, y1, x2, y2] = e; line(c, x1, y1, x2, y2, 'rgba(255,40,80,.35)', 5); line(c, x1, y1, x2, y2, '#ff3355', 1.6); line(c, x1, y1, x2, y2, '#ffd0da', .6); [[x1, y1], [x2, y2]].forEach(p => { rr(c, p[0] - 3, p[1] - 3, 6, 6, 1); fs(c, '#4a4f5e', 1.2); }); break; }
+    case 'spikes': { const [, x1, x2, y] = e; for (let x = x1; x < x2; x += 8) { poly(c, [[x, y], [x + 4, y - 8], [x + 8, y]]); fs(c, '#c9ccd6', 1.2); } break; }
+    case 'mag': { const [, x1, x2, y] = e; rr(c, x1, y - 6, x2 - x1, 12, 3); fs(c, RED, 1.8); for (let x = x1 + 10; x < x2 - 6; x += 22) { rr(c, x, y + 3, 10, 6, 1); fs(c, '#c9ccd6', 1.2); } c.strokeStyle = 'rgba(255,255,255,.75)'; c.lineWidth = 1; for (let x = x1 + 20; x < x2; x += 44) { c.beginPath(); c.arc(x, y + 12, 6, .3, Math.PI - .3); c.stroke(); c.beginPath(); c.arc(x, y + 12, 11, .4, Math.PI - .4); c.stroke(); } break; }
+    case 'tor': { const [, x, y, s] = e; for (let i = 0; i < 6; i++) { const rx = (18 - i * 2.6) * s, yy = y - 26 * s + i * 9 * s; ell(c, x + Math.sin(i) * 3, yy, rx, 3.2 * s); fs(c, i % 2 ? '#9aa3b5' : '#b9c1d0', 1.3); } break; }
+    case 'car': { const [, x1, x2, y, col, h] = e, hh = h || 16; rr(c, x1, y, x2 - x1, hh, 2); fs(c, col, 1.6); c.fillStyle = 'rgba(255,255,255,.8)'; for (let x = x1 + 6; x < x2 - 10; x += 14) c.fillRect(x, y + 4, 8, 5); [x1 + 9, x2 - 9].forEach(wx => { circ(c, wx, y + hh + 1, 4); fs(c, '#2a2540', 1.3); }); break; }
+    case 'fan': { const [, x, y, d] = e; c.save(); c.translate(x, y); c.rotate(R(d)); rr(c, -8, -3, 16, 6, 1.5); fs(c, '#4a4f5e', 1.4); c.strokeStyle = 'rgba(255,255,255,.85)'; c.lineWidth = 1.2; for (let i = -1; i <= 1; i++) { c.beginPath(); for (let t = 0; t < 28; t += 2) c.lineTo(i * 5 + Math.sin(t / 3) * 1.5, -6 - t); c.stroke(); } c.restore(); break; }
+    case 'wind': { const [, x, y, len, col] = e; c.strokeStyle = col || 'rgba(255,255,255,.85)'; c.lineWidth = 1.3; for (let i = 0; i < 3; i++) { c.beginPath(); c.moveTo(x, y + i * 6); c.lineTo(x + len - i * 6, y + i * 6); c.arc(x + len - i * 6, y + i * 6 - 2.5, 2.5, Math.PI / 2, -Math.PI / 2, true); c.stroke(); } break; }
+    case 'bub': { const [, x, y, r] = e; circ(c, x, y, r); c.fillStyle = 'rgba(180,240,255,.35)'; c.fill(); c.strokeStyle = INK; c.lineWidth = 1.4; c.stroke(); c.beginPath(); c.arc(x, y, r * .7, R(200), R(250)); c.strokeStyle = WHITE; c.lineWidth = 1.6; c.stroke(); break; }
+    case 'flag': { const [, x, y, col] = e; line(c, x, y, x, y - 22, INK, 1.8); poly(c, [[x, y - 22], [x + 13, y - 18], [x, y - 13]]); fs(c, TEAM[col] || col, 1.3); break; }
+    case 'portal': { const [, x, y, col] = e; ell(c, x, y, 6, 13); c.strokeStyle = INK; c.lineWidth = 5.5; c.stroke(); c.strokeStyle = col; c.lineWidth = 3; c.stroke(); ell(c, x, y, 3, 9); c.fillStyle = 'rgba(255,255,255,.25)'; c.fill(); break; }
+    case 'bolt': { const [, x, y, s] = e, k2 = s || 1; poly(c, [[x, y - 14 * k2], [x + 6 * k2, y - 14 * k2], [x + 2 * k2, y - 4 * k2], [x + 7 * k2, y - 4 * k2], [x - 3 * k2, y + 12 * k2], [x, y + 1 * k2], [x - 5 * k2, y + 1 * k2]]); fs(c, SUN, 1.4); break; }
+    case 'ring': { const [, x, y, r, col, w] = e; circ(c, x, y, r); c.strokeStyle = INK; c.lineWidth = (w || 4) + 2.5; c.stroke(); c.strokeStyle = col || '#8a90a3'; c.lineWidth = w || 4; c.stroke(); break; }
+    case 'arc': { const [, cx, cy, r, a0, a1, col] = e; c.beginPath(); c.arc(cx, cy, r, R(a0), R(a1)); c.strokeStyle = INK; c.lineWidth = 7.5; c.lineCap = 'butt'; c.stroke(); c.strokeStyle = col || '#3a3270'; c.lineWidth = 4.5; c.stroke(); c.lineCap = 'round'; break; }
+    case 'dino': { const [, x, y, d, s] = e, k2 = s || 1; c.save(); c.translate(x, y); c.scale(d * k2, k2); c.beginPath(); c.moveTo(-22, -12); c.quadraticCurveTo(-10, -20, 2, -16); c.lineTo(8, -26); c.quadraticCurveTo(16, -30, 18, -24); c.lineTo(18, -21); c.lineTo(10, -20); c.lineTo(8, -12); c.quadraticCurveTo(4, -6, -6, -7); c.closePath(); fs(c, '#5fbf4a', 1.6); line(c, -6, -8, -8, 0, INK, 3.2); line(c, 2, -9, 4, 0, INK, 3.2); line(c, -6, -8, -8, 0, '#5fbf4a', 1.4); line(c, 2, -9, 4, 0, '#5fbf4a', 1.4); c.fillStyle = INK; c.fillRect(13, -26, 1.6, 1.6); c.restore(); break; }
+    case 'claw': { const [, x, y] = e; line(c, x, 0, x, y - 5, INK, 1.4); rr(c, x - 6, y - 7, 12, 6, 2); fs(c, '#a9b2c4', 1.4); [[-1, -8], [1, 8]].forEach(p => { c.beginPath(); c.moveTo(x + p[0] * 4, y - 1); c.quadraticCurveTo(x + p[1], y + 4, x + p[0] * 3, y + 10); inkS(c, 3.4); c.stroke(); c.strokeStyle = '#a9b2c4'; c.lineWidth = 1.6; c.stroke(); }); break; }
+    case 'mirror': { const [, x] = e; c.save(); c.setLineDash([4, 3]); line(c, x, 6, x, S.fy, 'rgba(190,240,255,.95)', 2); c.restore(); c.fillStyle = WHITE; star(c, x, 10, 4, 4); c.fill(); break; }
+    case 'fog': { c.save(); c.beginPath(); c.rect(0, 0, W, H); e[1].forEach(h => { c.moveTo(h[0] + h[2], h[1]); c.arc(h[0], h[1], h[2], 0, Math.PI * 2, true); }); c.fillStyle = 'rgba(5,4,14,.88)'; c.fill('evenodd'); c.restore(); break; }
+    case 'ship': { const [, x1, x2, y, tilt] = e; c.save(); c.translate((x1 + x2) / 2, y); c.rotate(R(tilt)); const hw = (x2 - x1) / 2; poly(c, [[-hw - 8, -6], [hw + 8, -6], [hw - 8, 18], [-hw + 8, 18]]); fs(c, '#8a5a3b', 1.8); c.fillStyle = 'rgba(22,19,44,.25)'; c.fillRect(-hw, 2, hw * 2, 2); c.fillRect(-hw + 4, 9, hw * 2 - 8, 2); iline(c, 0, -6, 0, -78, '#5a3a24', 2.6); poly(c, [[2, -74], [40, -62], [2, -40]]); fs(c, WHITE, 1.4); c.restore(); break; }
+    case 'castle': { const [, x1, x2, y] = e, w = x2 - x1; rr(c, x1, y - 30, w, 34, 6); fs(c, '#ffd23a', 1.8); rr(c, x1 + 8, y - 22, w - 16, 18, 5); fs(c, '#5fb6ff', 1.6); [x1, x2 - 18].forEach(tx => { rr(c, tx, y - 58, 18, 62, 6); fs(c, RED, 1.8); poly(c, [[tx - 2, y - 58], [tx + 9, y - 72], [tx + 20, y - 58]]); fs(c, BLUE, 1.6); }); for (let x = x1 + 22; x < x2 - 24; x += 14) { rr(c, x, y - 38, 10, 10, 4); fs(c, '#ffd23a', 1.4); } break; }
+    case 'blades': { const [, cx, cy, len, n, a0] = e; for (let i = 0; i < n; i++) { const a = R(a0 + i * 360 / n); iline(c, cx, cy, cx + Math.cos(a) * len, cy + Math.sin(a) * len, '#e8dcc0', 3); } circ(c, cx, cy, 5); fs(c, RED, 1.5); break; }
+    case 'spot': { const [, x, w] = e; poly(c, [[x - 4, 0], [x + 4, 0], [x + w, S.fy], [x - w, S.fy]]); c.fillStyle = 'rgba(255,240,160,.35)'; c.fill(); break; }
+    case 'splat': { const [, x, y, col, r] = e, rad = r || 7; c.beginPath(); for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6, rr2 = rad * (i % 2 ? .6 : 1); c.lineTo(x + Math.cos(a) * rr2, y + Math.sin(a) * rr2 * .45); } c.closePath(); fs(c, TEAM[col] || col, 1.1); break; }
+    case 'dial': { const [, x, y, r] = e, cols = [RED, BLUE, SUN, '#3fbf5f', '#a45cff']; cols.forEach((col, i) => { c.beginPath(); c.moveTo(x, y); c.arc(x, y, r, R(i * 72), R(i * 72 + 72)); c.closePath(); fs(c, col, 1.2); }); circ(c, x, y, r); fs(c, null, 1.8); poly(c, [[x, y - r + 4], [x - 4, y - r - 6], [x + 4, y - r - 6]]); fs(c, WHITE, 1.3); break; }
+    case 'web': { const [, x, y, r] = e; c.strokeStyle = 'rgba(255,255,255,.85)'; c.lineWidth = 1; for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; c.beginPath(); c.moveTo(x, y); c.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r); c.stroke(); } for (let q = r / 3; q <= r; q += r / 3) { c.beginPath(); for (let i = 0; i <= 8; i++) { const a = i * Math.PI / 4; c.lineTo(x + Math.cos(a) * q, y + Math.sin(a) * q); } c.stroke(); } break; }
+    case 'sling': { const [, x, y] = e; iline(c, x, y, x, y - 10, '#a56a36', 2.4); iline(c, x, y - 10, x - 6, y - 20, '#a56a36', 2.4); iline(c, x, y - 10, x + 6, y - 20, '#a56a36', 2.4); c.beginPath(); c.moveTo(x - 6, y - 20); c.quadraticCurveTo(x - 4, y - 8, x + 6, y - 20); c.strokeStyle = '#ff4f9a'; c.lineWidth = 1.4; c.stroke(); break; }
+    case 'spray': { const [, x, y, a, len] = e; c.save(); c.translate(x, y); c.rotate(R(a)); c.strokeStyle = 'rgba(160,220,255,.95)'; c.lineWidth = 1.4; c.setLineDash([3, 2]); for (let i = -1; i <= 1; i++) { c.beginPath(); c.moveTo(0, 0); c.lineTo(len, i * len * .2); c.stroke(); } c.restore(); rr(c, x - 4, y - 4, 8, 8, 2); fs(c, '#4a4f5e', 1.2); break; }
+    case 'ripple': { const [, x, y, col] = e; c.strokeStyle = col || 'rgba(255,255,255,.9)'; c.lineWidth = 1.2; [7, 12, 17].forEach(r => { ell(c, x, y, r, r * .32); c.stroke(); }); break; }
+    case 'tunnel': { const [, x, y] = e; poly(c, [[x, S.fy], [x, y + 20], [x + 20, y], [W + 4, y - 8], [W + 4, S.fy]]); fs(c, '#6b5a4a', 1.8); rr(c, x + 6, y + 22, W - x, S.fy - y - 22, 10); fs(c, '#1a1426', 1.4); break; }
+    case 'shoji': { const [, x, y, w, h] = e; rr(c, x, y, w, h, 1); fs(c, '#fff7e8', 1.6); c.strokeStyle = '#a56a36'; c.lineWidth = 1; for (let i = 1; i < 3; i++) { c.beginPath(); c.moveTo(x + w * i / 3, y); c.lineTo(x + w * i / 3, y + h); c.stroke(); } for (let i = 1; i < 4; i++) { c.beginPath(); c.moveTo(x, y + h * i / 4); c.lineTo(x + w, y + h * i / 4); c.stroke(); } break; }
+    case 'sign': { const [, x, y, s, col] = e; text(c, x, y, s, 9, col || INK, true); break; }
+    case 'mount': poly(c, e[1]); fs(c, e[2] || WHITE, 1.6); break;
+  }
+}
+
+// ======================================================================
+// Racing vocabulary: terrain polylines, funny cars with ragdoll drivers,
+// finish flags, checkpoints, boost pads, friction zones, ramps, bridges...
+// ======================================================================
+POSE.sit = { hip: [0, -6], neck: [1, -14], legs: [[7, -7], [7, -4]], arms: [[8, -11], [7, -9]] };
+TH.city = { sky: ['#7ec8ff', '#ffe9c4'], d: 'clouds', x: 'city' };
+TH.moon = { sky: ['#05060f', '#2a2350'], d: 'stars', x: 'earth' };
+const GM = {
+  grass: ['#8be070', '#5cbf4a', '#3a8a2f'], dirt: ['#c99a62', '#a5713f', '#6e4626'], road: ['#7a7f8e', '#5a5f6e', '#3e4250'],
+  sand: ['#ffe6a8', '#f2d48a', '#c9a25a'], snow: ['#ffffff', '#eef6ff', '#c3d8ee'], ice: ['#e6f6ff', '#bfe6ff', '#8cc6ea'],
+  mud: ['#9a7350', '#7a5a3a', '#4d3520'], wood: ['#e0a76a', '#c98b52', '#8f5a2c'], moon: ['#d9dce6', '#b5b9c8', '#7d8296'],
+  rock: ['#a39cb8', '#7d7594', '#4f4866'], candy: ['#ffd1ec', '#ff8cc6', '#d9529a'], cookie: ['#f0c27a', '#d9a050', '#a8712e'],
+  metal: ['#c9d0dc', '#8a90a3', '#5a6072'], cloud: ['#ffffff', '#f4f6ff', '#d5dcf5'], jelly: ['#a8ffd8', '#5fe0b0', '#2fa880'],
+  bouncy: ['#ffe27a', '#ff6b6b', '#d9433f'], carpet: ['#e06a9c', '#c0457a', '#93305b'], porcelain: ['#ffffff', '#eef2fb', '#c4cde0'],
+  basalt: ['#6a5a70', '#3b2f40', '#1d1622'], tile: ['#e6faff', '#bfe8e0', '#8fc4ba']
+};
+// terrain helpers used inside specs
+function wave(base, amp, n, ph, x0, x1) { x0 = x0 == null ? -4 : x0; x1 = x1 == null ? W + 4 : x1; const k = Math.max(2, Math.round((x1 - x0) / 6)), p = []; for (let i = 0; i <= k; i++) p.push([x0 + (x1 - x0) * i / k, base - Math.sin(i / k * Math.PI * 2 * n + (ph || 0)) * amp]); return p; }
+function sm(P, n) { n = n || 5; const out = []; for (let i = 0; i < P.length - 1; i++) { const p0 = P[i - 1] || P[i], p1 = P[i], p2 = P[i + 1], p3 = P[i + 2] || p2; for (let j = 0; j < n; j++) { const t = j / n, t2 = t * t, t3 = t2 * t; out.push([0, 1].map(k => .5 * (2 * p1[k] + (-p0[k] + p2[k]) * t + (2 * p0[k] - 5 * p1[k] + 4 * p2[k] - p3[k]) * t2 + (-p0[k] + 3 * p1[k] - 3 * p2[k] + p3[k]) * t3))); } } out.push(P[P.length - 1].slice()); return out; }
+function bumps(y, x0, x1, every, h) { const p = [[x0, y]]; for (let x = x0 + every / 2; x < x1 - 6; x += every) { p.push([x - 6, y], [x - 3, y - h * .8], [x, y - h], [x + 3, y - h * .8], [x + 6, y]); } p.push([x1, y]); return p; }
+function stairs(x0, y0, w, h, n) { const p = [[-4, y0]]; let x = x0, y = y0; for (let i = 0; i < n; i++) { x += w; p.push([x, y]); y += h; p.push([x, y]); } p.push([W + 4, y]); return p; }
+
+function surfAt(pts, x) { for (let i = 0; i < pts.length - 1; i++) { const [x1, y1] = pts[i], [x2, y2] = pts[i + 1]; if (x1 !== x2 && x >= Math.min(x1, x2) && x <= Math.max(x1, x2)) return y1 + (y2 - y1) * (x - x1) / (x2 - x1); } return null; }
+function groundAt(S, x) { let best = null; (S.g || []).forEach(p => { const y = surfAt(p[1], x); if (y != null && (best == null || y < best)) best = y; }); return best; }
+
+function ground(c, piece, seed, idx) {
+  const [m, pts] = piece, G = GM[m] || GM.grass;
+  if (!pts || pts.length < 2) return;
+  const x0 = pts[0][0], x1 = pts[pts.length - 1][0];
+  let top = H; pts.forEach(p => { if (p[1] < top) top = p[1]; });
+  const shape = () => { c.beginPath(); c.moveTo(x0, H + 4); pts.forEach(p => c.lineTo(p[0], p[1])); c.lineTo(x1, H + 4); c.closePath(); };
+  shape(); const g = c.createLinearGradient(0, top, 0, H); g.addColorStop(0, G[1]); g.addColorStop(1, G[2]); c.fillStyle = g; c.fill();
+  c.save(); shape(); c.clip();
+  const rnd = rng(seed * 53 + idx * 7 + 1), lo = Math.min(x0, x1), hi = Math.max(x0, x1);
+  const along = (step, f) => { for (let x = lo + 2; x < hi; x += step) { const y = surfAt(pts, x); if (y != null) f(x, y); } };
+  switch (m) {
+    case 'grass': c.strokeStyle = 'rgba(22,19,44,.28)'; c.lineWidth = 1; along(7, (x, y) => { const d = 5 + rnd() * 6; c.beginPath(); c.moveTo(x, y + d + 3); c.lineTo(x + 1.5, y + d); c.stroke(); }); break;
+    case 'road': c.save(); c.setLineDash([7, 6]); c.beginPath(); let st = 0; along(3, (x, y) => { st++ ? c.lineTo(x, y + 9) : c.moveTo(x, y + 9); }); c.strokeStyle = SUN; c.lineWidth = 1.8; c.stroke(); c.restore(); break;
+    case 'dirt': case 'sand': case 'rock': case 'mud': c.fillStyle = m === 'sand' ? 'rgba(120,80,30,.35)' : 'rgba(22,19,44,.28)'; for (let i = 0; i < 70; i++) { const x = lo + rnd() * (hi - lo), y = top + rnd() * (H - top); c.fillRect(x, y, 1.5, 1.5); } break;
+    case 'moon': for (let i = 0; i < 9; i++) { ell(c, lo + rnd() * (hi - lo), top + 10 + rnd() * (H - top), 3 + rnd() * 4, 1.4 + rnd() * 1.4); c.fillStyle = 'rgba(22,19,44,.18)'; c.fill(); } break;
+    case 'snow': case 'ice': c.strokeStyle = 'rgba(255,255,255,.9)'; c.lineWidth = 1.2; for (let i = 0; i < 10; i++) { const x = lo + rnd() * (hi - lo), y = top + 8 + rnd() * (H - top); c.beginPath(); c.moveTo(x, y); c.lineTo(x + 4, y - 3); c.stroke(); } break;
+    case 'wood': c.strokeStyle = 'rgba(22,19,44,.25)'; c.lineWidth = 1; for (let x = lo; x < hi; x += 12) { c.beginPath(); c.moveTo(x, top); c.lineTo(x, H); c.stroke(); } break;
+    case 'candy': c.strokeStyle = 'rgba(255,255,255,.55)'; c.lineWidth = 4; for (let x = lo - 150; x < hi; x += 14) { c.beginPath(); c.moveTo(x, H); c.lineTo(x + 150, H - 150); c.stroke(); } break;
+    case 'cookie': for (let i = 0; i < 16; i++) { ell(c, lo + rnd() * (hi - lo), top + 6 + rnd() * (H - top), 2.4, 1.6, rnd()); c.fillStyle = '#5a3a24'; c.fill(); } break;
+    case 'metal': c.fillStyle = 'rgba(22,19,44,.35)'; for (let y = top + 8; y < H; y += 10) for (let x = lo + 4; x < hi; x += 14) { circ(c, x, y, .9); c.fill(); } break;
+    case 'jelly': case 'porcelain': c.strokeStyle = 'rgba(255,255,255,.7)'; c.lineWidth = 2; for (let i = 0; i < 5; i++) { const x = lo + rnd() * (hi - lo), y = top + 10 + rnd() * (H - top); c.beginPath(); c.arc(x, y, 5, 3.6, 4.6); c.stroke(); } break;
+    case 'bouncy': c.fillStyle = 'rgba(255,226,122,.55)'; for (let x = lo; x < hi; x += 16) c.fillRect(x, top, 8, H - top); break;
+    case 'carpet': c.fillStyle = 'rgba(255,255,255,.15)'; for (let y = top + 6; y < H; y += 6) for (let x = lo + (y % 12 ? 0 : 6); x < hi; x += 12) c.fillRect(x, y, 6, 2); break;
+    case 'basalt': c.strokeStyle = '#ff7a00'; c.lineWidth = 1.2; for (let i = 0; i < 6; i++) { let x = lo + rnd() * (hi - lo), y = top + 10 + rnd() * (H - top); c.beginPath(); c.moveTo(x, y); for (let j = 0; j < 3; j++) { x += 3 + rnd() * 4; y += (rnd() - .5) * 6; c.lineTo(x, y); } c.stroke(); } break;
+    case 'tile': c.strokeStyle = 'rgba(22,19,44,.12)'; c.lineWidth = 1; for (let x = lo; x < hi; x += 12) { c.beginPath(); c.moveTo(x, top); c.lineTo(x, H); c.stroke(); } for (let y = top; y < H; y += 12) { c.beginPath(); c.moveTo(lo, y); c.lineTo(hi, y); c.stroke(); } break;
+  }
+  c.beginPath(); pts.forEach((p, i) => i ? c.lineTo(p[0], p[1] + 2) : c.moveTo(p[0], p[1] + 2)); c.strokeStyle = G[0]; c.lineWidth = 4; c.lineJoin = 'round'; c.stroke();
+  c.restore();
+  c.beginPath(); c.moveTo(x0, H + 4); pts.forEach(p => c.lineTo(p[0], p[1])); c.lineTo(x1, H + 4); inkS(c, 2); c.stroke();
+}
+
+// ---------------- cars: origin = ground under the middle, facing right; seat = driver's hip ----------------
+function wheel(c, x, r, col) {
+  circ(c, x, -r, r); fs(c, col || '#2a2540', 1.4);
+  if (r >= 7) { c.strokeStyle = INK; c.lineWidth = 1.6; for (let i = 0; i < 10; i++) { const a = i * Math.PI / 5; c.beginPath(); c.moveTo(x + Math.cos(a) * r, -r + Math.sin(a) * r); c.lineTo(x + Math.cos(a) * (r + 1.4), -r + Math.sin(a) * (r + 1.4)); c.stroke(); } }
+  circ(c, x, -r, r * .42); fs(c, '#c9ccd6', 1);
+}
+const VEH = {
+  kart: { seat: [-3, -9], wh: [[-11, 4.5], [11, 4.5]], over(c, k) { poly(c, [[-17, -4], [16, -4], [18, -8], [10, -10], [-10, -10], [-17, -15]]); fs(c, k, 1.5); line(c, 5, -10, 8, -15, INK, 1.6); rr(c, -20, -17, 7, 3, 1); fs(c, k, 1.3); } },
+  tub: { seat: [-2, -11], wh: [[-11, 3.5, SUN], [11, 3.5, SUN]], over(c) { c.beginPath(); c.moveTo(-18, -17); c.lineTo(18, -17); c.quadraticCurveTo(17, -4, 8, -4); c.lineTo(-8, -4); c.quadraticCurveTo(-17, -4, -18, -17); c.closePath(); fs(c, WHITE, 1.5); rr(c, -19, -19, 38, 3, 1.5); fs(c, '#e6ecf7', 1.3); iline(c, -15, -19, -15, -25, '#c9ccd6', 1.4); iline(c, -15, -25, -11, -25, '#c9ccd6', 1.4); [[-9, -21, 2.6], [12, -21, 2.4], [8, -23, 1.6]].forEach(b => { circ(c, b[0], b[1], b[2]); fs(c, 'rgba(255,255,255,.9)', 1); }); } },
+  cart: { seat: [0, -14], wh: [[-11, 3], [9, 3]], over(c) { c.save(); poly(c, [[-15, -23], [15, -23], [11, -8], [-12, -8]]); c.fillStyle = 'rgba(210,220,240,.35)'; c.fill(); c.clip(); c.strokeStyle = 'rgba(22,19,44,.55)'; c.lineWidth = .8; for (let x = -14; x < 15; x += 4) { c.beginPath(); c.moveTo(x, -23); c.lineTo(x, -8); c.stroke(); } for (let y = -19; y < -8; y += 4) { c.beginPath(); c.moveTo(-15, y); c.lineTo(15, y); c.stroke(); } c.restore(); poly(c, [[-15, -23], [15, -23], [11, -8], [-12, -8]]); fs(c, null, 1.5); line(c, -11, -8, -11, -4, INK, 1.6); line(c, 9, -8, 9, -4, INK, 1.6); iline(c, -15, -23, -21, -27, '#c9ccd6', 1.4); line(c, -23, -27, -20, -28, RED, 2.6); } },
+  hotdog: { seat: [-3, -12], wh: [[-11, 4], [11, 4]], under(c) { ell(c, 0, -9.5, 19.5, 4.2); fs(c, '#c0502e', 1.4); }, over(c) { c.beginPath(); c.moveTo(-17, -10); c.quadraticCurveTo(-17, -3, -10, -3); c.lineTo(10, -3); c.quadraticCurveTo(17, -3, 17, -10); c.quadraticCurveTo(0, -6, -17, -10); c.closePath(); fs(c, '#f2b866', 1.4); c.beginPath(); for (let i = 0; i <= 8; i++) c.lineTo(-15 + i * 3.8, -12 + (i % 2 ? -1.3 : 1.3)); c.strokeStyle = SUN; c.lineWidth = 1.5; c.stroke(); } },
+  couch: { seat: [-1, -12], wh: [[-12, 3.5], [12, 3.5]], under(c, k) { rr(c, -18, -24, 7, 20, 3); fs(c, k, 1.5); rr(c, -18, -12, 36, 8, 3); fs(c, k, 1.5); rr(c, -11, -14.5, 25, 4, 2); fs(c, 'rgba(255,255,255,.4)', 1.2); }, over(c, k) { rr(c, 12, -17, 7, 13, 3); fs(c, k, 1.5); } },
+  toilet: { seat: [-2, -13], wh: [[-10, 3.5], [10, 3.5]], under(c) { rr(c, -17, -28, 9, 16, 2); fs(c, WHITE, 1.5); rr(c, -18, -30, 11, 3, 1.5); fs(c, '#e6ecf7', 1.2); line(c, -10, -25, -7, -25, '#8a90a3', 1.6); c.beginPath(); c.moveTo(-10, -13); c.lineTo(13, -13); c.quadraticCurveTo(13, -5, 5, -4); c.lineTo(-2, -4); c.quadraticCurveTo(-10, -5, -10, -13); c.closePath(); fs(c, WHITE, 1.5); rr(c, -11, -14.5, 25, 3, 1.5); fs(c, '#f4f2ff', 1.2); } },
+  shoe: { seat: [-9, -14], wh: [[-11, 4], [11, 4]], over(c, k) { poly(c, [[-18, -6], [-17, -21], [-5, -21], [-3, -14], [10, -12], [17, -8], [18, -6]]); fs(c, k, 1.5); rr(c, -19, -8, 38, 4, 2); fs(c, WHITE, 1.4); [[-2, -14], [2, -13], [6, -12]].forEach(p => line(c, p[0], p[1], p[0] + 2, p[1] - 3, WHITE, 1.3)); } },
+  mower: { seat: [-6, -12], wh: [[-11, 5], [11, 3.5]], under(c) { rr(c, -12, -19, 3, 8, 1); fs(c, '#2a2540', 1.2); }, over(c) { rr(c, -16, -11, 34, 7, 3); fs(c, '#3fbf5f', 1.5); rr(c, 3, -17, 14, 7, 3); fs(c, '#3fbf5f', 1.5); c.fillStyle = SUN; c.fillRect(6, -15, 8, 2); iline(c, 2, -12, 4, -19, '#4a4f5e', 1.4); } },
+  bed: { seat: [-8, -12], wh: [[-12, 3.5], [12, 3.5]], under(c) { rr(c, -20, -26, 4, 22, 1.5); fs(c, '#a56a36', 1.5); rr(c, -17, -12, 35, 7, 2); fs(c, WHITE, 1.4); ell(c, -12, -14, 5, 2.6); fs(c, WHITE, 1.2); }, over(c, k) { rr(c, -5, -14.5, 23, 6, 2.5); fs(c, k, 1.4); c.fillStyle = 'rgba(255,255,255,.5)'; c.fillRect(1, -14.5, 3, 6); c.fillRect(9, -14.5, 3, 6); rr(c, 16, -18, 3, 14, 1.5); fs(c, '#a56a36', 1.4); } },
+  board: { seat: [0, -7.5], stand: 1, pose: 'w', wh: [[-9, 2.6], [9, 2.6]], under(c) { poly(c, [[-19, -12], [-29, -10.5], [-19, -9]]); fs(c, '#ff9f1c', 1.1); rr(c, -19, -13, 12, 5, 2.5); fs(c, '#c9ccd6', 1.3); poly(c, [[-7, -13], [-4, -10.5], [-7, -8]]); fs(c, RED, 1.1); }, over(c, k) { rr(c, -15, -7.5, 30, 3, 1.5); fs(c, k, 1.3); } },
+  pumpkin: { seat: [0, -15], wh: [[-11, 4], [11, 4]], over(c) { ell(c, 0, -13, 16, 10); fs(c, '#ff8a1c', 1.5); c.strokeStyle = 'rgba(22,19,44,.35)'; c.lineWidth = 1; [-7, 7].forEach(x => { ell(c, x, -13, 5, 9.6); c.stroke(); }); poly(c, [[7, -18], [11, -18], [9, -15]]); fs(c, '#ffd23a', 1); c.beginPath(); c.arc(9, -12, 4, .4, 2.2); c.strokeStyle = INK; c.lineWidth = 1.4; c.stroke(); line(c, -3, -23, -7, -27, '#3f9a33', 1.8); } },
+  chair: { seat: [-1, -15], wh: [[-9, 2.5], [9, 2.5]], under(c) { rr(c, -11, -33, 5, 15, 2); fs(c, '#2a2540', 1.4); iline(c, -8, -18, -6, -15, '#4a4f5e', 1.4); rr(c, -9, -16, 17, 4, 2); fs(c, '#4a4f5e', 1.4); iline(c, 0, -12, 0, -6, '#8a90a3', 1.6); iline(c, -9, -5, 9, -5, '#8a90a3', 1.6); } },
+  duck: { seat: [-4, -14], wh: [[-11, 4], [11, 4]], over(c) { poly(c, [[-14, -14], [-21, -20], [-15, -9]]); fs(c, SUN, 1.3); ell(c, 0, -11, 17, 7); fs(c, SUN, 1.5); circ(c, 11, -22, 6); fs(c, SUN, 1.5); poly(c, [[16, -23], [22, -21], [16, -19]]); fs(c, '#ff9f1c', 1.2); c.fillStyle = INK; c.fillRect(12.5, -24.5, 1.6, 1.6); ell(c, -3, -11, 7, 3.5, -.2); fs(c, '#ffd84a', 1.1); } },
+  monster: { seat: [-2, -24], wh: [[-12, 8], [12, 8]], under(c, k) { iline(c, -12, -8, -8, -18, '#8a90a3', 1.4); iline(c, 12, -8, 8, -18, '#8a90a3', 1.4); poly(c, [[-18, -17], [16, -17], [19, -21], [12, -23], [-18, -23]]); fs(c, k, 1.6); c.fillStyle = SUN; poly(c, [[2, -20], [10, -21], [6, -18]]); c.fill(); } },
+  bumper: { seat: [0, -12], wh: [[-9, 2.5], [9, 2.5]], under(c) { iline(c, -11, -12, -11, -36, '#8a90a3', 1.2); c.fillStyle = SUN; star(c, -11, -37, 3.5, 6); c.fill(); }, over(c, k) { rr(c, -16, -13, 32, 9, 4.5); fs(c, k, 1.5); rr(c, -18, -7, 36, 4, 2); fs(c, '#2a2540', 1.3); } },
+  cake: { seat: [1, -21], wh: [[-10, 4, '#c98b52'], [10, 4, '#c98b52']], under(c) { rr(c, -16, -14, 32, 10, 2); fs(c, '#ff8cc6', 1.5); rr(c, -16, -14, 32, 3, 1.5); fs(c, WHITE, 1.1); rr(c, -10, -21, 20, 7, 2); fs(c, '#fff3dc', 1.4); [-7, 8].forEach(x => { rr(c, x - 1, -26, 2, 5, .5); fs(c, '#5fe8ff', 1); ell(c, x, -28, 1.1, 1.8); c.fillStyle = SUN; c.fill(); }); } },
+  tractor: { seat: [-7, -17], wh: [[-9, 8], [12, 4.5]], under(c) { rr(c, -13, -24, 3, 9, 1); fs(c, '#2a2540', 1.2); }, over(c) { rr(c, -4, -15, 21, 8, 2); fs(c, '#3fbf5f', 1.5); rr(c, 5, -21, 11, 7, 2); fs(c, '#3fbf5f', 1.5); iline(c, 13, -21, 13, -29, '#4a4f5e', 1.6); c.beginPath(); c.arc(-9, -8, 10, Math.PI, 0); c.strokeStyle = INK; c.lineWidth = 3.6; c.stroke(); c.strokeStyle = '#3fbf5f'; c.lineWidth = 1.8; c.stroke(); } },
+  icecream: { seat: [7, -11], clip: [3, -24, 13, 10], wh: [[-11, 4], [11, 4]], under(c) { rr(c, -18, -27, 36, 23, 3); fs(c, WHITE, 1.5); c.fillStyle = '#ff8cc6'; c.fillRect(-17, -12, 34, 4); rr(c, -14, -23, 14, 8, 1.5); fs(c, '#5fe8ff', 1.2); rr(c, 3, -24, 13, 10, 2); fs(c, '#bfe6ff', 1.3); poly(c, [[-4, -33], [4, -33], [0, -27]]); fs(c, '#e8b94a', 1.2); circ(c, 0, -35, 4.5); fs(c, '#ff8cc6', 1.2); } },
+  banana: { seat: [-1, -12], wh: [[-11, 4], [11, 4]], over(c) { c.beginPath(); c.moveTo(-19, -17); c.quadraticCurveTo(0, 4, 19, -17); c.quadraticCurveTo(0, -6, -19, -17); c.closePath(); fs(c, SUN, 1.5); line(c, 19, -17, 21, -21, '#5a3a24', 2.2); circ(c, -19, -17, 1.6); fs(c, '#5a3a24', 0); poly(c, [[12, -12], [21, -24], [16, -10]]); fs(c, '#ffe27a', 1.2); } },
+  rocket: { seat: [-3, -13], wh: [[-11, 3.5], [11, 3.5]], under(c) { poly(c, [[-19, -13], [-31, -9.5], [-19, -6]]); fs(c, '#ff9f1c', 1.2); poly(c, [[-19, -11.5], [-25, -9.5], [-19, -7.5]]); c.fillStyle = SUN; c.fill(); }, over(c, k) { c.beginPath(); c.moveTo(-19, -14); c.lineTo(10, -14); c.quadraticCurveTo(22, -10, 10, -5); c.lineTo(-19, -5); c.closePath(); fs(c, k, 1.5); poly(c, [[-18, -14], [-11, -14], [-21, -22]]); fs(c, '#c9ccd6', 1.3); circ(c, 7, -9.5, 2); fs(c, WHITE, 1); c.beginPath(); c.arc(-3, -14, 12, Math.PI, 0); c.fillStyle = 'rgba(190,240,255,.4)'; c.fill(); inkS(c, 1.3); c.stroke(); } },
+  taco: { seat: [0, -16], wh: [[-10, 4], [10, 4]], under(c) { c.beginPath(); for (let i = 0; i <= 10; i++) c.lineTo(-13 + i * 2.6, -20 + (i % 2 ? -2.2 : 1)); c.lineTo(13, -15); c.lineTo(-13, -15); c.closePath(); fs(c, '#5cbf4a', 1.2); }, over(c) { c.beginPath(); c.arc(0, -19, 14, 0, Math.PI); c.closePath(); fs(c, '#f2c45a', 1.5); c.fillStyle = 'rgba(165,106,54,.5)'; [[-6, -12], [2, -9], [7, -14], [-2, -15]].forEach(p => { circ(c, p[0], p[1], 1.1); c.fill(); }); } },
+  fridge: { seat: [0, -36], wh: [[-9, 3.5], [9, 3.5]], under(c) { rr(c, -12, -36, 24, 31, 3); fs(c, WHITE, 1.5); line(c, -12, -24, 12, -24, INK, 1.3); iline(c, 9, -33, 9, -27, '#c9ccd6', 1.4); iline(c, 9, -21, 9, -13, '#c9ccd6', 1.4); c.fillStyle = RED; c.fillRect(-6, -19, 3, 3); c.fillStyle = BLUE; c.fillRect(-1, -15, 3, 3); } },
+  stroller: { seat: [1, -13], wh: [[-9, 4.5], [9, 4.5]], under(c, k) { iline(c, -12, -10, -21, -27, '#4a4f5e', 1.6); line(c, -24, -27, -19, -27, INK, 2.6); c.beginPath(); c.moveTo(-14, -12); c.arc(-4, -12, 10, Math.PI, Math.PI * 1.5); c.lineTo(-4, -12); c.closePath(); fs(c, k, 1.4); }, over(c, k) { c.beginPath(); c.moveTo(-14, -12); c.lineTo(15, -12); c.quadraticCurveTo(14, -5, 6, -5); c.lineTo(-8, -5); c.quadraticCurveTo(-14, -6, -14, -12); c.closePath(); fs(c, k, 1.5); c.fillStyle = 'rgba(255,255,255,.5)'; c.fillRect(-10, -10, 22, 1.6); } },
+  toaster: { seat: [-4, -17], wh: [[-10, 3.5], [10, 3.5]], under(c) { rr(c, 4, -28, 8, 9, 2); fs(c, '#e0a76a', 1.3); }, over(c) { rr(c, -15, -20, 30, 15, 5); fs(c, '#c9ccd6', 1.5); c.fillStyle = 'rgba(255,255,255,.65)'; c.fillRect(-12, -17, 2, 9); rr(c, 3, -21, 10, 2.4, 1); fs(c, INK, 0); rr(c, 15, -15, 3, 2.4, 1); fs(c, INK, 0); } }
+};
+function vehicle(c, x, y, kind, tm, tilt, s, fl) {
+  const V = VEH[kind] || VEH.kart, col = TEAM[tm] || tm || TEAM.n; fl = fl || '';
+  const sx = Array.isArray(s) ? s[0] : (s || 1), sy = Array.isArray(s) ? s[1] : (s || 1), has = (k) => fl.indexOf(k) >= 0;
+  c.save(); c.translate(x, y); c.rotate(R(tilt || 0)); c.scale(has('l') ? -sx : sx, sy);
+  if (has('h')) c.globalAlpha = .42;
+  if (has('s')) { c.strokeStyle = 'rgba(255,255,255,.9)'; c.lineWidth = 1.5; c.lineCap = 'round'; [-21, -14, -7].forEach((yy, i) => { c.beginPath(); c.moveTo(-23 - i * 2, yy); c.lineTo(-33 - i * 5, yy); c.stroke(); }); }
+  if (has('f')) { poly(c, [[-17, -12], [-30, -9], [-17, -5]]); fs(c, '#ff9f1c', 1.2); poly(c, [[-17, -10.5], [-24, -9], [-17, -7]]); c.fillStyle = SUN; c.fill(); }
+  if (V.under) V.under(c, col);
+  if (!has('e')) {
+    c.save();
+    if (V.clip) { rr(c, V.clip[0], V.clip[1], V.clip[2], V.clip[3], 2); c.clip(); }
+    const ds = .8, [qx, qy] = V.seat;
+    fighter(c, qx, V.stand ? qy : qy + 6 * ds, tm, V.pose || 'sit', ds, 0, has('k') ? 'crown' : has('m') ? 'helmet' : null);
+    c.restore();
+  }
+  if (V.over) V.over(c, col);
+  V.wh.forEach(w => wheel(c, w[0], w[1], w[2]));
+  c.restore();
+}
+
+// ---------------- extra objects (some sit on the ground: origin at their base) ----------------
+const BASE = { cone: 1, barrel: 1, tire: 1, hay: 1, oil: 1, peel: 1, cake: 1, sheep: 1, crab: 1, fuel: 1, pumpkin: 1, dog: 1, soda: 1 };
+function objR(c, x, y, k, s) {
+  s = s || 8;
+  c.save(); c.translate(x, y);
+  switch (k) {
+    case 'cone': poly(c, [[-s * .45, 0], [s * .45, 0], [s * .12, -s * 1.4], [-s * .12, -s * 1.4]]); fs(c, '#ff7a1c', 1.3); poly(c, [[-s * .32, -s * .5], [s * .32, -s * .5], [s * .24, -s * .8], [-s * .24, -s * .8]]); c.fillStyle = WHITE; c.fill(); rr(c, -s * .7, -s * .2, s * 1.4, s * .25, 1); fs(c, '#ff7a1c', 1.2); break;
+    case 'barrel': rr(c, -s * .6, -s * 1.5, s * 1.2, s * 1.5, s * .2); fs(c, '#d94a2f', 1.4); line(c, -s * .6, -s * .5, s * .6, -s * .5, INK, 1.1); line(c, -s * .6, -s, s * .6, -s, INK, 1.1); break;
+    case 'tire': for (let i = 0; i < 3; i++) { rr(c, -s * .8, -s * .55 * (i + 1), s * 1.6, s * .55, s * .27); fs(c, '#2a2540', 1.3); } break;
+    case 'hay': rr(c, -s, -s * 1.2, s * 2, s * 1.2, s * .25); fs(c, '#e8c25a', 1.4); c.strokeStyle = 'rgba(165,106,54,.6)'; c.lineWidth = 1; for (let i = -2; i <= 2; i++) { c.beginPath(); c.moveTo(i * s * .35, -s * 1.1); c.lineTo(i * s * .35 + 2, -s * .1); c.stroke(); } break;
+    case 'missile': poly(c, [[s * .9, -s * .3], [s * 1.5, -s * .7], [s * 1.5, s * .7], [s * .9, s * .3]]); fs(c, RED, 1.2); rr(c, -s * .8, -s * .32, s * 1.8, s * .64, s * .3); fs(c, '#c9ccd6', 1.3); poly(c, [[-s * .8, -s * .32], [-s * 1.4, 0], [-s * .8, s * .32]]); fs(c, RED, 1.2); poly(c, [[s * 1.5, -s * .2], [s * 2.3, 0], [s * 1.5, s * .2]]); fs(c, '#ff9f1c', 1); break;
+    case 'oil': ell(c, 0, -s * .15, s * 1.3, s * .3); fs(c, '#1d1a2e', 1.2); c.beginPath(); c.ellipse(-s * .2, -s * .2, s * .6, s * .1, 0, 3.4, 6); c.strokeStyle = '#ff4f9a'; c.lineWidth = 1; c.stroke(); break;
+    case 'magnet': c.beginPath(); c.arc(0, 0, s, Math.PI, 0); c.lineTo(s * .45, s * .8); c.lineTo(s * .45, 0); c.arc(0, 0, s * .45, 0, Math.PI, true); c.lineTo(-s * .45, s * .8); c.lineTo(-s, s * .8); c.closePath(); fs(c, RED, 1.5); c.fillStyle = '#c9ccd6'; c.fillRect(-s, s * .45, s * .55, s * .35); c.fillRect(s * .45, s * .45, s * .55, s * .35); break;
+    case 'peel': poly(c, [[-s * .2, 0], [-s, -s * .2], [-s * .3, -s * .5]]); fs(c, SUN, 1.1); poly(c, [[s * .2, 0], [s, -s * .2], [s * .3, -s * .5]]); fs(c, SUN, 1.1); poly(c, [[-s * .3, 0], [0, -s * .9], [s * .3, 0]]); fs(c, '#ffe27a', 1.1); rr(c, -s * .12, -s * 1.1, s * .24, s * .3, 1); fs(c, '#5a3a24', 0); break;
+    case 'cake': rr(c, -s, -s * 1.1, s * 2, s * 1.1, 2); fs(c, '#ff8cc6', 1.4); rr(c, -s, -s * 1.1, s * 2, s * .3, 1.5); fs(c, WHITE, 1.1); circ(c, 0, -s * 1.3, s * .22); fs(c, RED, 1); break;
+    case 'pizza': rr(c, -s, -s * .25, s * 2, s * .5, 1); fs(c, '#f2e2c4', 1.3); circ(c, 0, 0, s * .18); c.fillStyle = RED; c.fill(); break;
+    case 'sheep': [-.5, .4].forEach(f => line(c, f * s, -s * .5, f * s, 0, INK, 1.8)); c.beginPath(); [[-.5, -.9, .5], [0, -1.1, .55], [.5, -.9, .5], [0, -.7, .6]].forEach(p => { c.moveTo(p[0] * s + p[2] * s, p[1] * s); c.arc(p[0] * s, p[1] * s, p[2] * s, 0, Math.PI * 2); }); fs(c, WHITE, 1.3); ell(c, s * 1.05, -s * 1, s * .35, s * .28); fs(c, '#2a2540', 1.1); break;
+    case 'crab': ell(c, 0, -s * .5, s * .8, s * .45); fs(c, '#ec4a2f', 1.3); [-1, 1].forEach(d => { circ(c, d * s * 1.05, -s * .9, s * .32); fs(c, '#ec4a2f', 1.2); line(c, d * s * .3, -s * .9, d * s * .3, -s * 1.3, INK, 1); circ(c, d * s * .3, -s * 1.35, s * .12); fs(c, WHITE, .8); line(c, d * s * .5, -s * .2, d * s * .9, 0, INK, 1.2); }); break;
+    case 'ufo': ell(c, 0, -s * .3, s * .55, s * .5); fs(c, 'rgba(190,240,255,.7)', 1.3); ell(c, 0, 0, s * 1.3, s * .32); fs(c, '#a9b2c4', 1.5); [-.7, 0, .7].forEach(f => { circ(c, f * s, s * .05, s * .1); c.fillStyle = SUN; c.fill(); }); break;
+    case 'fuel': rr(c, -s * .6, -s * 1.3, s * 1.2, s * 1.3, 2); fs(c, RED, 1.4); rr(c, s * .1, -s * 1.6, s * .35, s * .35, 1); fs(c, SUN, 1.1); line(c, -s * .4, -s * 1.1, s * .3, -s * .3, '#ffd0c4', 1); break;
+    case 'crumb': poly(c, [[-s, s * .2], [-s * .6, -s * .7], [s * .3, -s * .8], [s, -s * .1], [s * .6, s * .7], [-s * .5, s * .6]]); fs(c, '#d9a050', 1.4); c.fillStyle = '#5a3a24'; circ(c, -s * .2, -s * .1, s * .18); c.fill(); circ(c, s * .4, s * .2, s * .14); c.fill(); break;
+    case 'hotdog': ell(c, 0, -s * .1, s * 1.15, s * .3); fs(c, '#c0502e', 1.2); ell(c, 0, s * .2, s, s * .32); fs(c, '#f2b866', 1.2); break;
+    case 'baby': circ(c, 0, 0, s); fs(c, '#ffd9b8', 2); c.fillStyle = INK; circ(c, -s * .35, -s * .1, s * .08); c.fill(); circ(c, s * .35, -s * .1, s * .08); c.fill(); ell(c, 0, s * .4, s * .22, s * .12); fs(c, '#5fe8ff', 1.4); circ(c, 0, s * .4, s * .07); c.fill(); c.beginPath(); c.arc(0, -s * .95, s * .2, Math.PI * .2, Math.PI * 1.6); inkS(c, 1.6); c.stroke(); ell(c, -s * .62, s * .2, s * .14, s * .08); c.fillStyle = 'rgba(255,120,150,.5)'; c.fill(); ell(c, s * .62, s * .2, s * .14, s * .08); c.fill(); break;
+    case 'pumpkin': ell(c, 0, -s * .6, s, s * .6); fs(c, '#ff8a1c', 1.4); line(c, 0, -s * 1.2, s * .2, -s * 1.5, '#3f9a33', 1.8); break;
+    case 'dog': ell(c, 0, -s * .45, s * 1.2, s * .45); fs(c, '#a56a36', 1.4); circ(c, s * 1, -s * .55, s * .45); fs(c, '#a56a36', 1.4); ell(c, s * .8, -s * .55, s * .2, s * .32, .4); fs(c, '#6e4626', 1); line(c, s * 1.1, -s * .6, s * 1.3, -s * .6, INK, 1); break;
+    case 'key': circ(c, -s * .6, 0, s * .4); fs(c, SUN, 1.3); circ(c, -s * .6, 0, s * .15); fs(c, INK, 0); rr(c, -s * .25, -s * .12, s * 1.2, s * .24, 1); fs(c, SUN, 1.2); rr(c, s * .6, 0, s * .15, s * .35, .5); fs(c, SUN, 1); break;
+    case 'soda': rr(c, -s * .4, -s * 1.2, s * .8, s * 1.2, 2); fs(c, '#5fe8ff', 1.3); c.fillStyle = WHITE; c.fillRect(-s * .4, -s * .8, s * .8, s * .3); break;
+    default: obj(c, 0, 0, k, s);
+  }
+  c.restore();
+}
+
+// ---------------- scene elements (racing) ----------------
+const SNAP = { o: 1, f: 1, cp: 1, finish: 1, msign: 1, tree: 1, jpad: 1, light: 1, cannon: 1, house: 1, ramp: 1, flag: 1, mole: 1 };
+function el(c, e, S) {
+  if (e[2] === null && SNAP[e[0]]) {
+    e = e.slice(); const gy = groundAt(S, e[1]); e[2] = gy == null ? S.fy : gy;
+    if (e[0] === 'o' && !BASE[e[3]]) e[2] -= (e[4] || 8) * .9;
+  }
+  const k = e[0];
+  switch (k) {
+    case 'o': objR(c, e[1], e[2], e[3], e[4]); return;
+    case 'v': {
+      let [, x, y, kind, tm, tilt, s, fl] = e; const sx = Array.isArray(s) ? s[0] : (s || 1);
+      if (y == null) { const ya = groundAt(S, x - 10 * sx), yb = groundAt(S, x + 10 * sx), a = ya == null ? yb : ya, b = yb == null ? ya : yb; y = a == null ? S.fy : (a + b) / 2; if (tilt == null && a != null) tilt = Math.atan2(b - a, 20 * sx) * 180 / Math.PI; }
+      vehicle(c, x, y, kind, tm, tilt || 0, s, fl); return;
+    }
+    case 'longdog': {
+      const [, x1, x2, tm] = e, y1 = groundAt(S, x1) || S.fy, y2 = groundAt(S, x2) || S.fy, len = Math.hypot(x2 - x1, y2 - y1);
+      c.save(); c.translate(x1, y1); c.rotate(Math.atan2(y2 - y1, x2 - x1));
+      rr(c, -2, -13.5, len + 4, 8, 4); fs(c, '#c0502e', 1.4);
+      fighter(c, len - 16, -11 + 4.8, tm, 'sit', .8);
+      rr(c, 0, -10, len, 7, 3.5); fs(c, '#f2b866', 1.4);
+      c.beginPath(); for (let x = 4, i = 0; x < len - 22; x += 3.6, i++) c.lineTo(x, -13 + (i % 2 ? -1.2 : 1.2)); c.strokeStyle = SUN; c.lineWidth = 1.5; c.stroke();
+      for (let x = 8; x <= len - 6; x += Math.max(18, (len - 14) / 4)) wheel(c, x, 3.5);
+      c.restore(); return;
+    }
+    case 'finish': {
+      const [, x, y, h] = e, hh = h || 40, q = 4;
+      iline(c, x, y, x, y - hh, WHITE, 1.6);
+      for (let i = 0; i < 4; i++) for (let j = 0; j < 3; j++) { c.fillStyle = (i + j) % 2 ? INK : WHITE; c.fillRect(x + 1 + i * q, y - hh + j * q, q, q); }
+      c.strokeStyle = INK; c.lineWidth = 1.3; c.strokeRect(x + 1, y - hh, q * 4, q * 3);
+      for (let j = 0; j < 2; j++) for (let i = 0; i < 2; i++) { c.fillStyle = (i + j) % 2 ? INK : WHITE; c.fillRect(x - 3 + i * 3, y + j * 3 - 1, 3, 3); }
+      return;
+    }
+    case 'cp': { const [, x, y, col] = e; iline(c, x, y, x, y - 24, WHITE, 1.4); rr(c, x, y - 24, 12, 8, 1.5); fs(c, col || '#3fbf5f', 1.3); c.strokeStyle = WHITE; c.lineWidth = 1.4; c.beginPath(); c.moveTo(x + 3, y - 20); c.lineTo(x + 5.5, y - 18); c.lineTo(x + 9.5, y - 22.5); c.stroke(); return; }
+    case 'boost': {
+      let [, x1, y1, x2, y2] = e; if (y1 == null) y1 = groundAt(S, x1) || S.fy; if (y2 == null) y2 = groundAt(S, x2) || S.fy;
+      const len = Math.hypot(x2 - x1, y2 - y1); c.save(); c.translate(x1, y1); c.rotate(Math.atan2(y2 - y1, x2 - x1));
+      rr(c, 0, -3.5, len, 4.5, 1.5); fs(c, '#ff4f9a', 1.3); c.strokeStyle = SUN; c.lineWidth = 1.6;
+      for (let x = 4; x < len - 4; x += 7) { c.beginPath(); c.moveTo(x, -2.8); c.lineTo(x + 3, -1.2); c.lineTo(x, .4); c.stroke(); }
+      c.restore(); return;
+    }
+    case 'jpad': { const [, x, y] = e; c.strokeStyle = INK; c.lineWidth = 1.4; c.beginPath(); for (let i = 0; i <= 6; i++) c.lineTo(x + (i % 2 ? 4 : -4), y - i * 1.4); c.stroke(); rr(c, x - 8, y - 11, 16, 3, 1.5); fs(c, RED, 1.3); arrow(c, x, y - 15, x, y - 27, SUN); return; }
+    case 'pool': {
+      const [, x1, x2, y, kind] = e, P = { water: ['#2a8fd6', '#155a96'], lava: ['#ff9a1a', '#c41e00'], slime: ['#8be04a', '#4f9a1f'], milk: ['#ffffff', '#dfe6f5'], choc: ['#8a5030', '#4a2410'], pit: ['#1a1530', '#05040c'], mud: ['#8a6440', '#4d3520'] }[kind || 'water'];
+      const g = c.createLinearGradient(0, y, 0, H); g.addColorStop(0, P[0]); g.addColorStop(1, P[1]); c.fillStyle = g; c.fillRect(x1, y, x2 - x1, H - y + 4);
+      if (kind === 'lava') { const rnd = rng(x1 * 7 + y); for (let i = 0; i < 8; i++) { circ(c, x1 + rnd() * (x2 - x1), y + 4 + rnd() * (H - y), 1.5 + rnd() * 2); fs(c, '#ffd23a', 1); } }
+      else if (kind !== 'pit') { c.strokeStyle = kind === 'milk' ? 'rgba(160,180,220,.7)' : 'rgba(255,255,255,.65)'; c.lineWidth = 1.2; for (let yy = y + 6; yy < H; yy += 8) { c.beginPath(); for (let x = x1; x <= x2; x += 4) c.lineTo(x, yy + Math.sin(x / 6 + yy) * 1.2); c.stroke(); } }
+      c.beginPath(); for (let x = x1; x <= x2; x += 3) c.lineTo(x, y + Math.sin(x / 5) * (kind === 'pit' ? 0 : 1)); inkS(c, 1.8); c.stroke();
+      return;
+    }
+    case 'zone': {
+      const [, kind, x1, x2] = e, Z = { mud: ['#6b4a2c', '#4d3520'], ice: ['#d9f2ff', WHITE], oil: ['#1d1a2e', '#ff4f9a'], foam: [WHITE, '#bfe6ff'], honey: ['#f2a81c', '#ffd23a'], slime: ['#6fd33a', '#b7ff7a'] }[kind] || ['#6b4a2c', '#4d3520'];
+      const pts = []; for (let x = x1; x <= x2; x += 3) { const y = groundAt(S, x); if (y != null) pts.push([x, y]); }
+      if (pts.length < 2) return;
+      c.beginPath(); pts.forEach((p, i) => i ? c.lineTo(p[0], p[1] - 1.5) : c.moveTo(p[0], p[1] - 1.5)); c.lineCap = 'round'; c.lineJoin = 'round'; c.strokeStyle = INK; c.lineWidth = 7; c.stroke(); c.strokeStyle = Z[0]; c.lineWidth = 4.6; c.stroke();
+      const rnd = rng(x1 * 13 + x2);
+      pts.forEach((p, i) => {
+        if (i % 3) return; const [x, y] = p;
+        if (kind === 'mud') { ell(c, x, y - 4, 2.6, 1.6); fs(c, Z[0], 1); }
+        else if (kind === 'ice') { line(c, x - 1, y - 2, x + 2, y - 4.5, WHITE, 1.2); }
+        else if (kind === 'oil') { c.beginPath(); c.ellipse(x, y - 1.5, 3, .9, 0, 3.4, 6); c.strokeStyle = i % 2 ? '#5fe8ff' : Z[1]; c.lineWidth = 1; c.stroke(); }
+        else if (kind === 'foam' || kind === 'slime') { circ(c, x, y - 4 - rnd() * 4, 1.6 + rnd() * 2.4); fs(c, kind === 'foam' ? 'rgba(255,255,255,.9)' : Z[1], 1); }
+        else if (kind === 'honey') { ell(c, x, y + 2, 1.4, 2.6); fs(c, Z[0], 1); }
+      });
+      return;
+    }
+    case 'ramp': { const [, x1, y, x2, h, col] = e; poly(c, [[x1, y], [x2, y - h], [x2, y]]); fs(c, col || '#e0a76a', 1.6); c.save(); poly(c, [[x1, y], [x2, y - h], [x2, y]]); c.clip(); c.strokeStyle = 'rgba(22,19,44,.3)'; c.lineWidth = 1; for (let i = 1; i < 6; i++) { const t = i / 6, px = x1 + (x2 - x1) * t; c.beginPath(); c.moveTo(px, y - h * t); c.lineTo(px, y); c.stroke(); } c.restore(); poly(c, [[x1, y], [x2, y - h], [x2, y]]); fs(c, null, 1.6); return; }
+    case 'bridge': {
+      const [, x1, x2, y, sag, broken] = e, sg = sag == null ? 6 : sag, n = Math.max(4, Math.round((x2 - x1) / 7)), yAt = t => y + Math.sin(t * Math.PI) * sg;
+      c.beginPath(); for (let i = 0; i <= n; i++) c.lineTo(x1 + (x2 - x1) * i / n, yAt(i / n) - 10); c.strokeStyle = '#7a4d2a'; c.lineWidth = 1.3; c.stroke();
+      for (let i = 0; i < n; i++) { if (broken && i % 3 === 1) continue; const t = (i + .5) / n, px = x1 + (x2 - x1) * t; line(c, px, yAt(t), px, yAt(t) - 10, '#7a4d2a', .8); rr(c, px - 3.2, yAt(t) - 1.5, 6.4, 3.5, 1); fs(c, '#c98b52', 1.1); }
+      iline(c, x1, y + 3, x1, y - 13, '#8f5a2c', 2); iline(c, x2, y + 3, x2, y - 13, '#8f5a2c', 2); return;
+    }
+    case 'plat': { const [, x, y, w, d] = e; rr(c, x, y, w, 6, 2); fs(c, '#a9b2c4', 1.5); c.fillStyle = SUN; for (let i = x + 3; i < x + w - 4; i += 8) c.fillRect(i, y + 1.5, 4, 3); if (d === 'h') arrow(c, x + w / 2 - 12, y + 13, x + w / 2 + 12, y + 13, SUN, true); if (d === 'v') arrow(c, x + w + 7, y - 8, x + w + 7, y + 14, SUN, true); return; }
+    case 'loop': { const [, cx, cy, r, col] = e; circ(c, cx, cy, r); c.strokeStyle = INK; c.lineWidth = 9; c.stroke(); c.strokeStyle = col || '#5a5f6e'; c.lineWidth = 6.4; c.stroke(); c.save(); c.setLineDash([3, 3]); circ(c, cx, cy, r); c.strokeStyle = SUN; c.lineWidth = 1; c.stroke(); c.restore(); return; }
+    case 'pow': { const [, x, y, s, str, col] = e; star(c, x, y, s * 1.6, 10, s); fs(c, col || SUN, 1.5); if (str) text(c, x, y + .5, str, Math.max(6, s * .8), WHITE); return; }
+    case 'tree': {
+      const [, x, y, s, kind] = e; c.save(); c.translate(x, y); c.scale(s || 1, s || 1);
+      if (kind === 'c') { rr(c, -3, -24, 6, 24, 3); fs(c, '#3f9a33', 1.4); rr(c, -10, -17, 4, 9, 2); fs(c, '#3f9a33', 1.3); rr(c, 6, -21, 4, 9, 2); fs(c, '#3f9a33', 1.3); line(c, -7, -9, -3, -9, '#3f9a33', 2.4); line(c, 3, -13, 7, -13, '#3f9a33', 2.4); }
+      else if (kind === 'palm') { c.beginPath(); c.moveTo(0, 0); c.quadraticCurveTo(-2, -14, 4, -28); c.strokeStyle = INK; c.lineWidth = 4.6; c.stroke(); c.strokeStyle = '#a56a36'; c.lineWidth = 2.6; c.stroke(); [-.4, .5, 1.3, 2.4, 3.0].forEach(a => { ell(c, 4 + Math.cos(a) * 8, -28 + Math.sin(a) * 2.5, 9, 2.6, a + (a > 1.6 ? -.4 : .4)); fs(c, '#3fbf5f', 1.2); }); }
+      else if (kind === 'r') { iline(c, 0, 0, 0, -12, '#8f5a2c', 2.6); circ(c, 0, -20, 10); fs(c, '#4fb84a', 1.5); circ(c, -3, -23, 3); c.fillStyle = 'rgba(255,255,255,.25)'; c.fill(); }
+      else if (kind === 'dead') { iline(c, 0, 0, 0, -22, '#5a4a5e', 2.4); iline(c, 0, -12, -8, -20, '#5a4a5e', 1.6); iline(c, 0, -16, 7, -25, '#5a4a5e', 1.6); }
+      else { iline(c, 0, 0, 0, -6, '#8f5a2c', 2.6); poly(c, [[-10, -5], [10, -5], [0, -20]]); fs(c, '#2f8a4a', 1.4); poly(c, [[-8, -13], [8, -13], [0, -28]]); fs(c, '#2f8a4a', 1.4); if (kind === 's') { poly(c, [[-3.5, -22], [3.5, -22], [0, -28]]); fs(c, WHITE, 1.1); } }
+      c.restore(); return;
+    }
+    case 'hills': { const [, y, col, amp, n, ph] = e; c.beginPath(); c.moveTo(-4, H + 2); for (let x = -4; x <= W + 4; x += 6) c.lineTo(x, y - Math.sin(x / W * Math.PI * 2 * (n || 1.5) + (ph || 0)) * (amp || 10)); c.lineTo(W + 4, H + 2); c.closePath(); c.fillStyle = col || 'rgba(255,255,255,.35)'; c.fill(); return; }
+    case 'cannon': { const [, x, y, a] = e; c.save(); c.translate(x, y - 8); c.rotate(R(-(a || 35))); rr(c, -6, -7, 30, 14, 5); fs(c, '#4a4560', 1.6); rr(c, 22, -8, 4, 16, 1.5); fs(c, '#2a2540', 1.4); c.fillStyle = RED; c.fillRect(4, -7, 4, 14); c.restore(); circ(c, x, y - 6, 7); fs(c, '#a56a36', 1.5); circ(c, x, y - 6, 2); fs(c, INK, 0); return; }
+    case 'msign': { const [, x, y, s, col] = e; iline(c, x, y, x, y - 14, '#8f5a2c', 1.6); text(c, x, y - 17, s, 7, INK, col || WHITE); return; }
+    case 'light': { const [, x, y, st] = e; iline(c, x, y, x, y - 18, '#4a4560', 1.8); rr(c, x - 5, y - 44, 10, 27, 2.5); fs(c, '#2a2540', 1.5); [['r', RED, -39], ['y', SUN, -31], ['g', '#3fbf5f', -23]].forEach(L => { circ(c, x, y + L[2], 3); fs(c, st === L[0] ? L[1] : '#4a4560', 1); }); return; }
+    case 'brush': { const [, x, y, r, col] = e; line(c, x, 0, x, y, INK, 2.4); for (let i = 0; i < 20; i++) { const a = i * Math.PI / 10, x1 = x + Math.cos(a) * r * .32, y1 = y + Math.sin(a) * r * .32, x2 = x + Math.cos(a) * r, y2 = y + Math.sin(a) * r; line(c, x1, y1, x2, y2, INK, 3.4); line(c, x1, y1, x2, y2, col, 1.8); } circ(c, x, y, r * .32); fs(c, '#4a4f5e', 1.3); carrow(c, x, y, r + 5, -70, 30, WHITE); return; }
+    case 'swirl': { const [, x, y, r] = e; c.strokeStyle = 'rgba(255,255,255,.95)'; c.lineWidth = 1.5; for (let i = 0; i < 3; i++) { c.beginPath(); c.ellipse(x, y, r - i * 4.5, (r - i * 4.5) * .35, 0, i, i + 4.4); c.stroke(); } return; }
+    case 'seesaw': { const [, cx, cy, len, ang] = e, gy = groundAt(S, cx) || S.fy; poly(c, [[cx - 9, gy], [cx + 9, gy], [cx, cy]]); fs(c, '#8a90a3', 1.6); c.save(); c.translate(cx, cy); c.rotate(R(ang)); rr(c, -len / 2, -5, len, 5, 2); fs(c, '#c98b52', 1.6); c.restore(); circ(c, cx, cy, 2.4); fs(c, SUN, 1.2); return; }
+    case 'beam': { const [, x, y1, y2, w] = e; poly(c, [[x - 7, y1], [x + 7, y1], [x + w, y2], [x - w, y2]]); c.fillStyle = 'rgba(170,255,140,.35)'; c.fill(); c.strokeStyle = 'rgba(200,255,180,.8)'; c.lineWidth = 1; for (let t = .25; t < 1; t += .25) { const yy = y1 + (y2 - y1) * t, ww = 7 + (w - 7) * t; ell(c, x, yy, ww, ww * .18); c.stroke(); } return; }
+    case 'train': {
+      const [, x, y, n] = e; for (let i = n || 1; i >= 1; i--) { const cx = x + 26 + (i - 1) * 30; rr(c, cx, y - 20, 26, 14, 2); fs(c, i % 2 ? BLUE : SUN, 1.5); [cx + 6, cx + 20].forEach(wx => { circ(c, wx, y - 4, 4); fs(c, '#2a2540', 1.3); }); line(c, cx - 4, y - 10, cx, y - 10, INK, 1.6); }
+      rr(c, x + 8, y - 30, 16, 24, 2); fs(c, RED, 1.6); rr(c, x + 11, y - 27, 9, 7, 1.5); fs(c, '#bfe6ff', 1.2); rr(c, x - 4, y - 20, 14, 14, 3); fs(c, RED, 1.6); rr(c, x, y - 32, 5, 12, 1); fs(c, '#2a2540', 1.3); poly(c, [[x - 4, y - 8], [x - 10, y - 1], [x - 4, y - 1]]); fs(c, '#c9ccd6', 1.3);
+      [x + 2, x + 16].forEach(wx => { circ(c, wx, y - 5, 5); fs(c, '#2a2540', 1.3); circ(c, wx, y - 5, 2); fs(c, '#c9ccd6', 1); }); cloud(c, x + 4, y - 40, .45, 'rgba(255,255,255,.9)'); return;
+    }
+    case 'house': { const [, x, y, col] = e; rr(c, x - 14, y - 20, 28, 20, 1); fs(c, col || '#ffd23a', 1.6); poly(c, [[x - 18, y - 19], [x, y - 34], [x + 18, y - 19]]); fs(c, RED, 1.6); rr(c, x - 4, y - 12, 8, 12, 1); fs(c, '#8f5a2c', 1.3); rr(c, x + 6, y - 16, 6, 6, 1); fs(c, '#bfe6ff', 1.2); return; }
+    case 'disc': { const [, x, y, r, col] = e; circ(c, x, y, r); c.fillStyle = col || 'rgba(22,19,44,.3)'; c.fill(); return; }
+    case 'planet': { const [, x, y, r] = e; circ(c, x, y, r); fs(c, '#5cbf4a', 2); c.save(); circ(c, x, y, r); c.clip(); c.fillStyle = '#2a8fd6'; ell(c, x - r * .3, y + r * .3, r * .4, r * .25); c.fill(); ell(c, x + r * .5, y - r * .2, r * .25, r * .18); c.fill(); c.restore(); circ(c, x, y, r); fs(c, null, 2); return; }
+    case 'curve': { const [, x1, y1, cx, cy, x2, y2, col, w] = e; c.beginPath(); c.moveTo(x1, y1); c.quadraticCurveTo(cx, cy, x2, y2); c.strokeStyle = INK; c.lineWidth = (w || 2) + 2.2; c.stroke(); c.strokeStyle = col || '#ff4f9a'; c.lineWidth = w || 2; c.stroke(); return; }
+    case 'log': { const [, x, y, r] = e; circ(c, x, y, r); fs(c, '#a56a36', 1.8); c.strokeStyle = 'rgba(22,19,44,.35)'; c.lineWidth = 1; [.7, .45, .2].forEach(f => { circ(c, x, y, r * f); c.stroke(); }); return; }
+    case 'rail': {
+      const pts = e[1]; for (let i = 0; i < pts.length; i += 4) { const [px, py] = pts[i]; iline(c, px, py + 2, px, H + 2, '#c98b52', 1.4); }
+      c.beginPath(); pts.forEach((p, i) => i ? c.lineTo(p[0], p[1]) : c.moveTo(p[0], p[1])); c.strokeStyle = INK; c.lineWidth = 5.4; c.lineJoin = 'round'; c.stroke(); c.strokeStyle = RED; c.lineWidth = 3; c.stroke();
+      c.beginPath(); pts.forEach((p, i) => i ? c.lineTo(p[0], p[1] + 5) : c.moveTo(p[0], p[1] + 5)); c.strokeStyle = INK; c.lineWidth = 3.4; c.stroke(); c.strokeStyle = RED; c.lineWidth = 1.4; c.stroke(); return;
+    }
+    default: elBase(c, e, S);
+  }
+}
+
+function backdropR(c, th, seed) {
+  backdrop(c, th, seed);
+  const T = TH[th] || {}, rnd = rng(seed * 41 + 3);
+  if (T.x === 'city') { c.fillStyle = 'rgba(70,80,130,.28)'; for (let x = -4; x < W; x += 18 + rnd() * 8) { const h = 30 + rnd() * 50; c.fillRect(x, 120 - h, 14 + rnd() * 6, h + 30); } }
+  if (T.x === 'earth') { circ(c, 206, 26, 12); fs(c, '#2f6fe0', 1.6); c.save(); circ(c, 206, 26, 12); c.clip(); c.fillStyle = '#3fbf5f'; ell(c, 202, 22, 6, 4); c.fill(); ell(c, 212, 31, 4, 3); c.fill(); c.restore(); }
+}
+
+function drawScene(cv, spec, seed) {
+  const cssW = cv.clientWidth || 240, dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+  const scale = cssW / W * dpr;
+  cv.width = Math.round(W * scale); cv.height = Math.round(H * scale);
+  const c = cv.getContext('2d');
+  c.setTransform(scale, 0, 0, scale, 0, 0);
+  const S = Object.assign({ th: 'day', fl: 'none', fy: 128, g: [], t: [], b: [], m: [], e: [] }, spec);
+  backdropR(c, S.th, seed);
+  S.b.forEach(e => el(c, e, S));
+  S.g.forEach((p, i) => ground(c, p, seed, i));
+  floor(c, S.fl, S.fy, seed);
+  S.m.forEach(e => el(c, e, S));
+  S.t.forEach(t => tramp(c, t, S.fy));
+  S.e.forEach(e => el(c, e, S));
+}
+
+// ======================================================================
+// The 100 race ideas. [name, ruleset, fun, chaos, pitch, how it plays, mockup spec]
+// Spec: th theme, g terrain pieces [material, points] (each fills to the bottom; gaps are pits),
+// b back layer, m mid layer (in front of terrain), t trampolines, e front layer, fy floor y for trampoline legs.
+// Cars: ['v', x, y, kind, team, tilt, scale, flags]; y null = sit on the terrain (tilt null = follow the slope).
+// Car flags: e empty seat (driver flew out), s speed lines, f rocket flame, l facing left, h ghost, k crown.
+// ======================================================================
+const RULESETS = { Race: 'Race', Survival: 'Survival', Derby: 'Derby', Stunt: 'Stunt', Collect: 'Collect', Distance: 'Distance', King: 'King of the hill', Reflex: 'Reflex', Puzzle: 'Puzzle' };
+const IDEAS = [
+  // ----- building first: ranks 1-20, picked for fun, ruleset variety and what the engine can do -----
+  ['Avalanche!', 'Survival', 10, 10, 'A giant snowball rolls down the mountain behind you, swallowing everything it touches.',
+    'Race downhill while the snowball grows with every cow, tree and car it scoops up. Get rolled up and you are out, spinning around inside it, so keep the gas down and hop the bumps.',
+    { th: 'ice', b: [['hills', 72, 'rgba(255,255,255,.55)', 12, 1.2, 2], ['tree', 214, 112, .7, 's'], ['tree', 230, 116, .55, 's']], g: [['snow', sm([[-4, 58], [40, 66], [90, 84], [130, 92], [175, 106], [244, 118]])]], e: [['o', 36, 34, 'snow', 28], ['o', 24, 20, 'cow', 6], ['v', 52, 24, 'tub', 'n', 140, .55, 'e'], ['v', 20, 46, 'kart', 'o', -100, .5, 'e'], ['carr', 36, 34, 34, 200, 290], ['v', 118, null, 'couch', 'r', null, .85], ['v', 176, null, 'shoe', 'b', null, .85, 's'], ['f', 150, 54, 'g', 'x', .7, 60], ['cp', 212, null], ['txt', 170, 24, 'ROLL!', 11, SUN]] }],
+  ['Banana Peel Grand Prix', 'Race', 10, 10, 'Everyone gets unlimited banana peels. Everyone.',
+    'Punch drops a peel behind you, so the road fills up fast. Slip on one and your car spins out and flings your driver into the next peel, and near the finish a monkey starts throwing them too.',
+    { th: 'day', b: [['hills', 96, '#9ad88a', 10, 2, 1], ['tree', 26, 100, .7, 'r'], ['tree', 206, 98, .8, 'r']], g: [['road', wave(114, 5, 1.5, 0)]], e: [['o', 46, null, 'peel', 5], ['o', 76, null, 'peel', 5], ['o', 142, null, 'peel', 5], ['o', 158, null, 'peel', 5], ['o', 60, 70, 'crate', 6], ['v', 102, 84, 'hotdog', 'b', -160, .85, 'e'], ['carr', 102, 80, 20, -150, 60], ['f', 126, 54, 'b', 'x', .8, 40], ['v', 192, null, 'kart', 'r', null, .85, 's'], ['arr', 172, 98, 162, 106], ['finish', 226, null, 40], ['txt', 54, 26, 'SLIP!', 11, SUN]] }],
+  ['Cow-tapult', 'Distance', 10, 9, 'Park on one end of a giant seesaw. A cow drops on the other end.',
+    'Drive up the plank and stop before the cow lands; the closer to the tip you park, the farther you fly. Lean in the air to land on the bouncy hay bales for extra distance.',
+    { th: 'farm', b: [['hills', 104, '#a8dc8a', 6, 1, 1]], g: [['grass', [[-4, 120], [244, 120]]]], e: [['seesaw', 56, 106, 80, -18], ['o', 26, 70, 'cow', 9], ['arr', 26, 84, 26, 96], ['dline', [[94, 88], [122, 50], [156, 34], [196, 52]]], ['v', 172, 42, 'tub', 'r', 15, .8, 's'], ['o', 204, null, 'hay', 7], ['o', 222, null, 'hay', 7], ['msign', 120, null, '10m'], ['msign', 156, null, '20m'], ['txt', 60, 24, 'MOOO!', 11, SUN]] }],
+  ['Trampoline Highway', 'Race', 10, 9, 'The road has huge gaps, and the only way across is bouncing on trampolines.',
+    'Every gap has a trampoline at the bottom: drop in at the right speed and you boing up onto the next piece of road. Lean to land on your wheels, or flop off and bounce again.',
+    { th: 'sunset', fy: 146, b: [['pool', 60, 120, 138, 'pit'], ['pool', 170, 214, 138, 'pit']], g: [['road', [[-4, 96], [60, 96]]], ['road', [[120, 86], [170, 86]]], ['road', [[214, 76], [244, 76]]]], t: [[66, 114, 132, 'g'], [174, 210, 128, 'g']], e: [['v', 36, null, 'pumpkin', 'b', null, .8], ['dline', [[60, 92], [80, 124], [96, 98], [108, 74]]], ['v', 100, 66, 'bed', 'r', -25, .8], ['txt', 88, 114, 'BOING!', 8, SUN], ['v', 150, null, 'duck', 'n', null, .8], ['finish', 228, null, 36]] }],
+  ['Flush Rush', 'Derby', 9, 10, 'A sumo arena in a giant toilet bowl, and every 20 seconds someone pulls the chain.',
+    'Bump the others toward the drain in the middle. When it flushes the whole bowl swirls, cars slide round and round, and whoever goes down the hole is out.',
+    { th: 'kitchen', b: [['pool', 100, 140, 120, 'water']], g: [['porcelain', sm([[-4, 34], [30, 62], [70, 100], [102, 116]])], ['porcelain', sm([[138, 116], [170, 100], [210, 62], [244, 34]])]], e: [['swirl', 120, 124, 16], ['f', 120, 110, 'g', 'x', .7, 150], ['v', 72, null, 'toilet', 'r', null, .8], ['v', 166, null, 'duck', 'b', null, .8, 'l'], ['v', 196, null, 'kart', 'n', null, .7, 'l'], ['rope', 26, 0, 26, 26, INK, 1.2], ['blk', 21, 26, 10, 6, SUN, 3], ['txt', 120, 22, 'FLUSH!', 12, '#5fe8ff'], ['carr', 120, 118, 28, 200, 340]] }],
+  ['Hot Potato Truck', 'Derby', 9, 10, 'A ticking bomb sits on one car’s roof. Bump someone to pass it on.',
+    'The bomb hops to whoever you crash into. When the timer hits zero it pops in a cloud of confetti and launches that driver into the sky; the last driver left wins.',
+    { th: 'party', g: [['wood', sm([[-4, 64], [18, 98], [50, 118], [190, 118], [222, 98], [244, 64]])]], e: [['v', 88, null, 'cake', 'r', null, .9], ['o', 92, 72, 'bomb', 7], ['txt', 108, 60, '3', 11, '#ff4f9a'], ['arr', 112, 100, 136, 100, SUN, true], ['v', 160, null, 'bumper', 'b', null, .9, 'l'], ['f', 204, 40, 'n', 'x', .8, 30], ['pow', 210, 56, 7], ['txt', 120, 18, 'TICK TOCK', 9, SUN]] }],
+  ['King of the Hump', 'King', 9, 9, 'One big hill. Park on top to score. Everybody else wants that spot.',
+    'Points tick up while your car sits by the summit flag. Ram, honk and hop to knock the king down the slopes into the mud at the bottom.',
+    { th: 'farm', g: [['grass', sm([[-4, 124], [40, 122], [84, 98], [110, 72], [130, 72], [156, 98], [200, 122], [244, 124]])]], m: [['zone', 'mud', -4, 46], ['zone', 'mud', 194, 244]], e: [['flag', 132, 72, SUN], ['v', 116, null, 'couch', 'r', null, .8, 'k'], ['v', 74, null, 'monster', 'b', null, .7], ['v', 168, null, 'chair', 'n', null, .8, 'l'], ['txt', 120, 22, '+1 +1 +1', 10, SUN]] }],
+  ['Moo-ve Over!', 'Race', 9, 9, 'Race across a farm while a stampede of cows thunders down the road toward you.',
+    'Hop over the herd, or bonk into a cow and your driver lands on its back for a few seconds of cow riding. Some cows are faster than some cars.',
+    { th: 'farm', b: [['hills', 100, '#a8dc8a', 8, 1.5, 0], ['rope', -4, 96, 244, 96, '#a56a36', 1.6], ['post', 30, 106, 92], ['post', 90, 106, 92], ['post', 150, 106, 92], ['post', 210, 106, 92]], g: [['dirt', wave(116, 4, 1.5, .5)]], e: [['o', 124, null, 'cow', 9], ['o', 166, null, 'cow', 8], ['o', 214, null, 'cow', 9], ['arr', 236, 84, 210, 84], ['arr', 184, 90, 158, 90], ['v', 120, 84, 'mower', 'r', -12, .8], ['f', 164, 104, 'b', 'j', .7], ['v', 48, null, 'tractor', 'n', null, .8], ['txt', 70, 26, 'MOO!', 11, SUN]] }],
+  ['Car Wash of Doom', 'Race', 9, 9, 'Race straight through a giant car wash full of spinning brushes and soap.',
+    'Brushes spin you upside down, foam hides the road and the air dryer blows light cars backward. You come out the other end squeaky clean, or in pieces.',
+    { th: 'kitchen', b: [['blk', -4, -4, 248, 12, '#4a4f5e', 0]], g: [['tile', [[-4, 120], [244, 120]]]], m: [['zone', 'foam', 30, 210]], e: [['brush', 76, 72, 20, BLUE], ['brush', 150, 78, 20, '#ff4f9a'], ['v', 76, 92, 'tub', 'b', 170, .75], ['bub', 112, 104, 6], ['bub', 122, 94, 4], ['bub', 104, 90, 3], ['bub', 132, 108, 5], ['v', 196, null, 'shoe', 'r', null, .85], ['fan', 230, 50, -90], ['arr', 214, 50, 196, 50, WHITE], ['sign', 120, 22, 'CAR WASH']] }],
+  ['Pop Goes the Bumper', 'Derby', 9, 9, 'Every car has three balloons tied on the back. Pop the others with your pointy hood.',
+    'Each car gets a spike on the front. Ram balloons to pop them; lose all three and your car deflates like a whoopee cushion and floats off the arena.',
+    { th: 'circus', g: [['wood', sm([[-4, 56], [16, 104], [50, 120], [190, 120], [224, 104], [244, 56]])]], e: [['bal', 52, 72, 'r'], ['bal', 62, 66, 'r'], ['bal', 70, 74, 'r'], ['v', 88, null, 'bumper', 'r', null, .85], ['poly', [[101, 106], [111, 108.5], [101, 111]], '#c9ccd6', 1.2], ['v', 160, null, 'stroller', 'b', null, .85, 'l'], ['bal', 184, 70, 'b'], ['pow', 124, 92, 8, 'POP!'], ['txt', 120, 22, '3 vs 1', 10, SUN]] }],
+  ['The Floor Is Lava (For Real)', 'Survival', 9, 9, 'Lava rises inside a volcano. Drive up the ledges to stay ahead of it.',
+    'Ramps and jump pads link the ledges up the mountain while the lava keeps creeping higher. Touch it and your driver shoots out like a toasted marshmallow, and you are out.',
+    { th: 'lava', g: [['basalt', [[-4, 116], [56, 116], [96, 96], [134, 96], [174, 70], [244, 70]]]], m: [['pool', -4, 244, 122, 'lava'], ['arr', 26, 146, 26, 130, SUN], ['arr', 210, 146, 210, 130, SUN]], e: [['jpad', 120, null], ['v', 78, null, 'pumpkin', 'r', null, .8], ['v', 200, null, 'fridge', 'b', null, .7], ['f', 30, 100, 'n', 'x', .7, -30], ['cp', 226, null], ['txt', 70, 26, 'HOT HOT HOT', 9, SUN]] }],
+  ['Flippity Flop Halfpipe', 'Stunt', 9, 8, 'A giant skate halfpipe and 60 seconds to rack up flips and air time.',
+    'Gas down one side, fly off the other and lean to spin. Land on your wheels to bank the points; land on your head and the combo is gone and the crowd goes “ooooh”.',
+    { th: 'neon', g: [['wood', sm([[-4, 16], [8, 56], [26, 98], [56, 122], [184, 122], [214, 98], [232, 56], [244, 16]])]], e: [['v', 120, 54, 'board', 'r', 200, .9], ['carr', 120, 46, 26, -170, 100], ['v', 206, null, 'chair', 'b', null, .8], ['o', 72, 60, 'star', 5], ['o', 168, 66, 'star', 4], ['txt', 120, 16, 'DOUBLE FLIP!', 9, SUN]] }],
+  ['Brake Late, Mate!', 'Reflex', 9, 8, 'Drive full speed at a cliff edge. Whoever stops closest without going over wins.',
+    'Both cars go at once as see-through ghosts so nobody gets bumped. Brake too early and you lose; brake too late and you wave goodbye as your car sails into the sea.',
+    { th: 'sea', b: [['pool', 170, 244, 126, 'water']], g: [['dirt', [[-4, 92], [176, 92], [180, 150]]]], e: [['v', 154, null, 'icecream', 'r', null, .8], ['v', 108, null, 'duck', 'b', null, .8, 'h'], ['txt', 172, 100, '!', 9, '#ff2a4a'], ['v', 206, 114, 'kart', 'n', 60, .65, 'e'], ['f', 196, 84, 'n', 'x', .65, 20], ['fin', 228, 128], ['ripple', 210, 128], ['txt', 110, 24, 'STOP!', 13, '#ff4f9a']] }],
+  ['Big Fat Ramp', 'Distance', 9, 8, 'One enormous ramp, one long field of stuff to land on.',
+    'Pick your speed and launch. Bounce off cows, trampolines and hay to keep going; your score is wherever the car finally stops, even if your driver keeps rolling.',
+    { th: 'day', fy: 128, b: [['hills', 110, '#9ad88a', 8, 1, 2]], g: [['grass', [[-4, 128], [244, 128]]]], t: [[184, 220, 120, 'g']], e: [['ramp', -4, 128, 56, 64], ['dline', [[56, 62], [100, 34], [150, 40], [196, 104]]], ['v', 112, 38, 'hotdog', 'r', 8, .85, 's'], ['o', 158, null, 'cow', 8], ['msign', 90, null, '50'], ['msign', 128, null, '100'], ['msign', 222, null, '200'], ['txt', 40, 22, 'WHEEE!', 10, SUN]] }],
+  ['Long Dog', 'Collect', 9, 8, 'Everyone drives a hot dog car, and every hot dog you grab makes it longer.',
+    'The longest dog when time runs out wins. Long dogs bridge gaps easily but get stuck on sharp hilltops, and a bump in the middle bends them in half.',
+    { th: 'day', g: [['grass', sm([[-4, 116], [40, 112], [90, 120], [140, 106], [190, 112], [244, 104]])]], e: [['longdog', 8, 98, 'r'], ['o', 134, 80, 'hotdog', 6], ['o', 164, 68, 'hotdog', 6], ['o', 214, 76, 'hotdog', 6], ['v', 192, null, 'hotdog', 'b', null, .8], ['txt', 52, 70, 'LOOOOONG', 9, SUN], ['txt', 134, 64, '+1', 8, WHITE]] }],
+  ['Piñata Parade', 'Collect', 8, 9, 'A piñata dangles over the track. Hit it with a jump and coins rain down.',
+    'Hop off the ramp to whack the piñata, then scramble for the coins and candy. Bump a rival and they drop half their coins on the road.',
+    { th: 'party', g: [['grass', wave(116, 5, 1, 0)]], e: [['ramp', 52, null, 92, 22], ['rope', 150, 0, 150, 22, INK, 1], ['o', 150, 32, 'pinata', 12], ['coin', 136, 64], ['coin', 162, 74], ['coin', 146, 88], ['o', 176, 60, 'candy', 4], ['v', 98, 72, 'taco', 'r', -24, .8], ['v', 202, null, 'cart', 'b', null, .8], ['pow', 132, 26, 6, 'WHACK']] }],
+  ['Squish the Cake Parade', 'Stunt', 8, 9, 'Monster trucks only, and the road is lined with giant cakes to flatten.',
+    'Every squish scores and jumping onto a whole row scores double. The splatter makes the road slippery, so the more you squash the wilder it gets.',
+    { th: 'candy', g: [['road', [[-4, 120], [244, 120]]]], e: [['ramp', 10, 120, 54, 24], ['v', 86, 72, 'monster', 'r', 12, .85], ['o', 120, null, 'cake', 8], ['o', 140, null, 'cake', 8], ['o', 160, null, 'cake', 8], ['splat', 206, 120, '#ff8cc6', 14], ['v', 206, null, 'monster', 'b', null, .75], ['txt', 140, 30, 'SQUISH x3', 10, SUN]] }],
+  ['Crumbly Cookie Road', 'Survival', 8, 9, 'The road is one giant cookie, and it crumbles away behind the leader.',
+    'Chunks of road break off a few seconds after the first car passes, so stay near the front. Fall through a crumb hole into the milk and you are out.',
+    { th: 'candy', b: [['pool', -4, 244, 128, 'milk']], g: [['cookie', [[58, 100], [244, 100]]]], e: [['o', 46, 108, 'crumb', 7], ['o', 14, 116, 'crumb', 8], ['o', 30, 128, 'crumb', 6], ['o', 50, 124, 'crumb', 4], ['v', 22, 92, 'chair', 'n', 40, .7, 'e'], ['f', 34, 66, 'n', 'x', .7, -20], ['v', 112, null, 'toaster', 'b', null, .85], ['v', 186, null, 'board', 'r', null, .85], ['txt', 80, 28, 'CRUNCH!', 10, SUN]] }],
+  ['Moon Buggy Bounce', 'Race', 8, 8, 'Race on the moon, where every bump launches you into slow motion.',
+    'Low gravity means huge floaty jumps over craters. Hop at the wrong moment and you drift gently past the finish flag, waving.',
+    { th: 'moon', g: [['moon', sm([[-4, 112], [40, 118], [70, 106], [100, 122], [130, 122], [160, 104], [200, 114], [244, 108]])]], e: [['dline', [[30, 110], [56, 66], [84, 48], [118, 52], [146, 70]]], ['v', 92, 50, 'bed', 'r', -10, .8], ['v', 180, null, 'cart', 'b', null, .8], ['boost', 120, null, 144, null], ['finish', 226, null, 36], ['txt', 120, 22, 'floaty...', 9, WHITE]] }],
+  ['Wobbly Pizza Delivery', 'Puzzle', 8, 8, 'Deliver a tall stack of pizza boxes across a bumpy town without dropping any.',
+    'The boxes sit loose on your driver’s head and slide with every bump. Go fast and they fly off; go slow and the other team gets there first. Points for every box that arrives.',
+    { th: 'city', g: [['road', wave(118, 5, 1.5, 2)]], e: [['v', 70, null, 'kart', 'r', null, .9], ['o', 70, 99, 'pizza', 7], ['o', 72, 95.5, 'pizza', 7], ['o', 75, 92, 'pizza', 7], ['o', 79, 88.5, 'pizza', 7], ['o', 106, 70, 'pizza', 7], ['arr', 88, 84, 100, 74], ['v', 150, null, 'stroller', 'b', null, .85], ['o', 151, 96, 'pizza', 7], ['house', 214, null, '#ff9f1c'], ['txt', 120, 24, 'WOBBLE', 10, SUN]] }],
+
+  // ----- the pool: 21-100, sorted by total -----
+  ['Shove Off!', 'Derby', 9, 9, 'A tiny raft over shark water that shrinks every 15 seconds.',
+    'Push the others off the edges. As the raft gets smaller there is less and less room, and the sharks are very patient.',
+    { th: 'sea', g: [['wood', [[50, 104], [190, 104]]]], m: [['pool', -4, 244, 112, 'water']], e: [['shark', 30, 122, 1], ['fin', 214, 112], ['v', 100, null, 'duck', 'r', null, .8], ['v', 150, null, 'shoe', 'b', null, .8, 'l'], ['arr', 34, 96, 50, 96, '#ff4f9a'], ['arr', 206, 96, 190, 96, '#ff4f9a'], ['txt', 120, 24, 'SHRINKING!', 10, SUN]] }],
+  ['Tornado Alley', 'Survival', 8, 10, 'A tornado drifts along the track, sucking up cows, cars and drivers.',
+    'Stay out from under it or get spun into the sky with the cows. Whatever it spits out lands somewhere up the road, so getting sucked up is sometimes a shortcut and sometimes a pond.',
+    { th: 'storm', g: [['dirt', wave(118, 4, 1, 1)]], e: [['tor', 120, 84, 1.3], ['o', 100, 40, 'cow', 6], ['v', 144, 32, 'bed', 'n', 120, .6, 'e'], ['f', 110, 60, 'b', 'x', .6, 80], ['carr', 120, 60, 32, 200, 340], ['v', 40, null, 'kart', 'r', null, .8], ['o', 204, 54, 'cow', 6], ['arr', 204, 66, 212, 92]] }],
+  ['Rocket Socket', 'Race', 8, 10, 'Everyone rides a rocket skateboard, and the rocket never turns off.',
+    'There is no brake, only lean. Bumps send you somersaulting at top speed, and the loops and jumps can only be survived by leaning just right.',
+    { th: 'neon', g: [['metal', wave(118, 6, 1.5, 0)]], e: [['loop', 170, 78, 30], ['boost', 20, null, 52, null], ['v', 66, null, 'board', 'r', null, .9, 's'], ['v', 170, 51, 'board', 'b', 180, .8], ['o', 112, 72, 'crate', 6], ['txt', 70, 24, 'NO BRAKES', 10, SUN]] }],
+  ['Lightning Leader', 'Race', 8, 10, 'A thunderstorm follows the race and zaps whoever is in first place.',
+    'Being in front is dangerous: every few seconds lightning strikes the leader and frizzles their driver out of the car. Hang back, then sprint at the very end.',
+    { th: 'storm', g: [['grass', wave(116, 6, 1, 2)]], e: [['cloud', 160, 20, 1.3, '#7d8aa3'], ['bolt', 168, 58, 1.6], ['v', 170, null, 'mower', 'r', null, .85, 'e'], ['f', 182, 74, 'r', 'x', .8, 20], ['pow', 170, 102, 7], ['v', 90, null, 'pumpkin', 'b', null, .85], ['finish', 228, null, 36]] }],
+  ['Bouncy Castle Rally', 'Race', 9, 8, 'The whole track is a bouncy castle. Every bump is a launch.',
+    'Inflatable hills fling cars high in the air and bounce drivers right out of their seats. Lean to land on your wheels and keep boinging toward the finish.',
+    { th: 'party', g: [['bouncy', sm([[-4, 118], [30, 108], [60, 120], [100, 104], [140, 120], [180, 104], [220, 120], [244, 112]])]], e: [['v', 72, 54, 'tub', 'r', -30, .8, 'e'], ['f', 98, 36, 'r', 'x', .75, 30], ['dline', [[40, 112], [60, 70], [72, 56]]], ['v', 170, 74, 'couch', 'b', 15, .8], ['finish', 226, null, 34], ['txt', 150, 22, 'BOING BOING', 10, SUN]] }],
+  ['Dino Dash', 'Survival', 9, 8, 'A hungry T. rex chases the race. Last place is lunch.',
+    'The dinosaur speeds up whenever someone falls behind. If it catches you it gobbles your car and spits your driver out (very sticky), and you are out.',
+    { th: 'jungle', b: [['tree', 150, 112, .8, 'palm'], ['tree', 206, 114, 1, 'palm']], g: [['dirt', wave(118, 5, 1.2, 0)]], e: [['dino', 40, 120, 1, 1.6], ['v', 112, null, 'banana', 'r', null, .85, 's'], ['v', 184, null, 'duck', 'b', null, .85, 's'], ['txt', 64, 22, 'ROAR!', 12, SUN]] }],
+  ['Giant Baby’s Playroom', 'Survival', 8, 9, 'You are tiny cars on a playroom floor, and a giant baby wants to play.',
+    'The baby throws blocks, rolls balls and squeezes squeaky toys that blast you with wind. Survive two minutes of playtime without getting tossed into the toy box.',
+    { th: 'room', b: [['blk', 214, 96, 30, 30, '#a56a36'], ['sign', 228, 90, 'TOYS']], g: [['carpet', [[-4, 122], [244, 122]]]], e: [['o', 48, 44, 'baby', 26], ['o', 122, 72, 'block', 7], ['arr', 84, 52, 110, 66], ['o', 176, 112, 'ball', 9], ['v', 130, null, 'stroller', 'r', null, .8], ['v', 82, null, 'toaster', 'b', null, .8]] }],
+  ['Tug-o-Car', 'Derby', 8, 9, 'Two cars tied back to back with a rope. Drive apart and pull.',
+    'Floor it to drag the other car over the line into the mud. Hop for grip, and if the rope snaps both drivers go flying.',
+    { th: 'farm', g: [['grass', [[-4, 118], [244, 118]]]], m: [['zone', 'mud', 104, 136]], e: [['v', 72, null, 'tractor', 'r', null, .85, 'l'], ['v', 168, null, 'monster', 'b', null, .75], ['rope', 84, 108, 152, 102, '#7a4d2a', 1.8], ['flag', 120, 105, '#ff4f9a'], ['arr', 50, 86, 30, 86], ['arr', 190, 80, 210, 80], ['txt', 120, 24, 'PULL!', 12, SUN]] }],
+  ['Speed Bump City', 'Race', 8, 9, 'A city street with a speed bump every two car lengths.',
+    'Go fast and your car pops like popcorn while your driver bonks their head on everything. Go slow and you lose. Find the rhythm and surf the bumps.',
+    { th: 'city', g: [['road', bumps(120, -4, 244, 30, 6)]], e: [['v', 70, 104, 'shoe', 'r', -12, .8], ['txt', 86, 78, 'BONK', 7, WHITE], ['v', 160, null, 'fridge', 'b', null, .7], ['o', 214, null, 'cone', 6], ['txt', 130, 24, 'BONK BONK', 9, SUN]] }],
+  ['Choo Choo Hop', 'Reflex', 8, 9, 'Toy trains come rolling down the track at you. Hop!',
+    'Trains get longer and faster every wave. Time your hop to land on a roof and ride it, or jump clean over; get bonked and you are carried off backward.',
+    { th: 'day', g: [['dirt', [[-4, 120], [244, 120]]]], m: [['rope', -4, 117, 244, 117, '#c9ccd6', 2]], e: [['train', 150, 120, 2], ['arr', 146, 70, 126, 70], ['dline', [[56, 116], [84, 72], [116, 86]]], ['v', 88, 76, 'hotdog', 'r', -15, .8], ['v', 30, null, 'bed', 'b', null, .8], ['txt', 70, 22, 'CHOO CHOO!', 10, SUN]] }],
+  ['Spin Cycle', 'Survival', 8, 9, 'The arena is the inside of a giant washing machine drum, and it is turning.',
+    'The drum rolls slowly, then faster, carrying cars up the walls until they tumble. Socks and bubbles fly about; stay near the bottom and do not get flipped.',
+    { th: 'kitchen', e: [['disc', 120, 76, 66, '#4b5a7a'], ['ring', 120, 76, 66, '#c9ccd6', 8], ['v', 120, 138, 'couch', 'r', 0, .7], ['v', 73, 116, 'kart', 'b', 50, .7], ['v', 156, 52, 'tub', 'n', 160, .6, 'e'], ['f', 132, 40, 'n', 'x', .6, 80], ['o', 92, 62, 'sock', 6], ['bub', 166, 94, 5], ['bub', 176, 80, 3], ['carr', 120, 76, 50, 20, 110]] }],
+  ['Kangaroo Cars', 'Race', 8, 9, 'Every car hops along like a kangaroo, all the time.',
+    'Cars bounce on their own, so the trick is timing gas and lean to land on the next bump instead of in the pond. Hold hop for an extra-big boing.',
+    { th: 'desert', g: [['sand', wave(120, 3, 1, 0)]], m: [['pool', 118, 164, 118, 'water']], e: [['dline', [[20, 118], [50, 76], [86, 118]]], ['dline', [[86, 118], [140, 64], [184, 116]]], ['v', 50, 82, 'taco', 'r', -20, .8], ['v', 192, 92, 'pumpkin', 'b', 10, .8], ['tree', 224, null, .8, 'c'], ['txt', 120, 22, 'HOP HOP HOP', 9, SUN]] }],
+  ['Wrecking Ball Alley', 'Race', 8, 9, 'Giant wrecking balls swing across the road like pendulums.',
+    'Time your dash between swings. Get whacked and your car rolls over and over while your driver soars off into the distance.',
+    { th: 'factory', g: [['road', [[-4, 122], [244, 122]]]], e: [['pend', 80, 0, 100, 86, 14], ['pend', 170, 0, 150, 96, 14], ['o', 26, null, 'barrel', 6], ['v', 128, null, 'icecream', 'r', null, .8], ['v', 202, 92, 'cart', 'b', 130, .7, 'e'], ['f', 222, 50, 'b', 'x', .7, 40], ['pow', 188, 98, 7]] }],
+  ['Gravity Flip Freeway', 'Race', 8, 9, 'Hit the flip switch and gravity turns upside down for everyone.',
+    'Half the track is on the ceiling. Flip at the right moment to skip a pit, or flip on purpose to drop your rival off the road.',
+    { th: 'space', b: [['pool', 100, 150, 136, 'pit']], g: [['metal', [[-4, 124], [100, 124]]], ['metal', [[150, 124], [244, 124]]]], m: [['blk', -4, -4, 248, 30, '#8a90a3', 0]], e: [['v', 60, null, 'rocket', 'r', null, .8], ['v', 186, 26, 'chair', 'b', 180, .8], ['bump', 124, 76, 8, '#5fe8ff'], ['arr', 124, 62, 124, 40], ['arr', 124, 90, 124, 112], ['txt', 60, 48, 'FLIP!', 10, SUN]] }],
+  ['Bumper Ball', 'Collect', 8, 8, 'A giant beach ball and two goals. Push it in with your car.',
+    'It is car soccer: ram the ball, hop to header it and score in the other goal. The ball is huge and squashy, and it flattens drivers who get underneath.',
+    { th: 'day', g: [['grass', [[-4, 122], [244, 122]]]], e: [['goal', 2, 86, 22, 36], ['goal', 216, 86, 22, 36], ['o', 120, 100, 'ball', 22], ['v', 76, null, 'kart', 'r', null, .85], ['v', 172, null, 'duck', 'b', null, .85, 'l'], ['txt', 120, 18, '2 - 1', 12, SUN]] }],
+  ['Volcano Vroom', 'Distance', 8, 8, 'Drive into a volcano just as it erupts. The farthest landing wins.',
+    'Time your run so the blast catches you at full power; too early and you just get toasty. Lean in the air and bounce on the clouds to stay up longer.',
+    { th: 'lava', g: [['basalt', sm([[-4, 126], [30, 120], [66, 64], [92, 64], [130, 120], [244, 126]])]], e: [['poly', [[70, 64], [88, 64], [98, 8], [60, 8]], '#ff7a00', 1.4], ['o', 66, 30, 'rock', 4], ['o', 92, 20, 'rock', 3], ['dline', [[80, 40], [130, 22], [180, 40]]], ['v', 112, 30, 'pumpkin', 'r', 30, .8], ['cloud', 176, 64, 1, WHITE], ['msign', 222, null, '300m']] }],
+  ['Cannonball Car', 'Distance', 8, 8, 'Your car is loaded into a circus cannon. Boom.',
+    'Pick your angle, then fire. Lean in the air to bounce off balloons and trampolines; your distance is where the driver lands, wherever the car ends up.',
+    { th: 'circus', fy: 124, g: [['grass', [[-4, 124], [244, 124]]]], t: [[208, 238, 116, 'g']], e: [['cannon', 24, null, 35], ['dline', [[42, 100], [90, 52], [136, 42]]], ['v', 140, 44, 'toilet', 'r', 20, .75], ['bal', 178, 50, 'p'], ['bal', 194, 64, 'y'], ['msign', 196, null, '80m'], ['txt', 46, 28, 'BOOM!', 12, SUN]] }],
+  ['UFO Snatch', 'Survival', 7, 9, 'A UFO hovers over the track and beams up whoever it catches.',
+    'Hide under bridges and trees when the beam sweeps your way. Snatched cars get dropped somewhere random: a pond, a cow field, once in a while the finish line.',
+    { th: 'night', g: [['grass', wave(120, 4, 1, 0)]], e: [['beam', 130, 34, 122, 26], ['o', 130, 28, 'ufo', 16], ['v', 130, 82, 'bed', 'b', 20, .75, 'e'], ['f', 120, 64, 'b', 'x', .7, 60], ['bridge', 172, 232, 100, 3], ['v', 202, null, 'kart', 'r', null, .8], ['v', 48, null, 'cart', 'n', null, .8]] }],
+  ['Paint Splat Arena', 'Collect', 8, 8, 'Your tires paint the floor in your color. Most paint wins.',
+    'Drive everywhere in a small arena to cover it in red or blue. Jumps leave big splats, and driving over the other color repaints it yours.',
+    { th: 'party', g: [['tile', sm([[-4, 60], [20, 104], [56, 120], [184, 120], [220, 104], [244, 60]])]], e: [['splat', 60, 120, 'r', 16], ['splat', 100, 120, 'r', 12], ['splat', 150, 120, 'b', 16], ['splat', 192, 117, 'b', 12], ['v', 84, null, 'shoe', 'r', null, .8], ['v', 166, 84, 'tub', 'b', -15, .8], ['txt', 120, 22, '54% vs 46%', 10, SUN]] }],
+  ['Sky Island Hop', 'Race', 8, 8, 'A race across floating islands with jump pads between them.',
+    'Hit each pad at speed to sail over to the next island. Miss and you fall through the clouds back to the last checkpoint.',
+    { th: 'day', g: [['grass', [[-4, 90], [60, 90]]], ['grass', [[100, 76], [150, 76]]], ['grass', [[190, 64], [244, 64]]]], m: [['cloud', 30, 124, 2], ['cloud', 124, 134, 2.3], ['cloud', 214, 120, 2]], e: [['jpad', 50, null], ['jpad', 140, null], ['v', 24, null, 'kart', 'r', null, .8], ['dline', [[50, 62], [76, 44], [102, 62]]], ['v', 120, null, 'duck', 'b', null, .8], ['cp', 198, null], ['finish', 228, null, 32]] }],
+  ['Haunted Hill', 'Race', 8, 8, 'A spooky hill road where ghosts pop out and go BOO.',
+    'A boo makes your driver leap out of their seat in fright, so honk first to scare the ghost away. Bats, a wobbly bridge and a graveyard jump finish it off.',
+    { th: 'night', g: [['dirt', sm([[-4, 120], [60, 110], [120, 90], [170, 96], [244, 80]])]], e: [['o', 142, 58, 'ghost', 9], ['txt', 162, 42, 'BOO!', 10, WHITE], ['v', 110, null, 'pumpkin', 'r', null, .8, 'e'], ['f', 112, 64, 'r', 'j', .75], ['v', 50, null, 'icecream', 'b', null, .75], ['blk', 190, 76, 8, 12, '#8a8fa0', 4], ['blk', 200, 74, 8, 12, '#8a8fa0', 4], ['tree', 224, null, .9, 'dead']] }],
+  ['Hoop Troop Stunt Show', 'Stunt', 8, 8, 'Fly through a row of giant hoops off a stunt ramp.',
+    'Every hoop you sail through scores, and flipping through one scores triple. The hoops slide up and down, so watch the timing and lean.',
+    { th: 'circus', g: [['wood', [[-4, 124], [244, 124]]]], e: [['ramp', 10, 124, 60, 34], ['dline', [[60, 90], [110, 60], [170, 52], [222, 84]]], ['ring', 110, 62, 16, '#ff4f9a', 4], ['ring', 170, 54, 16, SUN, 4], ['v', 110, 68, 'rocket', 'r', -5, .65], ['arr', 196, 42, 196, 66, SUN, true], ['txt', 120, 18, 'x3 FLIP!', 10, SUN]] }],
+  ['Supermarket Sweep', 'Collect', 8, 8, 'Shopping carts only. Grab groceries as they fly off the shelves.',
+    'Everything you drive into lands in your cart and piles up high. A huge pile scores big but makes the cart tippy, and one bump spills it everywhere.',
+    { th: 'kitchen', b: [['blk', 6, 36, 70, 86, '#c9ccd6'], ['blk', 6, 64, 70, 3, '#8a90a3', 0], ['blk', 6, 92, 70, 3, '#8a90a3', 0], ['o', 22, 56, 'apple', 4], ['o', 40, 56, 'melon', 5], ['o', 60, 84, 'popcorn', 5]], g: [['tile', [[-4, 122], [244, 122]]]], e: [['v', 118, null, 'cart', 'r', null, .9], ['o', 114, 96, 'melon', 5], ['o', 124, 92, 'apple', 4], ['o', 118, 86, 'popcorn', 5], ['o', 152, 68, 'apple', 4], ['arr', 80, 60, 100, 72], ['v', 196, null, 'cart', 'b', null, .9]] }],
+  ['Green Means Go-Go', 'Reflex', 8, 8, 'A drag race that lasts three seconds. Launch on green.',
+    'Watch the lights: red, red, red... green! Go early and your car falls to pieces on the start line. Best of five, with new random cars every round.',
+    { th: 'dusk', g: [['road', [[-4, 120], [244, 120]]]], e: [['light', 30, null, 'g'], ['o', 54, null, 'cone', 5], ['v', 90, null, 'mower', 'r', null, .85, 's'], ['v', 170, null, 'chair', 'b', null, .85, 'e'], ['f', 180, 72, 'b', 'x', .75, 30], ['o', 198, 98, 'gear', 4], ['o', 158, 90, 'gear', 3], ['txt', 120, 24, 'GO!', 14, '#3fbf5f']] }],
+  ['Slip ’n’ Slam', 'Derby', 7, 9, 'A bumper car derby on a frozen pond. Nothing can stop.',
+    'On ice every crash sends both cars sliding forever. Cracks open holes in the middle as the round goes on; slide into one and you are out.',
+    { th: 'ice', g: [['ice', sm([[-4, 70], [20, 108], [50, 120], [190, 120], [220, 108], [244, 70]])]], e: [['hole', 124, 121, 16], ['v', 80, null, 'bumper', 'r', null, .85, 's'], ['v', 172, null, 'bumper', 'b', null, .85, 'l'], ['v', 214, null, 'bumper', 'n', null, .7, 'l'], ['txt', 120, 22, 'WHEEE', 10, WHITE]] }],
+  ['Hiccup Cars', 'Race', 7, 9, 'Every car has the hiccups and hops at random moments.',
+    'Hic! A hiccup can launch you over a cow or straight into a pond. Grab soda cans on the track to stop hiccuping for a little while.',
+    { th: 'farm', g: [['grass', wave(118, 4, 1, 0)]], e: [['v', 90, 82, 'cake', 'r', -10, .8], ['txt', 112, 62, 'HIC!', 9, WHITE], ['o', 140, null, 'cow', 7], ['v', 176, null, 'toaster', 'b', null, .8], ['txt', 192, 84, 'HIC!', 8, WHITE], ['o', 216, null, 'soda', 5]] }],
+  ['Jelly Road', 'Race', 7, 9, 'The road is made of jelly and wobbles whenever anyone lands on it.',
+    'Heavy cars make big waves that ripple down the track and toss the cars in front. Land hard right behind the leader to wobble them into the air.',
+    { th: 'candy', g: [['jelly', wave(112, 9, 2.5, 0)]], e: [['v', 60, null, 'fridge', 'r', null, .75], ['v', 160, 70, 'shoe', 'b', -25, .8], ['arr', 86, 92, 116, 92, '#ff4f9a'], ['txt', 120, 24, 'WOBBLE!', 10, SUN]] }],
+  ['Seesaw Showdown', 'King', 8, 8, 'A giant seesaw over the mud. Keep your end up to score.',
+    'You score while your car sits on the high end. Drive in too far and it tips, so it is a constant dance of balancing, bumping and sliding into the mud.',
+    { th: 'day', b: [['pool', -4, 244, 124, 'mud']], e: [['seesaw', 120, 92, 180, 10], ['v', 60, 80, 'couch', 'r', 10, .75, 'k'], ['v', 172, 98, 'monster', 'b', 10, .62], ['f', 222, 120, 'n', 'w', .7, 30], ['txt', 120, 22, 'TIP IT!', 10, SUN]] }],
+  ['Waterslide Wipeout', 'Race', 8, 8, 'Race down a twisting waterslide and splash into the pool at the bottom.',
+    'Water makes everything slippery and fast. Hop over the rails to cut corners, but miss and you belly-flop into the kiddie pool.',
+    { th: 'sea', b: [['pool', 150, 244, 122, 'water']], g: [['tile', sm([[-4, 30], [40, 50], [90, 80], [130, 104], [150, 112]])]], m: [['zone', 'foam', 10, 146]], e: [['v', 60, null, 'duck', 'r', null, .8], ['v', 118, null, 'tub', 'b', null, .8], ['ripple', 196, 124], ['f', 196, 118, 'n', 'x', .7, 80], ['txt', 196, 100, 'SPLASH!', 9, WHITE]] }],
+  ['Whack-a-Car', 'Reflex', 7, 9, 'Giant mallets pop out of the ground and bonk whatever is above them.',
+    'Warning circles flash a moment before each mallet. Brake or hop at the right time; a bonk squashes your car flat like a pancake for a few seconds.',
+    { th: 'gym', g: [['wood', [[-4, 122], [244, 122]]]], e: [['o', 84, 76, 'hammer', 14], ['v', 80, null, 'kart', 'r', 0, [1, .45]], ['warn', 162, 122, 14], ['v', 196, null, 'bed', 'b', null, .8], ['txt', 70, 40, 'BONK!', 11, SUN]] }],
+  ['Bowling Bash', 'Collect', 8, 7, 'A bowling lane for cars. Knock down giant pins.',
+    'Take turns roaring down the lane into ten huge pins. Bonus points for flips on the way, and a strike makes the pins do a little dance.',
+    { th: 'neon', g: [['wood', [[-4, 120], [244, 120]]]], e: [['o', 170, 106, 'pin', 14], ['o', 186, 106, 'pin', 14], ['o', 202, 106, 'pin', 14], ['o', 218, 106, 'pin', 14], ['v', 90, null, 'rocket', 'r', null, .85, 's'], ['txt', 120, 24, 'STRIKE?', 10, SUN]] }],
+  ['Pinball Speedway', 'Collect', 7, 8, 'The track is a giant pinball table tipped on its side.',
+    'Bumpers fling cars, flippers launch them back up, and every ding scores. Fall down the drain at the bottom and you lose half your points.',
+    { th: 'neon', b: [['pool', 96, 144, 136, 'pit']], g: [['metal', [[-4, 132], [96, 132]]], ['metal', [[144, 132], [244, 132]]]], e: [['bump', 50, 60, 10], ['bump', 120, 46, 10, SUN], ['bump', 190, 66, 10, '#5fe8ff'], ['poly', [[78, 118], [112, 128], [78, 125]], RED], ['poly', [[162, 118], [128, 128], [162, 125]], RED], ['v', 150, 84, 'chair', 'r', -40, .7], ['pow', 120, 46, 6], ['txt', 54, 22, '9,500', 9, SUN]] }],
+  ['Tiny Planet', 'Race', 8, 7, 'Race all the way around a planet so small you can see the whole thing.',
+    'Gravity pulls toward the middle, so you can drive upside down on the bottom. Jump too hard and you go into a little orbit, waving.',
+    { th: 'space', e: [['planet', 120, 80, 44], ['v', 120, 36, 'duck', 'r', 0, .7], ['v', 161, 65, 'kart', 'b', 70, .7], ['v', 79, 95, 'tub', 'n', 250, .7], ['carr', 120, 80, 60, -130, -50], ['txt', 40, 20, 'ORBIT!', 9, SUN]] }],
+  ['Windy Cliffs', 'Survival', 7, 8, 'A cliff-top road where huge gusts of wind blow cars backward.',
+    'Light cars get blown right off the cliff. Hop when the gust passes, hide behind rocks, and be the last car on the cliff when time runs out.',
+    { th: 'storm', b: [['pool', -4, 244, 120, 'water']], g: [['rock', sm([[30, 90], [80, 86], [140, 80], [200, 84]])]], e: [['wind', 150, 40, 50], ['arr', 214, 36, 176, 36, WHITE], ['o', 160, null, 'rock', 8], ['v', 102, null, 'cart', 'r', null, .8], ['v', 26, 104, 'bed', 'b', -40, .7, 'e'], ['f', 16, 78, 'b', 'x', .7, -40]] }],
+  ['Pirate Plank', 'King', 7, 8, 'A pirate ship rocks on the waves. Hold the high end of the deck.',
+    'The deck tilts back and forth with the waves, sliding cars from end to end. Score while you hold the raised end; cannonballs bowl across the deck.',
+    { th: 'sea', e: [['ship', 60, 180, 100, -6], ['v', 82, 97.5, 'couch', 'r', -6, .7], ['v', 156, 90, 'pumpkin', 'b', -6, .7, 'k'], ['o', 40, 72, 'cball', 5], ['pool', -4, 244, 116, 'water'], ['txt', 200, 24, 'ARRR', 10, SUN]] }],
+  ['Conveyor Chaos Factory', 'Race', 7, 8, 'A factory full of conveyor belts, some going your way and some going back.',
+    'Read the arrows: forward belts zoom you along, backward belts make you drive on the spot. A claw grabs slowpokes and drops them back at the start.',
+    { th: 'factory', g: [['metal', [[-4, 128], [244, 128]]]], t: [[10, 110, 112, 'c'], [130, 230, 112, 'C']], e: [['claw', 182, 54], ['v', 182, 80, 'fridge', 'b', 0, .5], ['v', 60, 109, 'kart', 'r', 0, .8], ['blk', 96, -4, 22, 36, '#4a4f5e'], ['arr', 107, 36, 107, 52, SUN]] }],
+  ['Bedroom Rally', 'Race', 8, 7, 'Tiny cars race across a messy bedroom.',
+    'Jump off the bed, skid on a sock, climb the pile of books and sneak past the sleeping dog. Wake the dog and it chases everyone.',
+    { th: 'room', g: [['carpet', [[-4, 124], [244, 124]]], ['cloud', [[-4, 72], [70, 72], [74, 78]]]], e: [['o', 112, null, 'sock', 6], ['blk', 146, 108, 28, 8, '#a45cff'], ['blk', 148, 100, 24, 8, '#2f6fe0'], ['blk', 144, 92, 28, 8, '#ff9f1c'], ['o', 208, null, 'dog', 10], ['txt', 228, 96, 'zzz', 8, WHITE], ['v', 40, null, 'chair', 'r', null, .7], ['v', 98, 94, 'kart', 'b', 20, .7]] }],
+  ['Kitchen Counter Cup', 'Race', 8, 7, 'Race along the kitchen counter, past the sink and the toaster.',
+    'Jump the sink full of dishwater, launch off the toaster when it pops and skid on spilled butter. The finish line is the cookie jar.',
+    { th: 'kitchen', b: [['pool', 80, 124, 108, 'water']], g: [['tile', [[-4, 100], [80, 100]]], ['tile', [[124, 100], [244, 100]]]], m: [['zone', 'honey', 176, 206]], e: [['blk', 142, 80, 26, 20, '#c9ccd6', 5], ['blk', 150, 66, 10, 10, '#e0a76a', 2], ['arr', 155, 62, 155, 48, SUN], ['v', 46, null, 'hotdog', 'r', null, .75], ['v', 102, 70, 'shoe', 'b', -10, .7], ['blk', 216, 72, 20, 28, 'rgba(190,240,255,.6)', 6], ['o', 226, 90, 'crumb', 5], ['blk', 214, 66, 24, 7, RED, 2]] }],
+  ['Duckling Parade', 'Puzzle', 7, 8, 'A line of ducklings follows your car. Get them all to the pond.',
+    'Ducklings waddle after you in a wobbly line, and hopping or speeding scatters them. Points for every duckling that makes it into the water.',
+    { th: 'farm', b: [['pool', 196, 244, 116, 'water']], g: [['grass', [[-4, 112], [196, 112], [200, 150]]]], e: [['v', 152, null, 'duck', 'r', null, .8], ['o', 126, null, 'chick', 4], ['o', 112, null, 'chick', 4], ['o', 98, null, 'chick', 4], ['o', 64, 88, 'chick', 4], ['txt', 64, 74, '?', 9, WHITE], ['ripple', 220, 118]] }],
+  ['Sheep Shove', 'Puzzle', 7, 8, 'Push fluffy sheep into your pen before the other player does.',
+    'Sheep wander about and bounce off your bumper like fluffy balls. Each pen is up a hill, so sheep roll back down if you are careless.',
+    { th: 'farm', g: [['grass', sm([[-4, 90], [40, 92], [90, 120], [150, 120], [200, 92], [244, 90]])]], e: [['post', 10, 92, 76], ['post', 34, 92, 76], ['rope', 10, 80, 34, 80], ['post', 208, 92, 76], ['post', 232, 92, 76], ['rope', 208, 80, 232, 80], ['o', 110, null, 'sheep', 7], ['o', 136, null, 'sheep', 7], ['o', 220, null, 'sheep', 6], ['v', 78, null, 'tractor', 'r', null, .75], ['v', 174, null, 'stroller', 'b', null, .75, 'l']] }],
+  ['Meteor Shower Speedway', 'Survival', 7, 8, 'A moon road while meteors rain down.',
+    'Shadows show where each meteor will land. Hits leave craters that become little ramps, so the track gets bumpier the longer you survive.',
+    { th: 'space', g: [['moon', wave(120, 3, 1, 0)]], e: [['o', 70, 40, 'meteor', 7], ['o', 180, 24, 'meteor', 6], ['shadow', 88, 120, 10], ['shadow', 200, 120, 8], ['v', 130, null, 'rocket', 'r', null, .8], ['v', 40, null, 'tub', 'b', null, .8], ['pow', 214, 112, 7]] }],
+  ['Duck!', 'Reflex', 7, 8, 'Rubber rockets whizz along the track at head height or wheel height.',
+    'High rockets: lean back. Low rockets: hop. Get hit and your driver is knocked clean out of the seat and has to run after the car.',
+    { th: 'desert', g: [['sand', [[-4, 120], [244, 120]]]], e: [['o', 196, 84, 'missile', 8], ['o', 160, 112, 'missile', 7], ['v', 94, null, 'couch', 'r', null, .85], ['v', 46, null, 'board', 'b', null, .8, 'e'], ['f', 20, null, 'b', 'w', .8], ['txt', 120, 24, 'DUCK!', 12, SUN]] }],
+  ['Balloon Float', 'Distance', 7, 8, 'Tie balloons to your car, drive off a cliff and see how far you float.',
+    'Grab balloons on the run-up: more balloons, longer float. Birds peck at them on the way down, so lean to dodge.',
+    { th: 'sea', b: [['pool', 80, 244, 128, 'water']], g: [['grass', [[-4, 80], [80, 80]]]], e: [['bal', 140, 32, 'r'], ['bal', 150, 28, 'y'], ['bal', 160, 32, 'b'], ['v', 150, 72, 'bed', 'r', 5, .8], ['o', 204, 50, 'chick', 5], ['msign', 50, null, 'GO'], ['txt', 200, 100, '120m', 10, SUN]] }],
+  ['Fuel Panic', 'Collect', 7, 8, 'Every car starts nearly empty. Grab gas cans to keep going.',
+    'Fuel drains as you drive; run out and your driver has to get out and push. Bump rivals to make them spill fuel, and grab the cans they drop.',
+    { th: 'desert', g: [['sand', wave(118, 5, 1.2, 1)]], e: [['o', 116, null, 'fuel', 6], ['o', 204, null, 'fuel', 6], ['v', 70, null, 'kart', 'r', null, .8], ['v', 162, null, 'toilet', 'b', null, .8, 'e'], ['f', 148, null, 'b', 'p', .8], ['txt', 162, 74, 'EMPTY!', 8, '#ff4f9a'], ['tree', 230, null, .8, 'c']] }],
+  ['Crabby Beach', 'Race', 7, 8, 'A beach race where crabs pinch your tires and waves wash up the sand.',
+    'Crabs scuttle across the track; a pinch makes your tire go flat and floppy. Every big wave shoves everyone back up the beach.',
+    { th: 'sea', g: [['sand', wave(118, 4, 1, 0)]], m: [['pool', 170, 244, 121, 'water']], e: [['tree', 18, null, .9, 'palm'], ['o', 100, null, 'crab', 6], ['o', 62, null, 'crab', 5], ['v', 136, null, 'banana', 'r', null, .8], ['v', 40, null, 'duck', 'b', null, .8], ['arr', 222, 110, 192, 110, WHITE]] }],
+  ['Slowpoke Cup', 'Race', 8, 7, 'The slowest car wins, but you are never allowed to stop.',
+    'If your car stops or rolls backward for even a second, you are out. Inch up the hills and creep down the other side while the snail laughs at you.',
+    { th: 'farm', g: [['grass', sm([[-4, 120], [60, 110], [120, 80], [170, 90], [244, 118]])]], e: [['o', 58, null, 'snail', 7], ['v', 108, null, 'bed', 'r', null, .8], ['v', 150, null, 'chair', 'b', null, .8], ['finish', 228, null, 34], ['txt', 120, 22, 's l o o o w', 9, WHITE]] }],
+  ['Stair Smash', 'Stunt', 7, 8, 'Drive down a giant staircase and score points for every bounce.',
+    'Each step you hit scores, and flips, bonks and drivers flying out score even more. The fanciest crash wins.',
+    { th: 'gym', g: [['wood', stairs(10, 34, 28, 14, 7)]], e: [['v', 118, 56, 'tub', 'r', 140, .8, 'e'], ['f', 150, 60, 'r', 'x', .8, 60], ['pow', 108, 84, 7, 'BONK'], ['v', 26, null, 'shoe', 'b', null, .75], ['txt', 190, 24, '+500', 10, SUN]] }],
+  ['Junkyard Crane', 'Survival', 7, 8, 'A magnet crane swings over the junkyard picking up cars.',
+    'The magnet grabs anything metal underneath and drops it in the crusher, so keep moving and watch its shadow. Bathtubs and pumpkins do not stick, lucky them.',
+    { th: 'factory', g: [['dirt', wave(120, 3, 1.5, 0)]], e: [['rope', 140, 0, 140, 40, INK, 1.4], ['o', 140, 46, 'magnet', 9], ['v', 140, 72, 'kart', 'b', 10, .75], ['shadow', 140, 120, 12], ['blk', 198, 70, 46, 54, '#4a4f5e'], ['sign', 220, 82, 'CRUSH'], ['v', 64, null, 'pumpkin', 'r', null, .8], ['o', 26, null, 'tire', 6]] }],
+  ['Jump Rope Giants', 'Reflex', 7, 8, 'Two giants swing a huge jump rope across the road.',
+    'Hop every time the rope comes round, and it keeps getting faster. Get tangled and you are out; the last car still jumping wins.',
+    { th: 'day', g: [['grass', [[-4, 122], [244, 122]]]], e: [['o', 20, 54, 'giant', 14], ['o', 220, 54, 'giant', 14], ['curve', 32, 64, 120, 156, 208, 64], ['v', 108, 96, 'chair', 'r', 0, .8], ['v', 150, null, 'duck', 'b', null, .8], ['txt', 120, 24, '23!', 12, SUN]] }],
+  ['Loop-de-Loopy', 'Stunt', 7, 8, 'A track of loops, and a loop inside a loop.',
+    'Score for every loop you finish. Too slow and you fall off the top, driver first, which scores nothing but looks fantastic.',
+    { th: 'neon', g: [['road', [[-4, 124], [244, 124]]]], e: [['loop', 80, 82, 40], ['loop', 182, 92, 30], ['v', 80, 46, 'kart', 'r', 180, .7], ['f', 186, 80, 'b', 'x', .7, 160], ['v', 176, 66, 'cart', 'b', 200, .6, 'e'], ['txt', 130, 18, 'LOOP x2', 10, SUN]] }],
+  ['Monster Hill Climb', 'Race', 8, 6, 'One enormous, steep hill. First to the top wins.',
+    'It gets steeper and steeper until cars start flipping over backward. Feather the gas, lean forward and hop over the rocks.',
+    { th: 'day', g: [['dirt', sm([[-4, 140], [60, 130], [120, 100], [170, 60], [210, 30], [244, 20]])]], e: [['o', 142, null, 'rock', 6], ['o', 40, null, 'cone', 5], ['v', 92, null, 'tractor', 'r', null, .8], ['v', 186, null, 'monster', 'b', null, .7], ['v', 62, 112, 'bed', 'n', 200, .7, 'e'], ['flag', 222, null, SUN]] }],
+  ['Car Tag', 'Derby', 7, 7, 'One car is It. Bump someone to pass it on.',
+    'Whoever is It when the timer runs out loses a point. The It car gets a small speed boost and a big flashing sign so everyone knows who to run from.',
+    { th: 'day', g: [['grass', sm([[-4, 70], [24, 112], [60, 122], [180, 122], [216, 112], [244, 70]])]], m: [['zone', 'oil', 130, 160]], e: [['v', 90, null, 'bumper', 'r', null, .85], ['sign', 90, 66, 'IT!', RED], ['arr', 112, 100, 140, 100], ['v', 176, null, 'cart', 'b', null, .85]] }],
+  ['Candy Canyon', 'Race', 7, 7, 'A sweet race over gumdrop hills and a chocolate river.',
+    'Gumdrops are springy, the chocolate river is sticky, and lollipops along the way give little speed boosts.',
+    { th: 'candy', b: [['pool', 100, 150, 116, 'choc']], g: [['candy', sm([[-4, 108], [40, 100], [100, 112]])], ['candy', sm([[150, 112], [200, 100], [244, 106]])]], e: [['bump', 62, 96, 7, '#5fe0b0'], ['post', 222, 104, 78], ['o', 222, 74, 'candy', 6], ['v', 30, null, 'cake', 'r', null, .75], ['v', 182, null, 'taco', 'b', null, .75], ['dline', [[100, 108], [124, 88], [150, 108]]]] }],
+  ['Pyramid Panic', 'Race', 7, 7, 'Race over desert dunes and through a pyramid full of traps.',
+    'Soft sand slows you down, boulders roll after you through the tunnel, and mummies wobble out to hug passing drivers.',
+    { th: 'desert', b: [['mount', [[100, 120], [160, 40], [220, 120]], '#e8c27a']], g: [['sand', sm([[-4, 120], [50, 112], [100, 122], [150, 116], [244, 122]])]], e: [['o', 190, null, 'rock', 10], ['carr', 190, 112, 14, 200, 300], ['f', 140, null, 'w', 'w', .8], ['v', 74, null, 'shoe', 'r', null, .8], ['tree', 20, null, .8, 'c']] }],
+  ['Spider Web Canyon', 'Race', 6, 8, 'Giant sticky webs stretch across a canyon.',
+    'Drive into a web and you are stuck bouncing like a fly; mash gas to break free. Spiders lower down to tickle stuck drivers.',
+    { th: 'cave', b: [['pool', 70, 170, 140, 'pit']], g: [['rock', [[-4, 120], [70, 120]]], ['rock', [[170, 120], [244, 120]]]], e: [['web', 120, 80, 40], ['v', 120, 86, 'mower', 'r', 10, .75], ['rope', 150, 0, 150, 40, WHITE, .8], ['o', 150, 44, 'spider', 5], ['v', 40, null, 'chair', 'b', null, .75]] }],
+  ['Night Drive', 'Race', 7, 7, 'A race in the pitch dark. You can only see what your headlights hit.',
+    'Each car lights a short cone ahead and fireflies glow around the edges of pits. Honk to flash your lights and see a little further.',
+    { th: 'night', g: [['grass', wave(118, 6, 1, 0)]], e: [['v', 80, null, 'kart', 'r', null, .8], ['v', 170, null, 'duck', 'b', null, .8], ['fog', [[100, 104, 30], [190, 104, 30]]], ['o', 40, 80, 'pellet', 2], ['o', 140, 70, 'pellet', 2], ['o', 226, 90, 'pellet', 2]] }],
+  ['Elevator Tower', 'Race', 7, 7, 'Race straight up a tower using lifts and moving platforms.',
+    'Platforms slide up, down and sideways; jump between them as they pass. Fall and you land on a lower floor and wait for the next lift.',
+    { th: 'city', g: [['metal', [[-4, 132], [244, 132]]]], e: [['plat', 20, 104, 50, 'v'], ['plat', 96, 80, 50, 'h'], ['plat', 170, 52, 50, 'v'], ['v', 45, 104, 'fridge', 'r', 0, .6], ['v', 121, 80, 'kart', 'b', 0, .7], ['flag', 218, 52, SUN]] }],
+  ['Rubber Duck River', 'Race', 7, 7, 'Half the race is on a river, and only floaty vehicles float.',
+    'Bathtubs, duck boats and pumpkins bob along the water; everything else sinks and crawls along the riverbed. Pick the river route or the long way round.',
+    { th: 'jungle', g: [['dirt', [[-4, 100], [60, 100], [80, 136], [200, 136], [220, 100], [244, 100]]]], m: [['pool', 60, 220, 112, 'water']], e: [['v', 150, 136, 'fridge', 'b', 0, .6, 'h'], ['v', 110, 112, 'tub', 'r', 0, .8], ['o', 186, 108, 'duck', 6], ['v', 30, null, 'kart', 'n', null, .8], ['bub', 150, 104, 3]] }],
+  ['Traffic Jam Hop', 'Race', 7, 7, 'A highway packed with slow trucks. Hop from roof to roof.',
+    'The road is jammed, so the fastest way is over the top. Truck roofs are bouncy and honking trucks swerve.',
+    { th: 'city', g: [['road', [[-4, 124], [244, 124]]]], e: [['car', 30, 110, 99, '#a45cff', 20], ['car', 140, 230, 95, '#3fbf5f', 24], ['v', 80, 99, 'cart', 'r', 0, .8], ['v', 128, 70, 'bed', 'b', -10, .8], ['txt', 120, 22, 'HONK HONK', 9, SUN]] }],
+  ['Domino Drive', 'Puzzle', 7, 7, 'Knock over a row of giant dominoes to build a bridge across the gap.',
+    'Bump the first domino at the right speed and they topple into a bridge. Too hard and they scatter into the canyon; too soft and they just wobble.',
+    { th: 'desert', b: [['pool', 100, 170, 140, 'pit']], g: [['sand', [[-4, 110], [100, 110]]], ['sand', [[170, 110], [244, 110]]]], e: [['o', 64, 100, 'domino', 10], ['o', 78, 100, 'domino', 10], ['o', 92, 100, 'domino', 10], ['arr', 50, 84, 60, 84], ['v', 30, null, 'shoe', 'r', null, .8], ['dline', [[96, 96], [134, 104], [170, 108]]], ['txt', 136, 30, 'TIMBER!', 10, SUN]] }],
+  ['Lost Car Keys', 'Puzzle', 7, 7, 'The finish gate is locked, and the key is hidden somewhere on the track.',
+    'Find the key up a tree or behind a waterfall, then race back to the gate before the other team bumps it out of your hands.',
+    { th: 'jungle', g: [['grass', wave(118, 4, 1, 0)]], e: [['tree', 60, null, 1.2, 'r'], ['o', 60, 90, 'key', 6], ['blk', 206, 66, 6, 52, '#8a90a3'], ['blk', 216, 66, 6, 52, '#8a90a3'], ['blk', 226, 66, 6, 52, '#8a90a3'], ['sign', 219, 58, 'LOCKED'], ['v', 120, null, 'tractor', 'r', null, .8], ['v', 172, null, 'cake', 'b', null, .8]] }],
+  ['Skipping Stone', 'Distance', 7, 7, 'Drive off a dock and skip across a lake like a stone.',
+    'Hit the water flat to bounce; nose first and you sink with a gloop. Flat cars like beds and couches skip best, so the random car really matters.',
+    { th: 'sea', b: [['pool', 60, 244, 116, 'water']], g: [['wood', [[-4, 100], [60, 100]]]], e: [['dline', [[60, 96], [85, 84], [110, 114], [135, 94], [160, 114], [180, 98], [196, 92]]], ['ripple', 110, 116], ['ripple', 160, 116], ['v', 200, 92, 'couch', 'r', 5, .75], ['msign', 30, null, 'GO']] }],
+  ['Pumpkin Roll', 'Collect', 7, 7, 'Pumpkins roll down the hill. Catch them in your car.',
+    'Big pumpkins are worth more but bowl you over. Your pile wobbles as you drive back to the barn to cash in.',
+    { th: 'dusk', g: [['grass', sm([[-4, 60], [60, 80], [140, 110], [244, 120]])]], e: [['o', 40, null, 'pumpkin', 7], ['o', 84, null, 'pumpkin', 9], ['carr', 84, 82, 14, 200, 300], ['v', 150, null, 'cart', 'r', null, .8], ['o', 150, 92, 'pumpkin', 5], ['house', 220, null, RED]] }],
+  ['Backwards Day', 'Race', 7, 7, 'Everyone drives in reverse. Gas goes backward, brake goes forward.',
+    'Your driver faces the wrong way and has to peek over their shoulder. Jumps are terrifying and hilarious.',
+    { th: 'day', g: [['grass', wave(118, 6, 1.2, 0)]], e: [['v', 80, null, 'kart', 'r', null, .85, 'l'], ['v', 170, null, 'hotdog', 'b', null, .85, 'l'], ['arr', 104, 80, 134, 80], ['txt', 120, 24, 'ESREVER', 10, SUN]] }],
+  ['Roller Coaster Rails', 'Race', 7, 7, 'Ride roller coaster rails up the big drop and down the other side.',
+    'Your wheels lock onto the rails, so you only choose speed. Hop to switch tracks at the junctions; pick wrong and you end up on the kiddie coaster.',
+    { th: 'sunset', e: [['rail', sm([[-4, 120], [60, 40], [100, 40], [150, 120], [200, 84], [244, 92]])], ['v', 80, 38, 'cart', 'r', 0, .7], ['v', 140, 104, 'tub', 'b', 50, .7], ['txt', 190, 30, 'AAAAH!', 10, SUN]] }],
+  ['Wheelie Contest', 'Stunt', 7, 7, 'Pop the longest wheelie you can down a long bumpy road.',
+    'Lean back to lift the front wheel and balance as long as you can. Some cars, like the toilet and the bed, are hilariously bad at it.',
+    { th: 'dusk', g: [['road', wave(120, 2, 3, 0)]], e: [['v', 104, 116, 'toilet', 'r', -26, .9], ['v', 192, null, 'bed', 'b', null, .8], ['txt', 120, 24, '12.4 s', 12, SUN]] }],
+  ['Sumo Log Roll', 'King', 6, 8, 'A giant log rolls in the river. Stay on top.',
+    'Drive against the spin to stay up while the log turns faster and faster. Bump the others off into the splash; last car on top wins.',
+    { th: 'jungle', e: [['log', 120, 100, 30], ['v', 106, 72, 'kart', 'r', -14, .7], ['v', 140, 76, 'duck', 'b', 30, .7], ['carr', 120, 100, 40, 200, 320], ['pool', -4, 244, 116, 'water'], ['f', 196, 112, 'n', 'x', .7, 70], ['ripple', 196, 118]] }],
+  ['Ghost Lap', 'Race', 7, 6, 'A solo time trial against your own ghost.',
+    'A see-through copy of your best run races beside you, flops and all. Beat it and the new ghost copies whatever silly thing you did.',
+    { th: 'dusk', g: [['road', wave(116, 7, 1, 1)]], e: [['boost', 40, null, 70, null], ['v', 120, null, 'shoe', 'r', null, .85], ['v', 152, null, 'shoe', 'r', null, .85, 'h'], ['finish', 226, null, 36], ['txt', 120, 22, '0:42.17', 11, SUN]] }],
+  ['Treasure Dig', 'Collect', 6, 7, 'Park on an X and honk to dig up treasure.',
+    'The map shows rough spots. Some holes hold gold and some hold a very surprised mole who pops your car into the air.',
+    { th: 'sea', g: [['sand', [[-4, 118], [244, 118]]]], e: [['txt', 70, 126, 'X', 9, RED], ['v', 70, null, 'mower', 'r', null, .8], ['txt', 70, 84, 'HONK', 7, WHITE], ['o', 150, 110, 'chest', 7], ['mole', 204, 118, 'n']] }],
+  ['Honk-Off', 'Reflex', 6, 7, 'A quick-draw contest: honk first when the cow says moo.',
+    'The cow moos, oinks, quacks and baas to trick you. Honk on anything but a moo and your car bounces in shame. First to five wins.',
+    { th: 'farm', g: [['grass', [[-4, 120], [244, 120]]]], e: [['o', 120, null, 'cow', 10], ['txt', 120, 82, 'OINK?', 10, WHITE], ['v', 50, null, 'icecream', 'r', null, .8], ['v', 190, null, 'cake', 'b', null, .8, 'l'], ['txt', 60, 46, 'HONK!', 8, SUN]] }],
+  ['Bridge Out!', 'Puzzle', 6, 7, 'The bridges are up. Hit buttons in the right order to lower them.',
+    'Each button lowers one bridge and raises another. Work out the order before the other player does, or just bump them onto the wrong button.',
+    { th: 'day', b: [['pool', 70, 120, 124, 'water'], ['pool', 170, 220, 124, 'water']], g: [['grass', [[-4, 104], [70, 104]]], ['grass', [[120, 104], [170, 104]]], ['grass', [[220, 104], [244, 104]]]], e: [['blk', 70, 58, 6, 46, '#c98b52'], ['bridge', 170, 220, 104, 2], ['blk', 128, 100, 12, 4, RED, 1], ['v', 40, null, 'chair', 'r', null, .8], ['v', 150, null, 'pumpkin', 'b', null, .75], ['txt', 96, 40, '?', 12, SUN]] }],
+  ['Puddle Splash Party', 'Collect', 6, 7, 'Score points for the biggest splashes through puddles.',
+    'Bigger jump into a puddle, bigger splash, more points. Splash the other car to cover its driver in mud.',
+    { th: 'storm', g: [['dirt', wave(118, 6, 2, 0)]], e: [['splat', 120, 123, '#2a8fd6', 18], ['v', 120, null, 'tub', 'r', null, .8], ['bub', 98, 104, 3], ['bub', 142, 100, 4], ['bub', 150, 110, 2.5], ['v', 200, null, 'couch', 'b', null, .75], ['txt', 120, 24, 'SPLOOSH +300', 9, SUN]] }],
+  ['Sleepy Giant', 'Reflex', 6, 7, 'Tiptoe your cars past a sleeping giant. Do not wake him.',
+    'Every honk, crash or bump makes noise. When the giant stirs, freeze; anyone still moving gets flicked back to the start.',
+    { th: 'night', g: [['grass', [[-4, 120], [244, 120]]]], e: [['o', 120, 80, 'giant', 26], ['txt', 164, 40, 'zzz', 9, WHITE], ['v', 50, null, 'stroller', 'r', null, .7], ['v', 200, null, 'chair', 'b', null, .7], ['txt', 50, 86, 'shh', 7, WHITE]] }],
+  ['Honey Trouble', 'Race', 6, 7, 'Sticky honey puddles and grumpy bees along a forest road.',
+    'Honey makes your wheels stick; bees chase whoever drove through their honey. Drive through the pond to shake them off.',
+    { th: 'jungle', g: [['grass', wave(118, 4, 1, 1)]], m: [['zone', 'honey', 80, 130]], e: [['rope', 60, 0, 60, 22, INK, 1], ['o', 60, 30, 'hive', 8], ['o', 120, 80, 'bee', 4], ['o', 136, 72, 'bee', 4], ['v', 108, null, 'banana', 'r', null, .8], ['v', 190, null, 'board', 'b', null, .8]] }],
+  ['Fridge Raid', 'Collect', 6, 7, 'Race around the shelves of a giant fridge collecting snacks.',
+    'Shelves are platforms, the ice tray is slippery and the jelly wobbles. Grab snacks before the door shuts and the light goes out.',
+    { th: 'ice', g: [['ice', [[-4, 128], [244, 128]]]], e: [['blk', -4, 88, 140, 4, '#e6f6ff'], ['blk', 100, 50, 144, 4, '#e6f6ff'], ['o', 40, 78, 'apple', 5], ['o', 196, 40, 'cake', 6], ['o', 110, 118, 'melon', 6], ['v', 70, 88, 'kart', 'r', 0, .7], ['v', 160, 50, 'cake', 'b', 0, .6]] }],
+  ['Mirror Mirror', 'Race', 6, 6, 'Two tracks, one above the other, and the bottom one runs backward.',
+    'Player 1 races left to right up top, player 2 right to left below, with the same controls. Items you drop show up on the other track too.',
+    { th: 'dusk', b: [['blk', -4, 70, 248, 8, '#5a5f6e', 0]], g: [['road', [[-4, 132], [244, 132]]]], e: [['v', 80, 70, 'kart', 'r', 0, .8], ['v', 160, 132, 'kart', 'b', 0, .8, 'l'], ['o', 130, 64, 'peel', 5], ['o', 130, 128, 'peel', 5], ['dline', [[130, 74], [130, 118]]]] }],
+  ['Bubble Wrap Road', 'Collect', 6, 6, 'A road made of giant bubble wrap. Pop the most bubbles.',
+    'Every pop scores and gives a tiny hop, and a big landing pops a whole row. Popped bubbles go flat, so the road gets faster.',
+    { th: 'room', g: [['cloud', [[-4, 124], [244, 124]]]], e: [['bub', 12, 118, 6], ['bub', 28, 118, 6], ['bub', 44, 118, 6], ['bub', 60, 118, 6], ['bub', 156, 118, 6], ['bub', 172, 118, 6], ['bub', 188, 118, 6], ['bub', 204, 118, 6], ['bub', 220, 118, 6], ['bub', 236, 118, 6], ['v', 120, 124, 'shoe', 'r', 0, .8], ['pow', 96, 116, 5], ['txt', 120, 24, 'POP POP POP', 9, SUN]] }],
+  ['Mini Golf Kart', 'Puzzle', 6, 6, 'Push a golf ball round a mini golf course with your car.',
+    'Fewest bumps to sink the ball wins. Windmills, ramps and loops make it tricky, and the ball does not always go where you aimed.',
+    { th: 'day', g: [['grass', [[-4, 120], [150, 120], [150, 130], [170, 130], [170, 120], [244, 120]]]], e: [['flag', 160, 130, RED], ['o', 112, 114, 'golf', 10], ['v', 72, null, 'chair', 'r', null, .8], ['blk', 200, 70, 20, 50, '#ff8cc6'], ['blades', 210, 70, 26, 4, 20], ['txt', 60, 24, 'PAR 3', 10, SUN]] }],
+  ['Desert Mirage', 'Puzzle', 6, 6, 'Some finish lines in the desert are fake. Which one is real?',
+    'Mirages shimmer ahead: fake ramps, fake bridges, fake finish flags. Drive into a fake one and it pops like a bubble, so watch for the one with a shadow.',
+    { th: 'desert', g: [['sand', wave(118, 4, 1, 0)]], e: [['finish', 120, null, 34], ['finish', 214, null, 34], ['shadow', 216, 120, 10], ['txt', 128, 64, '?', 11, WHITE], ['txt', 222, 64, '?', 11, WHITE], ['v', 52, null, 'tractor', 'r', null, .8], ['tree', 170, null, .8, 'c']] }],
+  ['Underwater Dash', 'Race', 5, 6, 'A slow-motion race along the sea floor.',
+    'Everything floats a little: cars drift on jumps and bubbles lift light cars up. Avoid the grumpy shark and the clams that snap shut.',
+    { th: 'deep', g: [['sand', wave(122, 5, 1, 0)]], e: [['o', 60, 60, 'fish', 6], ['bub', 100, 70, 4], ['bub', 110, 56, 3], ['v', 120, null, 'duck', 'r', null, .8], ['shark', 190, 50, -1], ['v', 182, null, 'tub', 'b', null, .8]] }]
+];
+
+// ======================================================================
+// UI
+// ======================================================================
+const $ = (s) => document.querySelector(s);
+const state = { tag: 'All', built: false };
+const cards = [];
+
+function esc(s) { return String(s).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch])); }
+function cells(n) { let h = ''; for (let i = 0; i < 10; i++) h += `<i class="${i < n ? 'on' : ''}"></i>`; return h; }
+
+function build() {
+  const gb = $('#gridBuilt'), gp = $('#gridPool');
+  IDEAS.forEach((d, i) => {
+    const [name, tag, fun, chaos, pitch, how, spec] = d, rank = i + 1, built = rank <= 20, total = fun + chaos;
+    const card = document.createElement('article');
+    card.className = 'card' + (built ? ' built' : '');
+    card.dataset.tag = tag;
+    card.innerHTML = `
+      <div class="top">
+        <div class="rank">#${rank}</div>
+        <div class="nm">
+          <h3>${esc(name)}</h3>
+          <div class="tags"><span class="tag" data-t="${tag}">${esc(RULESETS[tag])}</span>${built ? '<span class="badge">BUILDING</span>' : ''}</div>
+        </div>
+      </div>
+      <canvas class="mock" width="240" height="150" role="img" aria-label="Mockup of ${esc(name)}"></canvas>
+      <p class="pitch">${esc(pitch)}</p>
+      <div class="scores">
+        <div class="bars">
+          <div class="bar fun"><span class="lb">FUN</span><span class="cells">${cells(fun)}</span><span class="v">${fun}</span></div>
+          <div class="bar chaos"><span class="lb">CHAOS</span><span class="cells">${cells(chaos)}</span><span class="v">${chaos}</span></div>
+        </div>
+        <div class="total" title="Fun + Chaos">${total}<small>TOTAL</small></div>
+      </div>
+      <p class="how"><b>How it plays:</b> ${esc(how)}</p>`;
+    (built ? gb : gp).appendChild(card);
+    cards.push({ card, cv: card.querySelector('canvas'), spec, rank, tag, built, w: 0 });
+  });
+}
+
+function drawAll(force) {
+  cards.forEach(o => {
+    if (o.card.hidden) return;
+    const w = o.cv.clientWidth;
+    if (!force && w === o.w) return;
+    o.w = w;
+    try { drawScene(o.cv, o.spec, o.rank); } catch (err) { /* keep the page alive if one mockup fails */ }
+  });
+}
+
+function buildFilters() {
+  const nav = $('#filters');
+  const tags = ['All', ...Object.keys(RULESETS)];
+  const counts = {}; IDEAS.forEach(d => counts[d[1]] = (counts[d[1]] || 0) + 1);
+  nav.innerHTML = tags.map(t => `<button type="button" data-tag="${t}" aria-pressed="${t === 'All'}">${t === 'All' ? 'All 100' : esc(RULESETS[t]) + ' · ' + counts[t]}</button>`).join('') +
+    `<button type="button" class="built-btn" data-built="1" aria-pressed="false">Building only</button><span class="count" id="count" aria-live="polite"></span>`;
+  nav.addEventListener('click', (ev) => {
+    const b = ev.target.closest('button'); if (!b) return;
+    if (b.dataset.built) { state.built = !state.built; b.setAttribute('aria-pressed', String(state.built)); }
+    else { state.tag = b.dataset.tag; nav.querySelectorAll('button[data-tag]').forEach(x => x.setAttribute('aria-pressed', String(x === b))); }
+    apply();
+  });
+}
+
+function apply() {
+  let shown = 0, shownBuilt = 0, shownPool = 0;
+  cards.forEach(o => {
+    const ok = (state.tag === 'All' || o.tag === state.tag) && (!state.built || o.built);
+    o.card.hidden = !ok;
+    if (ok) { shown++; o.built ? shownBuilt++ : shownPool++; }
+  });
+  $('#secBuilt').hidden = !shownBuilt;
+  $('#secPool').hidden = !shownPool;
+  $('#empty').hidden = shown > 0;
+  $('#count').textContent = `Showing ${shown} of ${IDEAS.length}`;
+  requestAnimationFrame(() => drawAll(false));
+}
+
+build();
+buildFilters();
+apply();
+let rt = 0;
+window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => drawAll(false), 120); });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => drawAll(true));
+</script>
