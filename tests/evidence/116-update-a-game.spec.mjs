@@ -53,7 +53,7 @@ test("A new game is picked by default and Send builds the same address as before
   await expect(making.locator("option")).toHaveCount(games.length + 1);
   for (const g of games) await expect(making.locator(`option[value="${g.slug}"]`)).toHaveText(g.title);
   await expect(page.locator("#version-box")).toBeHidden();
-  await expect(page.getByRole("heading", { name: "What's your game?" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "What should we play?" })).toBeVisible();
   await shot("new-game");
 
   const idea = "A game where a penguin delivers pizza across a frozen lake and dodges seals";
@@ -82,7 +82,7 @@ test("picking a game shows its versions", async ({ page, shot, note, browserErro
   // Back to a new game puts everything back.
   await page.locator("#making").selectOption("");
   await expect(page.locator("#version-box")).toBeHidden();
-  await expect(page.getByRole("heading", { name: "What's your game?" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "What should we play?" })).toBeVisible();
 
   // A game with an update and a fork lists all three, the default picked.
   await serveVersions(page);
@@ -117,7 +117,7 @@ test("new/?game=fancy-food-fight&version=jeremy.v1 pre-picks that game and versi
   await ready(page);
   await expect(page.locator("#making")).toHaveValue("");
   await expect(page.locator("#version-box")).toBeHidden();
-  await expect(page.getByRole("heading", { name: "What's your game?" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "What should we play?" })).toBeVisible();
   note("version from the address wins, then the game's default; an unknown game falls back to A new game");
   expect(browserErrors).toEqual([]);
 });

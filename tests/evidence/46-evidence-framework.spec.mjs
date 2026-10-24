@@ -91,7 +91,7 @@ test("the New Game page turns a typed idea into a Game idea form for a grown-up"
   // Record where Send would go instead of opening GitHub.
   await page.addInitScript(() => { window.open = url => { window.__opened = url; return null; }; });
   await page.goto("new/");
-  await expect(page.getByRole("heading", { name: "What's your game?" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "What should we play?" })).toBeVisible();
   await expect(page.locator("#send")).toBeDisabled();
   const { scroll, width } = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, width: window.innerWidth }));
   expect(scroll, "page is wider than the screen").toBeLessThanOrEqual(width);

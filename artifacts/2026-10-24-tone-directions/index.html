@@ -1,0 +1,157 @@
+<title>GameOn Voice Options</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Three tone directions for GameOn's words, from the arcade to the New Game page and README, for Jeremy to pick from.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@500;700;800&family=Press+Start+2P&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: an intro, then the same five spots shown three ways, side by side on wide
+   screens and stacked on phones; each direction gets a mini arcade mock in the arcade's
+   own yellow (fixed colours, the arcade is single-theme), with the page around it themed. */
+:root {
+  --paper: #fffcf2;
+  --ink: #1d1a2f;
+  --muted: #5e5872;
+  --rule: #e7e0cc;
+  --card: #ffffff;
+  --pick: #e2502f;
+  --display: "Lilita One", "Arial Rounded MT Bold", "Trebuchet MS", sans-serif;
+  --body: "Nunito", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --pixel: "Press Start 2P", ui-monospace, Menlo, monospace;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --paper: #17151f; --ink: #f4efe1; --muted: #b3acc4; --rule: #34303f; --card: #201d2a; --pick: #ff7a5c; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --paper: #17151f; --ink: #f4efe1; --muted: #b3acc4; --rule: #34303f; --card: #201d2a; --pick: #ff7a5c; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 500 16px/1.55 var(--body); }
+.page {
+  max-width: 1240px; margin: 0 auto; display: grid; gap: 36px;
+  padding-block: 36px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+h1, h2, h3 { margin: 0; font-weight: 400; text-wrap: balance; }
+h1 { font: 400 clamp(38px, 7vw, 60px)/1 var(--display); }
+p { margin: 0; max-width: 70ch; }
+.eyebrow { font: 800 12px/1 var(--body); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.lede { font-size: 19px; }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 22px; align-items: start; }
+.dir { display: grid; gap: 16px; padding: 18px; border: 1px solid var(--rule); border-radius: 18px; background: var(--card); min-width: 0; }
+.dir.rec { border: 2px solid var(--pick); }
+.dir-head { display: grid; gap: 6px; }
+.dir-head h2 { font: 400 30px/1 var(--display); }
+.rec-chip { justify-self: start; font: 800 11px/1 var(--body); letter-spacing: 0.06em; text-transform: uppercase; padding: 5px 9px; border-radius: 999px; background: var(--pick); color: #fff; }
+.feel { color: var(--muted); font-size: 15px; }
+.slot { display: grid; gap: 6px; }
+.slot-label { font: 800 11px/1 var(--body); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.copy { font-size: 15.5px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font: 800 12px/1 var(--body); padding: 5px 9px; border-radius: 999px; border: 2px solid var(--ink); }
+.readme { font-size: 14.5px; border-left: 4px solid var(--rule); padding-left: 12px; color: var(--ink); }
+.kids { font-size: 14px; color: var(--muted); border-top: 1px solid var(--rule); padding-top: 10px; }
+
+/* The mini arcade mock: the arcade's real look, fixed colours on purpose */
+.mock { background: #ffd23f; color: #1d1a2f; border: 3px solid #1d1a2f; border-radius: 16px; padding: 14px; display: grid; gap: 10px; box-shadow: 5px 5px 0 #1d1a2f; }
+.mock .word { font: 400 38px/0.9 var(--display); color: #fffdf6; -webkit-text-stroke: 2px #1d1a2f; paint-order: stroke fill; text-shadow: 3px 3px 0 #1d1a2f; }
+.mock .word span { color: #ff6b4a; }
+.mock .line { font: 800 16px/1.3 var(--body); }
+.mock .btn { justify-self: start; font: 400 19px/1 var(--display); color: #fffdf6; background: #ff6b4a; border: 3px solid #1d1a2f; border-radius: 14px; padding: 10px 16px; box-shadow: 3px 3px 0 #1d1a2f; -webkit-text-stroke: 1px #1d1a2f; paint-order: stroke fill; }
+.mock .card { background: #fffdf6; border: 2.5px solid #1d1a2f; border-radius: 12px; padding: 8px 10px; display: grid; gap: 2px; }
+.mock .card b { font: 400 18px/1 var(--display); }
+.mock .card small { font: 800 12px/1.2 var(--body); }
+.mock.pixel .line, .mock.pixel .btn { font-family: var(--pixel); font-size: 11px; line-height: 1.6; -webkit-text-stroke: 0; }
+.mock.pixel .btn { color: #1d1a2f; background: #fffdf6; }
+.mock.pixel .card small { font-family: var(--pixel); font-size: 9px; }
+
+.mix { display: grid; gap: 10px; padding: 18px; border-radius: 16px; background: var(--card); border: 1px solid var(--rule); }
+.mix h2 { font: 400 26px/1.1 var(--display); }
+ul.plain { margin: 0; padding-left: 20px; display: grid; gap: 6px; max-width: 75ch; }
+code { font: 500 0.88em/1 var(--mono); }
+footer { font-size: 14px; color: var(--muted); border-top: 1px solid var(--rule); padding-top: 16px; }
+</style>
+
+<main class="page">
+  <header style="display:grid;gap:12px">
+    <div class="eyebrow">GameOn · pick a voice</div>
+    <h1>Three ways GameOn could talk</h1>
+    <p class="lede">You asked to move away from marketing to kids, toward something fun for anyone, clearly kid friendly, and good for grown-up gamers goofing off with friends on the couch. Here's the same set of words written three ways: the arcade's top, a game card's credit, the New Game page, the statuses on the idea line, and the README's opening.</p>
+    <p class="feel">"Send to the Matrix" stays in all three. Pick one, or mix them; there's a mixing note at the bottom.</p>
+  </header>
+
+  <div class="cols">
+
+    <section class="dir rec" aria-labelledby="a-title">
+      <div class="dir-head">
+        <span class="rec-chip">My pick</span>
+        <h2 id="a-title">A · Game Night</h2>
+        <p class="feel">Warm and a little goofy. Sounds like the friend who always has a game ready when people come over. Built around playing together.</p>
+      </div>
+      <div class="mock" aria-label="Arcade mock, Game Night">
+        <div class="word">Game<span>On</span></div>
+        <div class="line">Dream up a game. Play it with your friends tonight.</div>
+        <div class="btn">Make a game</div>
+        <div class="card"><b>Trampoline Battle</b><small>Made by Jeremy and the kids · 2 players</small></div>
+      </div>
+      <div class="slot"><span class="slot-label">Under the games</span><p class="copy">Every game here started as someone's idea, said out loud and built in an evening.</p></div>
+      <div class="slot"><span class="slot-label">New Game page</span><p class="copy"><b>What should we play?</b> Who's in it, what do you do, what makes it funny?<br>How it works: say it, fix the typos, send it, an AI builds it, someone checks it, game night.</p></div>
+      <div class="slot"><span class="slot-label">Idea line statuses</span>
+        <div class="chips"><span class="chip">Got it!</span><span class="chip">Thinking it over</span><span class="chip">Waiting for a human</span><span class="chip">In the queue</span><span class="chip">Being built</span><span class="chip">Getting checked</span><span class="chip">Almost ready</span><span class="chip">Game on!</span><span class="chip">Not this one</span><span class="chip">Tell us more</span></div></div>
+      <div class="slot"><span class="slot-label">README opening</span><p class="readme">GameOn is an arcade of party games anyone can make. Describe a game out loud, an AI builds it in about an hour, and you play it with whoever's on the couch. Kids make games here. So do their parents, after bedtime.</p></div>
+      <p class="kids">For kids: friendly and plain, and nothing aimed at them. Grown-ups read it as a party-game shelf.</p>
+    </section>
+
+    <section class="dir" aria-labelledby="b-title">
+      <div class="dir-head">
+        <h2 id="b-title">B · Insert Coin</h2>
+        <p class="feel">Arcade-cabinet attract mode. Punchy, a bit nerdy, borrows game words for everything. Most fun for people who grew up on couch co-op; can tip into gimmick if every line does it.</p>
+      </div>
+      <div class="mock pixel" aria-label="Arcade mock, Insert Coin">
+        <div class="word">Game<span>On</span></div>
+        <div class="line">INSERT IDEA. GET GAME. GRAB A CONTROLLER.</div>
+        <div class="btn">PRESS START</div>
+        <div class="card"><b>Trampoline Battle</b><small>P1: JEREMY · 2P</small></div>
+      </div>
+      <div class="slot"><span class="slot-label">Under the games</span><p class="copy">Every cabinet in here started as somebody's pitch. High scores are on you.</p></div>
+      <div class="slot"><span class="slot-label">New Game page</span><p class="copy"><b>Player 1, pitch your game.</b> Who's in it? What do you do? What's the catch?<br>How it works: you pitch it, the AI builds it, a human plays it first, everybody plays it.</p></div>
+      <div class="slot"><span class="slot-label">Idea line statuses</span>
+        <div class="chips"><span class="chip">IDEA RECEIVED</span><span class="chip">LOADING…</span><span class="chip">PLAYER 2 NEEDED</span><span class="chip">IN THE QUEUE</span><span class="chip">BUILDING</span><span class="chip">BOSS FIGHT</span><span class="chip">BONUS STAGE</span><span class="chip">GAME ON</span><span class="chip">GAME OVER</span><span class="chip">CONTINUE?</span></div></div>
+      <div class="slot"><span class="slot-label">README opening</span><p class="readme">GameOn is a homemade arcade. Every game in it started as somebody's pitch: a kid, a dad, a friend on the couch with a spare controller. Say what you want to play, an AI builds it, and it's in the arcade by game night.</p></div>
+      <p class="kids">For kids: the game-speak is fun and readable, though "BOSS FIGHT" for "getting checked" needs a tooltip to make sense.</p>
+    </section>
+
+    <section class="dir" aria-labelledby="c-title">
+      <div class="dir-head">
+        <h2 id="c-title">C · Workshop</h2>
+        <p class="feel">Plain and confident, like a good tool. Lets the games be the fun part. Ages best, but has the least personality of the three.</p>
+      </div>
+      <div class="mock" aria-label="Arcade mock, Workshop">
+        <div class="word">Game<span>On</span></div>
+        <div class="line">Describe a game. An AI builds it. Anyone can play.</div>
+        <div class="btn">Make a new game</div>
+        <div class="card"><b>Trampoline Battle</b><small>By Jeremy · 1–2 players</small></div>
+      </div>
+      <div class="slot"><span class="slot-label">Under the games</span><p class="copy">Each game was described out loud and built in about an hour. Make your own, or change one that's here.</p></div>
+      <div class="slot"><span class="slot-label">New Game page</span><p class="copy"><b>Describe your game.</b> Who's in it, what you do, and how you win.<br>How it works: describe it, an AI builds it, a person checks it, it's in the arcade.</p></div>
+      <div class="slot"><span class="slot-label">Idea line statuses</span>
+        <div class="chips"><span class="chip">Received</span><span class="chip">Being scored</span><span class="chip">Needs a person</span><span class="chip">Queued</span><span class="chip">Building</span><span class="chip">Checking</span><span class="chip">On the test arcade</span><span class="chip">Live</span><span class="chip">Not built</span><span class="chip">Needs detail</span></div></div>
+      <div class="slot"><span class="slot-label">README opening</span><p class="readme">GameOn turns a spoken game idea into a playable browser game in about an hour. Describe it, an AI agent builds it, a person checks it, and it joins the arcade, with versions, so anyone can remix a game they like.</p></div>
+      <p class="kids">For kids: completely safe, a little dry. A kid can use it fine but won't grin at it.</p>
+    </section>
+
+  </div>
+
+  <section class="mix">
+    <h2>Mixing them</h2>
+    <ul class="plain">
+      <li>My pick is <b>A, Game Night</b>. It says couch co-op without saying it, it reads naturally to an adult, and it's still friendly for a seven-year-old.</li>
+      <li>A good blend: A's words everywhere, with <b>B's arcade flavour in small doses</b>. For example, "Game on!" as the published status, and "Press Start" only on controller hints once controller support lands.</li>
+      <li>Credits drop "designed by a 4-year-old" and "designed with my kids" for a plain "Made by {nickname}", with ages only where you want them. The nickname is also the version name (<code>jeremy.v2</code>), so it lines up.</li>
+      <li>Whichever you pick, I'll rewrite the arcade, the New Game page, the README and the docs intro to match. Agent-facing files (AGENTS.md, skills) keep plain instructions, with the kid-safety rules unchanged.</li>
+    </ul>
+  </section>
+
+  <footer>Drafted by Claude Code (Opus 5.5) for the tone task (gameon#129), under the couch co-op objective (gameon#128). Reply with A, B, C, or a mix.</footer>
+</main>

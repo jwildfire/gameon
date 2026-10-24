@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Evidence 129-tone</title>
+<style>
+:root { color-scheme: light dark; --ok: #1a7f37; --bad: #cf222e; }
+body { margin: 0 auto; max-width: 1100px; padding: 16px; font: 16px/1.45 system-ui, sans-serif; background: Canvas; color: CanvasText; }
+h1 { font-size: 24px; margin: 0 0 4px; } h2 { font-size: 19px; margin: 28px 0 6px; }
+.head { font-weight: 700; color: var(--ok); }
+.meta { font-size: 14px; opacity: .75; }
+.s { display: inline-block; padding: 1px 8px; border-radius: 999px; border: 1px solid currentColor; font-size: 13px; margin: 2px 4px 2px 0; }
+.s.ok { color: var(--ok); } .s.bad { color: var(--bad); }
+.pair { display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap; margin: 8px 0; }
+.pair img { display: block; max-width: 100%; border: 1px solid #8886; border-radius: 6px; }
+.pair img.desktop { width: 640px; } .pair img.phone { width: 220px; }
+</style></head><body>
+<h1>Evidence: 129-tone</h1>
+<p class="head">PASS: 2 of 2 checks pass at desktop and phone widths.</p>
+<p class="meta">Against the local server (python3 -m http.server) on this branch, from commit 910e8af, 2026-10-24 04:30 UTC. Spec: tests/evidence/129-tone.spec.mjs.</p>
+<section><h2>1. the arcade reads as Game Night: tagline, button, credits, footer</h2><p><span class="s ok">Desktop 1280: pass</span> <span class="s ok">Phone 375: pass</span></p><ul><li>desktop: 9 cards, every credit reads &quot;Made by …&quot;</li><li>phone: 9 cards, every credit reads &quot;Made by …&quot;</li></ul><div class="pair"><a href="arcade-desktop.jpg"><img class="desktop" src="arcade-desktop.jpg" alt="the arcade reads as Game Night: tagline, button, credits, footer: arcade-desktop.jpg" loading="lazy"></a><a href="arcade-phone.jpg"><img class="phone" src="arcade-phone.jpg" alt="the arcade reads as Game Night: tagline, button, credits, footer: arcade-phone.jpg" loading="lazy"></a></div></section>
+<section><h2>2. the New Game page reads as Game Night, statuses included</h2><p><span class="s ok">Desktop 1280: pass</span> <span class="s ok">Phone 375: pass</span></p><ul><li>desktop: statuses: Got it!, Waiting for a human, In the queue, Game on!</li><li>phone: statuses: Got it!, Waiting for a human, In the queue, Game on!</li></ul><div class="pair"><a href="new-game-desktop.jpg"><img class="desktop" src="new-game-desktop.jpg" alt="the New Game page reads as Game Night, statuses included: new-game-desktop.jpg" loading="lazy"></a><a href="new-game-phone.jpg"><img class="phone" src="new-game-phone.jpg" alt="the New Game page reads as Game Night, statuses included: new-game-phone.jpg" loading="lazy"></a></div></section>
+</body></html>
