@@ -189,7 +189,10 @@ test("Super Sauce Boy has the first card in the arcade and plays in its frame", 
   await page.goto("./");
   const card = page.locator('#shelf .cart[href="#super-sauce-boy"]');
   await expect(card).toBeVisible();
-  await expect(page.locator("#shelf .cart").nth(games.filter(g => g.editorsChoice === true).length)).toHaveAttribute("href", "#super-sauce-boy");
+  // Newer pipeline games (Big Weird Dig, #155) also go in front of it, so check it stays ahead of the games that were there before it.
+  const order = await page.locator("#shelf .cart").evaluateAll(cs => cs.map(c => c.getAttribute("href")));
+  expect(order.indexOf("#super-sauce-boy")).toBeGreaterThanOrEqual(games.filter(g => g.editorsChoice === true).length);
+  expect(order.indexOf("#super-sauce-boy")).toBeLessThan(order.indexOf("#fancy-food-fight"));
   await expect(card.locator("h2")).toHaveText("Super Sauce Boy");
   await expect(card.locator(".cover img")).toHaveJSProperty("complete", true);
   expect(await card.locator(".cover img").evaluate(img => img.naturalWidth)).toBe(800);
