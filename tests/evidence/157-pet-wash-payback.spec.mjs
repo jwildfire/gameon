@@ -389,6 +389,8 @@ test("Pet Wash Payback has a card near the front of the arcade and plays in its 
   await expect(card.locator(".cover img")).toHaveJSProperty("complete", true);
   expect(await card.locator(".cover img").evaluate(img => img.naturalWidth)).toBe(800);
   await card.click();
+  // Since jeremy.v2 (#163) the card first asks which version; this check is about jeremy.v1.
+  await page.locator('#chooser .ver-item[data-version="jeremy.v1"]').click();
   await expect(page.locator("#bar-title")).toHaveText("Pet Wash Payback");
   await expect(page.locator("#gh-btn")).toHaveAttribute("href", "https://github.com/jwildfire/gameon/tree/main/games/pet-wash-payback");
   const frame = page.frameLocator("#frame");
