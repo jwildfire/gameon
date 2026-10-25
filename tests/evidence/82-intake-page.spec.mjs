@@ -232,7 +232,7 @@ test("with no intake configured, the page is the Phase 0 page", async ({ page, s
   const github = [];
   page.on("request", r => { if (r.url().startsWith("https://api.github.com/")) github.push(r.url()); });
   await page.goto("new/");
-  expect(await page.evaluate(() => window.GAMEON_INTAKE)).toEqual({ url: "", turnstileSiteKey: "" });
+  expect(await page.evaluate(() => window.GAMEON_INTAKE.url)).toBe(""); // the site key alone changes nothing
   await expect(page.locator("#family")).toBeHidden();
   await expect(page.locator("#robot")).toBeHidden();
   await expect(page.locator("script#turnstile-js")).toHaveCount(0);
