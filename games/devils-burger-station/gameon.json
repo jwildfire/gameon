@@ -1,0 +1,14 @@
+{
+  "name": "devils-burger-station",
+  "title": "Devil's Burger Station",
+  "tagline": "Cook burgers for grumpy cartoon devils, and never forget the hot sauce!",
+  "credit": "Designed by NotClay",
+  "idea": "a burger station in hell where you have to make sure the food you’re preparing has hot sauce on it or the devils that ordered the food will be pissed off.",
+  "made": "2026-10-24",
+  "built_with": "Claude Opus 5.5",
+  "players": "1",
+  "sideways": false,
+  "needs_internet": false,
+  "idea_issue": 168,
+  "path": "games/devils-burger-station/"
+}
