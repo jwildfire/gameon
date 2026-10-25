@@ -72,8 +72,10 @@ test("the starred card, deep links and the version picker still work", async ({ 
   await page.goto("./#trampoline-battle@jeremy.v1");
   await expect(page.locator("#player")).toBeVisible();
   await expect(page.locator("#frame")).toHaveAttribute("src", entry.versions.find(v => v.id === "jeremy.v1").url);
-  await page.goto(`./#${rest[0]}`);
-  await expect(page.locator("#bar-title")).toHaveText(games.find(g => g.slug === rest[0]).title);
-  note(`card opens the version picker (${entry.default} first); #trampoline-battle@jeremy.v1 plays; #${rest[0]} plays`);
+  // a one-version game: its link plays straight away (one with more versions asks which first)
+  const one = rest.find(s => (games.find(g => g.slug === s).versions || []).length < 2);
+  await page.goto(`./#${one}`);
+  await expect(page.locator("#bar-title")).toHaveText(games.find(g => g.slug === one).title);
+  note(`card opens the version picker (${entry.default} first); #trampoline-battle@jeremy.v1 plays; #${one} plays`);
   expect(browserErrors).toEqual([]);
 });
