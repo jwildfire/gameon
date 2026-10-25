@@ -54,8 +54,9 @@ wildfire
   intake, also `submitter: known` or `submitter: unknown`.
 - **Family:** the family's nickname from the intake's family-code list, or `_No response_`
   for an unknown submitter. Never a real surname or a code.
-- The intake escapes a line of the idea that starts with `#` as `\#`, so a kid's words can't
-  add a heading of their own. It reads the same on GitHub.
+- The intake escapes the `#`s of a heading-like run in the idea (`##` or more anywhere, or
+  `#` at the start of a line) as `\#`, so a kid's words can't add a heading of their own.
+  It reads the same on GitHub.
 
 An idea a person files by hand in gameon-ideas, with no `submitter:` label, counts as known:
 only people with access and the app can file there.

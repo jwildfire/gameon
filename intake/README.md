@@ -3,7 +3,7 @@
 A small Cloudflare Worker that lets kids send game ideas from the New Game page with no
 GitHub sign-in. It's the only thing holding a GitHub key. It files each idea as an issue
 in the private [jwildfire/gameon-ideas](https://github.com/jwildfire/gameon-ideas) repo,
-signed in as the GameOn GitHub App (gameon-bot), and serves the idea line without anyone's
+signed in as the GameOn GitHub App (gameon-arcade-bot), and serves the idea line without anyone's
 raw words. Background: the hardened front door objective (#55), the intake task (#80), and
 [docs/ideas.md](../docs/ideas.md).
 
@@ -13,36 +13,32 @@ raw words. Background: the hardened front door objective (#55), the intake task 
 | `GET /queue` | The idea line: the eval's title and one-liner, status, nickname and date for each idea, never the words. "Just sent" until the eval has read it. Cached for 60 seconds |
 | `GET /` | `{"ok":true,"service":"gameon-intake"}`, a health check |
 
-Nothing here is deployed yet. Jeremy does that once, with the steps below.
+Nothing here is deployed yet. Jeremy does that once, with the steps below. These already
+exist and are filled in, since none of them is a secret:
 
-## Going live (Jeremy, about 20 minutes)
+- the Cloudflare account (`account_id` in `wrangler.toml`);
+- the KV namespace `gameon-intake` (bound as `INTAKE_KV` in `wrangler.toml`);
+- the Turnstile widget, managed mode, for `jwildfire.github.io` and `localhost` (its public
+  site key is in `new/intake-config.js`);
+- the GitHub App **gameon-arcade-bot**, installed on gameon, trampoline-battle and
+  gameon-ideas (`APP_ID` and `INSTALLATION_ID` in `wrangler.toml`).
 
-You need the GameOn GitHub App first: steps 1 and 4 of `~/Documents/games/gameon-bot-setup.md`
-(the bot identity task, #160). Run everything below from this folder, `intake/`, in a checkout of
-gameon. `npx wrangler@4` fetches Cloudflare's CLI the first time.
+What's left is three secrets, the deploy, the family codes and the switch in the page.
 
-### 1. Make a Cloudflare account and sign in
+## Going live (Jeremy, about 15 minutes)
 
-1. Sign up at https://dash.cloudflare.com/sign-up (the free plan is plenty).
-2. In Terminal:
+Run everything below from this folder, `intake/`, in a checkout of gameon.
+`npx wrangler@4` fetches Cloudflare's CLI the first time.
 
-   ```sh
-   cd ~/Documents/games/gameon/intake
-   npx wrangler@4 login        # opens the browser; click Allow
-   npx wrangler@4 whoami       # shows your account
-   ```
-
-### 2. Make the KV namespace (rate limits)
+### 1. Sign in to Cloudflare
 
 ```sh
-npx wrangler@4 kv namespace create INTAKE_KV
+cd ~/Documents/games/gameon/intake
+npx wrangler@4 login        # opens the browser; click Allow
+npx wrangler@4 whoami       # should list account 27ba7e53c52c4eff786faec8ad1fa823
 ```
 
-It prints an `id`. Put it in `wrangler.toml` in place of `PUT_YOUR_KV_NAMESPACE_ID_HERE`.
-The id isn't a secret, so commit that one-line change (a small task PR into dev, or ask an
-agent to).
-
-### 3. Deploy the Worker
+### 2. Deploy the Worker
 
 ```sh
 npx wrangler@4 deploy
@@ -50,57 +46,48 @@ npx wrangler@4 deploy
 
 It prints the Worker's address, like `https://gameon-intake.<your-subdomain>.workers.dev`.
 That's the **intake URL**. It answers `GET /` straight away; ideas fail with "The idea
-machine is taking a nap" until steps 4 to 6 are done.
+machine is taking a nap" until steps 3 to 5 are done. Secrets set after a deploy take
+effect without deploying again.
 
-### 4. Make the Turnstile widget (the robot check for ideas without a code)
+### 3. Give the Worker the Turnstile secret
 
-1. Cloudflare dashboard → **Turnstile** → **Add widget**.
-2. Name: `GameOn ideas`. Hostnames: `jwildfire.github.io`, and `localhost` if you'll test
-   the page locally. Widget mode: **Managed**. Create.
-3. The **site key** is public: it goes in the page's config in step 9.
-4. The **secret key** goes in the Worker:
+Cloudflare dashboard → **Turnstile** → the GameOn widget → **Settings**, and copy the
+**secret key** (the site key is the public half, already in the page). Then:
 
-   ```sh
-   npx wrangler@4 secret put TURNSTILE_SECRET    # paste the secret key, press Return
-   ```
+```sh
+npx wrangler@4 secret put TURNSTILE_SECRET    # paste the secret key, press Return
+```
 
-### 5. Give the Worker the app's key, in PKCS#8
+### 4. Give the Worker the app's key, in PKCS#8
 
 The Worker signs in with WebCrypto, which reads PKCS#8 keys (`-----BEGIN PRIVATE KEY-----`).
 GitHub hands out PKCS#1 (`-----BEGIN RSA PRIVATE KEY-----`), so convert it.
 
-1. On the app's settings page (https://github.com/settings/apps, then gameon-bot), under
+1. On the app's settings page (https://github.com/settings/apps/gameon-arcade-bot), under
    **Private keys**, click **Generate a private key**. Use a new key just for the Worker,
    not the one in your Keychain, so each can be revoked on its own.
 2. Convert it, hand it to the Worker, and delete both files:
 
    ```sh
-   openssl pkcs8 -topk8 -nocrypt -in ~/Downloads/gameon-bot.*.private-key.pem -out /tmp/gameon-intake-key.pem
+   openssl pkcs8 -topk8 -nocrypt -in ~/Downloads/gameon-arcade-bot.*.private-key.pem -out /tmp/gameon-intake-key.pem
    head -1 /tmp/gameon-intake-key.pem                   # must say -----BEGIN PRIVATE KEY-----
    npx wrangler@4 secret put APP_PRIVATE_KEY < /tmp/gameon-intake-key.pem
-   rm /tmp/gameon-intake-key.pem ~/Downloads/gameon-bot.*.private-key.pem
+   rm /tmp/gameon-intake-key.pem ~/Downloads/gameon-arcade-bot.*.private-key.pem
    ```
 
    (If you skip the conversion, the Worker's log says exactly this command.)
 
-### 6. Install the app on gameon-ideas and tell the Worker its IDs
+### 5. Check the app can file issues in gameon-ideas
 
-1. The app needs **Issues: Read and write** (it has it if you followed the setup steps).
-2. App page → **Install App** → the gear next to jwildfire → make sure **gameon-ideas** is
-   among the selected repositories (gameon too, so the idea line can show older public
-   ideas; without it they're read anonymously). Save.
-3. Note the **App ID** (top of the app's settings page) and the **installation ID** (the
-   number at the end of `github.com/settings/installations/<number>`), then:
-
-   ```sh
-   npx wrangler@4 secret put APP_ID             # the App ID
-   npx wrangler@4 secret put INSTALLATION_ID    # the installation ID
-   ```
+Nothing to type if the app was set up as in `~/Documents/games/gameon-bot-setup.md`: it has
+**Issues: Read and write**, and its installation (174983225) includes **gameon-ideas**, plus
+gameon so the idea line can show older public ideas. If you change either, check
+https://github.com/settings/installations/174983225.
 
 The Worker asks GitHub for a token that can only touch Issues on gameon-ideas, whatever
-else the app can do.
+else the app can do. Its issues show as filed by gameon-arcade-bot[bot].
 
-### 7. Add the family codes
+### 6. Add the family codes
 
 A family code is how the Worker knows an idea comes from a family we know
 (`submitter: known`). Make each one hard to guess: three words and a number, like
@@ -123,7 +110,7 @@ Then give each grown-up their code by message, not in GitHub. Never put a code i
 (Codes can also live in KV, one key each, if you'd rather not resend the list:
 `npx wrangler@4 kv key put --binding INTAKE_KV --remote "family:<code>" "<nickname>"`.)
 
-### 8. Check it with curl
+### 7. Check it with curl
 
 Set the address once, then try each case. Each answer is JSON with a `message` the page
 shows the kid.
@@ -153,12 +140,13 @@ idea line hides them, and close them. A
 `502` with "taking a nap" means GitHub refused: run `npx wrangler@4 tail` while you retry
 to see why (a missing secret, a PKCS#1 key, or the app not installed on gameon-ideas).
 
-### 9. Turn it on in the New Game page
+### 8. Turn it on in the New Game page
 
-Put the intake URL and the Turnstile site key in `new/intake-config.js` (a PR into dev).
-With them empty, the page keeps opening GitHub's form, as in Phase 0.
+Put the intake URL in `url` in `new/intake-config.js` (a small task PR into dev; the
+Turnstile site key is already there). With `url` empty, the page keeps opening GitHub's
+form, as in Phase 0.
 
-### 10. Let Ryan read the ideas
+### 9. Let Ryan read the ideas
 
 Add @killjoy00 as a collaborator on gameon-ideas so his agents can run the pipeline on
 private ideas.
@@ -182,8 +170,9 @@ All in `[vars]` in `wrangler.toml`; change one and run `npx wrangler@4 deploy`.
 Days are UTC. Counters live in KV, which can lag by a few seconds, so two ideas sent in
 the same moment might both get through. IP addresses are stored only as hashes.
 
-Secrets, all set with `npx wrangler@4 secret put <NAME>`: `APP_ID`, `INSTALLATION_ID`,
-`APP_PRIVATE_KEY` (PKCS#8), `TURNSTILE_SECRET`, `FAMILY_CODES`.
+Secrets, all set with `npx wrangler@4 secret put <NAME>` and never written in a file:
+`APP_PRIVATE_KEY` (PKCS#8), `TURNSTILE_SECRET`, `FAMILY_CODES`. `APP_ID` and
+`INSTALLATION_ID` aren't secret, so they're in `[vars]`.
 
 ## `POST /ideas`
 

@@ -2,13 +2,16 @@
 # Secrets are never in this file: set them with `npx wrangler secret put <NAME>`.
 name = "gameon-intake"
 main = "src/index.js"
+account_id = "27ba7e53c52c4eff786faec8ad1fa823"
 compatibility_date = "2025-09-01"
 
 [[kv_namespaces]]
 binding = "INTAKE_KV"
-id = "PUT_YOUR_KV_NAMESPACE_ID_HERE" # from `npx wrangler kv namespace create INTAKE_KV`
+id = "e94c429b051e4f8883382145b087dbb9"  # the gameon-intake namespace
 
 [vars]
+APP_ID = "5461654"                          # gameon-arcade-bot, the GameOn GitHub App
+INSTALLATION_ID = "174983225"               # its installation on jwildfire (gameon, trampoline-battle, gameon-ideas)
 IDEAS_REPO = "jwildfire/gameon-ideas"       # where ideas are filed (private)
 PUBLIC_IDEAS_REPO = "jwildfire/gameon"      # older public ideas the idea line also shows; "" to leave them out
 ALLOWED_ORIGINS = "https://jwildfire.github.io"

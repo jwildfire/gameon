@@ -1,4 +1,4 @@
-// Talking to GitHub as the GameOn GitHub App (gameon-bot), with WebCrypto only.
+// Talking to GitHub as the GameOn GitHub App (gameon-arcade-bot), with WebCrypto only.
 //
 //   1. Sign a short JWT with the app's private key (RS256). The key must be PKCS#8
 //      ("-----BEGIN PRIVATE KEY-----"); GitHub hands out PKCS#1, so convert it first with

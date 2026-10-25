@@ -1,7 +1,5 @@
 # Copy to .dev.vars (git-ignored) for `npx wrangler dev`. These are placeholders and
 # Cloudflare's public Turnstile test secret, not real values.
-APP_ID=000000
-INSTALLATION_ID=00000000
 APP_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\npaste the PKCS#8 key here, with \n for each line break\n-----END PRIVATE KEY-----"
 TURNSTILE_SECRET=1x0000000000000000000000000000000AA
 FAMILY_CODES={"example-code-1":"examplefamily"}
