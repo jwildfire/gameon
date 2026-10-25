@@ -255,13 +255,13 @@ test("Sign out forgets the session and brings back the robot check", async ({ pa
   expect(browserErrors.filter(e => !/Failed to load resource/.test(e))).toEqual([]);
 });
 
-test("the committed config leaves sign-in off until the Worker is set up", async ({ note }) => {
+test("the committed config turns on Google and GitHub sign-in", async ({ note }) => {
   const src = readFileSync(new URL("../../new/intake-config.js", import.meta.url), "utf8");
   const window = {};
   new Function("window", src)(window);
   expect(window.GAMEON_INTAKE.url).toBe("https://gameon-intake.jwildfire.workers.dev");
   expect(window.GAMEON_INTAKE.familyCodes).toBe(false);
-  expect(window.GAMEON_INTAKE.googleClientId).toBe("");
-  expect(window.GAMEON_INTAKE.githubSignIn).toBe(false);
-  note('new/intake-config.js: url and familyCodes false unchanged; googleClientId "" and githubSignIn false');
+  expect(window.GAMEON_INTAKE.googleClientId).toBe("72221777467-bqbv0k3q66n8u81qul1dlroupt7f5dc6.apps.googleusercontent.com");
+  expect(window.GAMEON_INTAKE.githubSignIn).toBe(true);
+  note("new/intake-config.js: url and familyCodes false unchanged; the GameOn Google client ID and githubSignIn true (Jeremy set the Worker up, 2026-10-24)");
 });
