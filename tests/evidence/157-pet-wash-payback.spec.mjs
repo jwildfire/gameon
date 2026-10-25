@@ -384,7 +384,8 @@ test("Pet Wash Payback has a card near the front of the arcade and plays in its 
   expect(order.indexOf("#pet-wash-payback")).toBeGreaterThanOrEqual(games.filter(g => g.editorsChoice === true).length);
   expect(order.indexOf("#pet-wash-payback")).toBeLessThan(order.indexOf("#big-weird-dig"));
   expect(order.indexOf("#pet-wash-payback")).toBeLessThan(order.indexOf("#super-sauce-boy"));
-  expect(games[0].slug).toBe("pet-wash-payback");
+  // newer pipeline games (Oops! We're Late!, #167) go in front of it in games.json
+  expect(games.findIndex(g => g.slug === "pet-wash-payback")).toBeLessThan(games.findIndex(g => g.slug === "big-weird-dig"));
   await expect(card.locator("h2")).toHaveText("Pet Wash Payback");
   await expect(card.locator(".cover img")).toHaveJSProperty("complete", true);
   expect(await card.locator(".cover img").evaluate(img => img.naturalWidth)).toBe(800);

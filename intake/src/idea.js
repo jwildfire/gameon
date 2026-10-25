@@ -69,24 +69,29 @@ export function validateIdea(input) {
       game,
       version,
       code: normaliseCode(input.code),
-      turnstile: typeof input.turnstile === "string" ? input.turnstile.slice(0, 4096) : ""
+      turnstile: typeof input.turnstile === "string" ? input.turnstile.slice(0, 4096) : "",
+      session: typeof input.session === "string" ? input.session.slice(0, 4096) : ""
     }
   };
 }
 
 // family is the family's nickname for a known submitter, or "" for an unknown one.
-export function buildIssue(idea, family) {
-  const known = !!family;
-  const maker = idea.maker || (known ? cleanNickname(family) : "") || "Someone";
+// signedIn, for a signed-in sender, is { known, line }: known when the allowlist says so,
+// and line is what goes in a ### Signed in section (the provider and the allowlist issue,
+// never an email or login; those are only in the allowlist issue).
+export function buildIssue(idea, family, signedIn = null) {
+  const known = !!family || !!(signedIn && signedIn.known);
+  const maker = idea.maker || (family ? cleanNickname(family) : "") || "Someone";
   const none = "_No response_";
   const title = idea.game ? `Update to ${idea.game} from ${maker}` : `Game idea from ${maker}`;
-  const body =
+  let body =
     "### The idea, word for word\n\n" + idea.text + "\n\n" +
     "### Game to update\n\n" + (idea.game || none) + "\n\n" +
     "### Starting version\n\n" + (idea.game && idea.version ? idea.version : none) + "\n\n" +
     "### Made by\n\n" + maker + "\n\n" +
     "### Told by\n\n" + idea.told + "\n\n" +
-    "### Family\n\n" + (known ? cleanNickname(family, 30) || none : none) + "\n";
+    "### Family\n\n" + (family ? cleanNickname(family, 30) || none : none) + "\n";
+  if (signedIn) body += "\n### Signed in\n\n" + signedIn.line + "\n";
   const labels = ["game-idea", "status: submitted", known ? "submitter: known" : "submitter: unknown"];
   if (idea.game) labels.push("update");
   return { title, body, labels };
