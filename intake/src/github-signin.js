@@ -31,8 +31,8 @@ export function returnUrl(env, value) {
   if (u.username || u.password) return "";
   const clean = u.origin + u.pathname.replace(/index\.html$/, "");
   const list = String(env.SIGNIN_RETURN_URLS || DEFAULT_RETURNS).split(",").map(s => s.trim()).filter(Boolean);
-  if (list.includes(clean)) return clean;
-  if (env.ALLOW_LOCALHOST !== "false" && LOCAL.test(u.origin)) return clean;
+  // The query is kept (e.g. ?game=… for an update idea); the fragment is ours.
+  if (list.includes(clean) || (env.ALLOW_LOCALHOST !== "false" && LOCAL.test(u.origin))) return clean + u.search;
   return "";
 }
 

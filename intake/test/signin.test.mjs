@@ -143,6 +143,13 @@ test("a good GitHub callback sends the page a session token in the fragment, and
   assert.equal(exchange.json.client_secret, "test-gh-client-secret");
 });
 
+test("GitHub sign-in keeps the page's query, so an update idea comes back to the same game", async () => {
+  const r = runner();
+  const { cookie, state } = await githubStart(r, "https://jwildfire.github.io/gameon/new/?game=fancy-food-fight#old");
+  const loc = (await callback(r, { code: "good-code", state }, cookie)).headers.get("Location");
+  assert.match(loc, /^https:\/\/jwildfire\.github\.io\/gameon\/new\/\?game=fancy-food-fight#gameon_session=s1\./);
+});
+
 test("GitHub's state is checked: missing, tampered, expired, or without its cookie", async () => {
   const r = runner();
   const { cookie, state } = await githubStart(r);
