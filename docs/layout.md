@@ -12,6 +12,7 @@ Whatever is in the repo is what GitHub Pages serves (see
 | [`games/`](../games/mazeathon/) | Games that live inside this repo. Today that's [`games/mazeathon/`](../games/mazeathon/README.md); the other six games live in their own repos |
 | [`artifacts/`](../artifacts/README.md) | Designs, playtest reports, screenshots and other outputs worth keeping, one dated folder each. See [Designs and artifacts](designs-and-artifacts.md) |
 | [`docs/`](README.md) | These pages |
+| [`intake/`](../intake/README.md) | The idea intake service: a Cloudflare Worker that files ideas sent from the New Game page into the private gameon-ideas repo and serves the idea line. Deployed to Cloudflare, not Pages; see [Where game ideas live](ideas.md) |
 | [`AGENTS.md`](../AGENTS.md) | The rules every AI agent (and person) follows here. Codex reads it directly |
 | [`CLAUDE.md`](../CLAUDE.md) | Claude Code's entry point; it just loads `AGENTS.md` |
 | [`.github/`](https://github.com/jwildfire/gameon/tree/dev/.github) | Issue templates (objective, task, game idea), the pull request template, and the deploy workflow |
