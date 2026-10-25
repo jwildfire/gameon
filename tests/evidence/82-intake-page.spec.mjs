@@ -153,6 +153,23 @@ test("without a code, the robot check shows and its token is sent instead", asyn
   expect(browserErrors).toEqual([]);
 });
 
+test("a refusal stays on screen when the robot check passes again by itself", async ({ page, note, browserErrors }) => {
+  await configure(page);
+  await fakeIntake(page, { ideas: () => ({ status: 403, body: { ok: false, error: "check_failed", message: "The robot check didn't work. Try it once more." } }) });
+  await page.goto("./new/");
+  await page.locator("#idea").fill(IDEA);
+  await page.locator("#maker").fill("Zed");
+  await page.locator("#fake-turnstile").check();
+  await page.locator("#send").click();
+  await expect(page.locator("#send-msg")).toHaveText("The robot check didn't work. Try it once more.");
+  // The widget resets after a send; in managed mode it often hands out a new token at once.
+  await page.locator("#fake-turnstile").check();
+  await expect(page.locator("#send-msg")).toBeVisible();
+  await expect(page.locator("#send-msg")).toHaveText("The robot check didn't work. Try it once more.");
+  note("after a refused send and a fresh robot token, the refusal is still shown");
+  expect(browserErrors.filter(e => !/403/.test(e))).toEqual([]);
+});
+
 test("an update idea sends the game and version too", async ({ page, browserErrors }) => {
   await configure(page);
   const intake = await fakeIntake(page);

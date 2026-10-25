@@ -635,7 +635,9 @@ html[data-mode="weird"] h1 { justify-self: start; background: var(--card); borde
     if (robotId !== null || !needRobot() || !window.turnstile) return;
     robotId = window.turnstile.render("#robot-widget", {
       sitekey: SITE_KEY,
-      callback: function (t) { robotToken = t; sendMsg.hidden = true; },
+      // A fresh token clears only the "tap the box" nudge. After a refused send the widget
+      // resets and often passes again on its own; that mustn't hide the refusal.
+      callback: function (t) { robotToken = t; if (sendMsg.textContent === NEED_ROBOT) sendMsg.hidden = true; },
       "expired-callback": function () { robotToken = ""; },
       "error-callback": function () { robotToken = ""; }
     });
@@ -646,11 +648,12 @@ html[data-mode="weird"] h1 { justify-self: start; background: var(--card); borde
     if (robotId !== null && window.turnstile) { try { window.turnstile.reset(robotId); } catch (e) {} }
   }
 
+  var NEED_ROBOT = "Tap the \"I'm not a robot\" box first.";
   function say(text) { sendMsg.textContent = text; sendMsg.hidden = false; }
 
   function sendToIntake(text, nick) {
     var code = loadCode(), session = code ? null : loadSession();
-    if (!code && !session && SITE_KEY && !robotToken) { say("Tap the \"I'm not a robot\" box first."); return; }
+    if (!code && !session && SITE_KEY && !robotToken) { say(NEED_ROBOT); return; }
     var body = { idea: text, maker: nick, told_by: told };
     if (target) { body.game = target.slug; body.version = target.version; }
     if (code) body.code = code; else if (session) body.session = session.token; else if (robotToken) body.turnstile = robotToken;

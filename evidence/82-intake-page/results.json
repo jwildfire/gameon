@@ -1,10 +1,10 @@
 {
   "spec": "82-intake-page",
   "passed": true,
-  "headline": "PASS: 9 of 9 checks pass at desktop and phone widths.",
-  "generatedAt": "2026-10-25T02:38:26.752Z",
+  "headline": "PASS: 10 of 10 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-25T03:15:17.607Z",
   "target": "local server (python3 -m http.server) on this branch",
-  "commit": "b2feae2",
+  "commit": "b1969f9",
   "playwright": "1.61.1",
   "specFile": "tests/evidence/82-intake-page.spec.mjs",
   "checks": [
@@ -72,6 +72,23 @@
           "robot-check-phone.jpg",
           "sent-unknown-phone.jpg"
         ],
+        "error": null
+      }
+    },
+    {
+      "check": "a refusal stays on screen when the robot check passes again by itself",
+      "notes": [
+        "desktop: after a refused send and a fresh robot token, the refusal is still shown",
+        "phone: after a refused send and a fresh robot token, the refusal is still shown"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
         "error": null
       }
     },

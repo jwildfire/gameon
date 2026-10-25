@@ -1,5 +1,16 @@
 [
   {
+    "slug": "devils-burger-station",
+    "creator": "notclay",
+    "title": "Devil's Burger Station",
+    "tagline": "Cook burgers for grumpy cartoon devils, and never forget the hot sauce!",
+    "credit": "Made by NotClay",
+    "url": "games/devils-burger-station/",
+    "repo": "https://github.com/jwildfire/gameon",
+    "color": "#ff6a1a",
+    "tags": ["New", "Cooking", "1 player"]
+  },
+  {
     "slug": "oops-were-late",
     "creator": "notclay",
     "title": "Oops! We're Late!",
