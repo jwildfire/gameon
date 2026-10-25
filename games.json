@@ -3,12 +3,17 @@
     "slug": "pet-wash-payback",
     "creator": "jeremy",
     "title": "Pet Wash Payback",
-    "tagline": "Scrub the pets as fast as you can, then run! Now they've got the hose.",
+    "tagline": "More silly animals, and now they all chase you with squirt guns, sprinklers and more!",
     "credit": "Made by Jeremy",
-    "url": "games/pet-wash-payback/",
+    "url": "games/pet-wash-payback/jeremy.v2/",
     "repo": "https://github.com/jwildfire/gameon",
     "color": "#57c4ff",
-    "tags": ["New", "Pets", "1 player"]
+    "tags": ["New", "Pets", "1 player"],
+    "default": "jeremy.v2",
+    "versions": [
+      { "id": "jeremy.v1", "url": "games/pet-wash-payback/", "made": "2026-10-24", "note": "The first version" },
+      { "id": "jeremy.v2", "url": "games/pet-wash-payback/jeremy.v2/", "made": "2026-10-24", "note": "More animals, and they all want payback", "from": "jeremy.v1", "idea": 163 }
+    ]
   },
   {
     "slug": "big-weird-dig",

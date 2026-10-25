@@ -40,7 +40,8 @@ test(`${local.title} plays inside the arcade frame`, async ({ page, shot, note, 
 });
 
 test("the switcher opens from a game and changes to another game", async ({ page, shot, browserErrors }) => {
-  const other = games.find(g => g.slug !== local.slug);
+  // a game with one version, so the switcher opens it straight away (one with more asks which first)
+  const other = games.find(g => g.slug !== local.slug && (g.versions || []).length < 2);
   await page.goto(`${home}#${local.slug}`);
   await expect(page.locator("#bar-title")).toHaveText(local.title);
 
