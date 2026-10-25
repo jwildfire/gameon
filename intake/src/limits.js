@@ -8,7 +8,8 @@ const DEFAULTS = {
   LIMIT_PER_CODE_PER_DAY: 2,        // ideas per family code
   LIMIT_PER_IP_UNKNOWN_PER_DAY: 1,  // ideas without a code, per device (IP)
   LIMIT_UNKNOWN_PER_DAY: 10,        // ideas without a code, from everyone together
-  LIMIT_BAD_CODES_PER_IP_PER_DAY: 5 // wrong family codes per device before it's refused
+  LIMIT_BAD_CODES_PER_IP_PER_DAY: 5, // wrong family codes per device before it's refused
+  LIMIT_PER_SIGNIN_PER_DAY: 3       // ideas per signed-in sender (Google or GitHub)
 };
 
 export function limit(env, name) {

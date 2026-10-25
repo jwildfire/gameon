@@ -128,9 +128,11 @@ test("the private repo is read with a narrow token; a missing public repo doesn'
   assert.equal(json.ok, true);
   assert.ok(json.ideas.every(i => i.source === "private"));
   const tokenCalls = w.calls.filter(c => c.path.startsWith("/app/installations/"));
-  assert.deepEqual(tokenCalls.map(c => c.json), [
-    { repositories: ["gameon-ideas"], permissions: { issues: "write" } },
-    { repositories: ["gameon"], permissions: { issues: "read" } }
+  // Both tokens are asked for at once, so they can arrive in either order.
+  const asked = tokenCalls.map(c => c.json).sort((a, b) => a.repositories[0].localeCompare(b.repositories[0]));
+  assert.deepEqual(asked, [
+    { repositories: ["gameon"], permissions: { issues: "read" } },
+    { repositories: ["gameon-ideas"], permissions: { issues: "write" } }
   ]);
 });
 

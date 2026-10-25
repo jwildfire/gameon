@@ -21,3 +21,9 @@ LIMIT_PER_IP_UNKNOWN_PER_DAY = "1"          # ideas without a code, per device p
 LIMIT_UNKNOWN_PER_DAY = "10"                # ideas without a code, from everyone together, per day
 LIMIT_BAD_CODES_PER_IP_PER_DAY = "5"        # wrong family codes per device per day before it's refused
 QUEUE_CACHE_SECONDS = "60"                  # how long GET /queue is cached
+LIMIT_PER_SIGNIN_PER_DAY = "3"              # ideas per signed-in sender (Google or GitHub) per day
+# Optional sign-in (README.md, "Sign-in and the allowlist"). Client IDs are public.
+GOOGLE_CLIENT_ID = ""                       # the Google OAuth client ID (Web); empty keeps Google sign-in off
+GITHUB_CLIENT_ID = "Iv23liwSYtQ7ujJXX9Oy"   # gameon-arcade-bot's client ID, for its user authorization
+SIGNIN_RETURN_URLS = "https://jwildfire.github.io/gameon/new/,https://jwildfire.github.io/gameon/dev/new/"
+ALLOWLIST_DECIDERS = "jwildfire,killjoy00"  # only their allowlist labels count
