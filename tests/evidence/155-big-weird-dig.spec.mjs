@@ -91,6 +91,15 @@ test("a weird find pops out with a TA-DA and a joke, and goes into the Weird Mus
 
 test("a boulder wobbles and falls when you dig out the dirt under it, and the blade shoves a mole back", async ({ page, shot, note, browserErrors }) => {
   await startLevel(page, 1);
+  // Stop the clock and restart the level with the moles' dice fixed, then step the real game loop
+  // by hand (1/60 s a tick) while holding the real keys, so a slow frame can't change what happens.
+  await bwd(page, () => { __bwd.freeze(true); __bwd.start(1, 183); });
+  // Step one tick at a time until something is true; returns how many ticks it took, or -1 if it never was.
+  const ticksUntil = (what, arg, max = 300) => bwd(page, ([what, arg, max]) => {
+    const done = { wobble: s => s.boulders[arg].state === "wobble", past: s => s.dozer.x >= arg, gone: s => s.boulders[arg].gone }[what];
+    for (let n = 0; n <= max; n++) { if (done(__bwd.state)) return n; __bwd.step(1); }
+    return -1;
+  }, [what, arg, max]);
   // Put the bulldozer in a freshly dug spot right under a boulder, then drive away from it.
   const b = await bwd(page, () => {
     const s = __bwd.state, b = s.boulders.find(b => b.c > 0 && b.c < BWD.COLS - 1 && s.grid[(b.r + 2) * BWD.COLS + b.c] !== BWD.OPEN);
@@ -98,28 +107,37 @@ test("a boulder wobbles and falls when you dig out the dirt under it, and the bl
     s.dozer.x = b.c; s.dozer.y = b.r + 1;
     return { c: b.c, r: b.r, i: s.boulders.indexOf(b) };
   });
+  await bwd(page, () => __bwd.step(60)); // a whole second with the bulldozer parked under it
   expect(await bwd(page, i => __bwd.state.boulders[i].state, b.i)).toBe("rest"); // the bulldozer is holding it up
   await page.keyboard.down("ArrowRight");
-  await expect.poll(() => bwd(page, i => __bwd.state.boulders[i].state, b.i), { timeout: 5000 }).toBe("wobble");
+  const toWobble = await ticksUntil("wobble", b.i);
+  expect(toWobble).toBeGreaterThan(0);
+  const toNext = await ticksUntil("past", b.c + 1); // keep driving into the next column, out from under it
+  expect(toNext).toBeGreaterThanOrEqual(0);
   await page.keyboard.up("ArrowRight");
-  await expect.poll(() => bwd(page, i => __bwd.state.boulders[i].gone, b.i), { timeout: 5000 }).toBe(true);
-  // Now a mole: park next to it in its tunnel, facing it, and push the blade.
-  await bwd(page, () => __bwd.freeze(true)); // set up with the game paused so a slow frame can't move the mole first
+  const toGone = await ticksUntil("gone", b.i);
+  expect(toGone).toBeGreaterThanOrEqual(0);
+  const fell = await bwd(page, i => ({ fallen: __bwd.state.boulders[i].fallen, bonks: __bwd.state.bonks }), b.i);
+  expect(fell.fallen).toBeGreaterThanOrEqual(1); // it fell at least a row and broke, KRUNCH
+  expect(fell.bonks).toBe(0);                     // and nothing landed on the bulldozer
+  // Now a mole: park at the end of its tunnel with the mole right in front, facing it, and push the blade.
   const m = await bwd(page, () => {
-    const s = __bwd.state, m = s.moles[0], c = Math.round(m.x), r = Math.round(m.y);
-    const side = s.grid[r * BWD.COLS + c - 1] === BWD.OPEN ? -1 : 1;
-    s.dozer.x = c + side; s.dozer.y = r; s.dozer.dir = side < 0 ? "r" : "l"; s.dozer.face = -side;
-    m.x = c; m.y = r; m.giggle = 3; m.dizzy = 0; m.knock = 0; s.dozer.invuln = 3; // the mole holds still
-    return { x: c, side };
+    const s = __bwd.state, m = s.moles[0], r = Math.round(m.y), open = c => s.grid[r * BWD.COLS + c] === BWD.OPEN;
+    let end = Math.round(m.x); while (open(end - 1)) end--; // the left end of the mole's tunnel
+    s.dozer.x = end; s.dozer.y = r; s.dozer.dir = "r"; s.dozer.face = 1;
+    m.x = end + 1; m.y = r; m.giggle = 3; m.dizzy = 0; m.knock = 0; s.dozer.invuln = 3; // the mole holds still
+    return { x: end + 1, room: open(end + 2) };
   });
-  await bwd(page, () => __bwd.freeze(false));
+  expect(m.room).toBe(true); // tunnel left to shove it along
   await page.keyboard.press("Space");
-  await expect.poll(() => bwd(page, () => __bwd.state.moles[0].dizzy > 0), { timeout: 3000 }).toBe(true);
-  await page.waitForTimeout(400);
+  await bwd(page, () => __bwd.step(1));
+  expect(await bwd(page, () => __bwd.state.moles[0].dizzy > 0)).toBe(true);
+  await bwd(page, () => __bwd.step(24)); // 0.4 s for the shove to play out
   const mx = await bwd(page, () => __bwd.state.moles[0].x);
-  expect(Math.abs(mx - (m.x + m.side))).toBeGreaterThan(Math.abs(m.x - (m.x + m.side))); // pushed further away
+  expect(await bwd(page, () => __bwd.state.moles[0].dizzy > 0)).toBe(true);
+  expect(mx).toBeGreaterThan(m.x + 0.5); // pushed along its tunnel, away from the blade
   await shot("boulder-and-mole");
-  note(`boulder at column ${b.c}, row ${b.r} stayed put while the bulldozer held it up, wobbled when it drove off, then fell and went KRUNCH; the blade shoved the mole from column ${m.x} to ${mx.toFixed(1)} and left it dizzy`);
+  note(`boulder at column ${b.c}, row ${b.r} stayed put while the bulldozer held it up, wobbled ${(toWobble / 60).toFixed(2)}s after it drove off, then fell and went KRUNCH ${((toNext + toGone) / 60).toFixed(2)}s later; the blade shoved the mole from column ${m.x} to ${mx.toFixed(1)} and left it dizzy`);
   expect(browserErrors).toEqual([]);
 });
 
