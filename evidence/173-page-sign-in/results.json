@@ -1,0 +1,138 @@
+{
+  "spec": "173-page-sign-in",
+  "passed": true,
+  "headline": "PASS: 6 of 6 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-25T03:05:50.835Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "b1969f9",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/173-page-sign-in.spec.mjs",
+  "checks": [
+    {
+      "check": "with no sign-in configured, the page shows no sign-in and loads nothing from Google",
+      "notes": [
+        "desktop: intake on with no providers, and intake off with providers named: no sign-in box, no Google script",
+        "phone: intake on with no providers, and intake off with providers named: no sign-in box, no Google script"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "no-providers-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "no-providers-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "with sign-in on, sending without signing in is unchanged: robot check, Turnstile token",
+      "notes": [
+        "desktop: body sent: {\"idea\":\"<idea>\",\"maker\":\"Bean\",\"told_by\":\"typing\",\"turnstile\":\"fake-turnstile-token\"}",
+        "phone: body sent: {\"idea\":\"<idea>\",\"maker\":\"Bean\",\"told_by\":\"typing\",\"turnstile\":\"fake-turnstile-token\"}"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "signed-out-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "signed-out-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Google sign-in shows Signed in as, skips the robot check and sends the session token",
+      "notes": [
+        "desktop: POST /auth/google gets {credential}; POST /ideas gets {idea, maker, told_by, session} and no turnstile",
+        "desktop: after a reload: still signed in (gameon.arcade.signin), still no robot check",
+        "phone: POST /auth/google gets {credential}; POST /ideas gets {idea, maker, told_by, session} and no turnstile",
+        "phone: after a reload: still signed in (gameon.arcade.signin), still no robot check"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "google-signed-in-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "google-signed-in-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "GitHub sign-in comes back with the token in the fragment, which leaves the address at once",
+      "notes": [
+        "desktop: address after the return: /new/?from=evidence (no fragment); the idea and nickname were kept",
+        "phone: address after the return: /new/?from=evidence (no fragment); the idea and nickname were kept"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "github-signed-in-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "github-signed-in-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Sign out forgets the session and brings back the robot check",
+      "notes": [
+        "desktop: Sign out clears gameon.arcade.signin; after a reload the robot check is back",
+        "desktop: a signed_out refusal from the Worker signs out, keeps the idea, and shows the robot check",
+        "phone: Sign out clears gameon.arcade.signin; after a reload the robot check is back",
+        "phone: a signed_out refusal from the Worker signs out, keeps the idea, and shows the robot check"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "signed-out-again-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "signed-out-again-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the committed config leaves sign-in off until the Worker is set up",
+      "notes": [
+        "desktop: new/intake-config.js: url and familyCodes false unchanged; googleClientId \"\" and githubSignIn false",
+        "phone: new/intake-config.js: url and familyCodes false unchanged; googleClientId \"\" and githubSignIn false"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    }
+  ]
+}
