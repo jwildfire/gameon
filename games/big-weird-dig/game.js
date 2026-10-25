@@ -240,9 +240,9 @@
   var mode = "title", level = 1, S = null, frozen = false, bot = null, botReveals = false, demo = null;
   var revealQueue = [], wonAt = 0, endT = 0;
 
-  function startLevel(n) {
+  function startLevel(n, runSeed) {
     Sound.init();
-    level = n; S = E.create(n, (Math.random() * 1e6) | 0); V = makeView(S); demo = null;
+    level = n; S = E.create(n, runSeed != null ? runSeed : (Math.random() * 1e6) | 0); V = makeView(S); demo = null;
     revealQueue = []; wonAt = 0;
     showOnly(null);
     hud.hidden = false;
@@ -799,10 +799,12 @@
     get progress() { return JSON.parse(JSON.stringify(progress)); },
     levelCount: E.LEVELS.length,
     itemCount: E.ITEMS.length,
-    start: function (n) { startLevel(n); },
+    start: function (n, seed) { startLevel(n, seed); }, // seed: fix the moles' dice (tests only)
     bot: function (on, speed, reveals) { bot = on ? true : null; botSpeed = speed || 1; botReveals = !!reveals; },
     freeze: function (on) { frozen = !!on; },
     // drive the real game with given inputs for a number of ticks (synchronously)
-    drive: function (dir, ticks) { for (var i = 0; i < ticks && !S.won && !S.lost; i++) { E.step(S, { dir: dir }); S.events.forEach(handle); } updateHud(); }
+    drive: function (dir, ticks) { for (var i = 0; i < ticks && !S.won && !S.lost; i++) { E.step(S, { dir: dir }); S.events.forEach(handle); } updateHud(); },
+    // with freeze(true), run the real loop by hand: n ticks of 1/60 s, reading the live keys, pad and blade
+    step: function (ticks) { for (var i = 0; i < ticks && !S.won && !S.lost; i++) { E.step(S, currentInput()); S.events.forEach(handle); } updateHud(); }
   };
 })();
