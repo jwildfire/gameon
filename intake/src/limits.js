@@ -74,7 +74,11 @@ export async function turnstileOk(env, deps, token, request) {
   const ip = request.headers.get("CF-Connecting-IP");
   if (ip) form.append("remoteip", ip);
   const res = await deps.fetch(SITEVERIFY, { method: "POST", body: form });
-  if (!res.ok) return false;
-  const data = await res.json();
-  return data && data.success === true;
+  // Log Cloudflare's reason when the check fails (the codes aren't secret), so a wrong
+  // TURNSTILE_SECRET shows up as "invalid-input-secret" in `wrangler tail`.
+  let data = null;
+  try { data = await res.json(); } catch (e) {}
+  const ok = res.ok && !!data && data.success === true;
+  if (!ok) console.log("turnstile failed", res.status, JSON.stringify((data && data["error-codes"]) || []));
+  return ok;
 }
