@@ -479,7 +479,7 @@
       A.burger(ctx, st.plate.layers, st.plate.sauce, 0, 0, P.w * 0.8, t, 2.5);
       ctx.restore();
     } else if (mode === "play") {
-      ctx.fillStyle = "rgba(58,20,12,0.45)"; ctx.font = "800 18px ui-rounded, 'Trebuchet MS', sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillStyle = "rgba(255,243,214,0.75)"; ctx.font = "800 22px ui-rounded, 'Trebuchet MS', sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
       ctx.fillText("Start with a bun!", P.x, P.y - 40);
     }
     // pop-up words
