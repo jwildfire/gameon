@@ -2,9 +2,9 @@
   "spec": "168-devils-burger-station",
   "passed": true,
   "headline": "PASS: 10 of 10 checks pass at desktop and phone widths.",
-  "generatedAt": "2026-10-25T04:25:30.336Z",
+  "generatedAt": "2026-10-25T04:43:22.353Z",
   "target": "local server (python3 -m http.server) on this branch",
-  "commit": "515b0fe",
+  "commit": "786a78b",
   "playwright": "1.61.1",
   "specFile": "tests/evidence/168-devils-burger-station.spec.mjs",
   "checks": [
@@ -93,8 +93,8 @@
     {
       "check": "every one of the 5 shifts can be beaten in the real game, and each is busier than the last",
       "notes": [
-        "desktop: shift: devils, at the counter at once, patience, coins, steaming mad, game seconds: 1: 6 devils, 2 at once, 46s, 75 coins, 0 steamed, 36s; 2: 8 devils, 2 at once, 42s, 119 coins, 0 steamed, 44s; 3: 10 devils, 3 at once, 40s, 176 coins, 0 steamed, 49s; 4: 11 devils, 3 at once, 38s, 292 coins, 0 steamed, 77s; 5: 13 devils, 3 at once, 36s, 329 coins, 0 steamed, 85s",
-        "phone: shift: devils, at the counter at once, patience, coins, steaming mad, game seconds: 1: 6 devils, 2 at once, 46s, 75 coins, 0 steamed, 36s; 2: 8 devils, 2 at once, 42s, 119 coins, 0 steamed, 44s; 3: 10 devils, 3 at once, 40s, 176 coins, 0 steamed, 48s; 4: 11 devils, 3 at once, 38s, 292 coins, 0 steamed, 77s; 5: 13 devils, 3 at once, 36s, 329 coins, 0 steamed, 84s"
+        "desktop: shift: devils, at the counter at once, patience, coins, steaming mad, game seconds: 1: 6 devils, 2 at once, 46s, 75 coins, 0 steamed, 37s; 2: 8 devils, 2 at once, 42s, 119 coins, 0 steamed, 44s; 3: 10 devils, 3 at once, 40s, 176 coins, 0 steamed, 49s; 4: 11 devils, 3 at once, 38s, 292 coins, 0 steamed, 77s; 5: 13 devils, 3 at once, 36s, 329 coins, 0 steamed, 85s",
+        "phone: shift: devils, at the counter at once, patience, coins, steaming mad, game seconds: 1: 6 devils, 2 at once, 46s, 75 coins, 0 steamed, 37s; 2: 8 devils, 2 at once, 42s, 119 coins, 0 steamed, 44s; 3: 10 devils, 3 at once, 40s, 176 coins, 0 steamed, 48s; 4: 11 devils, 3 at once, 38s, 292 coins, 0 steamed, 77s; 5: 13 devils, 3 at once, 36s, 329 coins, 0 steamed, 85s"
       ],
       "desktop": {
         "status": "pass",
@@ -135,7 +135,7 @@
     {
       "check": "the game pauses, and Restart starts the shift over",
       "notes": [
-        "desktop: paused at 2.94s and the clock stayed put; Keep cooking ran it again; P paused, and Restart shift brought back the shift intro with a fresh clock and an empty plate",
+        "desktop: paused at 2.92s and the clock stayed put; Keep cooking ran it again; P paused, and Restart shift brought back the shift intro with a fresh clock and an empty plate",
         "phone: paused at 2.93s and the clock stayed put; Keep cooking ran it again; P paused, and Restart shift brought back the shift intro with a fresh clock and an empty plate"
       ],
       "desktop": {
