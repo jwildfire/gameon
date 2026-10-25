@@ -2,9 +2,9 @@
   "spec": "ideas-2-ant-farm-wars",
   "passed": true,
   "headline": "PASS: 8 of 8 checks pass at desktop and phone widths.",
-  "generatedAt": "2026-10-25T11:41:50.642Z",
+  "generatedAt": "2026-10-25T11:43:02.406Z",
   "target": "local server (python3 -m http.server) on this branch",
-  "commit": "ddc0add",
+  "commit": "93a09d8",
   "playwright": "1.61.1",
   "specFile": "tests/evidence/ideas-2-ant-farm-wars.spec.mjs",
   "checks": [
@@ -156,8 +156,8 @@
     {
       "check": "Ant Farm Wars has a card right after the Editor's Choice games and plays in its frame",
       "notes": [
-        "desktop: card at position 2, after the 1 Editor's Choice card(s) and ahead of oops-were-late, with its 800x450 cover; plays inside the frame; GitHub button opens its folder",
-        "phone: card at position 2, after the 1 Editor's Choice card(s) and ahead of oops-were-late, with its 800x450 cover; plays inside the frame; GitHub button opens its folder"
+        "desktop: card at position 2, after the 1 Editor's Choice card(s) and ahead of devils-burger-station, with its 800x450 cover; plays inside the frame; GitHub button opens its folder",
+        "phone: card at position 2, after the 1 Editor's Choice card(s) and ahead of devils-burger-station, with its 800x450 cover; plays inside the frame; GitHub button opens its folder"
       ],
       "desktop": {
         "status": "pass",
