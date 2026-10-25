@@ -2,9 +2,9 @@
   "spec": "167-oops-were-late",
   "passed": true,
   "headline": "PASS: 9 of 9 checks pass at desktop and phone widths.",
-  "generatedAt": "2026-10-25T03:03:58.578Z",
+  "generatedAt": "2026-10-25T03:15:51.109Z",
   "target": "local server (python3 -m http.server) on this branch",
-  "commit": "b2feae2",
+  "commit": "84ce7fd",
   "playwright": "1.61.1",
   "specFile": "tests/evidence/167-oops-were-late.spec.mjs",
   "checks": [
@@ -34,7 +34,7 @@
     {
       "check": "the parent tiptoes with the real controls: the keyboard on a laptop, holding a finger on a phone",
       "notes": [
-        "desktop: arrow keys up+left, then Shift for a quiet tiptoe: moved from 440,676 to 387,623 and froze when let go",
+        "desktop: arrow keys up+left, then Shift for a quiet tiptoe: moved from 440,676 to 385,623 and froze when let go",
         "phone: finger held up-left, then slid close for a quiet tiptoe, then lifted: moved from 440,676 to 334,631 and froze when let go"
       ],
       "desktop": {
@@ -161,7 +161,7 @@
       "check": "the pause button stops the room, Restart starts it over, and it still plays when saving is blocked",
       "notes": [
         "desktop: paused at 0.55s and the clock stayed put; Restart put the parent back at the door; with localStorage throwing, room 1 still started and played",
-        "phone: paused at 0.63s and the clock stayed put; Restart put the parent back at the door; with localStorage throwing, room 1 still started and played"
+        "phone: paused at 0.53s and the clock stayed put; Restart put the parent back at the door; with localStorage throwing, room 1 still started and played"
       ],
       "desktop": {
         "status": "pass",
