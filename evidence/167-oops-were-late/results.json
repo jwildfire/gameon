@@ -1,0 +1,199 @@
+{
+  "spec": "167-oops-were-late",
+  "passed": true,
+  "headline": "PASS: 9 of 9 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-25T03:03:58.578Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "b2feae2",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/167-oops-were-late.spec.mjs",
+  "checks": [
+    {
+      "check": "the title screen opens and room 1 starts, with nothing loaded from the internet",
+      "notes": [
+        "desktop: 8 rooms: Classroom Circle, Library Story Time, Music Class, Birthday Party, Nap-Time Nook, Art Class, Gym Circle, The Big Puppet Show; no requests outside the site; no sideways scrolling",
+        "phone: 8 rooms: Classroom Circle, Library Story Time, Music Class, Birthday Party, Nap-Time Nook, Art Class, Gym Circle, The Big Puppet Show; no requests outside the site; no sideways scrolling"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "title-desktop.jpg",
+          "playing-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "title-phone.jpg",
+          "playing-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the parent tiptoes with the real controls: the keyboard on a laptop, holding a finger on a phone",
+      "notes": [
+        "desktop: arrow keys up+left, then Shift for a quiet tiptoe: moved from 440,676 to 387,623 and froze when let go",
+        "phone: finger held up-left, then slid close for a quiet tiptoe, then lifted: moved from 440,676 to 334,631 and froze when let go"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "freezing while the teacher looks up keeps you safe, even in plain sight",
+      "notes": [
+        "desktop: frozen in her sweep: the teacher's noticing ring got to 15% and drained away; she went back to reading",
+        "phone: frozen in her sweep: the teacher's noticing ring got to 15% and drained away; she went back to reading"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "freeze-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "freeze-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "walking in front of the teacher while she looks gets you “Oh, you're late!”, and Try again restarts the room",
+      "notes": [
+        "desktop: the teacher's ring filled while we walked in her gaze: “Oh, you're late!”; Try again put us back at the door",
+        "phone: the teacher's ring filled while we walked in her gaze: “Oh, you're late!”; Try again put us back at the door"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "spotted-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "spotted-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "a kid wriggles, turns round and notices you; the third kid to notice ends the room",
+      "notes": [
+        "desktop: a turner wriggled (“~”), turned round, its ring filled and the first eye in the HUD lit up; when the third kid noticed, the room was over",
+        "phone: a turner wriggled (“~”), turned round, its ring filled and the first eye in the HUD lit up; when the third kid noticed, the room was over"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "kid-noticed-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "kid-noticed-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "creaky boards and a woken toddler turn heads",
+      "notes": [
+        "desktop: walking on a creaky board in Music Class: CREAK! and 2 kid(s) turned to look; tiptoeing over one only went “creak”. Walking past the napping toddler woke her: WAAAH! and all 7 watchers turned to look",
+        "phone: walking on a creaky board in Music Class: CREAK! and 2 kid(s) turned to look; tiptoeing over one only went “creak”. Walking past the napping toddler woke her: WAAAH! and all 7 watchers turned to look"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "creak-desktop.jpg",
+          "toddler-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "creak-phone.jpg",
+          "toddler-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "every room can be sneaked into, and stars are saved only under gameon.oops-were-late.",
+      "notes": [
+        "desktop: robot made it into every room, 3 kid moods each (average time per room 1: 8s, 2: 10s, 3: 11s, 4: 10s, 5: 18s, 6: 10s, 7: 12s, 8: 19s); in the game it got 3 stars in room 1; after a reload: keys gameon.oops-were-late.sound, gameon.oops-were-late.stars, room 1 shows 3 stars and room 2 is unlocked",
+        "phone: robot made it into every room, 3 kid moods each (average time per room 1: 8s, 2: 10s, 3: 11s, 4: 10s, 5: 18s, 6: 10s, 7: 12s, 8: 19s); in the game it got 3 stars in room 1; after a reload: keys gameon.oops-were-late.sound, gameon.oops-were-late.stars, room 1 shows 3 stars and room 2 is unlocked"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "made-it-desktop.jpg",
+          "rooms-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "made-it-phone.jpg",
+          "rooms-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the pause button stops the room, Restart starts it over, and it still plays when saving is blocked",
+      "notes": [
+        "desktop: paused at 0.55s and the clock stayed put; Restart put the parent back at the door; with localStorage throwing, room 1 still started and played",
+        "phone: paused at 0.63s and the clock stayed put; Restart put the parent back at the door; with localStorage throwing, room 1 still started and played"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "Oops! We're Late! has a card right after the Editor's Choice games and plays in its frame",
+      "notes": [
+        "desktop: card at position 2, after the 1 Editor's Choice card(s) and ahead of pet-wash-payback, with its 800x450 cover; plays inside the frame; GitHub button opens its folder",
+        "phone: card at position 2, after the 1 Editor's Choice card(s) and ahead of pet-wash-payback, with its 800x450 cover; plays inside the frame; GitHub button opens its folder"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "in-arcade-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "in-arcade-phone.jpg"
+        ],
+        "error": null
+      }
+    }
+  ]
+}
