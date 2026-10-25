@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <title>Pet Wash Payback</title>
-<meta name="description" content="Scrub the pets as fast as you can, then run! Now they've got the hose.">
+<meta name="description" content="More silly animals, and now they all chase you with squirt guns, sprinklers and more!">
 <meta name="theme-color" content="#2a2140">
 <link rel="icon" href="data:,">
 <style>
@@ -51,6 +51,8 @@ button { font-family: var(--round); color: var(--ink); }
 .tool .k { position: absolute; top: 4px; left: 7px; font-size: 11px; opacity: 0.55; }
 .tool.on { background: var(--sun); transform: translateY(3px); box-shadow: 0 2px 0 var(--ink); }
 .tool.want:not(.on) { animation: want 0.6s infinite alternate; }
+.tool.gone { opacity: 0.45; background: #ffd0c8; }
+.tool.gone::after { content: "Inky has it!"; position: absolute; left: -4px; right: -4px; top: -22px; font: 900 11px var(--round); color: #fff; background: #ff6f6f; border: 2px solid var(--ink); border-radius: 99px; padding: 1px 0; }
 @keyframes want { from { box-shadow: 0 5px 0 var(--ink), 0 0 0 0 rgba(255,111,174,0.9); } to { box-shadow: 0 5px 0 var(--ink), 0 0 0 7px rgba(255,111,174,0.55); } }
 
 #tip { position: fixed; left: 0; right: 0; top: 64px; z-index: 4; text-align: center; font-weight: 900; font-size: 26px; color: #fff; text-shadow: 0 3px 0 var(--ink), 0 -2px 0 var(--ink), 2px 0 0 var(--ink), -2px 0 0 var(--ink), 0 5px 8px rgba(0,0,0,0.35); pointer-events: none; transition: opacity 300ms, transform 300ms; padding: 0 16px; }
@@ -145,13 +147,13 @@ table.sum td.n { text-align: right; font-variant-numeric: tabular-nums; }
 <div class="screen" id="title-screen">
   <div class="card">
     <div class="logo"><span class="a title-big">Pet Wash</span><span class="b">PAYBACK!</span></div>
-    <p class="tag">Scrub the pets as fast as you can, then run! Now they've got the hose.</p>
+    <p class="tag">More silly animals, and now they all chase you with squirt guns, sprinklers and more!</p>
     <div class="row">
       <button class="btn" id="play-btn">Play!</button>
       <button class="btn alt" id="pets-btn">Pick a pet</button>
     </div>
     <p class="muted" id="title-best"></p>
-    <p class="keys">Round 1: drag over the mud to scrub. Soap <kbd>1</kbd>, rinse <kbd>2</kbd>, towel <kbd>3</kbd>.<br>Round 2: run with <kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd> or <kbd>WASD</kbd>, or drag anywhere. <kbd>P</kbd> pause · <kbd>R</kbd> restart · <kbd>M</kbd> sound</p>
+    <p class="keys">Round 1: drag over the mud to scrub. Soap <kbd>1</kbd>, rinse <kbd>2</kbd>, towel <kbd>3</kbd>. Tap the parrot to catch him.<br>Round 2: everyone you washed wants payback! Run with <kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd> or <kbd>WASD</kbd>, or drag anywhere. <kbd>P</kbd> pause · <kbd>R</kbd> restart · <kbd>M</kbd> sound</p>
     <p class="muted">Designed by Jeremy · GameOn</p>
   </div>
 </div>
@@ -169,7 +171,7 @@ table.sum td.n { text-align: right; font-variant-numeric: tabular-nums; }
 <!-- Round intro -->
 <div class="screen" id="intro-screen" hidden>
   <div class="card">
-    <div class="kicker" id="intro-kicker">Pet 1 of 5 · Round 1</div>
+    <div class="kicker" id="intro-kicker">Pet 1 of 9 · Round 1</div>
     <h2 id="intro-title">Wash Biscuit!</h2>
     <canvas class="petpic" id="intro-pet" width="360" height="300" aria-hidden="true"></canvas>
     <p class="tag" id="intro-tip"></p>
