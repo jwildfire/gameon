@@ -1,0 +1,216 @@
+{
+  "spec": "168-devils-burger-station",
+  "passed": true,
+  "headline": "PASS: 10 of 10 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-25T04:01:33.457Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "0d42c8d",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/168-devils-burger-station.spec.mjs",
+  "checks": [
+    {
+      "check": "the title screen opens and shift 1 starts, with nothing loaded from the internet",
+      "notes": [
+        "desktop: 5 shifts, 8 ingredient buttons and 3 hot sauces (Mild, Fiery, LAVA); a devil walks up with a ticket; no requests outside the site; no sideways scrolling",
+        "phone: 5 shifts, 8 ingredient buttons and 3 hot sauces (Mild, Fiery, LAVA); a devil walks up with a ticket; no requests outside the site; no sideways scrolling"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "title-desktop.jpg",
+          "playing-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "title-phone.jpg",
+          "playing-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "a burger stacked like its ticket, with the right hot sauce, makes the devil happy and pays a tip",
+      "notes": [
+        "desktop: pressed the number keys and a sauce letter, then clicked the devil: bun + patty + bun with MILD sauce for Blip; paid 9 coins including a 4 coin tip",
+        "phone: tapped the tray buttons, then tapped the devil: bun + patty + bun with MILD sauce for Blip; paid 9 coins including a 4 coin tip"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "served-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "served-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "no hot sauce or the wrong one makes a devil steaming mad, and three of them end the shift",
+      "notes": [
+        "desktop: no sauce on bun+patty+bun: steaming mad; LAVA instead of MILD: steaming mad; a third ran out of patience and the shift ended with \"Too steamy in here!\"; Try again started shift 1 fresh",
+        "phone: no sauce on bun+patty+bun: steaming mad; LAVA instead of MILD: steaming mad; a third ran out of patience and the shift ended with \"Too steamy in here!\"; Try again started shift 1 fresh"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "steaming-mad-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "steaming-mad-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the game's words are goofy: devils get steaming mad, and there's no swearing anywhere",
+      "notes": [
+        "desktop: index.html, game.js, engine.js, art.js, bot.js: \"steaming mad\" is there; none of hell, pissed, damn, crap or heck",
+        "phone: index.html, game.js, engine.js, art.js, bot.js: \"steaming mad\" is there; none of hell, pissed, damn, crap or heck"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "every one of the 5 shifts can be beaten in the real game, and each is busier than the last",
+      "notes": [
+        "desktop: shift: devils, at the counter at once, patience, coins, steaming mad, game seconds: 1: 6 devils, 2 at once, 46s, 75 coins, 0 steamed, 36s; 2: 8 devils, 2 at once, 42s, 119 coins, 0 steamed, 44s; 3: 10 devils, 3 at once, 40s, 176 coins, 0 steamed, 48s; 4: 11 devils, 3 at once, 38s, 292 coins, 0 steamed, 76s; 5: 13 devils, 3 at once, 36s, 329 coins, 0 steamed, 84s",
+        "phone: shift: devils, at the counter at once, patience, coins, steaming mad, game seconds: 1: 6 devils, 2 at once, 46s, 75 coins, 0 steamed, 36s; 2: 8 devils, 2 at once, 42s, 119 coins, 0 steamed, 44s; 3: 10 devils, 3 at once, 40s, 176 coins, 0 steamed, 48s; 4: 11 devils, 3 at once, 38s, 292 coins, 0 steamed, 76s; 5: 13 devils, 3 at once, 36s, 329 coins, 0 steamed, 84s"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "all-shifts-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "all-shifts-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "later shifts bring fussy devils, double orders, and Big Boss Blaze at the end",
+      "notes": [
+        "desktop: shift 4: 5 double orders and 4 fussy devils; shift 5: 12 devils, then Big Boss Blaze with 2 burgers on one ticket (the first one ticked off here)",
+        "phone: shift 4: 5 double orders and 4 fussy devils; shift 5: 12 devils, then Big Boss Blaze with 2 burgers on one ticket (the first one ticked off here)"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "boss-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "boss-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the game pauses, and Restart starts the shift over",
+      "notes": [
+        "desktop: paused at 2.93s and the clock stayed put; Keep cooking ran it again; P paused, and Restart shift brought back the shift intro with a fresh clock and an empty plate",
+        "phone: paused at 2.91s and the clock stayed put; Keep cooking ran it again; P paused, and Restart shift brought back the shift intro with a fresh clock and an empty plate"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "paused-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "paused-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the best score and unlocked shifts are saved only under gameon.devils-burger-station.",
+      "notes": [
+        "desktop: keys: gameon.devils-burger-station.sound, gameon.devils-burger-station.progress, gameon.devils-burger-station.best; after a reload the title shows best score 75, 3 stars on shift 1 and shift 2 unlocked",
+        "phone: keys: gameon.devils-burger-station.sound, gameon.devils-burger-station.progress, gameon.devils-burger-station.best; after a reload the title shows best score 75, 3 stars on shift 1 and shift 2 unlocked"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "saved-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "saved-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the game still plays when the browser blocks saving",
+      "notes": [
+        "desktop: with localStorage throwing, the title screen opened and shift 1 played through to Shift clear",
+        "phone: with localStorage throwing, the title screen opened and shift 1 played through to Shift clear"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "Devil's Burger Station has a card at the front of the arcade and plays in its frame",
+      "notes": [
+        "desktop: card at position 2, after the 1 Editor's Choice card(s) and ahead of Big Weird Dig, with its 800x450 cover; plays inside the frame; GitHub button opens its folder",
+        "phone: card at position 2, after the 1 Editor's Choice card(s) and ahead of Big Weird Dig, with its 800x450 cover; plays inside the frame; GitHub button opens its folder"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "in-arcade-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "in-arcade-phone.jpg"
+        ],
+        "error": null
+      }
+    }
+  ]
+}
