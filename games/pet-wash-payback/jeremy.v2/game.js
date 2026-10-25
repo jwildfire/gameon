@@ -1054,14 +1054,16 @@ function renderWash() {
   if (r.over && r.done) pose.mood = "happy";
   const up = flying(r);
   if (!up) {
-    g.save(); g.translate(T.x, T.y); g.rotate(T.rot); g.scale(T.k, T.k);
+    // clipped at the bottom of the tub, so a sinking hippo stays inside it
+    g.save(); g.beginPath(); g.rect(0, 0, W, L.bottom - 6 * L.k); g.clip();
+    g.translate(T.x, T.y); g.rotate(T.rot); g.scale(T.k, T.k);
     drawPet(r.pet.id, pose, r.spots, "body");
     g.restore();
   }
   drawTubFront(L);
   g.save(); g.translate(T.x, T.y); g.rotate(T.rot); g.scale(T.k, T.k);
   if (up) drawPet(r.pet.id, pose, r.spots);
-  else drawPet(r.pet.id, pose, r.pet.gang ? r.spots : null, "paws");
+  else if (!(r.b.depth > 0.3)) drawPet(r.pet.id, pose, r.pet.gang ? r.spots : null, "paws");
   g.restore();
   drawParticles();
   drawTool(r, L);
