@@ -2,6 +2,7 @@
 // configured, and behaves exactly as in Phase 0 when it isn't. The intake is faked with
 // Playwright route interception; so is Cloudflare's Turnstile widget.
 // Run: npm run evidence -- tests/evidence/82-intake-page
+import { readFileSync } from "node:fs";
 import { test, expect } from "./evidence.mjs";
 
 const INTAKE = "https://intake.gameon.test";
@@ -10,10 +11,10 @@ const IDEA = "a game where a robot cat surfs on a giant pancake across the sky a
 const CODE = "test-family-code-1";
 
 // Point the page at the fake intake, with a stand-in Turnstile that hands out a token.
-async function configure(page, { siteKey = SITE_KEY } = {}) {
+async function configure(page, { siteKey = SITE_KEY, familyCodes = true } = {}) {
   await page.route("**/new/intake-config.js", route => route.fulfill({
     contentType: "text/javascript",
-    body: `window.GAMEON_INTAKE = { url: ${JSON.stringify(INTAKE + "/")}, turnstileSiteKey: ${JSON.stringify(siteKey)} };`
+    body: `window.GAMEON_INTAKE = { url: ${JSON.stringify(INTAKE + "/")}, turnstileSiteKey: ${JSON.stringify(siteKey)}, familyCodes: ${familyCodes} };`
   }));
   await page.route("https://challenges.cloudflare.com/turnstile/v0/api.js**", route => route.fulfill({
     contentType: "text/javascript",
@@ -224,6 +225,36 @@ test("the idea line reads /queue, never GitHub, and shows no idea words", async 
   await fits(page);
   await page.locator("#line").scrollIntoViewIfNeeded();
   await shot("idea-line");
+  expect(browserErrors).toEqual([]);
+});
+
+test("the committed config points at the live Worker, with family codes off", async ({ note }) => {
+  const src = readFileSync(new URL("../../new/intake-config.js", import.meta.url), "utf8");
+  const window = {};
+  new Function("window", src)(window);
+  expect(window.GAMEON_INTAKE.url).toBe("https://gameon-intake.jwildfire.workers.dev");
+  expect(window.GAMEON_INTAKE.turnstileSiteKey).toBe("0x4AAAAAAFkrw2xvlaI5TKLD");
+  expect(window.GAMEON_INTAKE.familyCodes).toBe(false);
+  note("new/intake-config.js: url https://gameon-intake.jwildfire.workers.dev, the public Turnstile site key, familyCodes false");
+});
+
+test("with family codes off, there's no code field and every idea goes through the robot check", async ({ page, shot, note, browserErrors }) => {
+  await configure(page, { familyCodes: false });
+  const intake = await fakeIntake(page, { ideas: () => ({ status: 201, body: { ok: true, number: 9, status: "status: submitted", submitter: "unknown" } }) });
+  await page.goto("./new/");
+  await page.evaluate(() => localStorage.setItem("gameon.arcade.familyCode", "an-old-saved-code"));
+  await page.reload();
+  await expect(page.locator("#family")).toBeHidden();
+  await expect(page.locator("#fake-turnstile")).toBeVisible();
+  await expect(page.locator("#submit-help")).toContainText("Every idea waits for a grown-up");
+  await page.locator("#idea").fill(IDEA);
+  await page.locator("#maker").fill("Tester");
+  await page.locator("#fake-turnstile").check();
+  await page.locator("#send").click();
+  await expect.poll(() => intake.posts.length).toBe(1);
+  expect(intake.posts[0]).toEqual({ idea: IDEA, maker: "Tester", told_by: "typing", turnstile: "fake-turnstile-token" });
+  note("familyCodes: false hides the code field, ignores a code saved earlier, shows the robot check, and sends its token with no code");
+  await shot("codes-off");
   expect(browserErrors).toEqual([]);
 });
 

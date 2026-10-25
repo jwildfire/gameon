@@ -1,10 +1,10 @@
 {
   "spec": "82-intake-page",
   "passed": true,
-  "headline": "PASS: 7 of 7 checks pass at desktop and phone widths.",
-  "generatedAt": "2026-10-25T01:54:15.479Z",
+  "headline": "PASS: 9 of 9 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-25T02:38:26.752Z",
   "target": "local server (python3 -m http.server) on this branch",
-  "commit": "80cfec5",
+  "commit": "b2feae2",
   "playwright": "1.61.1",
   "specFile": "tests/evidence/82-intake-page.spec.mjs",
   "checks": [
@@ -127,6 +127,44 @@
         "status": "pass",
         "screenshots": [
           "idea-line-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the committed config points at the live Worker, with family codes off",
+      "notes": [
+        "desktop: new/intake-config.js: url https://gameon-intake.jwildfire.workers.dev, the public Turnstile site key, familyCodes false",
+        "phone: new/intake-config.js: url https://gameon-intake.jwildfire.workers.dev, the public Turnstile site key, familyCodes false"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "with family codes off, there's no code field and every idea goes through the robot check",
+      "notes": [
+        "desktop: familyCodes: false hides the code field, ignores a code saved earlier, shows the robot check, and sends its token with no code",
+        "phone: familyCodes: false hides the code field, ignores a code saved earlier, shows the robot check, and sends its token with no code"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "codes-off-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "codes-off-phone.jpg"
         ],
         "error": null
       }

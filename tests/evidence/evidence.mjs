@@ -43,6 +43,11 @@ function standIn(game) {
 
 export const test = base.extend({
   page: async ({ page }, use) => {
+    // The New Game page sends through the live intake Worker (new/intake-config.js). Every
+    // spec sees the unconfigured page, the GitHub-form route, unless it routes the config
+    // again itself, as 82-intake-page does: the route registered last wins.
+    await page.route("**/new/intake-config.js", route => route.fulfill({
+      contentType: "text/javascript", body: 'window.GAMEON_INTAKE = { url: "" };' }));
     if (!LIVE) {
       await page.route("**/favicon.ico", route => route.fulfill({ status: 204, body: "" }));
       // The GitHub API (the New Game page's idea line) answers with an empty list, so a

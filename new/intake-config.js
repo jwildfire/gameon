@@ -3,6 +3,7 @@
 // Both values are public: the url is the Worker's address, and the site key is
 // Turnstile's public key (its secret lives only in the Worker).
 window.GAMEON_INTAKE = {
-  url: "",              // e.g. "https://gameon-intake.<subdomain>.workers.dev"
-  turnstileSiteKey: "0x4AAAAAAFkrw2xvlaI5TKLD"  // Turnstile, for ideas sent without a family code; used only once url is set
+  url: "https://gameon-intake.jwildfire.workers.dev",
+  turnstileSiteKey: "0x4AAAAAAFkrw2xvlaI5TKLD", // Turnstile, for ideas sent without a family code
+  familyCodes: false    // no family codes yet (Jeremy, 2026-10-24): no code field, every idea waits for a grown-up
 };

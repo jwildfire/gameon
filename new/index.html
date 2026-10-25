@@ -236,6 +236,7 @@ html[data-mode="weird"] h1 { justify-self: start; background: var(--card); borde
   var CFG = window.GAMEON_INTAKE || {};
   var INTAKE = typeof CFG.url === "string" ? CFG.url.trim().replace(/\/+$/, "") : "";
   var SITE_KEY = INTAKE && typeof CFG.turnstileSiteKey === "string" ? CFG.turnstileSiteKey.trim() : "";
+  var CODES = INTAKE && CFG.familyCodes !== false;   // familyCodes: false hides the code field; every idea waits for a grown-up
   var CODE_KEY = "gameon.arcade.familyCode";
   var MAX_WORDS = 1000, CAP = INTAKE ? 10000 : MAX;   // the intake counts words, not characters
 
@@ -459,11 +460,12 @@ html[data-mode="weird"] h1 { justify-self: start; background: var(--card); borde
   var robotToken = "", robotId = null;
   var SEND_LABEL = send.textContent;
 
-  function loadCode() { try { return localStorage.getItem(CODE_KEY) || ""; } catch (e) { return ""; } }
+  function loadCode() { if (!CODES) return ""; try { return localStorage.getItem(CODE_KEY) || ""; } catch (e) { return ""; } }
   function saveCode(c) { try { if (c) localStorage.setItem(CODE_KEY, c); else localStorage.removeItem(CODE_KEY); } catch (e) {} }
 
   function showFamily() {
     if (!INTAKE) return;
+    if (!CODES) { family.hidden = true; showRobot(); return; }
     var code = loadCode();
     family.hidden = false;
     familySaved.hidden = !code;
@@ -545,8 +547,8 @@ html[data-mode="weird"] h1 { justify-self: start; background: var(--card); borde
 
   if (INTAKE) {
     idea.maxLength = CAP;
-    $("step-send").textContent = "Send it to the Matrix. Ideas without a family code wait for a grown-up.";
-    $("submit-help").textContent = "For grown-ups: type your family code once and this device remembers it. Ideas sent without one still go in, and wait for a grown-up to say yes before anything is built.";
+    $("step-send").textContent = CODES ? "Send it to the Matrix. Ideas without a family code wait for a grown-up." : "Send it to the Matrix. A grown-up says yes before anything is built.";
+    $("submit-help").textContent = CODES ? "For grown-ups: type your family code once and this device remembers it. Ideas sent without one still go in, and wait for a grown-up to say yes before anything is built." : "Every idea waits for a grown-up to say yes before anything is built.";
   }
 
   // ---------- The idea line ----------
