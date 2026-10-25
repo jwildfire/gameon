@@ -1,5 +1,16 @@
 [
   {
+    "slug": "ant-farm-wars",
+    "creator": "jeremy",
+    "title": "Ant Farm Wars",
+    "tagline": "Grow your ant colony, choose its powers, and take on three rival farms.",
+    "credit": "Made by Jeremy",
+    "url": "games/ant-farm-wars/",
+    "repo": "https://github.com/jwildfire/gameon",
+    "color": "#ffc93c",
+    "tags": ["New", "Strategy", "1 player"]
+  },
+  {
     "slug": "devils-burger-station",
     "creator": "notclay",
     "title": "Devil's Burger Station",
