@@ -7,6 +7,7 @@
 <meta name="description" content="Say what you want to play, an AI builds it, and you play it with your friends.">
 <meta name="theme-color" content="#ffd23f">
 <script src="../assets/mode.js"></script>
+<script src="intake-config.js"></script>
 <link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -119,6 +120,14 @@ input[type="text"] { width: 100%; border: 2.5px solid var(--ink); border-radius:
 .top-right { flex-wrap: wrap; justify-content: flex-end; }
 html[data-mode="weird"] h1 { justify-self: start; background: var(--card); border: var(--line); border-radius: 18px; box-shadow: var(--lift); padding: 6px 16px 10px; }
 .page { padding-bottom: max(88px, env(safe-area-inset-bottom, 0px)); } /* room for the corner control (Shuffle, and Next in Weird) */
+/* Sending through the intake service (new/intake-config.js): the family code and the robot check. */
+.family { display: grid; gap: 8px; padding: 12px; border: 2px dashed var(--ink); border-radius: 14px; }
+.family .sub { font: 800 14px/1.3 var(--body); color: var(--muted); margin: 0; }
+.family .sub b { color: var(--ink); }
+.family-row { display: flex; gap: 8px; }
+.family-row input { flex: 1; min-width: 0; }
+.family-saved { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-weight: 800; }
+.robot { min-height: 65px; max-width: 100%; overflow: hidden; }
 </style>
 </head>
 <body>
@@ -173,12 +182,23 @@ html[data-mode="weird"] h1 { justify-self: start; background: var(--card); borde
         <input type="text" id="maker" maxlength="20" autocomplete="off" placeholder="A nickname, not your real name">
       </div>
 
+      <div class="family" id="family" hidden>
+        <div class="family-saved" id="family-saved" hidden><span>Family code saved on this device.</span><button type="button" class="chip" id="family-forget">Forget it</button></div>
+        <div id="family-entry" style="display:grid;gap:8px">
+          <label class="sub" for="family-code"><b>Family code</b> · for grown-ups: type it once and this device remembers it</label>
+          <div class="family-row"><input type="text" id="family-code" maxlength="100" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Your family's code"><button type="button" class="chip" id="family-save">Save</button></div>
+          <p class="sub">No code? You can still send it. A grown-up checks it first.</p>
+        </div>
+      </div>
+      <div class="robot" id="robot" hidden><div id="robot-widget"></div></div>
+
       <div class="msg" id="ask" hidden>What happens in your game? Tell us a bit more.</div>
+      <div class="msg warn" id="send-msg" role="alert" hidden></div>
       <button type="button" class="go" id="send" disabled>Send to the Matrix</button>
 
       <div class="handoff" id="handoff" hidden>
-        <div class="msg">Sent to the Matrix! Someone with GitHub access presses <b>Submit</b> to make it real.</div>
-        <p>If GitHub didn't open, use this link:</p>
+        <div class="msg" id="handoff-msg">Sent to the Matrix! Someone with GitHub access presses <b>Submit</b> to make it real.</div>
+        <p id="link-help">If GitHub didn't open, use this link:</p>
         <a class="linkbox" id="issue-link" target="_blank" rel="noopener"></a>
         <button type="button" class="chip" id="another" style="justify-self:start">Make another one</button>
       </div>
@@ -195,11 +215,11 @@ html[data-mode="weird"] h1 { justify-self: start; background: var(--card); borde
       <ol class="steps">
         <li>Say what you want to play. Talk or type.</li>
         <li>Fix the typos.</li>
-        <li>Send it to the Matrix, and someone signs it off on GitHub.</li>
+        <li id="step-send">Send it to the Matrix, and someone signs it off on GitHub.</li>
         <li>An AI builds it, and another AI checks it.</li>
         <li>Game night.</li>
       </ol>
-      <p style="color:var(--muted)">For whoever presses Submit: Send opens GitHub's Game idea form with everything filled in. Read it, take out anything private like real names, and press Submit. An agent picks it up within about ten minutes.</p>
+      <p style="color:var(--muted)" id="submit-help">For whoever presses Submit: Send opens GitHub's Game idea form with everything filled in. Read it, take out anything private like real names, and press Submit. An agent picks it up within about ten minutes.</p>
     </aside>
     </div>
   </div>
@@ -210,6 +230,14 @@ html[data-mode="weird"] h1 { justify-self: start; background: var(--card); borde
   var REPO = "https://github.com/jwildfire/gameon";
   var MAX = 1000, MIN_WORDS = 5;
   var NICK_KEY = "gameon.arcade.nicknames";
+
+  // The intake service (new/intake-config.js, intake/README.md). With no url, everything
+  // below works as in Phase 0: Send opens GitHub's form and the idea line reads GitHub.
+  var CFG = window.GAMEON_INTAKE || {};
+  var INTAKE = typeof CFG.url === "string" ? CFG.url.trim().replace(/\/+$/, "") : "";
+  var SITE_KEY = INTAKE && typeof CFG.turnstileSiteKey === "string" ? CFG.turnstileSiteKey.trim() : "";
+  var CODE_KEY = "gameon.arcade.familyCode";
+  var MAX_WORDS = 1000, CAP = INTAKE ? 10000 : MAX;   // the intake counts words, not characters
 
   var $ = function (id) { return document.getElementById(id); };
   var tabTalk = $("tab-talk"), tabType = $("tab-type"), talkPane = $("talk-pane");
@@ -319,7 +347,7 @@ html[data-mode="weird"] h1 { justify-self: start; background: var(--card); borde
         if (e.results[i].isFinal) finalText += t.trim() + " ";
         else interim += t;
       }
-      idea.value = finalText.trim().slice(0, MAX);
+      idea.value = finalText.trim().slice(0, CAP);
       live.innerHTML = "";
       if (interim) { var s = document.createElement("span"); s.className = "interim"; s.textContent = interim; live.appendChild(s); }
       told = "talking";
@@ -370,11 +398,12 @@ html[data-mode="weird"] h1 { justify-self: start; background: var(--card); borde
 
   // ---------- Validate and send ----------
   function words(s) { return s.trim() ? s.trim().split(/\s+/).length : 0; }
+  function tooLong(text) { return INTAKE ? words(text) > MAX_WORDS : text.length > MAX; }
   function update() {
     var text = idea.value, n = text.length;
-    count.textContent = n + " / " + MAX;
-    count.classList.toggle("over", n > MAX);
-    send.disabled = !text.trim() || n > MAX || !cleanNick(maker.value);
+    count.textContent = INTAKE ? words(text) + " / " + MAX_WORDS + " words" : n + " / " + MAX;
+    count.classList.toggle("over", tooLong(text));
+    send.disabled = !text.trim() || tooLong(text) || !cleanNick(maker.value) || sending;
     if (words(text) >= MIN_WORDS) ask.hidden = true;
   }
   idea.addEventListener("input", update);
@@ -404,9 +433,10 @@ html[data-mode="weird"] h1 { justify-self: start; background: var(--card); borde
     var text = idea.value.trim().replace(/\s+\n/g, "\n");
     var nick = cleanNick(maker.value);
     if (words(text) < MIN_WORDS) { ask.hidden = false; idea.focus(); return; }
-    if (!nick || text.length > MAX) return;
+    if (!nick || tooLong(text) || sending) return;
     stopListening();
     saveNick(nick);
+    if (INTAKE) return sendToIntake(text, nick);
     var url = issueUrl(text, nick, told, target);
     issueLink.href = url;
     issueLink.textContent = url;
@@ -418,14 +448,112 @@ html[data-mode="weird"] h1 { justify-self: start; background: var(--card); borde
   });
 
   $("another").addEventListener("click", function () {
-    idea.value = ""; told = "typing"; handoff.hidden = true; send.hidden = false;
+    idea.value = ""; told = "typing"; handoff.hidden = true; send.hidden = false; sendMsg.hidden = true;
     setMode(Recognition ? "talk" : "type"); update(); idea.blur();
   });
+
+  // ---------- Sending through the intake service ----------
+  var sending = false, pending = [];
+  var sendMsg = $("send-msg"), family = $("family"), familySaved = $("family-saved"), familyEntry = $("family-entry");
+  var familyCode = $("family-code"), robot = $("robot");
+  var robotToken = "", robotId = null;
+  var SEND_LABEL = send.textContent;
+
+  function loadCode() { try { return localStorage.getItem(CODE_KEY) || ""; } catch (e) { return ""; } }
+  function saveCode(c) { try { if (c) localStorage.setItem(CODE_KEY, c); else localStorage.removeItem(CODE_KEY); } catch (e) {} }
+
+  function showFamily() {
+    if (!INTAKE) return;
+    var code = loadCode();
+    family.hidden = false;
+    familySaved.hidden = !code;
+    familyEntry.hidden = !!code;
+    showRobot();
+  }
+  $("family-save").addEventListener("click", function () {
+    var c = familyCode.value.trim();
+    if (c.length < 4) { familyCode.focus(); return; }
+    saveCode(c); familyCode.value = ""; sendMsg.hidden = true; showFamily();
+  });
+  familyCode.addEventListener("keydown", function (e) { if (e.key === "Enter") $("family-save").click(); });
+  $("family-forget").addEventListener("click", function () { saveCode(""); showFamily(); familyCode.focus(); });
+
+  // The robot check (Cloudflare Turnstile), only for ideas sent without a family code.
+  function needRobot() { return !!(INTAKE && SITE_KEY && !loadCode()); }
+  function showRobot() {
+    robot.hidden = !needRobot();
+    if (!needRobot()) return;
+    if (window.turnstile) { renderRobot(); return; }
+    if (document.getElementById("turnstile-js")) return;
+    var sc = document.createElement("script");
+    sc.id = "turnstile-js";
+    sc.async = true;
+    sc.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=gameonRobotReady";
+    document.head.appendChild(sc);
+  }
+  function renderRobot() {
+    if (robotId !== null || !needRobot() || !window.turnstile) return;
+    robotId = window.turnstile.render("#robot-widget", {
+      sitekey: SITE_KEY,
+      callback: function (t) { robotToken = t; sendMsg.hidden = true; },
+      "expired-callback": function () { robotToken = ""; },
+      "error-callback": function () { robotToken = ""; }
+    });
+  }
+  window.gameonRobotReady = renderRobot;
+  function resetRobot() {
+    robotToken = "";
+    if (robotId !== null && window.turnstile) { try { window.turnstile.reset(robotId); } catch (e) {} }
+  }
+
+  function say(text) { sendMsg.textContent = text; sendMsg.hidden = false; }
+
+  function sendToIntake(text, nick) {
+    var code = loadCode();
+    if (!code && SITE_KEY && !robotToken) { say("Tap the \"I'm not a robot\" box first."); return; }
+    var body = { idea: text, maker: nick, told_by: told };
+    if (target) { body.game = target.slug; body.version = target.version; }
+    if (code) body.code = code; else if (robotToken) body.turnstile = robotToken;
+    var upd = target;
+    sending = true; sendMsg.hidden = true; send.textContent = "Sending…"; update();
+    fetch(INTAKE + "/ideas", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json().catch(function () { return {}; }); })
+      .then(function (j) {
+        if (j && j.ok) sent(j, nick, upd);
+        else refused(j || {});
+      }, function () { refused({}); })
+      .then(function () { sending = false; send.textContent = SEND_LABEL; resetRobot(); update(); });
+  }
+
+  function sent(j, nick, upd) {
+    $("handoff-msg").textContent = "Sent to the Matrix! It's in the idea line now." +
+      (j.submitter === "unknown" ? " A grown-up checks it before it gets built." : "");
+    $("link-help").hidden = true; issueLink.hidden = true;
+    handoff.hidden = false; send.hidden = true;
+    // Show it straight away as "Just sent", without its words, until the queue has it.
+    pending.unshift({ source: "private", number: j.number, created: new Date().toISOString(), maker: nick,
+                      status: "status: submitted", ev: null, update: !!upd, game: upd ? upd.slug : "" });
+    try { sessionStorage.removeItem(CACHE_KEY); } catch (e) {}
+    renderIdeas(withPending(lastIdeas));
+    handoff.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  function refused(j) {
+    if (j.error === "bad_code") { saveCode(""); showFamily(); }
+    say(j.message || "Couldn't reach the idea machine. Check the internet and try again.");
+  }
+
+  if (INTAKE) {
+    idea.maxLength = CAP;
+    $("step-send").textContent = "Send it to the Matrix. Ideas without a family code wait for a grown-up.";
+    $("submit-help").textContent = "For grown-ups: type your family code once and this device remembers it. Ideas sent without one still go in, and wait for a grown-up to say yes before anything is built.";
+  }
 
   // ---------- The idea line ----------
   // Reads public game-idea issues and their eval comments. Two API calls, cached for a minute.
   var API = "https://api.github.com/repos/jwildfire/gameon";
-  var CACHE_KEY = "gameon.arcade.ideas";
+  var CACHE_KEY = INTAKE ? "gameon.arcade.ideas.intake" : "gameon.arcade.ideas";
+  var lastIdeas = [];
   var STATUS = {
     "status: submitted":      { words: "Got it!",                step: 1 },
     "status: evaluating":     { words: "Thinking it over",       step: 2 },
@@ -475,11 +603,37 @@ html[data-mode="weird"] h1 { justify-self: start; background: var(--card); borde
     });
   }
 
+  // GET /queue on the intake service: titles, one-liners, statuses and nicknames, never an
+  // idea's words. Mapped to the same shape the GitHub reader below makes.
+  function loadQueue() {
+    return fetch(INTAKE + "/queue").then(function (r) {
+      if (!r.ok) { var e = new Error("http " + r.status); e.kind = "intake"; throw e; }
+      return r.json();
+    }).then(function (j) {
+      return (j && Array.isArray(j.ideas) ? j.ideas : []).map(function (i) {
+        var ev = i.title || i.one_liner || i.question || i.reason || i.version
+          ? { title: i.title, one_liner: i.one_liner, question: i.question, reason: i.reason, version: i.version } : null;
+        return { source: i.source, number: i.number, created: i.created, maker: i.maker || "Someone",
+                 status: STATUS[i.status] ? i.status : "status: submitted", ev: ev, update: !!i.update, game: i.game || "" };
+      });
+    });
+  }
+  function withPending(list) {
+    pending = pending.filter(function (p) {
+      return !list.some(function (i) { return i.source === p.source && i.number === p.number; });
+    });
+    return pending.concat(list);
+  }
+
   function loadIdeas(force) {
     try {
       var c = JSON.parse(sessionStorage.getItem(CACHE_KEY) || "null");
       if (!force && c && Date.now() - c.at < 60000) return Promise.resolve(c.data);
     } catch (e) {}
+    if (INTAKE) return loadQueue().then(function (data) {
+      try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ at: Date.now(), data: data })); } catch (e) {}
+      return data;
+    });
     return Promise.all([
       getJSON(API + "/issues?labels=game-idea&state=all&sort=created&direction=desc&per_page=30"),
       getJSON(API + "/issues/comments?sort=created&direction=desc&per_page=100")
@@ -549,10 +703,12 @@ html[data-mode="weird"] h1 { justify-self: start; background: var(--card); borde
     lineMsg.hidden = false;
     if (!ideasEl.children.length) lineMsg.textContent = "Loading ideas…";
     // Updates are titled from games.json, so wait for it (it never fails; titles fall back to the slug).
-    Promise.all([loadIdeas(force), gamesReady]).then(function (r) { renderIdeas(r[0]); }).catch(function (e) {
+    Promise.all([loadIdeas(force), gamesReady]).then(function (r) { lastIdeas = r[0]; renderIdeas(withPending(r[0])); }).catch(function (e) {
       ideasEl.innerHTML = "";
       lineMsg.hidden = false;
-      lineMsg.textContent = e && e.kind === "limit"
+      lineMsg.textContent = INTAKE
+        ? "Can't load the idea line right now. Tap Refresh to try again."
+        : e && e.kind === "limit"
         ? "GitHub needs a short break. Try again in a few minutes."
         : "Can't reach GitHub right now. Check the internet and tap Refresh.";
     });
@@ -561,6 +717,7 @@ html[data-mode="weird"] h1 { justify-self: start; background: var(--card); borde
   window.gameonShowIdeas = showIdeas; // used by the evidence tests
 
   // ---------- Start ----------
+  showFamily();
   showIdeas(false);
   var last = loadNicks()[0];
   if (last) maker.value = last;
