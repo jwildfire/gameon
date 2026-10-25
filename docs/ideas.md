@@ -11,7 +11,7 @@ handle both the same way, apart from the differences on this page.
 | How an idea gets there | The New Game page opens GitHub's Game idea form, and a grown-up signed in to GitHub presses Submit | The New Game page posts to the intake service ([`intake/`](../intake/), #80), which files the issue as the GameOn GitHub App. No GitHub sign-in |
 | When it's used | When the page has no intake service configured (Phase 0, and the fallback) | When `new/intake-config.js` names the service |
 | How to name an idea | `#N` (or `jwildfire/gameon#N`) | `jwildfire/gameon-ideas#N`, always repo-qualified |
-| Who sent it | Always **known**: a grown-up read it and pressed Submit | `submitter: known` (a valid family code) or `submitter: unknown` (no code) |
+| Who sent it | Always **known**: a grown-up read it and pressed Submit | `submitter: known` (a valid family code, or a signed-in sender on the [allowlist](#signed-in-senders-and-the-allowlist)) or `submitter: unknown` (anyone else) |
 | Who can read the kid's words | Everyone | People with access to the repo (Jeremy, and Ryan once he's added) and the pipeline |
 
 Ideas already filed in gameon stay there. Decisions behind this: private ideas (#76),
@@ -49,9 +49,14 @@ talking
 wildfire
 ```
 
+An idea from someone signed in also ends with a `### Signed in` section, such as
+`With Google · allowlist #12 (allowed)`: which provider, and which allowlist issue. Never an
+email or login.
+
 - **Title:** `Game idea from <Made by>`, or `Update to <game> from <Made by>` for an update.
 - **Labels:** `game-idea` and `status: submitted`, plus `update` for an update. From the
-  intake, also `submitter: known` or `submitter: unknown`.
+  intake, also `submitter: known` or `submitter: unknown`. An idea is filed with the
+  label its sender had at that moment, and keeps it.
 - **Family:** the family's nickname from the intake's family-code list, or `_No response_`
   for an unknown submitter. Never a real surname or a code.
 - The intake escapes the `#`s of a heading-like run in the idea (`##` or more anywhere, or
@@ -61,11 +66,44 @@ wildfire
 An idea a person files by hand in gameon-ideas, with no `submitter:` label, counts as known:
 only people with access and the app can file there.
 
+## Signed-in senders and the allowlist
+
+On the New Game page a grown-up can sign in with Google or GitHub. It's optional; without it
+the idea goes through the robot check as before. Jeremy, in chat on 2026-10-24: "support
+google/github? login option when making game (optional though. anon is fine). ryan/I can
+whitelist (or not) after first submission. File issues for whitelist?"
+
+- **The first idea** from a signed-in sender is `submitter: unknown`, and the intake also
+  opens one issue in gameon-ideas: **"Allow <name> to send ideas?"**, labelled `allowlist`
+  and `allowlist: pending`. It lists the provider, their email (Google) or login (GitHub),
+  their name and a link to the idea. Their later ideas are added to it as comments, never a
+  second issue.
+- **Jeremy or Ryan decides** by adding `allowlist: allowed` or `allowlist: denied`, and
+  removing `allowlist: pending`. From then on (within ten minutes) an allowed sender's ideas
+  are `submitter: known`. Denied and pending senders' ideas stay `submitter: unknown`.
+  Ideas already filed keep their label: to let one through, move its `status:` as usual.
+- **Only their labels count.** The intake checks who added the label and trusts only
+  jwildfire and killjoy00, so an agent must never add or change an `allowlist:` label. All
+  of Jeremy's agents act as jwildfire, so this is a rule, not something GitHub enforces.
+- **Allowlist issues aren't game ideas.** They never carry `game-idea`, so the idea line,
+  the watcher command below and the pipeline skills skip them. Don't evaluate, build or
+  label them; leave them for Jeremy or Ryan.
+- **Emails and logins stay in the allowlist issue,** in the private repo. They're never
+  public, never in an idea issue's body, never in `/queue`, and never in anything an agent
+  writes in gameon. The idea line shows only the nickname the kid typed.
+
+To see who's waiting:
+
+```bash
+gh issue list -R jwildfire/gameon-ideas --label "allowlist: pending" --state open
+```
+
 ## Triage
 
 Step 5 of the [evaluate skill](../.claude/skills/gameon-evaluate/SKILL.md#5-move-the-status-triage):
 
 - **`submitter: unknown` always goes to `status: needs approval`,** whatever the eval says.
+  That includes signed-in senders who aren't allowed yet.
   Jeremy or Ryan moves it on: to `status: approved`, `status: needs more` or
   `status: not built`.
 - Everything else, known ideas in gameon-ideas and every idea in gameon, follows the table
