@@ -53,7 +53,7 @@ test("the title screen opens and shift 1 starts, with nothing loaded from the in
   await expect(page.locator(".title-small")).toHaveText("DEVIL'S");
   await expect(page.locator(".title-big")).toHaveText("Burger Station");
   await expect(page.locator("#title-screen .muted").last()).toContainText("Designed by NotClay");
-  await page.waitForTimeout(1500); // let the robot cook start behind the menu
+  await page.waitForTimeout(800); // let the robot cook start behind the menu
   await shot("title");
   await playShift1(page);
   await expect(page.locator("#hud-devils")).toContainText("0/6");
@@ -101,7 +101,8 @@ test("no hot sauce or the wrong one makes a devil steaming mad, and three of the
   await expect(page.locator("#hud-steam .puff.used")).toHaveCount(1);
   await page.waitForTimeout(300);
   await shot("steaming-mad");
-  // Next devil: the right burger with the wrong sauce.
+  // Next devil: the right burger with the wrong sauce (called up now rather than after the usual gap).
+  await dbs(page, () => { __dbs.state.nextArrival = 0; });
   await expect.poll(() => dbs(page, () => __dbs.state.slots.findIndex(d => d && d.state === "wait")), { timeout: 20_000 }).toBeGreaterThanOrEqual(0);
   const second = await dbs(page, () => { const i = __dbs.state.slots.findIndex(d => d && d.state === "wait"); const o = __dbs.state.slots[i].orders[0]; return { slot: i, layers: o.layers, sauce: o.sauce }; });
   const wrong = second.sauce === "lava" ? "mild" : "lava";
@@ -110,6 +111,7 @@ test("no hot sauce or the wrong one makes a devil steaming mad, and three of the
   await expect.poll(() => dbs(page, () => __dbs.state.steam)).toBe(2);
   expect(await dbs(page, i => __dbs.state.slots[i].reason, second.slot)).toBe("wrongsauce");
   // A third devil runs out of patience: the kitchen's too steamy and the shift is over.
+  await dbs(page, () => { __dbs.state.nextArrival = 0; });
   await expect.poll(() => dbs(page, () => __dbs.state.slots.findIndex(d => d && d.state === "wait")), { timeout: 20_000 }).toBeGreaterThanOrEqual(0);
   await dbs(page, () => { __dbs.state.slots.find(d => d && d.state === "wait").patience = 0.05; });
   await expect(page.locator("#fail-screen")).toBeVisible({ timeout: 10_000 });
@@ -142,8 +144,8 @@ test("every one of the 5 shifts can be beaten in the real game, and each is busi
   await playShift1(page);
   const results = [];
   for (let n = 1; n <= 5; n++) {
-    // The robot cook from bot.js taps once every 0.6 game seconds, sped up 8 times.
-    await dbs(page, n => { __dbs.start(n, 1); __dbs.bot(true, 8, 0.6); }, n);
+    // The robot cook from bot.js taps once every 0.6 game seconds, sped up 20 times.
+    await dbs(page, n => { __dbs.start(n, 1); __dbs.bot(true, 20, 0.6); }, n);
     await expect.poll(() => dbs(page, () => __dbs.mode), { timeout: 120_000 }).toMatch(/clear|fail|win/);
     const r = await dbs(page, () => ({ mode: __dbs.mode, coins: __dbs.state.coins, par: __dbs.state.par, steam: __dbs.state.steam, total: __dbs.state.total,
       slots: __dbs.state.slots.length, patience: __dbs.state.S.patience, gap: __dbs.state.S.gap, perfect: __dbs.state.perfect, t: Math.round(__dbs.state.t) }));
@@ -217,7 +219,7 @@ test("the game pauses, and Restart starts the shift over", async ({ page, shot, 
 test("the best score and unlocked shifts are saved only under gameon.devils-burger-station.", async ({ page, shot, note, browserErrors }) => {
   await open(page);
   await playShift1(page);
-  await dbs(page, () => __dbs.bot(true, 8, 0.6));
+  await dbs(page, () => __dbs.bot(true, 20, 0.6));
   await expect(page.locator("#clear-screen")).toBeVisible({ timeout: 60_000 });
   await expect(page.locator("#clear-stars .off")).toHaveCount(0);
   const coins = await dbs(page, () => __dbs.state.coins);
@@ -240,7 +242,7 @@ test("the game still plays when the browser blocks saving", async ({ page, note,
   });
   await open(page);
   await playShift1(page);
-  await dbs(page, () => __dbs.bot(true, 8, 0.6));
+  await dbs(page, () => __dbs.bot(true, 20, 0.6));
   await expect(page.locator("#clear-screen")).toBeVisible({ timeout: 60_000 });
   note("with localStorage throwing, the title screen opened and shift 1 played through to Shift clear");
   expect(browserErrors).toEqual([]);
@@ -270,7 +272,7 @@ test("Devil's Burger Station has a card at the front of the arcade and plays in 
   await frame.locator("#go-btn").click();
   await expect(frame.locator("#hud")).toBeVisible();
   note(`card at position ${order.indexOf(`#${SLUG}`) + 1}, after the ${picks} Editor's Choice card(s) and ahead of ${next.title}, with its 800x450 cover; plays inside the frame; GitHub button opens its folder`);
-  await page.waitForTimeout(1500);
+  await page.waitForTimeout(600);
   await shot("in-arcade");
   expect(browserErrors).toEqual([]);
 });
