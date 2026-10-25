@@ -20,7 +20,7 @@ REPO=jwildfire/gameon    # or jwildfire/gameon-ideas
 gh issue view N -R "$REPO" --json title,body,labels,author,assignees,comments
 ```
 
-- It must carry `game-idea`. If it already has an eval comment (a comment whose first line starts `<!-- gameon-eval`), stop and say so unless you were asked to re-evaluate.
+- It must carry `game-idea`. An `allowlist` issue in gameon-ideas ("Allow … to send ideas?") isn't an idea: stop, and leave it for Jeremy or Ryan. If it already has an eval comment (a comment whose first line starts `<!-- gameon-eval`), stop and say so unless you were asked to re-evaluate.
 - Assign whoever is steering you and comment `Starting: evaluating this idea.` (with the drafted-by footer).
 - Move the label: `gh issue edit N -R "$REPO" --add-label "status: evaluating" --remove-label "status: submitted"`. Exactly one `status:` label at a time; always remove the previous one.
 - **New game or update?** It's an **update** if it carries the `update` label, or its `### Game to update` section holds a real slug. The Game idea form has optional "Game to update" and "Starting version" fields, so a new-game idea shows those headings with `_No response_` (or nothing) under them: that is a new game, not an update. An update changes an existing game, so follow [Updates](#updates-and-forks) below in place of steps 2 to 4, then come back for step 5. Anything else is a new game: carry on with step 2.
@@ -76,7 +76,7 @@ Drafted by <tool> (<model>)
 
 ## 5. Move the status (triage)
 
-**`submitter: unknown` always goes to `status: needs approval`,** whatever the result below, and your one line says what the eval found (go, needs more or no-go) so the grown-up can decide. Everything else is known: an idea in gameon was submitted by Jeremy or Ryan pressing Submit, and an idea in gameon-ideas is `submitter: known` (a family code) or was filed there by hand. Known ideas follow this table:
+**`submitter: unknown` always goes to `status: needs approval`,** whatever the result below, and your one line says what the eval found (go, needs more or no-go) so the grown-up can decide. Everything else is known: an idea in gameon was submitted by Jeremy or Ryan pressing Submit, and an idea in gameon-ideas is `submitter: known` (a family code, or a signed-in sender Jeremy or Ryan allowed) or was filed there by hand. Go by the label alone: don't decide from the `### Signed in` section or the allowlist issue yourself, since the intake already checked who allowed them. Known ideas follow this table:
 
 | Result | New label |
 |---|---|

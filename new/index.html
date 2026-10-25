@@ -128,6 +128,17 @@ html[data-mode="weird"] h1 { justify-self: start; background: var(--card); borde
 .family-row input { flex: 1; min-width: 0; }
 .family-saved { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-weight: 800; }
 .robot { min-height: 65px; max-width: 100%; overflow: hidden; }
+/* Optional sign-in (Google, GitHub), shown only when new/intake-config.js names the providers. */
+.signin { display: grid; gap: 10px; padding: 12px; border: 2px dashed var(--ink); border-radius: 14px; }
+.signin .sub { font: 800 14px/1.3 var(--body); color: var(--muted); margin: 0; }
+.signin .sub b { color: var(--ink); }
+.signin-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.signin-row > [hidden] { display: none; }
+#google-btn { min-height: 40px; max-width: 100%; }
+.gh-signin { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 8px 16px; text-decoration: none; }
+.gh-signin svg { width: 18px; height: 18px; fill: currentColor; flex: none; }
+.signed-in { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-weight: 800; }
+.signed-in span { min-width: 0; overflow-wrap: anywhere; }
 </style>
 </head>
 <body>
@@ -190,6 +201,16 @@ html[data-mode="weird"] h1 { justify-self: start; background: var(--card); borde
           <p class="sub">No code? You can still send it. A grown-up checks it first.</p>
         </div>
       </div>
+      <div class="signin" id="signin" hidden>
+        <div id="signin-out" style="display:grid;gap:10px">
+          <p class="sub"><b>Grown-ups, sign in if you like.</b> It's optional, so you can also just send it.</p>
+          <div class="signin-row">
+            <div id="google-btn" hidden></div>
+            <a class="chip gh-signin" id="github-signin" href="#" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 0-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6 0-3.2 0 0 1-.3 3.4 1.2a11.5 11.5 0 0 1 6 0C17 4.6 18 5 18 5c.6 1.6.2 2.8.1 3.2.8.8 1.3 1.9 1.3 3.1 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>Sign in with GitHub</a>
+          </div>
+        </div>
+        <div class="signed-in" id="signed-in" hidden><span>Signed in as <b id="signin-name"></b></span><button type="button" class="chip" id="signout">Sign out</button></div>
+      </div>
       <div class="robot" id="robot" hidden><div id="robot-widget"></div></div>
 
       <div class="msg" id="ask" hidden>What happens in your game? Tell us a bit more.</div>
@@ -238,6 +259,23 @@ html[data-mode="weird"] h1 { justify-self: start; background: var(--card); borde
   var SITE_KEY = INTAKE && typeof CFG.turnstileSiteKey === "string" ? CFG.turnstileSiteKey.trim() : "";
   var CODES = INTAKE && CFG.familyCodes !== false;   // familyCodes: false hides the code field; every idea waits for a grown-up
   var CODE_KEY = "gameon.arcade.familyCode";
+  // Optional sign-in (intake/README.md, "Sign-in and the allowlist"). Buttons show only when
+  // the config names a provider; a signed-in grown-up skips the robot check.
+  var GOOGLE_ID = INTAKE && typeof CFG.googleClientId === "string" ? CFG.googleClientId.trim() : "";
+  var GITHUB_SIGNIN = !!(INTAKE && CFG.githubSignIn === true);
+  var SIGNIN = !!(GOOGLE_ID || GITHUB_SIGNIN);
+  var SESSION_KEY = "gameon.arcade.signin", DRAFT_KEY = "gameon.arcade.draft";
+  // A GitHub sign-in comes back with the session token in the fragment. Take it out of the
+  // address before anything else runs.
+  var fromSignin = (function () {
+    var h = location.hash;
+    if (!/^#gameon_(session|signin_error)=/.test(h)) return null;
+    try { history.replaceState(null, "", location.pathname + location.search); } catch (e) { location.hash = ""; }
+    var m = /^#gameon_session=([\w.-]{1,4096})$/.exec(h);
+    if (m) return { token: m[1] };
+    var err = /^#gameon_signin_error=(\w{1,30})$/.exec(h);
+    return { error: err ? err[1] : "github" };
+  })();
   var MAX_WORDS = 1000, CAP = INTAKE ? 10000 : MAX;   // the intake counts words, not characters
 
   var $ = function (id) { return document.getElementById(id); };
@@ -480,8 +518,108 @@ html[data-mode="weird"] h1 { justify-self: start; background: var(--card); borde
   familyCode.addEventListener("keydown", function (e) { if (e.key === "Enter") $("family-save").click(); });
   $("family-forget").addEventListener("click", function () { saveCode(""); showFamily(); familyCode.focus(); });
 
-  // The robot check (Cloudflare Turnstile), only for ideas sent without a family code.
-  function needRobot() { return !!(INTAKE && SITE_KEY && !loadCode()); }
+  // ---------- Optional sign-in ----------
+  var signin = $("signin"), signinOut = $("signin-out"), signedIn = $("signed-in");
+  var googleBtn = $("google-btn"), githubBtn = $("github-signin");
+  var googleReady = false;
+
+  // The session token's middle part is base64url JSON: who, and until when. The page only
+  // reads it to show the name; the Worker checks the signature.
+  function readToken(token) {
+    try {
+      var p = String(token).split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+      var bin = atob(p + "===".slice((p.length + 3) % 4));
+      var bytes = new Uint8Array(bin.length);
+      for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      var d = JSON.parse(new TextDecoder().decode(bytes));
+      if (!d || typeof d.exp !== "number" || (d.p !== "google" && d.p !== "github")) return null;
+      return { token: token, name: String(d.name || d.login || "you").slice(0, 60), provider: d.p, exp: d.exp };
+    } catch (e) { return null; }
+  }
+  function loadSession() {
+    if (!SIGNIN) return null;
+    var s = null;
+    try { s = readToken(localStorage.getItem(SESSION_KEY) || ""); } catch (e) { s = null; }
+    if (s && s.exp * 1000 <= Date.now()) { saveSession(""); return null; }
+    return s;
+  }
+  function saveSession(token) {
+    try { if (token) localStorage.setItem(SESSION_KEY, token); else localStorage.removeItem(SESSION_KEY); } catch (e) {}
+  }
+
+  function showSignin() {
+    signin.hidden = !SIGNIN;
+    if (!SIGNIN) return;
+    var s = loadSession();
+    signedIn.hidden = !s;
+    signinOut.hidden = !!s;
+    if (s) $("signin-name").textContent = s.name;
+    githubBtn.hidden = !GITHUB_SIGNIN;
+    googleBtn.hidden = !GOOGLE_ID;
+    if (!s && GOOGLE_ID) loadGoogle();
+    showRobot();
+  }
+
+  // Google Identity Services draws its own "Sign in with Google" button and hands back an
+  // ID token, which the Worker checks and swaps for a session token.
+  function loadGoogle() {
+    if (googleReady) return;
+    if (window.google && window.google.accounts && window.google.accounts.id) { startGoogle(); return; }
+    if (document.getElementById("google-gsi")) return;
+    var sc = document.createElement("script");
+    sc.id = "google-gsi";
+    sc.async = true;
+    sc.src = "https://accounts.google.com/gsi/client";
+    sc.onload = startGoogle;
+    document.head.appendChild(sc);
+  }
+  function startGoogle() {
+    if (googleReady || !(window.google && window.google.accounts && window.google.accounts.id)) return;
+    googleReady = true;
+    window.google.accounts.id.initialize({ client_id: GOOGLE_ID, callback: onGoogle, auto_select: false, cancel_on_tap_outside: true });
+    window.google.accounts.id.renderButton(googleBtn, { type: "standard", theme: "outline", size: "large", text: "signin_with", shape: "pill", width: 220 });
+  }
+  function onGoogle(resp) {
+    if (!resp || !resp.credential) return;
+    sendMsg.hidden = true;
+    fetch(INTAKE + "/auth/google", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ credential: resp.credential }) })
+      .then(function (r) { return r.json().catch(function () { return {}; }); })
+      .then(function (j) {
+        if (j && j.ok && readToken(j.session)) { saveSession(j.session); showSignin(); }
+        else say((j && j.message) || "That sign-in didn't work. Try again, or just send your idea.");
+      }, function () { say("Couldn't reach the idea machine. Check the internet and try again."); });
+  }
+
+  // GitHub sign-in leaves the page, so keep what the kid typed and put it back on return.
+  githubBtn.addEventListener("click", function (e) {
+    e.preventDefault();
+    try { sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ idea: idea.value, maker: maker.value, told: told })); } catch (err) {}
+    location.href = INTAKE + "/auth/github/start?return=" + encodeURIComponent(location.origin + location.pathname + location.search);
+  });
+
+  $("signout").addEventListener("click", function () {
+    saveSession("");
+    if (window.google && window.google.accounts && window.google.accounts.id) { try { window.google.accounts.id.disableAutoSelect(); } catch (e) {} }
+    sendMsg.hidden = true;
+    showSignin();
+  });
+
+  function signinReturned() {
+    if (!fromSignin || !SIGNIN) return;
+    var d = null;
+    try { d = JSON.parse(sessionStorage.getItem(DRAFT_KEY) || "null"); sessionStorage.removeItem(DRAFT_KEY); } catch (e) { d = null; }
+    if (d && typeof d.idea === "string" && !idea.value) {
+      idea.value = d.idea.slice(0, CAP);
+      if (typeof d.maker === "string" && d.maker) maker.value = d.maker.slice(0, 20);
+      if (d.told === "talking") told = "talking";
+    }
+    if (fromSignin.token && readToken(fromSignin.token)) saveSession(fromSignin.token);
+    else if (fromSignin.error === "cancelled") say("Sign-in cancelled. You can still just send it.");
+    else say("GitHub sign-in didn't work. Try again, or just send it.");
+  }
+
+  // The robot check (Cloudflare Turnstile), only for ideas sent without a family code or a sign-in.
+  function needRobot() { return !!(INTAKE && SITE_KEY && !loadCode() && !loadSession()); }
   function showRobot() {
     robot.hidden = !needRobot();
     if (!needRobot()) return;
@@ -514,11 +652,11 @@ html[data-mode="weird"] h1 { justify-self: start; background: var(--card); borde
   function say(text) { sendMsg.textContent = text; sendMsg.hidden = false; }
 
   function sendToIntake(text, nick) {
-    var code = loadCode();
-    if (!code && SITE_KEY && !robotToken) { say(NEED_ROBOT); return; }
+    var code = loadCode(), session = code ? null : loadSession();
+    if (!code && !session && SITE_KEY && !robotToken) { say(NEED_ROBOT); return; }
     var body = { idea: text, maker: nick, told_by: told };
     if (target) { body.game = target.slug; body.version = target.version; }
-    if (code) body.code = code; else if (robotToken) body.turnstile = robotToken;
+    if (code) body.code = code; else if (session) body.session = session.token; else if (robotToken) body.turnstile = robotToken;
     var upd = target;
     sending = true; sendMsg.hidden = true; send.textContent = "Sending…"; update();
     fetch(INTAKE + "/ideas", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
@@ -545,6 +683,7 @@ html[data-mode="weird"] h1 { justify-self: start; background: var(--card); borde
 
   function refused(j) {
     if (j.error === "bad_code") { saveCode(""); showFamily(); }
+    if (j.error === "signed_out") { saveSession(""); showSignin(); }
     say(j.message || "Couldn't reach the idea machine. Check the internet and try again.");
   }
 
@@ -722,10 +861,12 @@ html[data-mode="weird"] h1 { justify-self: start; background: var(--card); borde
   window.gameonShowIdeas = showIdeas; // used by the evidence tests
 
   // ---------- Start ----------
+  signinReturned();   // back from GitHub: keep the session token and what the kid had typed
+  showSignin();
   showFamily();
   showIdeas(false);
   var last = loadNicks()[0];
-  if (last) maker.value = last;
+  if (last && !maker.value) maker.value = last;
   renderChips();
   setMode(Recognition ? "talk" : "type");
   update();
