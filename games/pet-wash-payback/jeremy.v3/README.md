@@ -84,7 +84,7 @@ Evidence: `tests/evidence/163-pet-wash-payback-jeremy-v2.spec.mjs`, with `window
 
 ## jeremy.v3: Survival mode: more and more pets join the chase
 
-Update idea from Jeremy (game idea jwildfire/gameon-ideas#3), in the eval's words: A new survival mode: stay dry while more and more pets join the chase!
+Update idea from Jeremy (game idea jwildfire/gameon-ideas#3), in the eval's words: A brand-new endless chase mode where the pet pack keeps on growing!
 
 The kid's own words are in the private idea jwildfire/gameon-ideas#3.
 

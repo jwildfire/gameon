@@ -1,5 +1,5 @@
-// Evidence for game idea jwildfire/gameon-ideas#3: Pet Wash Payback jeremy.v3, Jeremy's update ("A new
-// survival mode: stay dry while more and more pets join the chase!"). The creator's update, started from
+// Evidence for game idea jwildfire/gameon-ideas#3: Pet Wash Payback jeremy.v3, Jeremy's update ("A brand-new
+// endless chase mode where the pet pack keeps on growing!"). The creator's update, started from
 // jeremy.v2, and the new default. The kid's own words are in the private idea.
 // Spec: the build skill's U6 and docs/game-versions.md.
 // Run: npm run evidence -- tests/evidence/ideas-3-pet-wash-payback-jeremy-v3
