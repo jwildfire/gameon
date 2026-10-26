@@ -81,3 +81,24 @@ With more pets in the yard, the round gets a little longer, each pet waits a lit
 jeremy.v1 saved `gameon.pet-wash-payback.best`, `.reached` and `.muted`. This version reads all three and never changes `best` or `reached`: the pets you reached there are open here, your best stars there show in **Pick a pet**, and your jeremy.v1 best score shows on the title screen until you set one here. It keeps its own progress in `gameon.pet-wash-payback.jeremy.v2.best` and `gameon.pet-wash-payback.jeremy.v2.reached`, and shares the sound setting (`muted`) with jeremy.v1.
 
 Evidence: `tests/evidence/163-pet-wash-payback-jeremy-v2.spec.mjs`, with `window.__pwp` hooks as in jeremy.v1 (plus `start(i, kind, lineup)` and `petScreen()`).
+
+## jeremy.v3: Survival mode: how long can you stay dry?
+
+Update idea from Jeremy (game idea jwildfire/gameon-ideas#3), in the eval's words: A new survival mode: stay dry while more and more pets join the chase!
+
+The kid's own words are in the private idea jwildfire/gameon-ideas#3.
+
+Started from jeremy.v2. A new **Survival!** button on the title screen starts a run in the backyard with no timer. The normal game (nine pets, wash and payback rounds, stars, Pick a pet) is jeremy.v2's, unchanged.
+
+### Survival
+
+- **Biscuit starts alone with the hose.** Then a new animal joins the chase every few seconds, with a name tag and its own way to get you wet. After Biscuit the other eight come in a new order each run; once all nine are in, repeats keep coming ("Mittens #2"). There's still only one hose.
+- **No timer.** The wet meter fills as you get hit, and at 100% you're SOAKED and the run is over. The big clock at the top counts how long you've lasted, and the pill next to it says how many are chasing and fills up as the next animal gets close.
+- **On a phone it stays readable:** as in the payback rounds, at most 4 chase you at once (5 on a bigger screen) and the rest wait on the fence and tag in. Each animal that arrives after the yard is full makes everyone attack a little more often instead, so it keeps getting harder.
+- **The end screen** shows your time (to a tenth of a second), how many animals were chasing you, who got you most, and your best. Your best time shows on the title screen too.
+
+### Saves
+
+jeremy.v3 reads every earlier save and changes none of them: jeremy.v1's `best`, `reached` and `muted`, and jeremy.v2's `jeremy.v2.best` and `jeremy.v2.reached`. The pets you reached and the stars and best score you set in either version show here. Its own progress is under `gameon.pet-wash-payback.jeremy.v3.best` and `.jeremy.v3.reached`, the best survival time is under `gameon.pet-wash-payback.jeremy.v3.survival` (`{ "best": seconds, "animals": n, "runs": n }`), and the sound setting (`muted`) is shared with the other versions.
+
+Evidence: `tests/evidence/ideas-3-pet-wash-payback-jeremy-v3.spec.mjs`. `window.__pwp` adds `survival()`, `survivalIntro()` and `seed(n)`, which gives the game's dice a fixed seed so a run plays the same way every time (the sound keeps its own randomness).

@@ -10,9 +10,9 @@
   "sideways": false,
   "needs_internet": false,
   "idea_issue": 157,
-  "path": "games/pet-wash-payback/jeremy.v2/",
-  "version": "jeremy.v2",
-  "from": "jeremy.v1",
+  "path": "games/pet-wash-payback/jeremy.v3/",
+  "version": "jeremy.v3",
+  "from": "jeremy.v2",
   "updates": [
     {
       "version": "jeremy.v2",
@@ -22,6 +22,16 @@
       "made": "2026-10-24",
       "built_with": "Claude Opus 5.5",
       "idea_issue": 163
+    },
+    {
+      "version": "jeremy.v3",
+      "from": "jeremy.v2",
+      "idea": "A new survival mode: stay dry while more and more pets join the chase!",
+      "by": "Jeremy",
+      "made": "2026-10-25",
+      "built_with": "Claude Opus 5.5",
+      "idea_issue": 3,
+      "idea_repo": "jwildfire/gameon-ideas"
     }
   ]
 }

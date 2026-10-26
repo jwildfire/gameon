@@ -38,14 +38,15 @@
     "title": "Pet Wash Payback",
     "tagline": "More silly animals, and now they all chase you with squirt guns, sprinklers and more!",
     "credit": "Made by Jeremy",
-    "url": "games/pet-wash-payback/jeremy.v2/",
+    "url": "games/pet-wash-payback/jeremy.v3/",
     "repo": "https://github.com/jwildfire/gameon",
     "color": "#57c4ff",
     "tags": ["New", "Pets", "1 player"],
-    "default": "jeremy.v2",
+    "default": "jeremy.v3",
     "versions": [
       { "id": "jeremy.v1", "url": "games/pet-wash-payback/", "made": "2026-10-24", "note": "The first version" },
-      { "id": "jeremy.v2", "url": "games/pet-wash-payback/jeremy.v2/", "made": "2026-10-24", "note": "More animals, and they all want payback", "from": "jeremy.v1", "idea": 163 }
+      { "id": "jeremy.v2", "url": "games/pet-wash-payback/jeremy.v2/", "made": "2026-10-24", "note": "More animals, and they all want payback", "from": "jeremy.v1", "idea": 163 },
+      { "id": "jeremy.v3", "url": "games/pet-wash-payback/jeremy.v3/", "made": "2026-10-25", "note": "Survival mode: how long can you stay dry?", "from": "jeremy.v2", "idea": 3, "idea_repo": "jwildfire/gameon-ideas" }
     ]
   },
   {
