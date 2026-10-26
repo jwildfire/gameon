@@ -1489,7 +1489,7 @@ function startSurvival() {
   round.foe = round.foes[0];
   mode = "hose"; paused = false;
   hideScreens(); showHud(true); $("tools").hidden = true;
-  showTip("Survival! Stay dry!", 1.8);
+  showTip("Survival! Here comes Biscuit!", 1.8);
   Sound.startMusic("hose");
   sfx("giggle");
   updateHud();
@@ -1537,7 +1537,7 @@ function finishSurvival(r) {
   $("surv-screen").hidden = false;
   $("surv-rank").textContent = SURV_RANKS.find(([t]) => secs < t)[1];
   $("surv-time").textContent = fmtClock(secs, true);
-  $("surv-line").textContent = `You stayed dry for ${secs.toFixed(1)} seconds, with ${n} animal${n === 1 ? "" : "s"} chasing you.` +
+  $("surv-line").textContent = `You survived ${secs.toFixed(1)} seconds, with ${n} animal${n === 1 ? "" : "s"} chasing you.` +
     (who ? ` ${who.name} got you most, with ${who.gear}.` : "");
   $("surv-best").innerHTML = isBest ? '<span class="new-best">New best time!</span>'
     : `<span class="muted">Best: ${fmtClock(surv.best, true)} with ${surv.animals} animals</span>`;
@@ -1550,7 +1550,7 @@ function showSurvivalIntro() {
   hideScreens(); showHud(false); $("tools").hidden = true;
   $("intro-screen").hidden = false;
   $("intro-kicker").textContent = "Survival mode";
-  $("intro-title").textContent = "How long can you last?";
+  $("intro-title").textContent = "Can you outrun them all?";
   $("intro-tip").textContent = "No timer! Biscuit starts with the hose, then more and more animals join the chase.";
   $("intro-how").textContent = "Run with the arrow keys, WASD, or drag anywhere. Hide behind things. You're out when the wet meter hits 100%." +
     (surv.best ? ` Your best: ${fmtClock(surv.best, true)} with ${surv.animals} animals.` : "");

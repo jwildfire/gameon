@@ -82,7 +82,7 @@ jeremy.v1 saved `gameon.pet-wash-payback.best`, `.reached` and `.muted`. This ve
 
 Evidence: `tests/evidence/163-pet-wash-payback-jeremy-v2.spec.mjs`, with `window.__pwp` hooks as in jeremy.v1 (plus `start(i, kind, lineup)` and `petScreen()`).
 
-## jeremy.v3: Survival mode: how long can you stay dry?
+## jeremy.v3: Survival mode: more and more pets join the chase
 
 Update idea from Jeremy (game idea jwildfire/gameon-ideas#3), in the eval's words: A new survival mode: stay dry while more and more pets join the chase!
 
@@ -93,7 +93,7 @@ Started from jeremy.v2. A new **Survival!** button on the title screen starts a 
 ### Survival
 
 - **Biscuit starts alone with the hose.** Then a new animal joins the chase every few seconds, with a name tag and its own way to get you wet. After Biscuit the other eight come in a new order each run; once all nine are in, repeats keep coming ("Mittens #2"). There's still only one hose.
-- **No timer.** The wet meter fills as you get hit, and at 100% you're SOAKED and the run is over. The big clock at the top counts how long you've lasted, and the pill next to it says how many are chasing and fills up as the next animal gets close.
+- **No timer.** The wet meter fills as you get hit, and at 100% you're SOAKED and the run is over. The big clock at the top counts up the seconds you've survived, and the pill next to it says how many are chasing and fills up as the next animal gets close.
 - **On a phone it stays readable:** as in the payback rounds, at most 4 chase you at once (5 on a bigger screen) and the rest wait on the fence and tag in. Each animal that arrives after the yard is full makes everyone attack a little more often instead, so it keeps getting harder.
 - **The end screen** shows your time (to a tenth of a second), how many animals were chasing you, who got you most, and your best. Your best time shows on the title screen too.
 

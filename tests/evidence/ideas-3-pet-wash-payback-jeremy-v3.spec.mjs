@@ -137,7 +137,7 @@ test("jeremy.v3 opens to its title screen with a new Survival button, and loads 
   await shot("title");
   await page.locator("#surv-btn").click();
   await expect(page.locator("#intro-kicker")).toHaveText("Survival mode");
-  await expect(page.locator("#intro-title")).toHaveText("How long can you last?");
+  await expect(page.locator("#intro-title")).toHaveText("Can you outrun them all?");
   await expect(page.locator("#intro-tip")).toContainText("No timer!");
   await freezeAndSeed(page);
   await page.locator("#go-btn").click();
@@ -149,7 +149,7 @@ test("jeremy.v3 opens to its title screen with a new Survival button, and loads 
   expect(scroll).toBeLessThanOrEqual(width);
   const outside = requested.filter(u => /^https?:/.test(u) && new URL(u).origin !== site);
   expect(outside).toEqual([]);
-  note(`title shows Play!, Survival! and Pick a pet → Survival! → "How long can you last?" → Go! starts a run at 0:00 with 1 chasing; no requests outside the site (jeremy.v2 made none either); no sideways scrolling`);
+  note(`title shows Play!, Survival! and Pick a pet → Survival! → "Can you outrun them all?" → Go! starts a run at 0:00 with 1 chasing; no requests outside the site (jeremy.v2 made none either); no sideways scrolling`);
   expect(browserErrors).toEqual([]);
 });
 
@@ -246,7 +246,7 @@ test("Survival: past the on-screen cap, new animals wait on the fence and everyo
   expect(browserErrors).toEqual([]);
 });
 
-test("Survival ends at 100% wet, shows how long you lasted and how many were chasing, and saves the best time", async ({ page, isMobile, shot, note, browserErrors }) => {
+test("Survival ends at 100% wet, shows your time and how many were chasing, and saves the best time", async ({ page, isMobile, shot, note, browserErrors }) => {
   await open(page);
   await page.locator("#surv-btn").click();
   await freezeAndSeed(page);
@@ -258,7 +258,7 @@ test("Survival ends at 100% wet, shows how long you lasted and how many were cha
   const r1 = await pwp(page, () => { const r = __pwp.round; return { secs: Math.floor(r.time * 10 + 1e-6) / 10, n: r.foes.length + r.bench.length, clock: __pwp.fmtClock(r.time, true) }; });
   await expect(page.locator("#surv-screen")).toBeVisible();
   await expect(page.locator("#surv-time")).toHaveText(r1.clock);
-  await expect(page.locator("#surv-line")).toContainText(`You stayed dry for ${r1.secs.toFixed(1)} seconds, with ${r1.n} animals chasing you.`);
+  await expect(page.locator("#surv-line")).toContainText(`You survived ${r1.secs.toFixed(1)} seconds, with ${r1.n} animals chasing you.`);
   await expect(page.locator("#surv-best")).toHaveText("New best time!");
   expect(r1.n).toBe(1 + Math.floor(r1.secs / 5));
   expect(r1.secs).toBeGreaterThan(25);

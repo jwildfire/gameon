@@ -46,7 +46,7 @@
     "versions": [
       { "id": "jeremy.v1", "url": "games/pet-wash-payback/", "made": "2026-10-24", "note": "The first version" },
       { "id": "jeremy.v2", "url": "games/pet-wash-payback/jeremy.v2/", "made": "2026-10-24", "note": "More animals, and they all want payback", "from": "jeremy.v1", "idea": 163 },
-      { "id": "jeremy.v3", "url": "games/pet-wash-payback/jeremy.v3/", "made": "2026-10-25", "note": "Survival mode: how long can you stay dry?", "from": "jeremy.v2", "idea": 3, "idea_repo": "jwildfire/gameon-ideas" }
+      { "id": "jeremy.v3", "url": "games/pet-wash-payback/jeremy.v3/", "made": "2026-10-25", "note": "Survival mode: more and more pets join the chase", "from": "jeremy.v2", "idea": 3, "idea_repo": "jwildfire/gameon-ideas" }
     ]
   },
   {

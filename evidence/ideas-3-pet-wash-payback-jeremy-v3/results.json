@@ -2,17 +2,17 @@
   "spec": "ideas-3-pet-wash-payback-jeremy-v3",
   "passed": true,
   "headline": "PASS: 9 of 9 checks pass at desktop and phone widths.",
-  "generatedAt": "2026-10-26T02:17:44.163Z",
+  "generatedAt": "2026-10-26T02:58:33.631Z",
   "target": "local server (python3 -m http.server) on this branch",
-  "commit": "3266b48",
+  "commit": "4288c84",
   "playwright": "1.61.1",
   "specFile": "tests/evidence/ideas-3-pet-wash-payback-jeremy-v3.spec.mjs",
   "checks": [
     {
       "check": "jeremy.v3 opens to its title screen with a new Survival button, and loads nothing from outside the site",
       "notes": [
-        "desktop: title shows Play!, Survival! and Pick a pet → Survival! → \"How long can you last?\" → Go! starts a run at 0:00 with 1 chasing; no requests outside the site (jeremy.v2 made none either); no sideways scrolling",
-        "phone: title shows Play!, Survival! and Pick a pet → Survival! → \"How long can you last?\" → Go! starts a run at 0:00 with 1 chasing; no requests outside the site (jeremy.v2 made none either); no sideways scrolling"
+        "desktop: title shows Play!, Survival! and Pick a pet → Survival! → \"Can you outrun them all?\" → Go! starts a run at 0:00 with 1 chasing; no requests outside the site (jeremy.v2 made none either); no sideways scrolling",
+        "phone: title shows Play!, Survival! and Pick a pet → Survival! → \"Can you outrun them all?\" → Go! starts a run at 0:00 with 1 chasing; no requests outside the site (jeremy.v2 made none either); no sideways scrolling"
       ],
       "desktop": {
         "status": "pass",
@@ -72,7 +72,7 @@
       }
     },
     {
-      "check": "Survival ends at 100% wet, shows how long you lasted and how many were chasing, and saves the best time",
+      "check": "Survival ends at 100% wet, shows your time and how many were chasing, and saves the best time",
       "notes": [
         "desktop: a dodging player lasted 0:36.4 with 8 animals chasing (Biscuit plus one more per 5 s), then SOAKED at 100%: the end screen showed the time, the count and \"New best time!\", saved as {\"best\":36.4,\"animals\":8,\"runs\":1}. Try again → 0:00, 1 chasing; standing still lasted 17.2 s, and the screen showed the best instead. After a reload the title says so too. Keys: gameon.pet-wash-payback.jeremy.v3.survival",
         "phone: a dodging player lasted 1:17.5 with 16 animals chasing (Biscuit plus one more per 5 s), then SOAKED at 100%: the end screen showed the time, the count and \"New best time!\", saved as {\"best\":77.5,\"animals\":16,\"runs\":1}. Try again → 0:00, 1 chasing; standing still lasted 21.9 s, and the screen showed the best instead. After a reload the title says so too. Keys: gameon.pet-wash-payback.jeremy.v3.survival"
