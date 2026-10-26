@@ -1,0 +1,14 @@
+{
+  "name": "claw-of-cool",
+  "title": "Claw of Cool",
+  "tagline": "Steer a hand-drawn claw machine and grab the coolest prizes for big points!",
+  "credit": "Designed by Jeremy",
+  "idea": "Make a new claw machine game using https://april-zhu.com/colorfigures to create the claw machine. Points for getting the coolest stuff!",
+  "made": "2026-10-26",
+  "built_with": "Claude Opus 5.5",
+  "players": "1",
+  "sideways": false,
+  "needs_internet": false,
+  "idea_issue": 200,
+  "path": "games/claw-of-cool/"
+}

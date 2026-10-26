@@ -320,7 +320,7 @@ test("Fidget Factory has a card right after the Editor's Choice games and plays 
   await expect(card).toBeVisible();
   const picks = games.filter(g => g.editorsChoice === true).length;
   const mine = games.findIndex(g => g.slug === "fidget-factory");
-  expect(mine).toBe(0);
+  expect(mine).toBeGreaterThanOrEqual(0);   // newer pipeline games go in front of it (Claw of Cool, #200)
   const next = games.slice(mine + 1).find(g => !g.editorsChoice && !g.versions);
   const order = await page.locator("#shelf .cart").evaluateAll(cs => cs.map(c => c.getAttribute("href")));
   expect(order.indexOf("#fidget-factory")).toBeGreaterThanOrEqual(picks);
