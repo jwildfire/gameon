@@ -1,5 +1,16 @@
 [
   {
+    "slug": "fidget-factory",
+    "creator": "kiki",
+    "title": "Fidget Factory",
+    "tagline": "Dream up wild fidget toys in a goofy toy workshop, then spin, pop, squish and click them!",
+    "credit": "Made by Kiki",
+    "url": "games/fidget-factory/",
+    "repo": "https://github.com/jwildfire/gameon",
+    "color": "#ff6fb5",
+    "tags": ["New", "Toys", "1 player"]
+  },
+  {
     "slug": "ant-farm-wars",
     "creator": "jeremy",
     "title": "Ant Farm Wars",

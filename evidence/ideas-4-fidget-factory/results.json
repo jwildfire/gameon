@@ -1,0 +1,232 @@
+{
+  "spec": "ideas-4-fidget-factory",
+  "passed": true,
+  "headline": "PASS: 10 of 10 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-26T03:10:38.699Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "84f4edb",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/ideas-4-fidget-factory.spec.mjs",
+  "checks": [
+    {
+      "check": "the title screen opens to the toy workshop, with nothing loaded from the internet",
+      "notes": [
+        "desktop: 4 kinds, 8 colours twice, 4 patterns, 3 shapes, 4 extras; no requests outside the site; no sideways scrolling",
+        "phone: 4 kinds, 8 colours twice, 4 patterns, 3 shapes, 4 extras; no requests outside the site; no sideways scrolling"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "title-desktop.jpg",
+          "workshop-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "title-phone.jpg",
+          "workshop-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "picking parts changes the preview, locked parts cost sparkle coins, and the arrow keys and Enter work",
+      "notes": [
+        "desktop: with 0 coins Glitter stayed locked; with 25 coins Glitter (15) and the Bunny shape (10) unlocked, leaving 0; clicked Glitter and Bunny, then Down, Right, Right, Enter picked Purple",
+        "phone: with 0 coins Glitter stayed locked; with 25 coins Glitter (15) and the Bunny shape (10) unlocked, leaving 0; tapped Glitter and Bunny"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "unlocked-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "unlocked-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the factory makes exactly the fidget that was designed, stage by stage, in about 13 seconds",
+      "notes": [
+        "desktop: the show runs 13.2 s: cut at 2.7 s, paint at 5.4 s, stamp at 8.9 s, extras at 10.6 s; the toy that comes off the belt matches the design field for field, goes on the shelf and opens to play",
+        "phone: the show runs 13.2 s: cut at 2.7 s, paint at 5.4 s, stamp at 8.9 s, extras at 10.6 s; the toy that comes off the belt matches the design field for field, goes on the shelf and opens to play"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "factory-paint-desktop.jpg",
+          "factory-stamp-desktop.jpg",
+          "factory-done-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "factory-paint-phone.jpg",
+          "factory-stamp-phone.jpg",
+          "factory-done-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "a flick spins the spinner, it slows down by itself, and the best spin time and coins are saved",
+      "notes": [
+        "desktop: the drag flicked it at 44 rad/s; Space pushed it to 28, 3 s later it was at 19.4, and it stopped by itself after 21.2 s: best spin saved, 7 coins earned",
+        "phone: the drag flicked it at 62 rad/s; Space pushed it to 28, 3 s later it was at 19.4, and it stopped by itself after 21.2 s: best spin saved, 7 coins earned"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "spinning-desktop.jpg",
+          "best-spin-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "spinning-phone.jpg",
+          "best-spin-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "pop-it bubbles pop when tapped, Space pops the rest, and flipping it brings them all back with the colours swapped",
+      "notes": [
+        "desktop: 25 bubbles: clicked 5, Space popped the other 20; Flip it! turned it over (side 2, pink and teal swapped), every bubble came back up and the full board paid 3 coins (2 from pops before)",
+        "phone: 25 bubbles: tapped 5, Space popped the other 20; Flip it! turned it over (side 2, pink and teal swapped), every bubble came back up and the full board paid 3 coins (2 from pops before)"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "popping-desktop.jpg",
+          "flipped-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "popping-phone.jpg",
+          "flipped-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the squishy squashes and stretches under a finger and springs back when let go",
+      "notes": [
+        "desktop: holding squashed it to 0.59 tall and 1.31 wide; dragging pulled the edge out 0.34; 2 s after letting go it was back to shape; Space squished it again",
+        "phone: holding squashed it to 0.59 tall and 1.31 wide; dragging pulled the edge out 0.50; 2 s after letting go it was back to shape; Space squished it again"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "stretched-desktop.jpg",
+          "squished-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "stretched-phone.jpg",
+          "squished-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the clicky cube's button, switch and slider click, and the arrows turn it to the next face",
+      "notes": [
+        "desktop: button: 1 click; the turn button and ArrowRight turned it to the switch (now on) and the slider; sliding end to end clicked every notch (13 clicks so far)",
+        "phone: button: 1 click; the turn button and ArrowRight turned it to the switch (now on) and the slider; sliding end to end clicked every notch (13 clicks so far)"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "turning-desktop.jpg",
+          "slider-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "turning-phone.jpg",
+          "slider-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "pause stops the clock, Start over resets the toy, and coins, unlocks, the shelf and best spin survive a reload",
+      "notes": [
+        "desktop: pause held the toy still (clock at 0.15 s); Start over put all the bubbles back; after a reload: 33 coins, the same shelf and unlocks; save keys: gameon.fidget-factory.save",
+        "phone: pause held the toy still (clock at 0.08 s); Start over put all the bubbles back; after a reload: 33 coins, the same shelf and unlocks; save keys: gameon.fidget-factory.save"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "the shelf holds 12 fidgets: a full shelf asks you to recycle one, and the game still plays when saving is blocked",
+      "notes": [
+        "desktop: a seeded shelf of 12 shows 12 of 12; To the factory! sent us back to the shelf; ✕ then Recycle? removed one and a shelf fidget opened to play; with storage blocked a new spinner still built and spun",
+        "phone: a seeded shelf of 12 shows 12 of 12; To the factory! sent us back to the shelf; ✕ then Recycle? removed one and a shelf fidget opened to play; with storage blocked a new spinner still built and spun"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "shelf-full-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "shelf-full-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Fidget Factory has a card right after the Editor's Choice games and plays in its frame",
+      "notes": [
+        "desktop: card at position 2, after the 1 Editor's Choice card(s) and ahead of ant-farm-wars, with its 800x450 cover and \"Made by Kiki\"; inside the frame it went workshop, factory (skipped), play",
+        "phone: card at position 2, after the 1 Editor's Choice card(s) and ahead of ant-farm-wars, with its 800x450 cover and \"Made by Kiki\"; inside the frame it went workshop, factory (skipped), play"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "in-arcade-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "in-arcade-phone.jpg"
+        ],
+        "error": null
+      }
+    }
+  ]
+}
