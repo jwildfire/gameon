@@ -254,6 +254,8 @@ Follow the matching skill file:
 | "Build game idea #N" | [`.claude/skills/gameon-build/SKILL.md`](.claude/skills/gameon-build/SKILL.md) |
 | "Check the build for #N" | [`.claude/skills/gameon-check/SKILL.md`](.claude/skills/gameon-check/SKILL.md) |
 
+Ideas can also be in the private `jwildfire/gameon-ideas` repo: their words never go anywhere public, which replaces the word-for-word README rule for them ([docs/ideas.md](docs/ideas.md)).
+
 Claude Code loads these automatically. Codex and ChatGPT don't, so read the file before you
 start. If the file isn't on `dev` yet, say so and stop rather than improvising. The rules in
 this file still apply inside a skill; if the two disagree, ask your person.

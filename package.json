@@ -2,10 +2,11 @@
   "name": "gameon",
   "private": true,
   "type": "module",
-  "description": "Test tooling for the GameOn arcade. The site itself needs no build.",
+  "description": "Test tooling for the GameOn arcade and its idea intake (intake/). The site itself needs no build.",
   "scripts": {
     "evidence": "playwright test --config playwright.evidence.config.mjs",
-    "evidence:check": "EVIDENCE_DIR=node_modules/.cache/gameon-evidence/check playwright test --config playwright.evidence.config.mjs"
+    "evidence:check": "EVIDENCE_DIR=node_modules/.cache/gameon-evidence/check playwright test --config playwright.evidence.config.mjs",
+    "test:intake": "node --test \"intake/test/*.test.mjs\""
   },
   "devDependencies": {
     "@playwright/test": "1.61.1"

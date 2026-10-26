@@ -7,6 +7,7 @@
 <meta name="description" content="Say what you want to play, an AI builds it, and you play it with your friends.">
 <meta name="theme-color" content="#ffd23f">
 <script src="../assets/mode.js"></script>
+<script src="intake-config.js"></script>
 <link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -119,6 +120,25 @@ input[type="text"] { width: 100%; border: 2.5px solid var(--ink); border-radius:
 .top-right { flex-wrap: wrap; justify-content: flex-end; }
 html[data-mode="weird"] h1 { justify-self: start; background: var(--card); border: var(--line); border-radius: 18px; box-shadow: var(--lift); padding: 6px 16px 10px; }
 .page { padding-bottom: max(88px, env(safe-area-inset-bottom, 0px)); } /* room for the corner control (Shuffle, and Next in Weird) */
+/* Sending through the intake service (new/intake-config.js): the family code and the robot check. */
+.family { display: grid; gap: 8px; padding: 12px; border: 2px dashed var(--ink); border-radius: 14px; }
+.family .sub { font: 800 14px/1.3 var(--body); color: var(--muted); margin: 0; }
+.family .sub b { color: var(--ink); }
+.family-row { display: flex; gap: 8px; }
+.family-row input { flex: 1; min-width: 0; }
+.family-saved { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-weight: 800; }
+.robot { min-height: 65px; max-width: 100%; overflow: hidden; }
+/* Optional sign-in (Google, GitHub), shown only when new/intake-config.js names the providers. */
+.signin { display: grid; gap: 10px; padding: 12px; border: 2px dashed var(--ink); border-radius: 14px; }
+.signin .sub { font: 800 14px/1.3 var(--body); color: var(--muted); margin: 0; }
+.signin .sub b { color: var(--ink); }
+.signin-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.signin-row > [hidden] { display: none; }
+#google-btn { min-height: 40px; max-width: 100%; }
+.gh-signin { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 8px 16px; text-decoration: none; }
+.gh-signin svg { width: 18px; height: 18px; fill: currentColor; flex: none; }
+.signed-in { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-weight: 800; }
+.signed-in span { min-width: 0; overflow-wrap: anywhere; }
 </style>
 </head>
 <body>
@@ -173,12 +193,33 @@ html[data-mode="weird"] h1 { justify-self: start; background: var(--card); borde
         <input type="text" id="maker" maxlength="20" autocomplete="off" placeholder="A nickname, not your real name">
       </div>
 
+      <div class="family" id="family" hidden>
+        <div class="family-saved" id="family-saved" hidden><span>Family code saved on this device.</span><button type="button" class="chip" id="family-forget">Forget it</button></div>
+        <div id="family-entry" style="display:grid;gap:8px">
+          <label class="sub" for="family-code"><b>Family code</b> · for grown-ups: type it once and this device remembers it</label>
+          <div class="family-row"><input type="text" id="family-code" maxlength="100" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Your family's code"><button type="button" class="chip" id="family-save">Save</button></div>
+          <p class="sub">No code? You can still send it. A grown-up checks it first.</p>
+        </div>
+      </div>
+      <div class="signin" id="signin" hidden>
+        <div id="signin-out" style="display:grid;gap:10px">
+          <p class="sub"><b>Grown-ups, sign in if you like.</b> It's optional, so you can also just send it.</p>
+          <div class="signin-row">
+            <div id="google-btn" hidden></div>
+            <a class="chip gh-signin" id="github-signin" href="#" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 0-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6 0-3.2 0 0 1-.3 3.4 1.2a11.5 11.5 0 0 1 6 0C17 4.6 18 5 18 5c.6 1.6.2 2.8.1 3.2.8.8 1.3 1.9 1.3 3.1 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>Sign in with GitHub</a>
+          </div>
+        </div>
+        <div class="signed-in" id="signed-in" hidden><span>Signed in as <b id="signin-name"></b></span><button type="button" class="chip" id="signout">Sign out</button></div>
+      </div>
+      <div class="robot" id="robot" hidden><div id="robot-widget"></div></div>
+
       <div class="msg" id="ask" hidden>What happens in your game? Tell us a bit more.</div>
+      <div class="msg warn" id="send-msg" role="alert" hidden></div>
       <button type="button" class="go" id="send" disabled>Send to the Matrix</button>
 
       <div class="handoff" id="handoff" hidden>
-        <div class="msg">Sent to the Matrix! Someone with GitHub access presses <b>Submit</b> to make it real.</div>
-        <p>If GitHub didn't open, use this link:</p>
+        <div class="msg" id="handoff-msg">Sent to the Matrix! Someone with GitHub access presses <b>Submit</b> to make it real.</div>
+        <p id="link-help">If GitHub didn't open, use this link:</p>
         <a class="linkbox" id="issue-link" target="_blank" rel="noopener"></a>
         <button type="button" class="chip" id="another" style="justify-self:start">Make another one</button>
       </div>
@@ -195,11 +236,11 @@ html[data-mode="weird"] h1 { justify-self: start; background: var(--card); borde
       <ol class="steps">
         <li>Say what you want to play. Talk or type.</li>
         <li>Fix the typos.</li>
-        <li>Send it to the Matrix, and someone signs it off on GitHub.</li>
+        <li id="step-send">Send it to the Matrix, and someone signs it off on GitHub.</li>
         <li>An AI builds it, and another AI checks it.</li>
         <li>Game night.</li>
       </ol>
-      <p style="color:var(--muted)">For whoever presses Submit: Send opens GitHub's Game idea form with everything filled in. Read it, take out anything private like real names, and press Submit. An agent picks it up within about ten minutes.</p>
+      <p style="color:var(--muted)" id="submit-help">For whoever presses Submit: Send opens GitHub's Game idea form with everything filled in. Read it, take out anything private like real names, and press Submit. An agent picks it up within about ten minutes.</p>
     </aside>
     </div>
   </div>
@@ -210,6 +251,32 @@ html[data-mode="weird"] h1 { justify-self: start; background: var(--card); borde
   var REPO = "https://github.com/jwildfire/gameon";
   var MAX = 1000, MIN_WORDS = 5;
   var NICK_KEY = "gameon.arcade.nicknames";
+
+  // The intake service (new/intake-config.js, intake/README.md). With no url, everything
+  // below works as in Phase 0: Send opens GitHub's form and the idea line reads GitHub.
+  var CFG = window.GAMEON_INTAKE || {};
+  var INTAKE = typeof CFG.url === "string" ? CFG.url.trim().replace(/\/+$/, "") : "";
+  var SITE_KEY = INTAKE && typeof CFG.turnstileSiteKey === "string" ? CFG.turnstileSiteKey.trim() : "";
+  var CODES = INTAKE && CFG.familyCodes !== false;   // familyCodes: false hides the code field; every idea waits for a grown-up
+  var CODE_KEY = "gameon.arcade.familyCode";
+  // Optional sign-in (intake/README.md, "Sign-in and the allowlist"). Buttons show only when
+  // the config names a provider; a signed-in grown-up skips the robot check.
+  var GOOGLE_ID = INTAKE && typeof CFG.googleClientId === "string" ? CFG.googleClientId.trim() : "";
+  var GITHUB_SIGNIN = !!(INTAKE && CFG.githubSignIn === true);
+  var SIGNIN = !!(GOOGLE_ID || GITHUB_SIGNIN);
+  var SESSION_KEY = "gameon.arcade.signin", DRAFT_KEY = "gameon.arcade.draft";
+  // A GitHub sign-in comes back with the session token in the fragment. Take it out of the
+  // address before anything else runs.
+  var fromSignin = (function () {
+    var h = location.hash;
+    if (!/^#gameon_(session|signin_error)=/.test(h)) return null;
+    try { history.replaceState(null, "", location.pathname + location.search); } catch (e) { location.hash = ""; }
+    var m = /^#gameon_session=([\w.-]{1,4096})$/.exec(h);
+    if (m) return { token: m[1] };
+    var err = /^#gameon_signin_error=(\w{1,30})$/.exec(h);
+    return { error: err ? err[1] : "github" };
+  })();
+  var MAX_WORDS = 1000, CAP = INTAKE ? 10000 : MAX;   // the intake counts words, not characters
 
   var $ = function (id) { return document.getElementById(id); };
   var tabTalk = $("tab-talk"), tabType = $("tab-type"), talkPane = $("talk-pane");
@@ -319,7 +386,7 @@ html[data-mode="weird"] h1 { justify-self: start; background: var(--card); borde
         if (e.results[i].isFinal) finalText += t.trim() + " ";
         else interim += t;
       }
-      idea.value = finalText.trim().slice(0, MAX);
+      idea.value = finalText.trim().slice(0, CAP);
       live.innerHTML = "";
       if (interim) { var s = document.createElement("span"); s.className = "interim"; s.textContent = interim; live.appendChild(s); }
       told = "talking";
@@ -370,11 +437,12 @@ html[data-mode="weird"] h1 { justify-self: start; background: var(--card); borde
 
   // ---------- Validate and send ----------
   function words(s) { return s.trim() ? s.trim().split(/\s+/).length : 0; }
+  function tooLong(text) { return INTAKE ? words(text) > MAX_WORDS : text.length > MAX; }
   function update() {
     var text = idea.value, n = text.length;
-    count.textContent = n + " / " + MAX;
-    count.classList.toggle("over", n > MAX);
-    send.disabled = !text.trim() || n > MAX || !cleanNick(maker.value);
+    count.textContent = INTAKE ? words(text) + " / " + MAX_WORDS + " words" : n + " / " + MAX;
+    count.classList.toggle("over", tooLong(text));
+    send.disabled = !text.trim() || tooLong(text) || !cleanNick(maker.value) || sending;
     if (words(text) >= MIN_WORDS) ask.hidden = true;
   }
   idea.addEventListener("input", update);
@@ -404,9 +472,10 @@ html[data-mode="weird"] h1 { justify-self: start; background: var(--card); borde
     var text = idea.value.trim().replace(/\s+\n/g, "\n");
     var nick = cleanNick(maker.value);
     if (words(text) < MIN_WORDS) { ask.hidden = false; idea.focus(); return; }
-    if (!nick || text.length > MAX) return;
+    if (!nick || tooLong(text) || sending) return;
     stopListening();
     saveNick(nick);
+    if (INTAKE) return sendToIntake(text, nick);
     var url = issueUrl(text, nick, told, target);
     issueLink.href = url;
     issueLink.textContent = url;
@@ -418,14 +487,217 @@ html[data-mode="weird"] h1 { justify-self: start; background: var(--card); borde
   });
 
   $("another").addEventListener("click", function () {
-    idea.value = ""; told = "typing"; handoff.hidden = true; send.hidden = false;
+    idea.value = ""; told = "typing"; handoff.hidden = true; send.hidden = false; sendMsg.hidden = true;
     setMode(Recognition ? "talk" : "type"); update(); idea.blur();
   });
+
+  // ---------- Sending through the intake service ----------
+  var sending = false, pending = [];
+  var sendMsg = $("send-msg"), family = $("family"), familySaved = $("family-saved"), familyEntry = $("family-entry");
+  var familyCode = $("family-code"), robot = $("robot");
+  var robotToken = "", robotId = null;
+  var SEND_LABEL = send.textContent;
+
+  function loadCode() { if (!CODES) return ""; try { return localStorage.getItem(CODE_KEY) || ""; } catch (e) { return ""; } }
+  function saveCode(c) { try { if (c) localStorage.setItem(CODE_KEY, c); else localStorage.removeItem(CODE_KEY); } catch (e) {} }
+
+  function showFamily() {
+    if (!INTAKE) return;
+    if (!CODES) { family.hidden = true; showRobot(); return; }
+    var code = loadCode();
+    family.hidden = false;
+    familySaved.hidden = !code;
+    familyEntry.hidden = !!code;
+    showRobot();
+  }
+  $("family-save").addEventListener("click", function () {
+    var c = familyCode.value.trim();
+    if (c.length < 4) { familyCode.focus(); return; }
+    saveCode(c); familyCode.value = ""; sendMsg.hidden = true; showFamily();
+  });
+  familyCode.addEventListener("keydown", function (e) { if (e.key === "Enter") $("family-save").click(); });
+  $("family-forget").addEventListener("click", function () { saveCode(""); showFamily(); familyCode.focus(); });
+
+  // ---------- Optional sign-in ----------
+  var signin = $("signin"), signinOut = $("signin-out"), signedIn = $("signed-in");
+  var googleBtn = $("google-btn"), githubBtn = $("github-signin");
+  var googleReady = false;
+
+  // The session token's middle part is base64url JSON: who, and until when. The page only
+  // reads it to show the name; the Worker checks the signature.
+  function readToken(token) {
+    try {
+      var p = String(token).split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+      var bin = atob(p + "===".slice((p.length + 3) % 4));
+      var bytes = new Uint8Array(bin.length);
+      for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      var d = JSON.parse(new TextDecoder().decode(bytes));
+      if (!d || typeof d.exp !== "number" || (d.p !== "google" && d.p !== "github")) return null;
+      return { token: token, name: String(d.name || d.login || "you").slice(0, 60), provider: d.p, exp: d.exp };
+    } catch (e) { return null; }
+  }
+  function loadSession() {
+    if (!SIGNIN) return null;
+    var s = null;
+    try { s = readToken(localStorage.getItem(SESSION_KEY) || ""); } catch (e) { s = null; }
+    if (s && s.exp * 1000 <= Date.now()) { saveSession(""); return null; }
+    return s;
+  }
+  function saveSession(token) {
+    try { if (token) localStorage.setItem(SESSION_KEY, token); else localStorage.removeItem(SESSION_KEY); } catch (e) {}
+  }
+
+  function showSignin() {
+    signin.hidden = !SIGNIN;
+    if (!SIGNIN) return;
+    var s = loadSession();
+    signedIn.hidden = !s;
+    signinOut.hidden = !!s;
+    if (s) $("signin-name").textContent = s.name;
+    githubBtn.hidden = !GITHUB_SIGNIN;
+    googleBtn.hidden = !GOOGLE_ID;
+    if (!s && GOOGLE_ID) loadGoogle();
+    showRobot();
+  }
+
+  // Google Identity Services draws its own "Sign in with Google" button and hands back an
+  // ID token, which the Worker checks and swaps for a session token.
+  function loadGoogle() {
+    if (googleReady) return;
+    if (window.google && window.google.accounts && window.google.accounts.id) { startGoogle(); return; }
+    if (document.getElementById("google-gsi")) return;
+    var sc = document.createElement("script");
+    sc.id = "google-gsi";
+    sc.async = true;
+    sc.src = "https://accounts.google.com/gsi/client";
+    sc.onload = startGoogle;
+    document.head.appendChild(sc);
+  }
+  function startGoogle() {
+    if (googleReady || !(window.google && window.google.accounts && window.google.accounts.id)) return;
+    googleReady = true;
+    window.google.accounts.id.initialize({ client_id: GOOGLE_ID, callback: onGoogle, auto_select: false, cancel_on_tap_outside: true });
+    window.google.accounts.id.renderButton(googleBtn, { type: "standard", theme: "outline", size: "large", text: "signin_with", shape: "pill", width: 220 });
+  }
+  function onGoogle(resp) {
+    if (!resp || !resp.credential) return;
+    sendMsg.hidden = true;
+    fetch(INTAKE + "/auth/google", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ credential: resp.credential }) })
+      .then(function (r) { return r.json().catch(function () { return {}; }); })
+      .then(function (j) {
+        if (j && j.ok && readToken(j.session)) { saveSession(j.session); showSignin(); }
+        else say((j && j.message) || "That sign-in didn't work. Try again, or just send your idea.");
+      }, function () { say("Couldn't reach the idea machine. Check the internet and try again."); });
+  }
+
+  // GitHub sign-in leaves the page, so keep what the kid typed and put it back on return.
+  githubBtn.addEventListener("click", function (e) {
+    e.preventDefault();
+    try { sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ idea: idea.value, maker: maker.value, told: told })); } catch (err) {}
+    location.href = INTAKE + "/auth/github/start?return=" + encodeURIComponent(location.origin + location.pathname + location.search);
+  });
+
+  $("signout").addEventListener("click", function () {
+    saveSession("");
+    if (window.google && window.google.accounts && window.google.accounts.id) { try { window.google.accounts.id.disableAutoSelect(); } catch (e) {} }
+    sendMsg.hidden = true;
+    showSignin();
+  });
+
+  function signinReturned() {
+    if (!fromSignin || !SIGNIN) return;
+    var d = null;
+    try { d = JSON.parse(sessionStorage.getItem(DRAFT_KEY) || "null"); sessionStorage.removeItem(DRAFT_KEY); } catch (e) { d = null; }
+    if (d && typeof d.idea === "string" && !idea.value) {
+      idea.value = d.idea.slice(0, CAP);
+      if (typeof d.maker === "string" && d.maker) maker.value = d.maker.slice(0, 20);
+      if (d.told === "talking") told = "talking";
+    }
+    if (fromSignin.token && readToken(fromSignin.token)) saveSession(fromSignin.token);
+    else if (fromSignin.error === "cancelled") say("Sign-in cancelled. You can still just send it.");
+    else say("GitHub sign-in didn't work. Try again, or just send it.");
+  }
+
+  // The robot check (Cloudflare Turnstile), only for ideas sent without a family code or a sign-in.
+  function needRobot() { return !!(INTAKE && SITE_KEY && !loadCode() && !loadSession()); }
+  function showRobot() {
+    robot.hidden = !needRobot();
+    if (!needRobot()) return;
+    if (window.turnstile) { renderRobot(); return; }
+    if (document.getElementById("turnstile-js")) return;
+    var sc = document.createElement("script");
+    sc.id = "turnstile-js";
+    sc.async = true;
+    sc.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=gameonRobotReady";
+    document.head.appendChild(sc);
+  }
+  function renderRobot() {
+    if (robotId !== null || !needRobot() || !window.turnstile) return;
+    robotId = window.turnstile.render("#robot-widget", {
+      sitekey: SITE_KEY,
+      // A fresh token clears only the "tap the box" nudge. After a refused send the widget
+      // resets and often passes again on its own; that mustn't hide the refusal.
+      callback: function (t) { robotToken = t; if (sendMsg.textContent === NEED_ROBOT) sendMsg.hidden = true; },
+      "expired-callback": function () { robotToken = ""; },
+      "error-callback": function () { robotToken = ""; }
+    });
+  }
+  window.gameonRobotReady = renderRobot;
+  function resetRobot() {
+    robotToken = "";
+    if (robotId !== null && window.turnstile) { try { window.turnstile.reset(robotId); } catch (e) {} }
+  }
+
+  var NEED_ROBOT = "Tap the \"I'm not a robot\" box first.";
+  function say(text) { sendMsg.textContent = text; sendMsg.hidden = false; }
+
+  function sendToIntake(text, nick) {
+    var code = loadCode(), session = code ? null : loadSession();
+    if (!code && !session && SITE_KEY && !robotToken) { say(NEED_ROBOT); return; }
+    var body = { idea: text, maker: nick, told_by: told };
+    if (target) { body.game = target.slug; body.version = target.version; }
+    if (code) body.code = code; else if (session) body.session = session.token; else if (robotToken) body.turnstile = robotToken;
+    var upd = target;
+    sending = true; sendMsg.hidden = true; send.textContent = "Sending…"; update();
+    fetch(INTAKE + "/ideas", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json().catch(function () { return {}; }); })
+      .then(function (j) {
+        if (j && j.ok) sent(j, nick, upd);
+        else refused(j || {});
+      }, function () { refused({}); })
+      .then(function () { sending = false; send.textContent = SEND_LABEL; resetRobot(); update(); });
+  }
+
+  function sent(j, nick, upd) {
+    $("handoff-msg").textContent = "Sent to the Matrix! It's in the idea line now." +
+      (j.submitter === "unknown" ? " A grown-up checks it before it gets built." : "");
+    $("link-help").hidden = true; issueLink.hidden = true;
+    handoff.hidden = false; send.hidden = true;
+    // Show it straight away as "Just sent", without its words, until the queue has it.
+    pending.unshift({ source: "private", number: j.number, created: new Date().toISOString(), maker: nick,
+                      status: "status: submitted", ev: null, update: !!upd, game: upd ? upd.slug : "" });
+    try { sessionStorage.removeItem(CACHE_KEY); } catch (e) {}
+    renderIdeas(withPending(lastIdeas));
+    handoff.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  function refused(j) {
+    if (j.error === "bad_code") { saveCode(""); showFamily(); }
+    if (j.error === "signed_out") { saveSession(""); showSignin(); }
+    say(j.message || "Couldn't reach the idea machine. Check the internet and try again.");
+  }
+
+  if (INTAKE) {
+    idea.maxLength = CAP;
+    $("step-send").textContent = CODES ? "Send it to the Matrix. Ideas without a family code wait for a grown-up." : "Send it to the Matrix. A grown-up says yes before anything is built.";
+    $("submit-help").textContent = CODES ? "For grown-ups: type your family code once and this device remembers it. Ideas sent without one still go in, and wait for a grown-up to say yes before anything is built." : "Every idea waits for a grown-up to say yes before anything is built.";
+  }
 
   // ---------- The idea line ----------
   // Reads public game-idea issues and their eval comments. Two API calls, cached for a minute.
   var API = "https://api.github.com/repos/jwildfire/gameon";
-  var CACHE_KEY = "gameon.arcade.ideas";
+  var CACHE_KEY = INTAKE ? "gameon.arcade.ideas.intake" : "gameon.arcade.ideas";
+  var lastIdeas = [];
   var STATUS = {
     "status: submitted":      { words: "Got it!",                step: 1 },
     "status: evaluating":     { words: "Thinking it over",       step: 2 },
@@ -475,11 +747,37 @@ html[data-mode="weird"] h1 { justify-self: start; background: var(--card); borde
     });
   }
 
+  // GET /queue on the intake service: titles, one-liners, statuses and nicknames, never an
+  // idea's words. Mapped to the same shape the GitHub reader below makes.
+  function loadQueue() {
+    return fetch(INTAKE + "/queue").then(function (r) {
+      if (!r.ok) { var e = new Error("http " + r.status); e.kind = "intake"; throw e; }
+      return r.json();
+    }).then(function (j) {
+      return (j && Array.isArray(j.ideas) ? j.ideas : []).map(function (i) {
+        var ev = i.title || i.one_liner || i.question || i.reason || i.version
+          ? { title: i.title, one_liner: i.one_liner, question: i.question, reason: i.reason, version: i.version } : null;
+        return { source: i.source, number: i.number, created: i.created, maker: i.maker || "Someone",
+                 status: STATUS[i.status] ? i.status : "status: submitted", ev: ev, update: !!i.update, game: i.game || "" };
+      });
+    });
+  }
+  function withPending(list) {
+    pending = pending.filter(function (p) {
+      return !list.some(function (i) { return i.source === p.source && i.number === p.number; });
+    });
+    return pending.concat(list);
+  }
+
   function loadIdeas(force) {
     try {
       var c = JSON.parse(sessionStorage.getItem(CACHE_KEY) || "null");
       if (!force && c && Date.now() - c.at < 60000) return Promise.resolve(c.data);
     } catch (e) {}
+    if (INTAKE) return loadQueue().then(function (data) {
+      try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ at: Date.now(), data: data })); } catch (e) {}
+      return data;
+    });
     return Promise.all([
       getJSON(API + "/issues?labels=game-idea&state=all&sort=created&direction=desc&per_page=30"),
       getJSON(API + "/issues/comments?sort=created&direction=desc&per_page=100")
@@ -549,10 +847,12 @@ html[data-mode="weird"] h1 { justify-self: start; background: var(--card); borde
     lineMsg.hidden = false;
     if (!ideasEl.children.length) lineMsg.textContent = "Loading ideas…";
     // Updates are titled from games.json, so wait for it (it never fails; titles fall back to the slug).
-    Promise.all([loadIdeas(force), gamesReady]).then(function (r) { renderIdeas(r[0]); }).catch(function (e) {
+    Promise.all([loadIdeas(force), gamesReady]).then(function (r) { lastIdeas = r[0]; renderIdeas(withPending(r[0])); }).catch(function (e) {
       ideasEl.innerHTML = "";
       lineMsg.hidden = false;
-      lineMsg.textContent = e && e.kind === "limit"
+      lineMsg.textContent = INTAKE
+        ? "Can't load the idea line right now. Tap Refresh to try again."
+        : e && e.kind === "limit"
         ? "GitHub needs a short break. Try again in a few minutes."
         : "Can't reach GitHub right now. Check the internet and tap Refresh.";
     });
@@ -561,9 +861,12 @@ html[data-mode="weird"] h1 { justify-self: start; background: var(--card); borde
   window.gameonShowIdeas = showIdeas; // used by the evidence tests
 
   // ---------- Start ----------
+  signinReturned();   // back from GitHub: keep the session token and what the kid had typed
+  showSignin();
+  showFamily();
   showIdeas(false);
   var last = loadNicks()[0];
-  if (last) maker.value = last;
+  if (last && !maker.value) maker.value = last;
   renderChips();
   setMode(Recognition ? "talk" : "type");
   update();

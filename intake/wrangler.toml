@@ -1,0 +1,29 @@
+# GameOn idea intake (Cloudflare Worker). Deploy steps: README.md in this folder.
+# Secrets are never in this file: set them with `npx wrangler secret put <NAME>`.
+name = "gameon-intake"
+main = "src/index.js"
+account_id = "27ba7e53c52c4eff786faec8ad1fa823"
+compatibility_date = "2025-09-01"
+
+[[kv_namespaces]]
+binding = "INTAKE_KV"
+id = "e94c429b051e4f8883382145b087dbb9"  # the gameon-intake namespace
+
+[vars]
+APP_ID = "5461654"                          # gameon-arcade-bot, the GameOn GitHub App
+INSTALLATION_ID = "174983225"               # its installation on jwildfire (gameon, trampoline-battle, gameon-ideas)
+IDEAS_REPO = "jwildfire/gameon-ideas"       # where ideas are filed (private)
+PUBLIC_IDEAS_REPO = "jwildfire/gameon"      # older public ideas the idea line also shows; "" to leave them out
+ALLOWED_ORIGINS = "https://jwildfire.github.io"
+ALLOW_LOCALHOST = "true"                    # also allow http://localhost:* and 127.0.0.1:* (for tests)
+LIMIT_PER_CODE_PER_DAY = "2"                # ideas per family code per day
+LIMIT_PER_IP_UNKNOWN_PER_DAY = "1"          # ideas without a code, per device per day
+LIMIT_UNKNOWN_PER_DAY = "10"                # ideas without a code, from everyone together, per day
+LIMIT_BAD_CODES_PER_IP_PER_DAY = "5"        # wrong family codes per device per day before it's refused
+QUEUE_CACHE_SECONDS = "60"                  # how long GET /queue is cached
+LIMIT_PER_SIGNIN_PER_DAY = "3"              # ideas per signed-in sender (Google or GitHub) per day
+# Optional sign-in (README.md, "Sign-in and the allowlist"). Client IDs are public.
+GOOGLE_CLIENT_ID = "72221777467-bqbv0k3q66n8u81qul1dlroupt7f5dc6.apps.googleusercontent.com"   # the GameOn project's Web client (Testing: only listed test users can sign in)
+GITHUB_CLIENT_ID = "Iv23liwSYtQ7ujJXX9Oy"   # gameon-arcade-bot's client ID, for its user authorization
+SIGNIN_RETURN_URLS = "https://jwildfire.github.io/gameon/new/,https://jwildfire.github.io/gameon/dev/new/"
+ALLOWLIST_DECIDERS = "jwildfire,killjoy00"  # only their allowlist labels count

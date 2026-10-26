@@ -1,0 +1,197 @@
+{
+  "spec": "157-pet-wash-payback",
+  "passed": true,
+  "headline": "PASS: 9 of 9 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-24T14:01:35.931Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "71150ed",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/157-pet-wash-payback.spec.mjs",
+  "checks": [
+    {
+      "check": "the title screen opens and Play leads to Biscuit's wash, with nothing loaded from the internet",
+      "notes": [
+        "desktop: Biscuit in the tub with 7 mud spots and 35 seconds on the clock; soap, rinse and towel buttons; no requests outside the site; no sideways scrolling",
+        "phone: Biscuit in the tub with 7 mud spots and 35 seconds on the clock; soap, rinse and towel buttons; no requests outside the site; no sideways scrolling"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "title-desktop.jpg",
+          "wash-start-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "title-phone.jpg",
+          "wash-start-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "dragging over a mud spot scrubs it to bubbles, rinses it and towels it dry, with a real mouse or finger",
+      "notes": [
+        "desktop: mouse drag: spot 1 went mud → bubbles → wet → clean; the Clean meter is at 14%",
+        "phone: touch drag: spot 1 went mud → bubbles → wet → clean; the Clean meter is at 14%"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "scrub-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "scrub-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the hose round runs with the real controls: arrow keys on a laptop, a drag joystick on a phone",
+      "notes": [
+        "desktop: held → and ↑: the kid ran from (236, 423) to (328, 330)",
+        "phone: dragged the joystick up and right: the kid ran from (150, 931) to (278, 854)"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "hose-controls-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "hose-controls-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "each pet sprays its own way: the cat ambushes from a bush, the bunny sprinkles, the pig leaves mud, the surprise duck throws balloons",
+      "notes": [
+        "desktop: Mittens waited in a bush, then sprayed from it; Clover hopped and swished her sprinkler 1.06 radians; Truffle left 1 mud puddles that cut your speed to 103 (from 205), with a cone 0.42 radians wide; Sir Quackers threw a balloon with its shadow at 236,423",
+        "phone: Mittens waited in a bush, then sprayed from it; Clover hopped and swished her sprinkler 0.94 radians; Truffle left 2 mud puddles that cut your speed to 103 (from 205), with a cone 0.42 radians wide; Sir Quackers threw a balloon with its shadow at 150,931"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "duck-balloons-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "duck-balloons-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "a whole game through the real buttons: all 5 pets washed in time and escaped, with a final score",
+      "notes": [
+        "desktop: Biscuit: washed with 20.4s left (3★), 5% wet (3★); Mittens: washed with 20.8s left (3★), 0% wet (3★); Clover: washed with 21.5s left (3★), 4% wet (3★); Truffle: washed with 15.5s left (2★), 0% wet (3★); Sir Quackers: washed with 19.9s left (3★), 0% wet (3★); final 6608 points",
+        "phone: Biscuit: washed with 18.1s left (3★), 2% wet (3★); Mittens: washed with 18.7s left (3★), 0% wet (3★); Clover: washed with 19.7s left (3★), 6% wet (3★); Truffle: washed with 10.1s left (2★), 6% wet (3★); Sir Quackers: washed with 16.8s left (3★), 0% wet (3★); final 6463 points"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "wash-result-desktop.jpg",
+          "final-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "wash-result-phone.jpg",
+          "final-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "later pets are harder: a player who stands still gets wetter, and the wash clock gets tighter",
+      "notes": [
+        "desktop: standing still: Biscuit SOAKED, Mittens SOAKED, Clover 66% wet, Truffle 99% wet, Sir Quackers SOAKED; wash: Biscuit 7 spots in 35s, Mittens 8 spots in 36s, Clover 9 spots in 37s, Truffle 10 spots in 42s, Sir Quackers 11 spots in 38s",
+        "phone: standing still: Biscuit SOAKED, Mittens SOAKED, Clover 61% wet, Truffle 87% wet, Sir Quackers SOAKED; wash: Biscuit 7 spots in 35s, Mittens 8 spots in 36s, Clover 9 spots in 37s, Truffle 10 spots in 42s, Sir Quackers 11 spots in 38s"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "the game pauses, and Restart starts the round over",
+      "notes": [
+        "desktop: paused at 34.8s left and the clock stayed put; Restart put Mittens back in the tub with a fresh clock; P pauses and unpauses",
+        "phone: paused at 34.8s left and the clock stayed put; Restart put Mittens back in the tub with a fresh clock; P pauses and unpauses"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "paused-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "paused-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "best stars are saved only under gameon.pet-wash-payback., and Pick a pet shows them",
+      "notes": [
+        "desktop: keys: gameon.pet-wash-payback.best, gameon.pet-wash-payback.reached; Biscuit's best 3★ wash and 3☂ dry still there after a reload; Mittens unlocked, the surprise pet still a secret",
+        "phone: keys: gameon.pet-wash-payback.best, gameon.pet-wash-payback.reached; Biscuit's best 3★ wash and 3☂ dry still there after a reload; Mittens unlocked, the surprise pet still a secret"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "Pet Wash Payback has a card near the front of the arcade and plays in its frame",
+      "notes": [
+        "desktop: card at position 2 on the shelf with its 800x450 cover; plays inside the frame; GitHub button opens its folder",
+        "phone: card at position 2 on the shelf with its 800x450 cover; plays inside the frame; GitHub button opens its folder"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "in-arcade-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "in-arcade-phone.jpg"
+        ],
+        "error": null
+      }
+    }
+  ]
+}

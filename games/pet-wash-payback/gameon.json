@@ -1,0 +1,14 @@
+{
+  "name": "pet-wash-payback",
+  "title": "Pet Wash Payback",
+  "tagline": "Scrub the pets as fast as you can, then run! Now they've got the hose.",
+  "credit": "Designed by Jeremy",
+  "idea": "game where you're trying to wash pets (dog, cat, etc) as fast as possible in round 1 and then the pet is trying to wash you with a hose in round 2 and you're trying to escape and stay dry.",
+  "made": "2026-10-24",
+  "built_with": "Claude Opus 5.5",
+  "players": "1",
+  "sideways": false,
+  "needs_internet": false,
+  "idea_issue": 157,
+  "path": "games/pet-wash-payback/"
+}

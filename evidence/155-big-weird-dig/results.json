@@ -1,0 +1,199 @@
+{
+  "spec": "155-big-weird-dig",
+  "passed": true,
+  "headline": "PASS: 9 of 9 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-24T13:28:13.003Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "43842ed",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/155-big-weird-dig.spec.mjs",
+  "checks": [
+    {
+      "check": "the title screen opens and level 1 starts, with nothing loaded from the internet",
+      "notes": [
+        "desktop: 8 levels and 30 weird things; HUD shows the level, fuel and the 3 things to find; no requests outside the site; no sideways scrolling",
+        "phone: 8 levels and 30 weird things; HUD shows the level, fuel and the 3 things to find; no requests outside the site; no sideways scrolling"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "title-desktop.jpg",
+          "playing-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "title-phone.jpg",
+          "playing-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the bulldozer digs a real tunnel with the real controls: the keyboard on a laptop, the arrow pad on a phone",
+      "notes": [
+        "desktop: arrow keys: dug 6 cells, down to row 4 and across to column 4; fuel 100 → 96",
+        "phone: arrow pad (one thumb, slid from down to right): dug 7 cells, down to row 5 and across to column 4; fuel 100 → 95"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "tunnel-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "tunnel-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "a weird find pops out with a TA-DA and a joke, and goes into the Weird Museum",
+      "notes": [
+        "desktop: found the Rubber Duck (“It still squeaks. Nobody knows how it got down here.”); museum now holds duck",
+        "phone: found the Rubber Duck (“It still squeaks. Nobody knows how it got down here.”); museum now holds duck"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "reveal-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "reveal-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "a boulder wobbles and falls when you dig out the dirt under it, and the blade shoves a mole back",
+      "notes": [
+        "desktop: boulder at column 6, row 10 stayed put while the bulldozer held it up, wobbled when it drove off, then fell and went KRUNCH; the blade shoved the mole from column 9 to 10.0 and left it dizzy",
+        "phone: boulder at column 6, row 10 stayed put while the bulldozer held it up, wobbled when it drove off, then fell and went KRUNCH; the blade shoved the mole from column 9 to 10.0 and left it dizzy"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "boulder-and-mole-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "boulder-and-mole-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "every one of the 8 levels can be beaten in the real game",
+      "notes": [
+        "desktop: won every level (game seconds, starting fuel → fuel left): 1: 6s, fuel 100 → 87; 2: 12s, fuel 85 → 85; 3: 14s, fuel 75 → 69; 4: 14s, fuel 70 → 57; 5: 21s, fuel 65 → 64; 6: 21s, fuel 60 → 63; 7: 30s, fuel 60 → 52; 8: 21s, fuel 60 → 50",
+        "phone: won every level (game seconds, starting fuel → fuel left): 1: 6s, fuel 100 → 87; 2: 12s, fuel 85 → 85; 3: 14s, fuel 75 → 69; 4: 14s, fuel 70 → 57; 5: 16s, fuel 65 → 48; 6: 22s, fuel 60 → 54; 7: 29s, fuel 60 → 56; 8: 21s, fuel 60 → 47"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "all-levels-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "all-levels-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the game pauses, Restart starts the level over, and running out of fuel offers a retry",
+      "notes": [
+        "desktop: paused at 0.75s and the clock stayed put; Restart put the bulldozer back on top with a fresh clock; an empty tank showed “Out of fuel!” and Try again refilled it",
+        "phone: paused at 0.77s and the clock stayed put; Restart put the bulldozer back on top with a fresh clock; an empty tank showed “Out of fuel!” and Try again refilled it"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "paused-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "paused-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "finds and progress are saved only under gameon.big-weird-dig., and the museum shows them after a reload",
+      "notes": [
+        "desktop: keys: gameon.big-weird-dig.museum, gameon.big-weird-dig.progress, gameon.big-weird-dig.sound; after a reload the museum shelf has the duck, sock and toaster, and level 2 is unlocked",
+        "phone: keys: gameon.big-weird-dig.museum, gameon.big-weird-dig.progress, gameon.big-weird-dig.sound; after a reload the museum shelf has the duck, sock and toaster, and level 2 is unlocked"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "museum-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "museum-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the game still plays when the browser blocks saving",
+      "notes": [
+        "desktop: with localStorage throwing, the title screen opened and level 1 played",
+        "phone: with localStorage throwing, the title screen opened and level 1 played"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "Big Weird Dig has the first card after the Editor's Choice games and plays in its frame",
+      "notes": [
+        "desktop: card first after the 1 Editor's Choice card(s), with its 800x450 cover; plays inside the frame; GitHub button opens its folder",
+        "phone: card first after the 1 Editor's Choice card(s), with its 800x450 cover; plays inside the frame; GitHub button opens its folder"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "in-arcade-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "in-arcade-phone.jpg"
+        ],
+        "error": null
+      }
+    }
+  ]
+}

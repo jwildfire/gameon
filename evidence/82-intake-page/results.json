@@ -1,0 +1,211 @@
+{
+  "spec": "82-intake-page",
+  "passed": true,
+  "headline": "PASS: 10 of 10 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-25T03:15:17.607Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "b1969f9",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/82-intake-page.spec.mjs",
+  "checks": [
+    {
+      "check": "with a family code, Send posts the idea and the code, and it shows as Just sent",
+      "notes": [
+        "desktop: body sent: {\"idea\":\"<idea>\",\"maker\":\"Bean\",\"told_by\":\"typing\",\"code\":\"test-family-code-1\"}",
+        "phone: body sent: {\"idea\":\"<idea>\",\"maker\":\"Bean\",\"told_by\":\"typing\",\"code\":\"test-family-code-1\"}"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "family-code-desktop.jpg",
+          "sent-known-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "family-code-phone.jpg",
+          "sent-known-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the family code is remembered on this device until a grown-up forgets it",
+      "notes": [
+        "desktop: saved as gameon.arcade.familyCode; still there after a reload",
+        "phone: saved as gameon.arcade.familyCode; still there after a reload"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "code-remembered-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "code-remembered-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "without a code, the robot check shows and its token is sent instead",
+      "notes": [
+        "desktop: body sent: {\"idea\":\"<idea>\",\"maker\":\"Zed\",\"told_by\":\"typing\",\"turnstile\":\"fake-turnstile-token\"}",
+        "phone: body sent: {\"idea\":\"<idea>\",\"maker\":\"Zed\",\"told_by\":\"typing\",\"turnstile\":\"fake-turnstile-token\"}"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "robot-check-desktop.jpg",
+          "sent-unknown-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "robot-check-phone.jpg",
+          "sent-unknown-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "a refusal stays on screen when the robot check passes again by itself",
+      "notes": [
+        "desktop: after a refused send and a fresh robot token, the refusal is still shown",
+        "phone: after a refused send and a fresh robot token, the refusal is still shown"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "an update idea sends the game and version too",
+      "notes": [],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "refusals read in plain kid-friendly words, and a wrong code is forgotten",
+      "notes": [
+        "desktop: 3 tries: daily limit, wrong code, no internet",
+        "phone: 3 tries: daily limit, wrong code, no internet"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "refused-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "refused-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the idea line reads /queue, never GitHub, and shows no idea words",
+      "notes": [
+        "desktop: 4 ideas from GET /queue; 0 requests to api.github.com",
+        "phone: 4 ideas from GET /queue; 0 requests to api.github.com"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "idea-line-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "idea-line-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the committed config points at the live Worker, with family codes off",
+      "notes": [
+        "desktop: new/intake-config.js: url https://gameon-intake.jwildfire.workers.dev, the public Turnstile site key, familyCodes false",
+        "phone: new/intake-config.js: url https://gameon-intake.jwildfire.workers.dev, the public Turnstile site key, familyCodes false"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "with family codes off, there's no code field and every idea goes through the robot check",
+      "notes": [
+        "desktop: familyCodes: false hides the code field, ignores a code saved earlier, shows the robot check, and sends its token with no code",
+        "phone: familyCodes: false hides the code field, ignores a code saved earlier, shows the robot check, and sends its token with no code"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "codes-off-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "codes-off-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "with no intake configured, the page is the Phase 0 page",
+      "notes": [
+        "desktop: Send opens GitHub's Game idea form; the idea line reads the GitHub API",
+        "phone: Send opens GitHub's Game idea form; the idea line reads the GitHub API"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "unconfigured-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "unconfigured-phone.jpg"
+        ],
+        "error": null
+      }
+    }
+  ]
+}

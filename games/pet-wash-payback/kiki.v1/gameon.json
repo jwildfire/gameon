@@ -1,0 +1,37 @@
+{
+  "name": "pet-wash-payback",
+  "title": "Pet Wash Payback",
+  "tagline": "More silly animals, and now they all chase you with squirt guns, sprinklers and more!",
+  "credit": "Designed by Jeremy",
+  "idea": "game where you're trying to wash pets (dog, cat, etc) as fast as possible in round 1 and then the pet is trying to wash you with a hose in round 2 and you're trying to escape and stay dry.",
+  "made": "2026-10-24",
+  "built_with": "Claude Opus 5.5",
+  "players": "1",
+  "sideways": false,
+  "needs_internet": false,
+  "idea_issue": 157,
+  "path": "games/pet-wash-payback/kiki.v1/",
+  "version": "kiki.v1",
+  "from": "jeremy.v2",
+  "updates": [
+    {
+      "version": "jeremy.v2",
+      "from": "jeremy.v1",
+      "idea": "Fun! Make it so there are more and funnier types of animals. 10 squirrels. a bird flying around etc. Then make it so you have to escape from all the animals in future rounds. give them all different ways to get you wet. only 1 with hose. waterguns. etc.",
+      "by": "Jeremy",
+      "made": "2026-10-24",
+      "built_with": "Claude Opus 5.5",
+      "idea_issue": 163
+    },
+    {
+      "version": "kiki.v1",
+      "from": "jeremy.v2",
+      "idea": "Meet Leo the Lion, plus a brand-new place to escape the soggy payback!",
+      "by": "Kiki",
+      "made": "2026-10-25",
+      "built_with": "Claude Opus 5.5",
+      "idea_issue": 6,
+      "idea_repo": "jwildfire/gameon-ideas"
+    }
+  ]
+}

@@ -1,0 +1,176 @@
+{
+  "spec": "200-claw-of-cool",
+  "passed": true,
+  "headline": "PASS: 8 of 8 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-26T18:09:36.149Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "ba8f860",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/200-claw-of-cool.spec.mjs",
+  "checks": [
+    {
+      "check": "the title screen shows the game, its four coolness tiers and the best score, with nothing loaded from the internet",
+      "notes": [
+        "desktop: 4 tiers (10, 25, 60, 150 points), 12 prizes on the shelf, best score 0; no requests outside the site, no outside links, no sideways scrolling",
+        "phone: 4 tiers (10, 25, 60, 150 points), 12 prizes on the shelf, best score 0; no requests outside the site, no outside links, no sideways scrolling"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "title-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "title-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "DROP puts in a coin, the timer starts, and the keypad and keyboard steer the claw",
+      "notes": [
+        "desktop: a coin went in (10 to 9 coins) and the 15 s timer started; 3 taps on ◀ moved the claw 18 units left; holding W moved it 13.9 units forward; the aim line reads \"Steer over a prize, then DROP\"",
+        "phone: a coin went in (10 to 9 coins) and the 15 s timer started; 3 taps on ◀ moved the claw 18 units left; holding W moved it 13.9 units forward; the aim line reads \"Steer over a prize, then DROP\""
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "steering-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "steering-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "a centred grab carries a prize to the chute and scores its tier's points, and it goes on the collection shelf",
+      "notes": [
+        "desktop: grabbed the planet dead centre: it held, rode to the chute, scored 60 and gave a coin back (10 coins); the shelf shows it x1",
+        "phone: grabbed the planet dead centre: it held, rode to the chute, scored 60 and gave a coin back (10 coins); the shelf shows it x1"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "win-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "win-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "an off-centre grab slips out on the way and the prize falls back into the pile",
+      "notes": [
+        "desktop: dropped 7.5 units off the centre of a duck: the claw closed on it, it slipped out on the way up (\"SO CLOSE\" on the display), and all 27 prizes are back in the machine; 0 points, 9 coins left",
+        "phone: dropped 7.5 units off the centre of a duck: the claw closed on it, it slipped out on the way up (\"SO CLOSE\" on the display), and all 27 prizes are back in the machine; 0 points, 9 coins left"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "slip-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "slip-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "five wins refill the machine for round 2, with more of the coolest prizes and a shorter timer",
+      "notes": [
+        "desktop: 5 cool prizes won (score 50); the machine refilled for round 2: by tier (cool, cooler, super cool, coolest) it went from 15, 8, 3, 1 to 10, 10, 5, 2; the timer is 13 s now (15 s in round 1)",
+        "phone: 5 cool prizes won (score 50); the machine refilled for round 2: by tier (cool, cooler, super cool, coolest) it went from 15, 8, 3, 1 to 10, 10, 5, 2; the timer is 13 s now (15 s in round 1)"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "round-2-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "round-2-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "P pauses and freezes the game, Esc resumes, and Start over brings back 10 coins",
+      "notes": [
+        "desktop: paused with 14.1 s on the timer and 3 s of stepping changed nothing; after Esc it counted down again; the Pause button then Start over gave a fresh machine with 10 coins",
+        "phone: paused with 14.1 s on the timer and 3 s of stepping changed nothing; after Esc it counted down again; the Pause button then Start over gave a fresh machine with 10 coins"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "running out of coins ends the game, the best score and found prizes survive a reload, and it still plays with storage blocked",
+      "notes": [
+        "desktop: one coin left: a cat won 25, then OUT OF COINS with NEW BEST; after a reload the title shows best 25 and 1/12 found; save keys: gameon.claw-of-cool.best, gameon.claw-of-cool.collection; with storage blocked a new game still played and scored",
+        "phone: one coin left: a cat won 25, then OUT OF COINS with NEW BEST; after a reload the title shows best 25 and 1/12 found; save keys: gameon.claw-of-cool.best, gameon.claw-of-cool.collection; with storage blocked a new game still played and scored"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "game-over-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "game-over-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Claw of Cool has a card in the arcade and plays in its frame",
+      "notes": [
+        "desktop: card at position 2, after the 1 Editor's Choice card(s), with its 800x450 cover and \"Made by Jeremy\"; PLAY in the frame starts the game",
+        "phone: card at position 2, after the 1 Editor's Choice card(s), with its 800x450 cover and \"Made by Jeremy\"; PLAY in the frame starts the game"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "in-arcade-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "in-arcade-phone.jpg"
+        ],
+        "error": null
+      }
+    }
+  ]
+}

@@ -11,6 +11,7 @@ to the arcade, and how to add a game. Start with the page you need.
 | [Designs and artifacts](designs-and-artifacts.md) | Every folder in `artifacts/`, with a line on each |
 | [Evidence](evidence.md) | What proof a task's pull request should carry |
 | [Game versions, updates and forks](game-versions.md) | Version names, the update and fork rules, where version files live, and how update ideas are filed |
+| [Where game ideas live](ideas.md) | The public `gameon` and private `gameon-ideas` repos, the idea issue's layout, known and unknown submitters, and what stays private |
 
 ## Working here
 

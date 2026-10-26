@@ -127,6 +127,19 @@ a { color: inherit; }
   background: var(--card);
 }
 .tag.new { background: var(--ink); color: var(--wall); }
+/* Editor's Choice (games.json "editorsChoice": true): a gold star on the cover and a gold
+   tag, first on the card. The gold is fixed, so it stays gold on every wall and in Weird. */
+.pick-star {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  width: 50px;
+  height: 50px;
+  filter: drop-shadow(3px 3px 0 var(--ink));
+}
+.pick-star svg { display: block; width: 100%; height: 100%; fill: #ffc233; stroke: var(--ink); stroke-width: 1.6; stroke-linejoin: round; }
+.tag.pick { display: inline-flex; align-items: center; gap: 4px; background: #ffc233; color: var(--ink); box-shadow: 2px 2px 0 var(--ink); }
+.tag.pick svg { width: 13px; height: 13px; flex: none; fill: var(--card); stroke: var(--ink); stroke-width: 2.4; stroke-linejoin: round; }
 
 .make {
   justify-self: start;
@@ -608,19 +621,36 @@ html[data-mode="weird"] .wordmark[data-style="19"] .wm-on { color: #ffb703; }
   }
   function cover(g) { return "assets/covers/" + g.slug + ".jpg"; }
 
+  // Editor's Choice games first, then the rest; each group keeps its games.json order.
+  function shelfOrder() {
+    return games.filter(function (g) { return g.editorsChoice === true; })
+      .concat(games.filter(function (g) { return g.editorsChoice !== true; }));
+  }
+  var STAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.2l2.9 6.2 6.8.8-5 4.6 1.3 6.7L12 17.2l-6 3.3 1.3-6.7-5-4.6 6.8-.8z"/></svg>';
+
   function renderShelf() {
-    games.forEach(function (g) {
+    shelfOrder().forEach(function (g) {
       var badge = el("span", { "class": "play-badge", "aria-hidden": "true" });
       badge.innerHTML = '<svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg>';
       var nv = versionsOf(g).length;
       var tags = el("div", { "class": "tags" }, (g.tags || []).concat(nv > 1 ? [nv + " versions"] : []).map(function (t) {
         return el("span", { "class": "tag" + (t === "New" ? " new" : ""), text: t });
       }));
+      var coverKids = [el("img", { src: cover(g), alt: "", loading: "lazy", width: "800", height: "450" }), badge];
+      if (g.editorsChoice === true) {
+        var pick = el("span", { "class": "tag pick", title: "Editor's Choice" });
+        pick.innerHTML = STAR;
+        pick.appendChild(document.createTextNode("Editor's Choice"));
+        tags.insertBefore(pick, tags.firstChild);
+        var star = el("span", { "class": "pick-star", "aria-hidden": "true" });
+        star.innerHTML = STAR;
+        coverKids.push(star);
+      }
       var body = el("div", { "class": "cart-body" }, [el("h2", { text: g.title }), el("p", { text: g.tagline })]);
       if (g.credit) body.appendChild(el("span", { "class": "credit", text: g.credit }));
       body.appendChild(tags);
       var link = el("a", { "class": "cart", href: "#" + g.slug, style: "--tint:" + g.color }, [
-        el("div", { "class": "cover" }, [el("img", { src: cover(g), alt: "", loading: "lazy", width: "800", height: "450" }), badge]),
+        el("div", { "class": "cover" }, coverKids),
         body
       ]);
       shelf.appendChild(el("li", {}, [link]));

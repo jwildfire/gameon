@@ -1,0 +1,14 @@
+{
+  "name": "big-weird-dig",
+  "title": "Big Weird Dig",
+  "tagline": "Drive a bulldozer underground and dig up the weirdest stuff ever buried.",
+  "credit": "Designed by Jeremy",
+  "idea": "you excavate weird stuff with a bulldozer. kind of like dig dug?",
+  "made": "2026-10-24",
+  "built_with": "Claude Opus 5.5",
+  "players": "1",
+  "sideways": false,
+  "needs_internet": false,
+  "idea_issue": 155,
+  "path": "games/big-weird-dig/"
+}

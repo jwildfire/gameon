@@ -1,0 +1,8 @@
+# Copy to .dev.vars (git-ignored) for `npx wrangler dev`. These are placeholders and
+# Cloudflare's public Turnstile test secret, not real values.
+APP_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\npaste the PKCS#8 key here, with \n for each line break\n-----END PRIVATE KEY-----"
+TURNSTILE_SECRET=1x0000000000000000000000000000000AA
+FAMILY_CODES={"example-code-1":"examplefamily"}
+# Sign-in (optional). Placeholders only; make your own SESSION_SECRET with: openssl rand -base64 32
+SESSION_SECRET=replace-with-openssl-rand-base64-32-output
+GITHUB_CLIENT_SECRET=replace-with-a-github-client-secret

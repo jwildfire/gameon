@@ -1,0 +1,14 @@
+{
+  "name": "oops-were-late",
+  "title": "Oops! We're Late!",
+  "tagline": "Sneak your kid into the story circle without the teacher or the other kids noticing!",
+  "credit": "Designed by NotClay",
+  "idea": "“Opps! We’re late to settling in…” Parents try and silently carry their kids to an empty seat in a circle of children and parents without being detected by the teachers or kids..",
+  "made": "2026-10-24",
+  "built_with": "Claude Opus 5.5",
+  "players": "1",
+  "sideways": false,
+  "needs_internet": false,
+  "idea_issue": 167,
+  "path": "games/oops-were-late/"
+}

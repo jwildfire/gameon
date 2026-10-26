@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Oops! We're Late!</title>
+<meta name="description" content="Sneak your kid into the story circle without the teacher or the other kids noticing!">
+<meta name="theme-color" content="#f7e3cf">
+<link rel="icon" href="data:,">
+<style>
+:root {
+  --ink: #3a2a3f;
+  --cream: #fff8ee;
+  --peach: #f7e3cf;
+  --coral: #ff6f61;
+  --mint: #2bb3a3;
+  --sun: #ffd166;
+  --lilac: #c59bff;
+  --round: ui-rounded, "Arial Rounded MT Bold", "Trebuchet MS", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; touch-action: none; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+body { font-family: var(--round); color: var(--ink); background: var(--peach);
+  background-image: radial-gradient(circle at 20px 20px, rgba(255,255,255,0.55) 3px, transparent 4px), radial-gradient(circle at 60px 50px, rgba(255,160,140,0.25) 3px, transparent 4px);
+  background-size: 80px 80px; }
+[hidden] { display: none !important; }
+button { font-family: var(--round); color: var(--ink); }
+
+#stage { position: absolute; overflow: hidden; border-radius: 14px; box-shadow: 0 0 0 3px var(--ink), 0 0 0 7px #fff, 0 0 0 10px var(--ink), 0 12px 30px rgba(58,42,63,0.35); background: #e9dcc8; touch-action: none; }
+#game { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+#hud { position: absolute; display: flex; align-items: center; gap: 6px; font-weight: 900; font-size: var(--hud-font, 15px); z-index: 3; }
+.pill { background: var(--cream); border: 2.5px solid var(--ink); border-radius: 999px; padding: 2px 10px; white-space: nowrap; line-height: 1.45; }
+#hud-room { overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 0 1 auto; }
+#hud .spacer { flex: 1; }
+#hud-eyes { display: flex; gap: 4px; align-items: center; padding: 2px 8px; }
+#hud-eyes .eye { width: 1.15em; height: 1.15em; border-radius: 50%; border: 2.5px solid var(--ink); background: #fff; position: relative; }
+#hud-eyes .eye.on { background: var(--coral); }
+#hud-eyes .eye.on::after { content: "!"; position: absolute; inset: 0; display: grid; place-items: center; color: #fff; font-size: 0.75em; line-height: 1; }
+.hud-btn { width: 2.1em; height: 2.1em; border-radius: 50%; border: 2.5px solid var(--ink); background: var(--cream); display: grid; place-items: center; cursor: pointer; padding: 0; flex: none; }
+.hud-btn svg { width: 55%; height: 55%; fill: var(--ink); }
+
+#tip { position: absolute; z-index: 3; left: 50%; top: 52%; transform: translate(-50%, -50%); width: max-content; max-width: 86%; text-align: center; font-weight: 900; font-size: var(--tip-font, 18px); line-height: 1.3; color: #fff; background: rgba(58,42,63,0.82); border: 2.5px solid #fff; border-radius: 16px; padding: 8px 14px; box-shadow: 0 4px 0 rgba(58,42,63,0.4); pointer-events: none; transition: opacity 600ms; }
+#tip.fade { opacity: 0; }
+
+.screen { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 14px; background: rgba(58,42,63,0.45); overflow: auto; }
+#title-screen { background: rgba(58,42,63,0.28); }
+.card { background: var(--cream); border: 4px solid var(--ink); border-radius: 26px; box-shadow: 7px 7px 0 var(--ink); padding: 18px 22px; text-align: center; width: min(520px, 100%); display: grid; gap: 12px; font-size: 17px; }
+.card p { margin: 0; }
+.card h2 { margin: 0; font-size: 30px; }
+.logo { display: grid; justify-items: center; line-height: 0.9; }
+.logo .oops { font: 900 clamp(54px, 17vw, 92px) var(--round); color: var(--coral); -webkit-text-stroke: 3px var(--ink); paint-order: stroke fill; text-shadow: 4px 5px 0 var(--ink); transform: rotate(-4deg); }
+.logo .late { font: 900 clamp(32px, 10vw, 52px) var(--round); color: var(--sun); -webkit-text-stroke: 2.5px var(--ink); paint-order: stroke fill; text-shadow: 3px 4px 0 var(--ink); letter-spacing: 0.02em; }
+.logo .late span { display: inline-block; animation: tiptoe 1.6s ease-in-out infinite; }
+@keyframes tiptoe { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+.tag { font-weight: 800; font-size: 18px; }
+.muted { color: #7a6380; font-size: 14px; }
+.how { font-size: 14.5px; line-height: 1.45; text-align: left; background: #fff; border: 2.5px solid var(--ink); border-radius: 14px; padding: 8px 12px; }
+.how b { color: var(--coral); }
+.row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.btn { font: 900 22px var(--round); padding: 10px 22px; border-radius: 16px; border: 3px solid var(--ink); background: var(--sun); color: var(--ink); cursor: pointer; box-shadow: 0 5px 0 var(--ink); }
+.btn:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--ink); }
+.btn.alt { background: #fff; }
+.btn.mint { background: #8ee6d9; }
+.btn.small { font-size: 16px; padding: 7px 14px; box-shadow: 0 3px 0 var(--ink); border-radius: 12px; }
+.stars { font-size: 46px; letter-spacing: 6px; line-height: 1; }
+.stars .on { color: #ffc93c; -webkit-text-stroke: 2px var(--ink); paint-order: stroke fill; }
+.stars .off { color: #e7dccd; -webkit-text-stroke: 2px #b5a69a; paint-order: stroke fill; }
+#room-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.room-btn { font: 900 16px var(--round); border: 3px solid var(--ink); border-radius: 14px; background: #fff; padding: 8px 6px; cursor: pointer; box-shadow: 0 4px 0 var(--ink); display: grid; gap: 2px; }
+.room-btn:disabled { opacity: 0.45; cursor: default; box-shadow: none; }
+.room-btn .rs { font-size: 18px; letter-spacing: 2px; color: #ffc93c; -webkit-text-stroke: 1px var(--ink); }
+.room-btn .rs .off { color: #e7dccd; -webkit-text-stroke: 1px #b5a69a; }
+.big-oh { font: 900 clamp(40px, 12vw, 58px) var(--round); color: var(--coral); -webkit-text-stroke: 2.5px var(--ink); paint-order: stroke fill; text-shadow: 3px 4px 0 var(--ink); line-height: 1; }
+.made { font: 900 clamp(38px, 11vw, 54px) var(--round); color: var(--mint); -webkit-text-stroke: 2.5px var(--ink); paint-order: stroke fill; text-shadow: 3px 4px 0 var(--ink); line-height: 1; }
+#intro-num { font-weight: 900; color: var(--coral); font-size: 18px; letter-spacing: 0.1em; text-transform: uppercase; }
+#intro-name { font-size: 34px; }
+#intro-tip { font-weight: 800; font-size: 19px; background: #fff3b0; border: 2.5px solid var(--ink); border-radius: 14px; padding: 8px 12px; }
+.keys { font-size: 14px; color: #7a6380; }
+body.wide-title #title-screen { justify-items: end; padding-right: max(16px, 5vw); background: rgba(58,42,63,0.12); }
+body.wide-title #title-screen .card { width: min(500px, 50vw); }
+@media (max-height: 560px) {
+  #title-screen .how, #title-keys { display: none; }
+  .logo .oops { font-size: 50px; } .logo .late { font-size: 30px; }
+  .card { gap: 8px; padding: 12px 16px; font-size: 15px; }
+  .tag { font-size: 15px; }
+  .btn { font-size: 18px; padding: 7px 16px; }
+}
+@media (max-width: 420px) {
+  .card { padding: 14px 14px; gap: 10px; font-size: 16px; }
+  .btn { font-size: 20px; padding: 9px 18px; }
+  .how { font-size: 13.5px; }
+}
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="game"></canvas>
+  <div id="tip" class="fade"></div>
+</div>
+
+<div id="hud" hidden>
+  <div class="pill" id="hud-room">1 · Classroom Circle</div>
+  <div class="spacer"></div>
+  <div class="pill" id="hud-eyes" title="Kids who noticed you (3 and you're spotted)"><span class="eye"></span><span class="eye"></span><span class="eye"></span></div>
+  <button class="hud-btn" id="pause-btn" aria-label="Pause"><svg viewBox="0 0 10 10"><rect x="1.5" y="1" width="2.6" height="8" rx="0.8"/><rect x="5.9" y="1" width="2.6" height="8" rx="0.8"/></svg></button>
+</div>
+
+<!-- Title -->
+<div class="screen" id="title-screen">
+  <div class="card">
+    <div class="logo" aria-label="Oops! We're Late!"><div class="oops">Oops!</div><div class="late"><span>We're</span> <span style="animation-delay:0.3s">Late!</span></div></div>
+    <p class="tag">Sneak your kid into the story circle without the teacher or the other kids noticing!</p>
+    <div class="how">
+      Tiptoe to the <b>empty cushion</b>. When the teacher <b>looks up</b> or a kid <b>turns round</b>, freeze or hide behind something. Three kids notice, or the teacher does, and it's <b>“Oh, you're late!”</b>
+    </div>
+    <div class="row">
+      <button class="btn" id="play-btn">Sneak in!</button>
+      <button class="btn alt" id="rooms-btn">Rooms</button>
+    </div>
+    <p class="keys" id="title-keys">Arrows or WASD to move · Shift to tiptoe quieter · Space to freeze · P to pause</p>
+    <div class="row"><button class="btn alt small" id="sound-btn" aria-pressed="true">Sound: on</button></div>
+    <p class="muted">Designed by NotClay · <span id="title-stars">0</span> of 24 stars</p>
+  </div>
+</div>
+
+<!-- Room picker -->
+<div class="screen" id="rooms-screen" hidden>
+  <div class="card">
+    <h2>Pick a room</h2>
+    <div id="room-grid"></div>
+    <p class="muted" id="rooms-total">0 of 24 stars</p>
+    <div class="row"><button class="btn alt small" id="rooms-back">Back</button></div>
+  </div>
+</div>
+
+<!-- Before a room -->
+<div class="screen" id="intro-screen" hidden>
+  <div class="card">
+    <div id="intro-num">Room 1</div>
+    <h2 id="intro-name">Classroom Circle</h2>
+    <p id="intro-tip"></p>
+    <p class="keys" id="intro-keys"></p>
+    <div class="row"><button class="btn" id="go-btn">Go!</button></div>
+  </div>
+</div>
+
+<!-- Pause -->
+<div class="screen" id="pause-screen" hidden>
+  <div class="card">
+    <h2>Paused</h2>
+    <p class="muted">Shhh... everyone's waiting for the story.</p>
+    <div class="row">
+      <button class="btn" id="resume-btn">Keep sneaking</button>
+      <button class="btn alt" id="restart-btn">Restart room</button>
+    </div>
+    <div class="row">
+      <button class="btn alt small" id="pause-rooms-btn">Rooms</button>
+      <button class="btn alt small" id="pause-title-btn">Title screen</button>
+      <button class="btn alt small" id="pause-sound-btn" aria-pressed="true">Sound: on</button>
+    </div>
+  </div>
+</div>
+
+<!-- Made it -->
+<div class="screen" id="won-screen" hidden>
+  <div class="card">
+    <div class="made">Made it!</div>
+    <div class="stars" id="won-stars"></div>
+    <p class="tag" id="won-line">Nobody noticed a thing.</p>
+    <p class="muted" id="won-best"></p>
+    <div class="row">
+      <button class="btn" id="next-btn">Next room</button>
+      <button class="btn alt" id="again-btn">Try for 3 stars</button>
+    </div>
+    <div class="row"><button class="btn alt small" id="won-rooms-btn">Rooms</button></div>
+  </div>
+</div>
+
+<!-- Spotted -->
+<div class="screen" id="lost-screen" hidden>
+  <div class="card">
+    <div class="big-oh">“Oh, you're late!”</div>
+    <p class="tag" id="lost-line">The teacher spotted you.</p>
+    <p class="muted" id="lost-hint">Freeze when she looks up, and hide behind things.</p>
+    <div class="row">
+      <button class="btn" id="retry-btn">Try again</button>
+      <button class="btn alt" id="lost-rooms-btn">Rooms</button>
+    </div>
+  </div>
+</div>
+
+<!-- All done -->
+<div class="screen" id="end-screen" hidden>
+  <div class="card">
+    <div class="made">Story time!</div>
+    <p class="tag">You sneaked into all 8 circles. The kid is sitting nicely and nobody knows you were late. Probably.</p>
+    <p id="end-stars" class="tag">0 of 24 stars</p>
+    <div class="row">
+      <button class="btn" id="end-rooms-btn">Rooms</button>
+      <button class="btn alt" id="end-title-btn">Title screen</button>
+    </div>
+  </div>
+</div>
+
+<script src="engine.js"></script>
+<script src="bot.js"></script>
+<script src="art.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

@@ -5,7 +5,8 @@ import { test, expect, games } from "./evidence.mjs";
 
 const REPO = "https://github.com/jwildfire/gameon";
 const sourceOf = g => /^https?:/.test(g.url) ? g.repo : `${REPO}/tree/main/${g.url.replace(/\/$/, "")}`;
-const local = games.find(g => !/^https?:/.test(g.url));   // MazeAThon, in this repo
+// a one-version game in this repo (a game with more versions asks which one first)
+const local = games.find(g => !/^https?:/.test(g.url) && (g.versions || []).length < 2);
 // A game with its own repo, or, now that every game is served from GameOn (#124), another
 // one-version game, so the check still proves the button follows the game being played.
 const hosted = games.find(g => /^https?:/.test(g.url))
