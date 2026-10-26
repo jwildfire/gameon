@@ -452,11 +452,12 @@ test("in the arcade, Pet Wash Payback plays jeremy.v3 by default, Survival start
   const entry = games.find(g => g.slug === SLUG);
   expect(entry).toMatchObject({ default: "jeremy.v3", url: V3 });
   const card = page.locator(`#shelf .cart[href="#${SLUG}"]`);
-  await expect(card).toContainText("3 versions");
+  // 4 since Kiki's fork kiki.v1 (jwildfire/gameon-ideas#6), which lists last, after the creator's versions
+  await expect(card).toContainText("4 versions");
   await card.click();
   await expect(page.locator("#chooser")).toBeVisible();
   const items = page.locator("#ver-list .ver-item");
-  await expect(items).toHaveCount(3);
+  await expect(items).toHaveCount(4);
   await expect(items.nth(0)).toContainText("jeremy.v3");
   await expect(items.nth(0)).toContainText("Latest");
   await expect(items.nth(0)).toContainText("Survival mode");
