@@ -114,6 +114,7 @@ test("Fancy Food Fight has a card in the arcade and plays in its frame", async (
   const card = page.locator('#shelf .cart[href="#fancy-food-fight"]');
   await expect(card).toBeVisible();
   await expect(card.locator("h2")).toHaveText("Fancy Food Fight");
+  await card.scrollIntoViewIfNeeded();   // its cover loads lazily, and newer cards push it down the page
   await expect(card.locator(".cover img")).toHaveJSProperty("complete", true);
   await card.click();
   await expect(page.locator("#bar-title")).toHaveText("Fancy Food Fight");
