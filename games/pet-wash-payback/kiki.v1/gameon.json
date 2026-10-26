@@ -10,9 +10,9 @@
   "sideways": false,
   "needs_internet": false,
   "idea_issue": 157,
-  "path": "games/pet-wash-payback/jeremy.v2/",
-  "version": "jeremy.v2",
-  "from": "jeremy.v1",
+  "path": "games/pet-wash-payback/kiki.v1/",
+  "version": "kiki.v1",
+  "from": "jeremy.v2",
   "updates": [
     {
       "version": "jeremy.v2",
@@ -22,6 +22,16 @@
       "made": "2026-10-24",
       "built_with": "Claude Opus 5.5",
       "idea_issue": 163
+    },
+    {
+      "version": "kiki.v1",
+      "from": "jeremy.v2",
+      "idea": "Meet Leo the Lion, plus a brand-new place to escape the soggy payback!",
+      "by": "Kiki",
+      "made": "2026-10-25",
+      "built_with": "Claude Opus 5.5",
+      "idea_issue": 6,
+      "idea_repo": "jwildfire/gameon-ideas"
     }
   ]
 }

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <title>Pet Wash Payback</title>
-<meta name="description" content="More silly animals, and now they all chase you with squirt guns, sprinklers and more!">
+<meta name="description" content="Meet Leo the Lion, plus a brand-new place to escape the soggy payback!">
 <meta name="theme-color" content="#2a2140">
 <link rel="icon" href="data:,">
 <style>
@@ -94,6 +94,14 @@ h2.blue { color: #57c4ff; }
 .petcard .nm { font-size: 13px; font-weight: 900; }
 .petcard .st { color: #c98a00; font-size: 12px; letter-spacing: 1px; }
 .petcard:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+.petcard { position: relative; }
+/* where each payback round happens */
+.place { justify-self: center; display: inline-block; font: 900 12px var(--round); color: #fff; border: 2px solid var(--ink); border-radius: 999px; padding: 1px 9px; background: #3f9e3c; letter-spacing: 0.02em; }
+#intro-place { font-size: 14px; padding: 2px 12px; }
+#intro-place.soft { background: #fff !important; color: var(--ink); }
+.petcard .place { font-size: 10px; padding: 0 6px; margin-top: 2px; }
+.pl-backyard { background: #3f9e3c; } .pl-hallway { background: #3d6fd8; } .pl-classroom { background: #e0761c; } .pl-playground { background: #9a4fd0; }
+.newpet { position: absolute; top: -8px; right: -6px; background: var(--sun); border: 2px solid var(--ink); border-radius: 999px; font: 900 10px var(--round); padding: 0 5px; transform: rotate(8deg); }
 table.sum { border-collapse: collapse; justify-self: center; font-weight: 800; font-size: 15px; }
 table.sum td, table.sum th { padding: 3px 8px; }
 table.sum th { font-size: 12px; color: #6a5a80; text-transform: uppercase; letter-spacing: 0.05em; }
@@ -147,14 +155,14 @@ table.sum td.n { text-align: right; font-variant-numeric: tabular-nums; }
 <div class="screen" id="title-screen">
   <div class="card">
     <div class="logo"><span class="a title-big">Pet Wash</span><span class="b">PAYBACK!</span></div>
-    <p class="tag">More silly animals, and now they all chase you with squirt guns, sprinklers and more!</p>
+    <p class="tag">Meet Leo the Lion, plus a brand-new place to escape the soggy payback!</p>
     <div class="row">
       <button class="btn" id="play-btn">Play!</button>
       <button class="btn alt" id="pets-btn">Pick a pet</button>
     </div>
     <p class="muted" id="title-best"></p>
-    <p class="keys">Round 1: drag over the mud to scrub. Soap <kbd>1</kbd>, rinse <kbd>2</kbd>, towel <kbd>3</kbd>. Tap the parrot to catch him.<br>Round 2: everyone you washed wants payback! Run with <kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd> or <kbd>WASD</kbd>, or drag anywhere. <kbd>P</kbd> pause · <kbd>R</kbd> restart · <kbd>M</kbd> sound</p>
-    <p class="muted">Designed by Jeremy · GameOn</p>
+    <p class="keys">Round 1: drag over the mud to scrub. Soap <kbd>1</kbd>, rinse <kbd>2</kbd>, towel <kbd>3</kbd>. Tap the parrot to catch him. Rinse Leo's bubbles before he roars!<br>Round 2: payback in the backyard, then the school hallway, the classroom and the playground. Run with <kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd> or <kbd>WASD</kbd>, or drag anywhere. <kbd>P</kbd> pause · <kbd>R</kbd> restart · <kbd>M</kbd> sound</p>
+    <p class="muted">Designed by Jeremy · Leo and the school places by Kiki (kiki.v1) · GameOn</p>
   </div>
 </div>
 
@@ -173,6 +181,7 @@ table.sum td.n { text-align: right; font-variant-numeric: tabular-nums; }
   <div class="card">
     <div class="kicker" id="intro-kicker">Pet 1 of 9 · Round 1</div>
     <h2 id="intro-title">Wash Biscuit!</h2>
+    <span class="place" id="intro-place">In the backyard</span>
     <canvas class="petpic" id="intro-pet" width="360" height="300" aria-hidden="true"></canvas>
     <p class="tag" id="intro-tip"></p>
     <p class="muted" id="intro-how"></p>

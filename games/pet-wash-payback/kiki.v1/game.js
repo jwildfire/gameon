@@ -1,8 +1,10 @@
-// Pet Wash Payback, jeremy.v2. Designed by Jeremy (GameOn game idea #157; update idea #163).
-// Round 1: scrub, rinse and towel a muddy pet before the timer runs out. Now there are nine pets,
-// including a gang of 10 squirrels, a parrot you have to catch first, a hippo and an octopus.
-// Round 2: payback! Every animal you've washed so far chases you around the backyard at once, each
-// with its own way to get you wet. Only Biscuit has the hose.
+// Pet Wash Payback, kiki.v1: a fork of jeremy.v2 by Kiki (game idea jwildfire/gameon-ideas#6).
+// Designed by Jeremy (GameOn game idea #157; update idea #163).
+// Round 1: scrub, rinse and towel a muddy pet before the timer runs out. Ten pets now: Leo the Lion
+// joins, with a mane that takes extra scrubbing and a silly roar that blows the bubbles off a spot.
+// Round 2: payback from every animal you've washed so far, each with its own way to get you wet.
+// The first three payback rounds are in the backyard; then they move to a school hallway (lockers),
+// a classroom (desks) and a playground (a slide and a climbing frame).
 // Plain canvas + WebAudio, no network, no libraries. Everything is drawn in code.
 (() => {
 "use strict";
@@ -27,19 +29,22 @@ function mulberry(seed) {
 }
 
 // ---------------------------------------------------------------- saves
-// All versions share gameon.pet-wash-payback.*. jeremy.v1 saved best, reached and muted there.
-// This version only reads jeremy.v1's best and reached (and never writes them), shares muted (same
-// format), and keeps its own progress under gameon.pet-wash-payback.jeremy.v2.*
+// All versions share gameon.pet-wash-payback.*. jeremy.v1 saved best, reached and muted there, and
+// jeremy.v2 saved its progress under gameon.pet-wash-payback.jeremy.v2.*. This version only reads
+// those (and never writes them), shares muted (same format), and keeps its own progress under
+// gameon.pet-wash-payback.kiki.v1.*
 const KEY = "gameon.pet-wash-payback.";
-const V2 = "jeremy.v2.";
+const V2 = "jeremy.v2.", MINE = "kiki.v1.";
 const store = {
   get(k, d) { try { const v = localStorage.getItem(KEY + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
   set(k, v) { try { localStorage.setItem(KEY + k, JSON.stringify(v)); } catch (e) { /* storage blocked: play on */ } }
 };
 const cleanBest = b => (b && typeof b === "object" ? { total: +b.total || 0, pets: b.pets && typeof b.pets === "object" ? b.pets : {} } : { total: 0, pets: {} });
 const V1_ORDER = ["dog", "cat", "bunny", "pig", "duck"];
+const V2_ORDER = ["dog", "cat", "squirrel", "bunny", "parrot", "pig", "hippo", "octopus", "duck"];
 const old = { best: cleanBest(store.get("best", null)), reached: clamp(+store.get("reached", 1) || 1, 1, 5) };
-const saved = { best: cleanBest(store.get(V2 + "best", null)), reached: +store.get(V2 + "reached", 0) || 0 };
+const v2 = { best: cleanBest(store.get(V2 + "best", null)), reached: clamp(+store.get(V2 + "reached", 0) || 0, 0, 9) };
+const saved = { best: cleanBest(store.get(MINE + "best", null)), reached: +store.get(MINE + "reached", 0) || 0 };
 
 // ---------------------------------------------------------------- pets
 const TOOLS = ["soap", "rinse", "towel"];
@@ -50,12 +55,12 @@ const PETS = [
     weapon: "hose", gear: "the hose",
     body: [[0, 35, 92, 72], [0, -62, 66, 60]],
     washTip: "Biscuit loves bath time... until the big shake! Scrub fast.",
-    hoseTip: "Biscuit has the hose (the only hose!). Keep running, and duck behind the shed!" },
+    hoseTip: "Biscuit has the hose (the only hose!). Keep running, and duck behind the {cover}!" },
   { id: "cat", name: "Mittens", kind: "Cat", spots: 8, washTime: 36, hoseTime: 21, seed: 23, lid: "#f2a65a", voice: "meow",
     weapon: "squirt", gear: "a squirt gun",
     body: [[0, 38, 82, 70], [0, -58, 62, 54]],
     washTip: "Mittens HATES water. Rinse too long and she jumps to the other side!",
-    hoseTip: "Mittens hides in the bushes with a squirt gun. Pew pew pew! Watch for rustling." },
+    hoseTip: "Mittens hides in the {hides} with a squirt gun. Pew pew pew! Watch for {rustle}." },
   { id: "squirrel", name: "The Nutty Gang", kind: "Squirrels", spots: 10, washTime: 46, hoseTime: 22, seed: 29, lid: "#b9784a", voice: "chitter",
     weapon: "bucket", gear: "a bucket", gang: true, full: "The Nutty Gang", washTitle: "Wash all 10 squirrels!",
     body: [[0, -10, 120, 50], [0, -10, 120, 50]],
@@ -86,6 +91,11 @@ const PETS = [
     body: [[0, -44, 80, 64], [0, -30, 70, 50]],
     washTip: "Inky has eight arms, and they keep grabbing your tools! Use another one until you get it back.",
     hoseTip: "Inky has a squirt gun in EVERY arm. When he spins, find a gap or hide!" },
+  { id: "lion", name: "Leo", kind: "Lion", spots: 10, washTime: 46, hoseTime: 25, seed: 73, lid: "#f4b860", voice: "roar",
+    weapon: "mane", gear: "a mane shake", maneSpots: true, isNew: true,
+    body: [[0, 40, 88, 64], [0, -58, 98, 84]],
+    washTip: "Leo's big mane is SO muddy: mane spots need extra scrubbing. And when he takes a big breath... ROAR! Rinse the bubbles first!",
+    hoseTip: "Leo runs up close and shakes his mane. SPLOOSH! When his mane puffs up, get away or hide!" },
   { id: "duck", name: "Sir Quackers", kind: "Duck", spots: 11, washTime: 38, hoseTime: 25, seed: 53, surprise: true, lid: "#ffd93b", voice: "quack",
     weapon: "balloon", gear: "water balloons",
     body: [[0, 42, 92, 68], [0, -62, 56, 52]],
@@ -94,14 +104,27 @@ const PETS = [
 ];
 const PET = Object.fromEntries(PETS.map(p => [p.id, p]));
 const fullName = p => p.full || `${p.name} the ${p.kind}`;
-// What jeremy.v1 unlocked carries over: every pet up to the last one you reached there.
-const v1Reach = 1 + Math.max(...V1_ORDER.slice(0, old.reached).map(id => PETS.findIndex(p => p.id === id)));
-saved.reached = clamp(Math.max(saved.reached, v1Reach), 1, PETS.length);
-// best stars per pet: this version's, or jeremy.v1's if those are better
+// What jeremy.v1 and jeremy.v2 unlocked carries over: every pet up to the last one you reached there.
+const reachOf = (order, n) => n > 0 ? 1 + Math.max(...order.slice(0, n).map(id => PETS.findIndex(p => p.id === id))) : 1;
+saved.reached = clamp(Math.max(saved.reached, reachOf(V1_ORDER, old.reached), reachOf(V2_ORDER, v2.reached)), 1, PETS.length);
+// Leo is new in this version, so he's always open in Pick a pet
+const isOpen = i => i < saved.reached || PETS[i].isNew;
+// best stars per pet: the best of this version's, jeremy.v2's and jeremy.v1's
 function bestStars(id) {
-  const a = saved.best.pets[id] || {}, b = old.best.pets[id] || {};
-  return { wash: Math.max(+a.wash || 0, +b.wash || 0), hose: Math.max(+a.hose || 0, +b.hose || 0) };
+  const all = [saved.best, v2.best, old.best].map(b => b.pets[id] || {});
+  return { wash: Math.max(...all.map(a => +a.wash || 0)), hose: Math.max(...all.map(a => +a.hose || 0)) };
 }
+
+// Where each payback round happens: the backyard first, then three places at school.
+const PLACES = {
+  backyard:   { id: "backyard", name: "Backyard", the: "the backyard", cover: "shed", hides: "bushes", rustle: "a rustling bush", color: "#3f9e3c" },
+  hallway:    { id: "hallway", name: "School hallway", short: "Hallway", the: "the school hallway", cover: "lockers", hides: "backpack piles", rustle: "a wiggling backpack pile", color: "#3d6fd8" },
+  classroom:  { id: "classroom", name: "Classroom", the: "the classroom", cover: "desks", hides: "beanbags", rustle: "a wiggling beanbag", color: "#e0761c" },
+  playground: { id: "playground", name: "Playground", the: "the school playground", cover: "slide", hides: "bushes", rustle: "a rustling bush", color: "#9a4fd0" }
+};
+const PLACE_ORDER = ["backyard", "backyard", "backyard", "hallway", "hallway", "classroom", "classroom", "playground", "playground", "playground"];
+const placeOf = i => PLACES[PLACE_ORDER[clamp(i, 0, PLACE_ORDER.length - 1)]];
+const placeText = (text, pl) => text.replace(/\{(\w+)\}/g, (m, k) => pl[k] || m);
 
 // The Nutty Gang: one squirrel per spot, each with a muddy belly, scattered around the tub.
 const GANG_HOME = [[-112, 14], [-62, 4], [-12, 10], [38, 2], [88, 14], [-92, 52], [-40, 46], [12, 54], [62, 48], [112, 56]];
@@ -119,17 +142,25 @@ function makeSpots(pet) {
   while (out.length < pet.spots && tries < 6000) {
     tries++;
     if (tries % 1500 === 0) gap -= 6;
-    const e = pet.body[R() < 0.62 ? 0 : 1];
+    const head = R() >= (pet.maneSpots ? 0.4 : 0.62), e = pet.body[head ? 1 : 0];
     const a = R() * TAU, d = Math.sqrt(R()) * 0.8;
     const x = e[0] + Math.cos(a) * e[2] * d, y = e[1] + Math.sin(a) * e[3] * d;
     if (y > 50) continue;
     if (out.some(s => Math.hypot(s.x - x, s.y - y) < gap)) continue;
+    // Leo: a spot out in his mane (not on his face) is extra muddy and takes longer to soap
+    const mane = !!pet.maneSpots && head && Math.hypot(x / 54, (y + 52) / 48) > 0.95;
     const blobs = [];
-    for (let i = 0; i < 5; i++) blobs.push([(R() - 0.5) * 22, (R() - 0.5) * 18, 9 + R() * 8]);
-    out.push({ x, y, stage: 0, hp: HP[0], blobs, wob: R() * TAU });
+    for (let i = 0; i < 5; i++) blobs.push([(R() - 0.5) * 22, (R() - 0.5) * 18, (9 + R() * 8) * (mane ? 1.25 : 1)]);
+    const s = { x, y, stage: 0, blobs, wob: R() * TAU, mane };
+    s.hp = spotMax(s);
+    out.push(s);
   }
   return out;
 }
+
+// how much scrubbing a spot needs at its stage: mane mud takes extra
+const MANE_HP = 1.75;
+function spotMax(s) { return s.stage === 0 && s.mane ? HP[0] * MANE_HP : HP[s.stage]; }
 
 // ---------------------------------------------------------------- sound
 const Sound = (() => {
@@ -220,6 +251,11 @@ const Sound = (() => {
     thud() { tone("sine", 120, 32, 0.4, 0.32); noise(0.2, 0.12, "lowpass", 400, 80, 1); },
     wave() { noise(0.7, 0.16, "bandpass", 400, 1600, 0.8); },
     mudsplat() { noise(0.35, 0.26, "lowpass", 700, 120, 3); tone("sine", 90, 40, 0.3, 0.2); },
+    // Leo: a big silly roar that ends in a squeak, a breath in, a little growl and a mane shake
+    roar() { tone("sawtooth", 230, 110, 0.55, 0.11); tone("square", 180, 95, 0.5, 0.05, 0.03); noise(0.55, 0.12, "lowpass", 900, 200, 1.5); tone("sine", 900, 1500, 0.1, 0.1, 0.56); tone("sine", 1300, 1700, 0.07, 0.08, 0.7); },
+    inhale() { noise(0.8, 0.09, "bandpass", 300, 1400, 1.2); },
+    growl() { tone("sawtooth", 140, 120, 0.3, 0.07); noise(0.3, 0.06, "lowpass", 500, 260, 2); },
+    maneshake() { noise(0.4, 0.2, "bandpass", 2200, 700, 0.9); [0, 0.07, 0.14].forEach(w => noise(0.08, 0.1, "highpass", 2600, 3600, 1, w)); },
     tagin() { tone("triangle", 660, 990, 0.1, 0.08); tone("triangle", 990, 1320, 0.1, 0.08, 0.1); }
   };
   // a bouncy little tune: [melody semitones from C5 (null = rest)], [bass semitones from C3]
@@ -553,6 +589,53 @@ const ART = {
       }
     }
   },
+  // Leo the Lion: a huge fluffy mane that's muddy brown until it's clean, then golden. It puffs up
+  // before he roars (or shakes), and his roar is more silly than scary.
+  lion: {
+    back(p) {
+      const sw = Math.sin(p.t * (p.happy ? 9 : 3)) * 0.35;
+      g.save(); g.translate(70, 72); g.rotate(-0.5 + sw);
+      g.beginPath(); g.moveTo(0, 0); g.quadraticCurveTo(46, -10, 52, -64);
+      g.strokeStyle = INK; g.lineCap = "round"; g.lineWidth = 17; g.stroke(); g.strokeStyle = "#f4b860"; g.lineWidth = 10; g.stroke();
+      for (const [dx, dy, rr] of [[-6, 0, 12], [8, -6, 11], [2, -14, 10]]) circ(52 + dx, -68 + dy, rr, maneColor(p), INK, 3.5);
+      g.restore();
+    },
+    body(p) {
+      ell(0, 40, 88, 64, "#f4b860");
+      ell(0, 56, 50, 36, "#ffe0a3", 0, null);
+      const puff = p.puff || 0, col = maneColor(p), R = 84 * (1 + 0.2 * puff), n = 16;
+      for (let i = 0; i < n; i++) {
+        const a = i / n * TAU + Math.sin(p.t * 2 + i) * 0.03, rr = (30 + (i % 3) * 4) * (1 + 0.25 * puff);
+        const spike = 1 + (puff > 0.3 ? (i % 2 ? 0.12 : -0.02) * puff : 0);
+        circ(Math.cos(a) * R * 0.8 * spike, -58 + Math.sin(a) * R * 0.74 * spike, rr, col, INK, 4.5);
+      }
+      circ(0, -58, R * 0.76, col, null);
+      // a few darker locks so it reads as hair
+      for (let i = 0; i < 8; i++) { const a = i / 8 * TAU + 0.2; g.beginPath(); g.arc(Math.cos(a) * R * 0.6, -58 + Math.sin(a) * R * 0.56, 12, a - 0.9, a + 0.9); g.strokeStyle = "rgba(42,33,64,0.35)"; g.lineWidth = 3; g.stroke(); }
+      // a silly curl on top
+      g.beginPath(); g.arc(4, -58 - R * 0.86, 9 * (1 + 0.3 * puff), Math.PI * 0.9, Math.PI * 2.6); g.strokeStyle = INK; g.lineWidth = 8; g.lineCap = "round"; g.stroke(); g.strokeStyle = col; g.lineWidth = 4; g.stroke();
+      for (const s of [-1, 1]) { circ(s * 42, -100, 15, "#f4b860", INK, 4); circ(s * 42, -100, 7, "#ffb3a0", null); }
+      circ(0, -54, 54, "#f4b860");
+    },
+    face(p) {
+      const roar = p.roar || 0;
+      if (roar > 0.15) for (const s of [-1, 1]) { line(s * 34, -74, s * 14, -66, INK, 4.5); line(s * 34, -60, s * 14, -66, INK, 4.5); }   // > < eyes
+      else eyes(22, -70, 8, p);
+      if (p.mood === "grumpy" && !(roar > 0.15)) for (const s of [-1, 1]) line(s * 34, -88, s * 12, -82, INK, 4);
+      ell(0, -34, 32, 23, "#ffe0a3", 0, INK, 4);
+      for (const s of [-1, 1]) { for (const [dx, dy] of [[12, -34], [20, -28], [14, -24]]) circ(s * dx, dy, 2, INK, null); ell(s * 38, -40, 9, 6, "#ffa3a3", 0, null); }
+      poly([-11, -50, 11, -50, 0, -39], "#8a3e2c", INK, 3);
+      if (roar > 0) {
+        ell(0, -18, 22, 6 + 18 * roar, "#ff6f8a", 0, INK, 4);
+        ell(0, -12 + 10 * roar, 11, 6 * roar + 2, "#ff9fb0", 0, null);
+        for (const s of [-1, 1]) poly([s * 14, -18 - 12 * roar, s * 8, -18 - 12 * roar, s * 11, -10 - 12 * roar], "#fff", INK, 2);
+      } else {
+        line(0, -39, 0, -30, INK, 3.5);
+        mouth(-24, 12, p.mood, p.mood === "happy");
+      }
+    },
+    paws() { for (const s of [-1, 1]) { ell(s * 44, 88, 25, 15, "#f4b860"); for (const d of [-8, 0, 8]) line(s * 44 + d, 82, s * 44 + d, 92, INK, 2.5); } }
+  },
   duck: {
     back() {},
     body(p) {
@@ -577,10 +660,17 @@ const ART = {
   }
 };
 
+// Leo's mane goes from muddy brown to golden as the mane spots get clean
+function mixHex(a, b, t) {
+  const A = parseInt(a.slice(1), 16), B = parseInt(b.slice(1), 16), c = sh => Math.round(lerp(A >> sh & 255, B >> sh & 255, clamp(t, 0, 1)));
+  return `rgb(${c(16)},${c(8)},${c(0)})`;
+}
+const maneColor = p => mixHex("#8f5a2c", "#f09a26", p.maneClean == null ? 1 : p.maneClean);
+
 function drawSpot(s, k = 1) {
   const st = s.stage;
   if (st >= 3) return;
-  const f = 0.55 + 0.45 * (s.hp / HP[st]);
+  const f = 0.55 + 0.45 * clamp(s.hp / spotMax(s), 0, 1);
   g.save(); g.translate(s.x, s.y);
   if (st === 0) {
     for (const b of s.blobs) circ(b[0] * f, b[1] * f, b[2] * f * 1.25, "#6e4423", null);
@@ -647,7 +737,14 @@ function petPose(r) {
   const blink = (Math.sin(now * 0.9 + 1.3) > 0.985);
   const b = r && r.b;
   return { t: now, blink, mood: prog > 0.95 ? "happy" : prog > 0.4 ? "ok" : "grumpy", tense: b && b.tense > 0, flap: b && b.flap > 0, hop: b && b.hopping > 0, happy: prog > 0.95, wet: 0,
-           flying: b && b.state !== undefined && b.state !== "sit", yawn: b && b.yawn > 0 ? Math.sin(Math.PI * clamp(b.yawn / 1.4, 0, 1)) : 0, grab: b && b.snatchT > 0 ? b.snatched : null };
+           flying: b && b.state !== undefined && b.state !== "sit", yawn: b && b.yawn > 0 ? Math.sin(Math.PI * clamp(b.yawn / 1.4, 0, 1)) : 0, grab: b && b.snatchT > 0 ? b.snatched : null,
+           ...(r && r.pet.id === "lion" ? lionPose(r) : {}) };
+}
+function lionPose(r) {
+  const b = r.b, mane = r.spots.filter(s => s.mane);
+  const maneClean = mane.length ? mane.reduce((a, s) => a + Math.min(1, s.stage / 3), 0) / mane.length : 1;
+  const puff = b.dryShake > 0 ? 1 : b.breath > 0 ? clamp(1 - b.breath / 1.0, 0, 1) : b.roar > 0 ? clamp(b.roar / 0.8, 0, 1) : 0;
+  return { maneClean, puff, roar: b.roar > 0 ? Math.sin(Math.PI * clamp(1 - b.roar / 0.8, 0, 1)) : 0 };
 }
 
 // ---------------------------------------------------------------- particles
@@ -708,7 +805,7 @@ function startWash(i) {
 }
 function washProgress(r) {
   let d = 0;
-  for (const s of r.spots) d += s.stage + (s.stage < 3 ? 1 - s.hp / HP[s.stage] : 0);
+  for (const s of r.spots) d += s.stage + (s.stage < 3 ? 1 - s.hp / spotMax(s) : 0);
   return d / (3 * r.spots.length);
 }
 function petTransform(r, L) {
@@ -803,7 +900,7 @@ const WASH_MOVES = {
         cands.sort((a, c) => c.stage - a.stage);
         const s = cands[0];
         if (s) {
-          s.stage = 0; s.hp = HP[0]; r.remuds++;
+          s.stage = 0; s.hp = spotMax(s); r.remuds++;
           const L = washLayout(), w = toWorld(petTransform(r, L), s.x, s.y);
           puff(w.x, w.y, "mud", 14, { min: 60, max: 200 });
           showTip("Splosh! More mud!", 1.2);
@@ -895,6 +992,39 @@ const WASH_MOVES = {
       }
     }
   },
+  // Leo: every few seconds he takes a big breath (his mane puffs up) and ROARS, which blows the bubbles
+  // off one soapy spot, so you have to soap it again. Rinse soapy spots before he roars! When he's all
+  // clean he shakes his mane dry.
+  lion(r, dt) {
+    const b = r.b;
+    if (b.roarT == null) { b.roarT = 4.5; b.breath = 0; b.roar = 0; b.dryShake = 0; r.roars = 0; r.redos = 0; }
+    r.off.x = Math.sin(r.t * 1.1) * 26; r.off.y = Math.sin(r.t * 2.2) * 4; r.off.rot = Math.sin(r.t * 1.5) * 0.05;
+    if (b.dryShake > 0) {
+      b.dryShake -= dt;
+      r.off.rot += Math.sin(r.t * 40) * 0.22; r.off.x += Math.sin(r.t * 33) * 10;
+      if (Math.random() < dt * 40) { const L = washLayout(), T = petTransform(r, L), a = rnd(0, TAU); puff(T.x + Math.cos(a) * 80 * L.k, T.y + (-58 + Math.sin(a) * 70) * L.k, "drop", 1, { angle: a, spread: 0.3, min: 160, max: 300, rmin: 4, rmax: 7 }); }
+      return;
+    }
+    if (r.over) return;
+    b.roarT -= dt;
+    if (b.roarT <= 0 && b.breath <= 0 && b.roar <= 0) { b.breath = 1.0; sfx("inhale"); showTip("Leo takes a BIG breath... rinse the bubbles!", 1.1); }
+    if (b.breath > 0) {
+      b.breath -= dt;
+      if (b.breath <= 0) {
+        b.roar = 0.8; b.roarT = rnd(5.5, 7); r.roars++; sfx("roar");
+        const L = washLayout(), T = petTransform(r, L), mouthAt = toWorld(T, 0, -18);
+        puff(mouthAt.x, mouthAt.y, "bubble", 10, { angle: Math.PI / 2, spread: 1.4, min: 60, max: 200, rmin: 4, rmax: 9, life: 1.2 });
+        const foamy = r.spots.filter(s => s.stage === 1);
+        if (foamy.length && r.redos < 4) {
+          const s = foamy[Math.floor(rnd(0, foamy.length))], w = toWorld(T, s.x, s.y);
+          s.stage = 0; s.hp = spotMax(s); r.redos++;
+          puff(w.x, w.y, "bubble", 16, { min: 120, max: 320, rmin: 5, rmax: 11, life: 1.3 });
+          showTip("ROOOAR! ...hic! The bubbles blew right off!", 1.4);
+        } else showTip("ROOOAR! ...squeak? Nothing to blow off!", 1.2);
+      }
+    }
+    if (b.roar > 0) b.roar -= dt;
+  },
   duck(r, dt) {
     const b = r.b;
     r.off.x = Math.sin(r.t * 1.25) * 80; r.off.y = Math.sin(r.t * 2.5) * 8; r.off.rot = Math.cos(r.t * 1.25) * 0.13;
@@ -962,7 +1092,7 @@ function updateWash(dt) {
 function advanceSpot(r, s, T) {
   const w = toWorld(T, s.x, s.y);
   s.stage++;
-  if (s.stage < 3) s.hp = HP[s.stage];
+  if (s.stage < 3) s.hp = spotMax(s);
   if (s.stage === 1) { sfx("bubble"); puff(w.x, w.y, "bubble", 8, { min: 20, max: 90, rmin: 4, rmax: 10, life: 1.4 }); }
   else if (s.stage === 2) { sfx("splash"); puff(w.x, w.y, "drop", 8, { min: 60, max: 160 }); }
   else { r.cleaned++; sfx("sparkle"); puff(w.x, w.y, "spark", 6, { min: 30, max: 110, rmin: 5, rmax: 10 }); }
@@ -972,8 +1102,12 @@ function endWash(done) {
   if (r.over) return;
   r.over = true; r.done = done; r.endT = done ? 1.4 : 1.2;
   Sound.loop("rinse", false);
-  if (done) { sfx("win"); showTip("Squeaky clean!", 1.4); sfx(r.pet.voice); }
   if (r.b.snatchT > 0) { r.b.snatchT = 0; r.b.snatched = null; markSnatched(-1); }
+  if (done && r.pet.id === "lion") {
+    // all clean: Leo shakes his mane dry, FWOOMF
+    r.endT = 2.4; r.b.breath = 0; r.b.roar = 0; r.b.dryShake = 1.5;
+    sfx("win"); sfx("maneshake"); showTip("Leo shakes his mane dry! FWOOMF!", 1.8);
+  } else if (done) { sfx("win"); showTip("Squeaky clean!", 1.4); sfx(r.pet.voice); }
   else { sfx("soaked"); showTip("Time's up!", 1.4); }
 }
 
@@ -1050,7 +1184,7 @@ function renderWash() {
   drawBathroom(L);
   drawTubBack(L);
   const pose = petPose(r);
-  if (r.b && r.b.shaking > 0) pose.mood = "squint";
+  if (r.b && (r.b.shaking > 0 || r.b.dryShake > 0)) pose.mood = "squint";
   if (r.over && r.done) pose.mood = "happy";
   const up = flying(r);
   if (!up) {
@@ -1083,26 +1217,35 @@ const GEAR = {
   puddle:    { speed: 108, range: 280, aim: 0.5,  rest: 1.6,  dmg: 12, label: "MUD SPLASH" },
   wave:      { speed: 84,  range: 190, aim: 0.8,  rest: 2.4,  dmg: 14, label: "BELLY FLOP" },
   octo:      { speed: 100, range: 220, aim: 0.7,  spray: 1.3, rest: 1.7,  rate: 6, dmg: 1.2, spread: 0.03, turn: 1.9, label: "8 SQUIRT GUNS" },
-  balloon:   { speed: 135, range: 190, aim: 0.4,  rest: 0.8,  dmg: 13, label: "WATER BALLOONS" }
+  balloon:   { speed: 135, range: 190, aim: 0.4,  rest: 0.8,  dmg: 13, label: "WATER BALLOONS" },
+  // Leo: runs up close, puffs up his mane (the warning), then shakes out two rings of drops
+  mane:      { speed: 128, range: 150, aim: 0.85, rest: 2.0,  dmg: 3.2, reach: 215, label: "MANE SHAKE" }
 };
 const PLAYER_SPEED = 205, PLAYER_R = 14, PET_R = 22, SPLASH_RX = 60, SPLASH_RY = 44, BUCKET_RX = 50, BUCKET_RY = 36, MUD_R = 80;
 const SPAWN = [[0.82, 0.12], [0.14, 0.14], [0.55, 0.1], [0.88, 0.52], [0.1, 0.5], [0.5, 0.4], [0.86, 0.8]];
 const maxChasers = () => (W < 620 ? 4 : 5);
 
-function yardLayout() {
+// The payback places. Each has solid cover (blocks you, the pets and the water), things on a line that
+// block water but you can run through (laundry, paintings, swings), and hiding spots for Mittens
+// (bushes, backpack piles, beanbags) that block water too. "bushes" is the hiding-spot list.
+function yardLayout(place = "backyard") {
   const top = hudTop() + 4, x0 = 14, x1 = W - 14, y0 = top, y1 = H - 14;
   const w = x1 - x0, h = y1 - y0;
   const P = (fx, fy) => ({ x: x0 + w * fx, y: y0 + h * fy });
-  const shed = P(0.25, 0.3), tramp = P(0.72, 0.68), line0 = P(0.58, 0.3), line1 = P(0.9, 0.3);
-  const solids = [
-    { type: "rect", name: "shed", x: shed.x - 62, y: shed.y - 45, w: 124, h: 90 },
-    { type: "circle", name: "trampoline", x: tramp.x, y: tramp.y, r: 58 }
-  ];
+  const box = (name, c, bw, bh) => ({ type: "rect", name, x: c.x - bw / 2, y: c.y - bh / 2, w: bw, h: bh });
+  let solids, line0 = P(0.58, 0.3), line1 = P(0.9, 0.3), lineKind = { backyard: "laundry", hallway: "art", playground: "swing" }[place] || null;
+  if (place === "hallway") solids = [box("lockers", P(0.27, 0.32), 150, 44), box("lockers", P(0.72, 0.66), 150, 44)];
+  else if (place === "classroom") solids = [box("desks", P(0.26, 0.32), 124, 40), box("desks", P(0.72, 0.66), 124, 40), box("teacher", P(0.76, 0.24), 112, 42)];
+  else if (place === "playground") solids = [box("slide", P(0.26, 0.31), 140, 46), box("climber", P(0.72, 0.67), 108, 84)];
+  else solids = [box("shed", P(0.25, 0.3), 124, 90), { type: "circle", name: "trampoline", ...P(0.72, 0.68), r: 58 }];
   const sheets = [];
-  const n = 3, sw = Math.min(46, (line1.x - line0.x) / n - 8);
-  for (let i = 0; i < n; i++) { const cx = lerp(line0.x, line1.x, (i + 0.5) / n); sheets.push({ type: "rect", name: "laundry", x: cx - sw / 2, y: line0.y - 4, w: sw, h: 40, c: ["#ff8fc0", "#ffe36b", "#8fd8ff"][i] }); }
-  const bushes = [P(0.5, 0.52), P(0.13, 0.8), P(0.88, 0.9)].map(p => ({ type: "circle", name: "bush", x: p.x, y: p.y, r: 32 }));
-  return { x0, x1, y0, y1, w, h, solids, sheets, bushes, line0, line1, spigot: { x: x0 + w * 0.5, y: y0 + 2 } };
+  if (lineKind) {
+    const n = 3, sw = Math.min(46, (line1.x - line0.x) / n - 8);
+    for (let i = 0; i < n; i++) { const cx = lerp(line0.x, line1.x, (i + 0.5) / n); sheets.push({ type: "rect", name: lineKind, sheet: true, x: cx - sw / 2, y: line0.y - 4, w: sw, h: 40, c: ["#ff8fc0", "#ffe36b", "#8fd8ff"][i], i }); }
+  }
+  const hideName = { hallway: "backpacks", classroom: "beanbag" }[place] || "bush";
+  const bushes = [P(0.5, 0.52), P(0.13, 0.8), P(0.88, 0.9)].map((p, i) => ({ type: "circle", name: hideName, hide: true, x: p.x, y: p.y, r: 32, i }));
+  return { place, x0, x1, y0, y1, w, h, solids, sheets, bushes, line0, line1, lineKind, spigot: { x: x0 + w * 0.5, y: y0 + 2 } };
 }
 // everyone washed so far in this run, up to pet i
 function lineupFor(i) { const from = run ? Math.min(run.start, i) : i; return PETS.slice(from, i + 1).map(p => p.id); }
@@ -1114,15 +1257,16 @@ function makeFoe(r, id, k) {
   if (pet.weapon === "squirt") { f.st = "sneak"; f.visible = false; f.timer = 1.0 + k * 0.4; }
   if (pet.weapon === "sprinkler") { f.st = "rest"; f.timer = 0.6 + k * 0.4; }
   if (pet.weapon === "rain") f.z = 64;
+  if (pet.weapon === "mane") f.timer = 1.2 + k * 0.4;
   if (pet.weapon === "bucket") f.gangPos = [[-46, -6], [44, -10], [-16, 26], [22, 30]].map(([x, y], j) => ({ x, y, stage: 3, sq: j, face: j % 2 ? -1 : 1, wob: j }));
   return f;
 }
 function startHose(i, ids) {
   const pet = PETS[i];
   ids = ids && ids.length ? ids : lineupFor(i);
-  const Y = yardLayout();
+  const place = placeOf(i), Y = yardLayout(place.id);
   const total = Math.min(30, pet.hoseTime + 2 * (ids.length - 1));
-  round = { kind: "hose", i, pet, total, time: total, t: 0, Y, wet: 0, over: false, endT: 0,
+  round = { kind: "hose", i, pet, place, total, time: total, t: 0, Y, wet: 0, over: false, endT: 0,
             player: { x: Y.x0 + Y.w * 0.3, y: Y.y0 + Y.h * 0.9, vx: 0, vy: 0, face: 1, step: 0, hitT: 0 },
             foes: [], bench: [], drops: [], balloons: [], puddles: [], buckets: [], rain: [], waves: [], splats: [],
             squelchT: 0, tickT: 0, hits: 0, wobble: 0, soaked: false, swapT: 5, cap: maxChasers(), hitsBy: {} };
@@ -1134,11 +1278,14 @@ function startHose(i, ids) {
   order.forEach((id, k) => { const f = makeFoe(round, id, k); (k < round.cap ? round.foes : round.bench).push(f); });
   // ...and each hit is a bit smaller, so a full yard is busier and wetter, but still escapable
   round.dm = 1 / (1 + 0.4 * (round.foes.length - 1));
+  // tag-ins come every 5 s, or a bit faster when the bench is long, so everyone gets a turn
+  round.swapEvery = Math.min(5, (total - 2) / Math.max(1, round.bench.length));
+  round.swapT = round.swapEvery;
   round.ids = ids;
   round.foe = round.foes[0];
   mode = "hose"; paused = false;
   showHud(true); $("tools").hidden = true;
-  showTip(ids.length > 1 ? "Payback! EVERYONE wants you wet!" : "Payback! Stay dry!", 1.8);
+  showTip(place.id === "backyard" ? (ids.length > 1 ? "Payback! EVERYONE wants you wet!" : "Payback! Stay dry!") : `Payback in ${place.the}!`, 1.8);
   Sound.startMusic("hose");
   sfx("giggle");
   updateHud();
@@ -1148,7 +1295,7 @@ function rescaleYard(oldW, oldH) {
   const fix = o => { o.x *= sx; o.y *= sy; };
   fix(r.player); r.foes.forEach(fix); r.drops.forEach(fix); r.puddles.forEach(fix); r.buckets.forEach(fix); r.rain.forEach(fix); r.waves.forEach(fix); r.splats.forEach(fix);
   r.balloons.forEach(b => { fix(b); b.tx *= sx; b.ty *= sy; b.sx *= sx; b.sy *= sy; b.fx *= sx; b.fy *= sy; });
-  r.Y = yardLayout();
+  r.Y = yardLayout(r.place.id);
 }
 function insideRect(o, x, y, pad = 0) { return x > o.x - pad && x < o.x + o.w + pad && y > o.y - pad && y < o.y + o.h + pad; }
 function blocksAt(o, x, y) { return o.type === "rect" ? insideRect(o, x, y) : Math.hypot(x - o.x, y - o.y) < o.r; }
@@ -1180,7 +1327,7 @@ function pushOut(Y, e, rad) {
   e.x = clamp(e.x, Y.x0 + rad, Y.x1 - rad); e.y = clamp(e.y, Y.y0 + rad, Y.y1 - rad);
   return hit;
 }
-// walk toward (tx, ty), sliding around the shed and trampoline
+// walk toward (tx, ty), sliding around the solid cover
 function walk(r, e, tx, ty, speed, dt, rad, keep = 0) {
   const dx = tx - e.x, dy = ty - e.y, d = Math.hypot(dx, dy);
   if (d < 2 + keep) return;
@@ -1400,6 +1547,27 @@ const WEAPONS = {
       if (p.timer <= 0) { p.st = "move"; p.timer = P.rest; }
     }
   },
+  // Leo: runs up close, stops and puffs up his mane (that's the warning), then shakes it: two big rings
+  // of drops fly out all around him. Walls and cover stop them.
+  mane(r, p, dt) {
+    const P = p.P, me = r.player, d = dist(p, me);
+    p.timer -= dt;
+    if (p.st === "move") {
+      walk(r, p, me.x, me.y, P.speed, dt, PET_R + 4, 50);
+      if (p.timer <= 0 && d < P.range) { p.st = "puff"; p.timer = P.aim; sfx("growl"); }
+    } else if (p.st === "puff") {
+      if (p.timer <= 0) { p.st = "shake"; p.timer = 0.5; p.rings = 0; }
+    } else if (p.st === "shake") {
+      const want = p.timer < 0.32 ? 2 : 1;
+      while (p.rings < want) {
+        const N = 30, off = p.rings * Math.PI / N;
+        for (let k = 0; k < N; k++) { const a = off + k * TAU / N; shoot(r, p, p.x + Math.cos(a) * 24, p.y - 12 + Math.sin(a) * 18, a, 290, P.reach / 290, 5, "mane"); }
+        puff(p.x, p.y - 4, "ring", 1, { min: 0, max: 0, rmin: 24, rmax: 26, life: 0.5 });
+        sfx("maneshake"); p.rings++;
+      }
+      if (p.timer <= 0) { p.st = "move"; p.timer = P.rest; }
+    }
+  },
   // Sir Quackers: keeps his distance and lobs water balloons that bounce once. The shadow shows where
   balloon(r, p, dt) {
     const P = p.P, me = r.player;
@@ -1439,7 +1607,7 @@ function rotateBench(r, dt) {
   if (!r.bench.length || r.over) return;
   r.swapT -= dt;
   if (r.swapT > 0) return;
-  r.swapT = 5;
+  r.swapT = r.swapEvery || 5;
   const out = r.foes.slice(1).filter(p => p.weapon !== "hose").sort((a, b) => b.inT - a.inT)[0];
   if (!out) return;
   const inn = r.bench.shift();
@@ -1484,7 +1652,7 @@ function updateHose(dt) {
     if (!d) continue;   // a soaking clears the water mid-loop
     d.x += d.vx * dt; d.y += d.vy * dt; d.life -= dt;
     let dead = d.life <= 0;
-    if (!dead) for (const o of blockers(Y)) if (blocksAt(o, d.x, d.y)) { dead = true; if (o.name === "laundry") o.flap = 0.4; if (o.name === "bush") o.rustle = 0.3; break; }
+    if (!dead) for (const o of blockers(Y)) if (blocksAt(o, d.x, d.y)) { dead = true; if (o.sheet) o.flap = 0.4; if (o.hide) o.rustle = 0.3; break; }
     if (!dead && Math.hypot(d.x - me.x, d.y - (me.y - 8)) < PLAYER_R + d.r) { dead = true; getWet(r, d.dmg, d.who); puff(d.x, d.y, "drop", 2, { min: 40, max: 120 }); }
     if (dead) { if (Math.random() < 0.3) puff(d.x, d.y, "drop", 1, { min: 20, max: 80, rmin: 3, rmax: 5, life: 0.4 }); r.drops.splice(i, 1); }
   }
@@ -1560,6 +1728,7 @@ function endHose(dry) {
 
 function drawYard() {
   const r = round, Y = r.Y;
+  if (Y.place !== "backyard") { drawSchool(r); return; }
   g.fillStyle = "#63c95e"; g.fillRect(0, 0, W, H);
   g.fillStyle = "#6fd36b";
   for (let x = 0; x < W; x += 80) g.fillRect(x, 0, 40, H);
@@ -1610,6 +1779,156 @@ function drawLaundry(Y) {
     circ(s.x + 5, s.y - 20, 3, "#fff", INK, 1.5); circ(s.x + s.w - 5, s.y - 20, 3, "#fff", INK, 1.5);
   }
 }
+// ---- school: the hallway, the classroom and the playground
+function drawSchool(r) {
+  const Y = r.Y, pl = Y.place;
+  // the floor
+  if (pl === "hallway") {
+    g.fillStyle = "#efe6d2"; g.fillRect(0, 0, W, H);
+    const t = 40;
+    for (let y = Y.y0, j = 0; y < Y.y1; y += t, j++) for (let x = Y.x0 + (j % 2) * t; x < Y.x1; x += 2 * t) { g.fillStyle = "#e0d4ba"; g.fillRect(x, y, t, Math.min(t, Y.y1 - y)); }
+    g.globalAlpha = 0.35; for (let i = 0; i < 6; i++) ell(Y.x0 + Y.w * (0.1 + i * 0.17), Y.y0 + Y.h * (0.2 + (i % 3) * 0.3), 30, 8, "#fff", -0.3, null); g.globalAlpha = 1;
+    // a stripe down the middle of the hall
+    g.fillStyle = "rgba(61,111,216,0.18)"; g.fillRect(Y.x0, Y.y0 + Y.h * 0.47, Y.w, 16);
+  } else if (pl === "classroom") {
+    g.fillStyle = "#e9b878"; g.fillRect(0, 0, W, H);
+    g.strokeStyle = "rgba(140,90,40,0.28)"; g.lineWidth = 2;
+    for (let y = Y.y0 + 26; y < Y.y1; y += 26) { g.beginPath(); g.moveTo(Y.x0, y); g.lineTo(Y.x1, y); g.stroke(); }
+    for (let y = Y.y0, j = 0; y < Y.y1; y += 26, j++) for (let x = Y.x0 + (j % 3) * 50; x < Y.x1; x += 150) { g.beginPath(); g.moveTo(x, y); g.lineTo(x, y + 26); g.stroke(); }
+    // the alphabet rug in the reading corner
+    const rx = Y.x0 + Y.w * 0.04, ry = Y.y0 + Y.h * 0.6, rw = Y.w * 0.36, rh = Y.h * 0.34, cols = ["#ff6f6f", "#ffd23f", "#63c95e", "#57c4ff", "#b38cff", "#ff8fc0"];
+    rrect(rx, ry, rw, rh, 14, "#fffaf0", INK, 3);
+    const n = 6, cw = (rw - 16) / n, rows = 3, ch = (rh - 16) / rows;
+    for (let j = 0; j < rows; j++) for (let i = 0; i < n; i++) {
+      rrect(rx + 8 + i * cw + 2, ry + 8 + j * ch + 2, cw - 4, ch - 4, 5, cols[(i + j * 2) % cols.length], null);
+      g.fillStyle = "rgba(255,255,255,0.85)"; g.font = `900 ${Math.min(16, ch * 0.5)}px ui-rounded, system-ui, sans-serif`; g.textAlign = "center"; g.textBaseline = "middle";
+      g.fillText("ABCDEFGHIJKLMNOPQR"[j * n + i], rx + 8 + (i + 0.5) * cw, ry + 8 + (j + 0.5) * ch + 1);
+    }
+  } else {
+    // the playground: blacktop with hopscotch and a four-square court, wood chips under the slide and climbing frame
+    g.fillStyle = "#8e98ab"; g.fillRect(0, 0, W, H);
+    const R = mulberry(5);
+    g.fillStyle = "rgba(255,255,255,0.08)"; for (let i = 0; i < 80; i++) g.fillRect(R() * W, R() * H, 3, 3);
+    for (const o of Y.solids) { ell(o.x + o.w / 2, o.y + o.h / 2 + 6, o.w * 0.75, o.h * 0.95, "#d7ad73", 0, null); g.fillStyle = "#b98a52"; for (let i = 0; i < 30; i++) g.fillRect(o.x + o.w / 2 + (R() - 0.5) * o.w * 1.3, o.y + o.h / 2 + 6 + (R() - 0.5) * o.h * 1.6, 4, 2); }
+    const hx = Y.x0 + Y.w * 0.36, hy = Y.y0 + Y.h * 0.7, sq = 26;
+    g.strokeStyle = "#fffaf0"; g.lineWidth = 3; g.fillStyle = "#fffaf0"; g.font = "900 13px ui-rounded, system-ui, sans-serif"; g.textAlign = "center"; g.textBaseline = "middle";
+    [[0, 0, 1], [0, -1, 2], [-0.5, -2, 3], [0.5, -2, 4], [0, -3, 5], [-0.5, -4, 6], [0.5, -4, 7], [0, -5, 8]].forEach(([cx, cy, n]) => { g.strokeRect(hx + (cx - 0.5) * sq, hy + cy * sq, sq, sq); g.fillText(String(n), hx + cx * sq, hy + (cy + 0.5) * sq); });
+    const fx = Y.x0 + Y.w * 0.5, fy = Y.y0 + Y.h * 0.12;
+    g.strokeStyle = "#ffd23f"; g.strokeRect(fx - 40, fy - 30, 80, 60); line(fx, fy - 30, fx, fy + 30, "#ffd23f", 3); line(fx - 40, fy, fx + 40, fy, "#ffd23f", 3);
+  }
+  // the walls (or the fence) around the edge
+  const wall = { hallway: "#8ea2d6", classroom: "#fff1c9", playground: "#a8dcff" }[pl];
+  g.fillStyle = wall;
+  g.fillRect(0, 0, W, Y.y0); g.fillRect(0, 0, Y.x0, H); g.fillRect(Y.x1, 0, W - Y.x1, H); g.fillRect(0, Y.y1, W, H - Y.y1);
+  if (pl === "hallway") {
+    // a row of lockers along the top wall
+    for (let x = 4; x < W; x += 30) { rrect(x, 4, 26, Y.y0 - 8, 3, ["#5b8cff", "#ff8a5c", "#63c95e", "#ffd23f"][Math.floor(x / 30) % 4], INK, 2); for (let k = 0; k < 3; k++) line(x + 7, 12 + k * 5, x + 19, 12 + k * 5, INK, 1.5); }
+  } else if (pl === "classroom") {
+    rrect(W * 0.3, 6, W * 0.4, Y.y0 - 12, 6, "#2f6b4a", "#8a5a2b", 5);
+    g.fillStyle = "#fff"; g.font = "900 16px ui-rounded, system-ui, sans-serif"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText("A B C  1 2 3", W / 2, Y.y0 / 2 + 1);
+    circ(W * 0.8, Y.y0 / 2, Math.min(18, Y.y0 / 2 - 6), "#fff", INK, 3); line(W * 0.8, Y.y0 / 2, W * 0.8, Y.y0 / 2 - 9, INK, 2.5); line(W * 0.8, Y.y0 / 2, W * 0.8 + 7, Y.y0 / 2, INK, 2.5);
+  } else {
+    // a chain-link fence, with the school beyond it
+    g.strokeStyle = "rgba(90,100,120,0.55)"; g.lineWidth = 1.5;
+    for (let x = -H; x < W; x += 14) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x + Y.y0, Y.y0); g.moveTo(x + Y.y0, 0); g.lineTo(x, Y.y0); g.stroke(); }
+    rrect(W * 0.6, 6, W * 0.3, Y.y0 - 6, 4, "#e9785a", INK, 3);
+    for (let i = 0; i < 4; i++) rrect(W * 0.62 + i * W * 0.07, 14, W * 0.04, Math.max(8, Y.y0 - 28), 2, "#bfe9ff", INK, 2);
+  }
+  g.strokeStyle = INK; g.lineWidth = 3; g.strokeRect(Y.x0, Y.y0, Y.w, Y.h);
+  // where Biscuit's hose comes from: a drinking fountain (or the classroom sink)
+  const sp = Y.spigot;
+  rrect(sp.x - 16, sp.y - 14, 32, 18, 6, "#c9d3e6", INK, 3); ell(sp.x, sp.y - 12, 11, 4, "#7cc8f2", 0, INK, 2); circ(sp.x + 12, sp.y - 6, 3.5, "#ff6f6f", INK, 1.5);
+  for (const pd of r.puddles) { g.globalAlpha = Math.min(1, pd.life / 2) * 0.9; ell(pd.x, pd.y, pd.r, pd.r * 0.62, "#7a4b26", 0, "#5a3416", 2); ell(pd.x - 8, pd.y - 4, 8, 4, "#9a6a40", 0, null); g.globalAlpha = 1; }
+}
+function drawSolid(o) {
+  if (o.name === "shed") return drawShed(o);
+  if (o.name === "trampoline") return drawTramp(o);
+  rrect(o.x + 6, o.y + 8, o.w, o.h, 6, "rgba(0,0,0,0.18)", null);
+  if (o.name === "lockers") {
+    // a bank of lockers, one door ajar with a sneaker sticking out
+    const n = 5, dw = o.w / n;
+    rrect(o.x, o.y, o.w, o.h, 4, "#5b8cff", INK, 4);
+    for (let i = 0; i < n; i++) {
+      const x = o.x + i * dw;
+      if (i) line(x, o.y + 2, x, o.y + o.h - 2, INK, 2.5);
+      for (let k = 0; k < 3; k++) line(x + dw * 0.25, o.y + 7 + k * 5, x + dw * 0.75, o.y + 7 + k * 5, "#2c4fa8", 2);
+      rrect(x + dw - 9, o.y + o.h * 0.55, 4, 9, 2, "#e6ecf8", INK, 1.5);
+    }
+    rrect(o.x + dw * 3 + 3, o.y + o.h - 12, 14, 8, 3, "#ff6f6f", INK, 2);
+    circ(o.x + dw * 1.5, o.y + o.h * 0.75, 4, "#ffd23f", INK, 1.5);
+  } else if (o.name === "desks" || o.name === "teacher") {
+    const top = o.name === "teacher" ? "#b9784a" : "#f2c27a";
+    rrect(o.x, o.y, o.w, o.h, 6, top, INK, 4);
+    if (o.name === "desks") {
+      line(o.x + o.w / 2, o.y + 3, o.x + o.w / 2, o.y + o.h - 3, INK, 2.5);
+      rrect(o.x + 10, o.y + 8, 22, 16, 2, "#57c4ff", INK, 2); line(o.x + 21, o.y + 8, o.x + 21, o.y + 24, INK, 1.5);
+      g.save(); g.translate(o.x + o.w - 26, o.y + o.h / 2); g.rotate(-0.4); rrect(-14, -3, 28, 6, 2, "#ffd23f", INK, 1.5); g.restore();
+      circ(o.x + o.w / 2 + 16, o.y + o.h / 2 + 4, 5, "#ff8fc0", INK, 1.5);
+    } else {
+      circ(o.x + 20, o.y + o.h / 2, 9, "#ff4d5e", INK, 2.5); line(o.x + 20, o.y + o.h / 2 - 9, o.x + 22, o.y + o.h / 2 - 14, "#3f7a2a", 3);
+      for (let i = 0; i < 3; i++) rrect(o.x + o.w - 46 + i * 2, o.y + 10 + i * 6, 34, 7, 2, ["#5b8cff", "#63c95e", "#ff8a5c"][i], INK, 1.5);
+      g.fillStyle = INK; g.font = "900 10px ui-rounded, system-ui, sans-serif"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText("TEACHER", o.x + o.w / 2 - 6, o.y + o.h - 9);
+    }
+  } else if (o.name === "slide") {
+    // ladder on the left, the chute sloping down to the right
+    rrect(o.x, o.y, 34, o.h, 4, "#c9d3e6", INK, 3);
+    for (let k = 1; k < 4; k++) line(o.x + 3, o.y + k * o.h / 4, o.x + 31, o.y + k * o.h / 4, INK, 2.5);
+    poly([o.x + 34, o.y + 2, o.x + o.w - 14, o.y + o.h * 0.35, o.x + o.w, o.y + o.h - 2, o.x + 34, o.y + o.h - 2], "#ff6f6f", INK, 3.5);
+    line(o.x + 40, o.y + o.h * 0.4, o.x + o.w - 12, o.y + o.h * 0.75, "#ffb0b0", 4);
+    rrect(o.x - 2, o.y - 10, 38, 12, 4, "#ffd23f", INK, 3);
+  } else if (o.name === "climber") {
+    // a climbing frame: a grid of bars
+    rrect(o.x, o.y, o.w, o.h, 6, "rgba(255,255,255,0.15)", INK, 4);
+    for (let k = 1; k < 4; k++) line(o.x + k * o.w / 4, o.y + 2, o.x + k * o.w / 4, o.y + o.h - 2, "#2fd0c0", 5);
+    for (let k = 1; k < 3; k++) line(o.x + 2, o.y + k * o.h / 3, o.x + o.w - 2, o.y + k * o.h / 3, "#ffd23f", 5);
+    rrect(o.x, o.y, o.w, o.h, 6, null, INK, 4);
+    rrect(o.x + 8, o.y - 8, o.w - 16, 12, 4, "#9a4fd0", INK, 3);
+  }
+}
+function drawLine(Y) {
+  if (!Y.lineKind) return;
+  if (Y.lineKind === "laundry") return drawLaundry(Y);
+  const l0 = Y.line0, l1 = Y.line1, swing = Y.lineKind === "swing";
+  line(l0.x - 26, l0.y - 30, l0.x - 26, l0.y + 16, swing ? "#9a4fd0" : "#9aa6c2", 5);
+  line(l1.x + 26, l1.y - 30, l1.x + 26, l1.y + 16, swing ? "#9a4fd0" : "#9aa6c2", 5);
+  if (swing) line(l0.x - 26, l0.y - 28, l1.x + 26, l1.y - 28, "#9a4fd0", 6);
+  else { g.beginPath(); g.moveTo(l0.x - 26, l0.y - 26); g.quadraticCurveTo((l0.x + l1.x) / 2, l0.y - 14, l1.x + 26, l1.y - 26); g.strokeStyle = "#fff"; g.lineWidth = 2; g.stroke(); }
+  for (const s of Y.sheets) {
+    const f = s.flap > 0 ? Math.sin(now * 40) * 4 : Math.sin(now * 2 + s.x) * (swing ? 4 : 1.5);
+    if (swing) {
+      // a swing: two chains and a seat
+      line(s.x + 4, s.y - 26, s.x + 4 + f, s.y + s.h - 6, "#7a7f8f", 2.5); line(s.x + s.w - 4, s.y - 26, s.x + s.w - 4 + f, s.y + s.h - 6, "#7a7f8f", 2.5);
+      rrect(s.x + f, s.y + s.h - 10, s.w, 9, 4, s.c, INK, 3);
+    } else {
+      // a painting from art class, pegged on the line
+      poly([s.x, s.y - 20, s.x + s.w, s.y - 20, s.x + s.w + f, s.y + s.h, s.x + f, s.y + s.h], "#fffaf0", INK, 3);
+      const cx = s.x + s.w / 2 + f / 2, cy = s.y + 2;
+      if (s.i === 0) { circ(cx, cy - 4, 8, "#ffd23f", null); for (let k = 0; k < 6; k++) { const a = k * TAU / 6; line(cx + Math.cos(a) * 11, cy - 4 + Math.sin(a) * 11, cx + Math.cos(a) * 15, cy - 4 + Math.sin(a) * 15, "#ffb03b", 2); } }
+      else if (s.i === 1) { poly([cx - 12, cy + 10, cx, cy - 10, cx + 12, cy + 10], "#ff6f6f", INK, 2); rrect(cx - 4, cy + 2, 8, 8, 1, "#57c4ff", null); }
+      else { circ(cx, cy - 2, 10, "#f09a26", INK, 2); circ(cx, cy - 2, 6, "#ffe0a3", null); circ(cx - 2.5, cy - 3, 1.2, INK, null); circ(cx + 2.5, cy - 3, 1.2, INK, null); }
+      circ(s.x + 5, s.y - 20, 3, "#ff8fc0", INK, 1.5); circ(s.x + s.w - 5, s.y - 20, 3, "#ff8fc0", INK, 1.5);
+    }
+  }
+}
+function drawHide(o, cat) {
+  if (o.name === "bush") return drawBush(o, cat);
+  const wig = o.rustle > 0 || cat ? Math.sin(now * 40) * 3 : 0;
+  ell(o.x + 4, o.y + 10, o.r, o.r * 0.6, "rgba(0,0,0,0.18)", 0, null);
+  if (o.name === "backpacks") {
+    // a pile of backpacks
+    for (const [dx, dy, c] of [[-14, 6, "#ff6f6f"], [14, 6, "#57c4ff"], [0, -8, "#ffd23f"]]) {
+      rrect(o.x + dx - 15 + wig, o.y + dy - 16, 30, 32, 10, c, INK, 3);
+      rrect(o.x + dx - 9 + wig, o.y + dy + 2, 18, 11, 4, "rgba(255,255,255,0.45)", INK, 2);
+      g.beginPath(); g.arc(o.x + dx + wig, o.y + dy - 16, 7, Math.PI, TAU); g.strokeStyle = INK; g.lineWidth = 3; g.stroke();
+    }
+  } else {
+    // a big squashy beanbag
+    ell(o.x + wig, o.y + 4, o.r + 4, o.r * 0.82, ["#ff8fc0", "#57c4ff", "#b38cff"][o.i % 3], 0, INK, 3);
+    ell(o.x - 8 + wig, o.y - 6, 12, 7, "rgba(255,255,255,0.4)", -0.3, null);
+    g.beginPath(); g.moveTo(o.x - 16 + wig, o.y + 10); g.quadraticCurveTo(o.x + wig, o.y + 2, o.x + 18 + wig, o.y + 12); g.strokeStyle = "rgba(42,33,64,0.4)"; g.lineWidth = 2; g.stroke();
+  }
+  if (cat) for (const s of [-1, 1]) ell(o.x + s * 9 + wig, o.y - 4, 5, 6, "#c6ff6a", 0, INK, 2);
+}
 function drawKid(me, wet) {
   const bob = Math.sin(me.step * 2) * 2, legA = Math.sin(me.step * 2) * 5;
   g.save(); g.translate(me.x, me.y);
@@ -1623,7 +1942,7 @@ function drawKid(me, wet) {
   if (wet > 0) { g.globalAlpha = Math.min(0.55, wet / 160); rrect(-13, -50 + bob, 26, 50, 10, "#2f8cff", null); g.globalAlpha = 1; }
   g.restore();
 }
-const YARD_SCALE = { squirrel: 0.42, hippo: 0.27, octopus: 0.26, parrot: 0.28 };
+const YARD_SCALE = { squirrel: 0.42, hippo: 0.27, octopus: 0.26, parrot: 0.28, lion: 0.27 };
 function drawCloud(x, y, dark) {
   for (const [dx, dy, rr] of [[-16, 2, 12], [0, -6, 15], [16, 2, 12], [0, 6, 12]]) circ(x + dx, y + dy, rr, dark ? "#8d9ab3" : "#eef4ff", INK, 2.5);
 }
@@ -1643,7 +1962,9 @@ function drawYardPet(r, p) {
   if (p.weapon === "bucket" && !r.buckets.some(b => b.who === p.id)) drawBucket(p.x, p.y - 48 + Math.sin(now * 10) * 2, Math.sin(now * 4) * 0.1);
   g.save(); g.translate(p.x, p.y - p.z - 22); g.scale(s, s);
   const pose = { t: now + p.k, mood: "sly", blink: false, tense: p.id === "cat", flap: p.st === "wind", hop: p.st === "hop", lid: p.pet.lid, flying: p.id === "parrot", wet: 0,
-                 yawn: p.st === "jump" ? 0.8 : 0, grab: null, gang: p.gangPos };
+                 yawn: p.st === "jump" ? 0.8 : 0, grab: null, gang: p.gangPos,
+                 puff: p.st === "puff" ? clamp(1 - p.timer / p.P.aim, 0.3, 1) : p.st === "shake" ? 1 : 0, roar: p.st === "puff" ? 0.5 : 0 };
+  if (p.st === "shake") g.rotate(Math.sin(now * 45) * 0.25);
   drawPet(p.id, pose, null);
   g.restore();
   const n = nozzle(p);
@@ -1665,7 +1986,7 @@ function drawYardPet(r, p) {
       rrect(-6, -3.5, 13, 7, 2, k % 2 ? "#ffe36b" : "#2fd0c0", INK, 2); g.restore();
     }
   } else if (p.weapon === "balloon" && p.st === "wind") { circ(p.x + 18, p.y - p.z - 40, 9, "#5fb8ff", INK, 2.5); }
-  if (p.st === "aim" || p.st === "wind" || p.st === "jump" || p.st === "charge") {
+  if (p.st === "aim" || p.st === "wind" || p.st === "jump" || p.st === "charge" || p.st === "puff") {
     const bx = p.x, by = p.y - p.z - (p.weapon === "rain" ? 90 : 68) + Math.sin(now * 20) * 2;
     rrect(bx - 9, by - 14, 18, 24, 6, "#fff", INK, 3);
     g.fillStyle = "#ff3b5c"; g.font = "900 20px system-ui, sans-serif"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText("!", bx, by - 1);
@@ -1700,7 +2021,7 @@ function drawHoseLine(r) {
     g.strokeStyle = INK; g.lineWidth = 7; g.stroke(); g.strokeStyle = "#3fbf52"; g.lineWidth = 4; g.stroke();
   }
 }
-const DROP_LOOK = { hose: ["#7cc8ff", "#2a6fd6"], sprinkle: ["#c4ecff", "#3d8fe0"], squirt: ["#a5f3ff", "#0fa3b8"], octo: ["#d5c2ff", "#6a3fd6"] };
+const DROP_LOOK = { hose: ["#7cc8ff", "#2a6fd6"], sprinkle: ["#c4ecff", "#3d8fe0"], squirt: ["#a5f3ff", "#0fa3b8"], octo: ["#d5c2ff", "#6a3fd6"], mane: ["#bfe6ff", "#d08a12"] };
 function renderHose() {
   const r = round, Y = r.Y;
   drawYard();
@@ -1725,9 +2046,9 @@ function renderHose() {
   drawHoseLine(r);
   // y-sorted scene
   const items = [];
-  for (const o of Y.solids) items.push({ y: o.type === "rect" ? o.y + o.h : o.y + o.r * 0.6, f: () => o.name === "shed" ? drawShed(o) : drawTramp(o) });
-  items.push({ y: Y.line0.y + 36, f: () => drawLaundry(Y) });
-  for (const o of Y.bushes) items.push({ y: o.y + 12, f: () => drawBush(o, r.foes.some(p => p.weapon === "squirt" && p.st === "lurk" && p.bush === o)) });
+  for (const o of Y.solids) items.push({ y: o.type === "rect" ? o.y + o.h : o.y + o.r * 0.6, f: () => drawSolid(o) });
+  items.push({ y: Y.line0.y + 36, f: () => drawLine(Y) });
+  for (const o of Y.bushes) items.push({ y: o.y + 12, f: () => drawHide(o, r.foes.some(p => p.weapon === "squirt" && p.st === "lurk" && p.bush === o)) });
   items.push({ y: r.player.y, f: () => drawKid(r.player, r.wet) });
   for (const p of r.foes) items.push({ y: p.y + (p.weapon === "rain" ? 1000 : 0), f: () => drawYardPet(r, p) });
   items.sort((a, b) => a.y - b.y);
@@ -1812,8 +2133,8 @@ function finishRound() {
   // best stars per pet
   const bp = saved.best.pets[r.pet.id] || (saved.best.pets[r.pet.id] = { wash: 0, hose: 0 });
   bp[r.kind] = Math.max(bp[r.kind] || 0, res.stars);
-  if (r.kind === "hose") { saved.reached = Math.max(saved.reached, Math.min(PETS.length, r.i + 2)); store.set(V2 + "reached", saved.reached); }
-  store.set(V2 + "best", saved.best);
+  if (r.kind === "hose") { saved.reached = Math.max(saved.reached, Math.min(PETS.length, r.i + 2)); store.set(MINE + "reached", saved.reached); }
+  store.set(MINE + "best", saved.best);
   mode = "result";
   $("tools").hidden = true; showHud(false); hideScreens();
   const s = $("result-screen"); s.hidden = false;
@@ -1847,17 +2168,25 @@ function showIntro(i, kind) {
   round = null; mode = "intro"; paused = false;
   hideScreens(); showHud(false); $("tools").hidden = true;
   $("intro-screen").hidden = false;
+  const place = placeOf(i);
   $("intro-kicker").textContent = `Pet ${i + 1} of ${PETS.length} · Round ${kind === "wash" ? 1 : 2}`;
+  // which place this payback round is in (and, before a wash, where the payback will be)
+  const chip = $("intro-place");
+  chip.textContent = kind === "wash" ? `Payback next: ${place.short || place.name}` : place.id === "backyard" ? "In the backyard" : `At school: ${place.short || place.name}`;
+  chip.className = "place pl-" + place.id + (kind === "wash" ? " soft" : "");
+  const firstHere = kind === "hose" && i > 0 && placeOf(i - 1).id !== place.id && (!run || run.start < i);
   const crew = lineupFor(i).map(id => PET[id]);
   const secs = Math.min(30, pet.hoseTime + 2 * (crew.length - 1));
   $("intro-title").textContent = kind === "wash" ? (pet.washTitle || `Wash ${fullName(pet)}!`)
     : crew.length === 1 ? (pet.weapon === "hose" ? `Payback! ${pet.name} has the hose!` : `Payback! ${pet.name} has ${pet.gear}!`)
     : `Payback! ${pet.name} joins in!`;
-  $("intro-tip").textContent = kind === "wash" ? pet.washTip : pet.hoseTip;
+  $("intro-tip").textContent = kind === "wash" ? pet.washTip
+    : (firstHere ? `New place: ${place.the}! ` : "") + placeText(pet.hoseTip, place);
+  const hide = place.id === "classroom" ? "Hide behind the desks" : `Hide behind the ${place.cover}`;
   $("intro-how").textContent = kind === "wash"
     ? `Drag over each spot: SOAP the mud, RINSE the bubbles, TOWEL it dry. ${pet.washTime} seconds!`
-    : crew.length === 1 ? `Run with the arrow keys, WASD, or drag anywhere. Hide behind things. Stay dry for ${secs} seconds!`
-    : `All ${crew.length} are after you: ${crew.map(p => `${p.name} (${GEAR[p.weapon].label.toLowerCase()})`).join(", ")}. Stay dry for ${secs} seconds!`;
+    : crew.length === 1 ? `Run with the arrow keys, WASD, or drag anywhere. ${hide}. Stay dry for ${secs} seconds!`
+    : `All ${crew.length} are after you: ${crew.map(p => `${p.name} (${GEAR[p.weapon].label.toLowerCase()})`).join(", ")}. ${hide}. Stay dry for ${secs} seconds!`;
   $("go-btn").dataset.kind = kind; $("go-btn").dataset.i = i;
   drawPetPic($("intro-pet"), pet.id, kind === "hose" ? "sly" : "grumpy", kind === "wash" ? makeSpots(pet) : null);
   sfx(pet.voice);
@@ -1870,7 +2199,7 @@ function drawPetPic(cv, id, mood, spots, locked) {
   const k = Math.min(cv.width / 300, cv.height / 290);
   c.setTransform(k, 0, 0, k, cv.width / 2, cv.height / 2 + 30 * k);
   if (locked) { c.globalAlpha = 1; c.font = "900 150px system-ui, sans-serif"; c.textAlign = "center"; c.textBaseline = "middle"; c.fillStyle = "#c9bedc"; c.fillText("?", 0, -30); }
-  else drawPet(id, { t: 1, mood, blink: false, tense: false, flap: false, hop: false, wet: 0, lid: PET[id].lid }, spots);
+  else drawPet(id, { t: 1, mood, blink: false, tense: false, flap: false, hop: false, wet: 0, lid: PET[id].lid, maneClean: spots ? 0 : 1 }, spots);
   c.setTransform(1, 0, 0, 1, 0, 0);
   g = prev;
 }
@@ -1897,7 +2226,7 @@ function showFinal() {
   $("final-total").textContent = `${total} points`;
   let best = "";
   if (run.start === 0) {
-    if (total > (saved.best.total || 0)) { saved.best.total = total; store.set(V2 + "best", saved.best); best = '<span class="new-best">New best score!</span>'; }
+    if (total > (saved.best.total || 0)) { saved.best.total = total; store.set(MINE + "best", saved.best); best = '<span class="new-best">New best score!</span>'; }
     else best = `<span class="muted">Best: ${saved.best.total} points</span>`;
   } else best = `<span class="muted">Start from Biscuit to set a best score.</span>`;
   $("final-best").innerHTML = best;
@@ -1908,8 +2237,9 @@ function showFinal() {
 }
 function updateTitleBest() {
   $("title-best").textContent = saved.best.total ? `Best score: ${saved.best.total} points`
-    : old.best.total ? `Your best with 5 pets (jeremy.v1): ${old.best.total} points. Now there are 9!`
-    : "Nine pets. Two rounds each. One very wet backyard.";
+    : v2.best.total ? `Your best with 9 pets (jeremy.v2): ${v2.best.total} points. Now Leo makes 10!`
+    : old.best.total ? `Your best with 5 pets (jeremy.v1): ${old.best.total} points. Now there are 10!`
+    : "Ten pets. Two rounds each. Four places to get soaked.";
 }
 function showTitle() {
   mode = "title"; round = null; paused = false;
@@ -1923,7 +2253,7 @@ function showPets() {
   hideScreens(); $("pets-screen").hidden = false;
   const grid = $("pet-grid"); grid.innerHTML = "";
   PETS.forEach((p, i) => {
-    const open = i < saved.reached;
+    const open = isOpen(i);
     const b = document.createElement("button");
     b.className = "petcard"; b.disabled = !open; b.dataset.i = i;
     const cv = document.createElement("canvas"); cv.width = 144; cv.height = 120;
@@ -1931,7 +2261,11 @@ function showPets() {
     const bp = bestStars(p.id);
     const nm = document.createElement("span"); nm.className = "nm"; nm.textContent = open ? p.name : (p.surprise ? "Surprise!" : "???");
     const st = document.createElement("span"); st.className = "st"; st.textContent = open ? `★${bp.wash} ☂${bp.hose}` : "locked";
-    b.appendChild(nm); b.appendChild(st);
+    // the place its payback round is in
+    const pl = placeOf(i), where = document.createElement("span");
+    where.className = "place pl-" + pl.id; where.textContent = pl.short || pl.name;
+    b.appendChild(nm); b.appendChild(st); b.appendChild(where);
+    if (p.isNew) { const nw = document.createElement("span"); nw.className = "newpet"; nw.textContent = "NEW!"; b.appendChild(nw); }
     b.addEventListener("click", () => { sfx("click"); newRun(i); });
     grid.appendChild(b);
     drawPetPic(cv, p.id, "happy", null, !open);
@@ -2034,6 +2368,10 @@ function renderTitle() {
   drawTubBack(L);
   const T = { x: L.cx + Math.sin(now * 1.2) * 24 * L.k, y: L.baseY, rot: Math.sin(now * 1.6) * 0.05, k: L.k };
   const pose = { t: now, mood: "ok", blink: Math.sin(now * 0.9 + 1.3) > 0.985, wet: 0 };
+  // Leo the Lion waits his turn at the back of the tub, mane all muddy, and roars now and then
+  const roar = (now % 7) > 6.2 ? Math.sin(Math.PI * ((now % 7) - 6.2) / 0.8) : 0;
+  g.save(); g.translate(L.cx - 112 * L.k, L.baseY + 6 * L.k + Math.sin(now * 2) * 3 * L.k); g.rotate(-0.12 + Math.sin(now * 1.3) * 0.05); g.scale(L.k * 0.62, L.k * 0.62);
+  drawPet("lion", { t: now, mood: "happy", blink: false, wet: 0, maneClean: 0.3, roar, puff: roar }, null, "body"); g.restore();
   g.save(); g.translate(T.x, T.y); g.rotate(T.rot); g.scale(T.k, T.k); drawPet("dog", pose, titleRound.spots, "body"); g.restore();
   drawTubFront(L);
   g.save(); g.translate(T.x, T.y); g.rotate(T.rot); g.scale(T.k, T.k); drawPet("dog", pose, null, "paws"); g.restore();
@@ -2087,11 +2425,11 @@ requestAnimationFrame(frame);
 window.__pwp = {
   get mode() { return mode; }, get paused() { return paused; }, get round() { return round; }, get run() { return run; },
   get layout() { return { U, W, H }; }, get ptr() { return ptr; }, get keys() { return keys; },
-  pets: PETS, HP, PLAYER_SPEED, GEAR, maxChasers, lineupFor,
+  pets: PETS, HP, PLAYER_SPEED, GEAR, maxChasers, lineupFor, PLACES, placeOf: i => placeOf(i).id, spotMax, MANE_HP,
   start(i, kind = "wash", lineup) { if (!run) run = { start: i, index: i, scores: [] }; run.index = i; beginRound(i, kind, lineup); },
   petScreen() { const r = round, T = petTransform(r, washLayout()); return { x: T.x * U, y: (T.y - 10 * T.k) * U, lx: T.x, ly: T.y - 10 * T.k }; },
-  saved: () => ({ best: saved.best, reached: saved.reached, old }),
-  newRun, freeze(on) { frozen = !!on; },
+  saved: () => ({ best: saved.best, reached: saved.reached, old, v2 }),
+  newRun, showIntro, freeze(on) { frozen = !!on; },
   tick(dt = 1 / 60, n = 1) { for (let k = 0; k < n; k++) { update(dt); if (mode !== "wash" && mode !== "hose") break; } render(); return mode; },
   spotScreen(j) { const r = round, L = washLayout(), w = toWorld(petTransform(r, L), r.spots[j].x, r.spots[j].y); return { x: w.x * U, y: w.y * U }; },
   spotLogical(j) { const r = round, L = washLayout(); return toWorld(petTransform(r, L), r.spots[j].x, r.spots[j].y); },

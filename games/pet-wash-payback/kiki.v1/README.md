@@ -47,7 +47,7 @@ Update idea from Jeremy (game idea #163), word for word:
 
 > Fun! Make it so there are more and funnier types of animals. 10 squirrels. a bird flying around etc. Then make it so you have to escape from all the animals in future rounds. give them all different ways to get you wet. only 1 with hose. waterguns. etc.
 
-Started from jeremy.v1. Four new animals join the wash (the Nutty Gang, 10 squirrels in one tub; Pickles the parrot, who flies around the bathroom until you tap him; Bubbles the hippo, who keeps sinking; Inky the octopus, who grabs your tools), and every payback round now has all the animals you've washed so far chasing you at once, each with its own way to get you wet. Only Biscuit has the hose.
+Started from jeremy.v1. Four new animals join the wash (the Nutty Gang, 10 squirrels in one tub; Pickles the parrot, who flies around the bathroom until you tap him; Bubbles the hippo, who keeps sinking; Inky the octopus, who grabs your tools), and every payback round now has all the animals you've washed so far after you at once, each with its own way to get you wet. Only Biscuit has the hose.
 
 ### What's new
 
@@ -81,3 +81,43 @@ With more pets in the yard, the round gets a little longer, each pet waits a lit
 jeremy.v1 saved `gameon.pet-wash-payback.best`, `.reached` and `.muted`. This version reads all three and never changes `best` or `reached`: the pets you reached there are open here, your best stars there show in **Pick a pet**, and your jeremy.v1 best score shows on the title screen until you set one here. It keeps its own progress in `gameon.pet-wash-payback.jeremy.v2.best` and `gameon.pet-wash-payback.jeremy.v2.reached`, and shares the sound setting (`muted`) with jeremy.v1.
 
 Evidence: `tests/evidence/163-pet-wash-payback-jeremy-v2.spec.mjs`, with `window.__pwp` hooks as in jeremy.v1 (plus `start(i, kind, lineup)` and `petScreen()`).
+
+## kiki.v1: Leo the Lion and a new place to run
+
+Update idea from Kiki (game idea jwildfire/gameon-ideas#6), a fork of jeremy.v2 (jeremy.v2 stays the game's default):
+
+> Meet Leo the Lion, plus a brand-new place to escape the soggy payback!
+
+The kid's own words are in the private idea jwildfire/gameon-ideas#6.
+
+Started from jeremy.v2. Leo the Lion is the 10th pet, and after three payback rounds in the backyard the payback moves to school: a hallway, a classroom and a playground.
+
+### Leo the Lion
+
+Ten pets now, in this order: Biscuit, Mittens, the Nutty Gang, Clover, Pickles, Truffle, Bubbles, Inky, **Leo** and the surprise pet. Leo is open in **Pick a pet** from the start (marked NEW!), so you can go straight to him.
+
+- **In the tub:** his huge mane is muddy brown and turns golden as it gets clean. Mud spots out in the mane take extra soaping (1.75 times as much as a normal spot).
+- **The roar:** every six seconds or so his mane puffs up as he takes a big breath ("rinse the bubbles!"), then he lets out a silly ROAR that ends in a squeak. It blows the bubbles off one soapy spot, which goes back to mud. Rinse soapy spots before he roars. (At most four spots per bath.)
+- **All clean:** he shakes his mane dry, FWOOMF, and drops fly everywhere.
+- **Payback: the mane shake.** He runs up close, stops, and his mane puffs up (with a **!**): that's the warning. Then he shakes, and two rings of drops fly out all around him. Get away, or put something solid between you.
+
+### The school
+
+Which place each payback round is in:
+
+| Pets | Place | Cover | Mittens hides in |
+|---|---|---|---|
+| Biscuit, Mittens, the Nutty Gang | the backyard | the shed and the trampoline | the bushes |
+| Clover, Pickles | the school hallway | two banks of lockers (and paintings drying on a line) | backpack piles |
+| Truffle, Bubbles | the classroom | two rows of desks and the teacher's desk | beanbags |
+| Inky, Leo, the surprise pet | the school playground | the slide and the climbing frame (and the swings) | bushes |
+
+Every animal keeps its own way of getting you wet; only Biscuit has the hose, and at school it's hooked up to the drinking fountain. The round intro shows the place (and, before a wash, where that pet's payback will be), and so does each card in **Pick a pet**.
+
+Everything else is as in jeremy.v2: the nine pets, the controls, the chaser cap, the stars and the look. One fix: in jeremy.v2 a finished wash also showed "Time's up!" and played the soaked sound; here it says "Squeaky clean!".
+
+### Saves
+
+This version reads jeremy.v1's keys (`best`, `reached`) and jeremy.v2's (`jeremy.v2.best`, `jeremy.v2.reached`) and never changes them: pets you reached there are open here, your best stars from either show in **Pick a pet**, and your jeremy.v2 (or jeremy.v1) best score shows on the title until you set one here. It keeps its own progress in `gameon.pet-wash-payback.kiki.v1.best` and `gameon.pet-wash-payback.kiki.v1.reached`, and shares the sound setting (`muted`).
+
+Evidence: `tests/evidence/ideas-6-pet-wash-payback-kiki-v1.spec.mjs`, with the same `window.__pwp` hooks (plus `placeOf(i)`, `PLACES`, `spotMax` and `MANE_HP`).
