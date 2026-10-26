@@ -238,6 +238,8 @@ test("Claw of Cool has a card in the arcade and plays in its frame", async ({ pa
   await expect(card.locator(".cover img")).toHaveJSProperty("complete", true);
   expect(await card.locator(".cover img").evaluate(img => img.naturalWidth)).toBe(800);
   await card.click();
+  // since jeremy.v2 (game idea #203) the card has two versions and opens the version picker first; this checks jeremy.v1
+  await page.locator('#ver-list .ver-item[data-version="jeremy.v1"]').click();
   await expect(page.locator("#bar-title")).toHaveText("Claw of Cool");
   const frame = page.frameLocator("#frame");
   if (isMobile) await frame.locator("#play-btn").tap(); else await frame.locator("#play-btn").click();
