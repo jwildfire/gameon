@@ -1,8 +1,11 @@
-// Pet Wash Payback, jeremy.v2. Designed by Jeremy (GameOn game idea #157; update idea #163).
+// Pet Wash Payback, jeremy.v3. Designed by Jeremy (GameOn game idea #157; update ideas #163 and
+// jwildfire/gameon-ideas#3). New in jeremy.v3: Survival mode (see "survival" below). The normal game
+// is jeremy.v2's, unchanged.
 // Round 1: scrub, rinse and towel a muddy pet before the timer runs out. Now there are nine pets,
 // including a gang of 10 squirrels, a parrot you have to catch first, a hippo and an octopus.
 // Round 2: payback! Every animal you've washed so far chases you around the backyard at once, each
 // with its own way to get you wet. Only Biscuit has the hose.
+// Survival: no timer. More and more animals join the chase until the wet meter hits 100%.
 // Plain canvas + WebAudio, no network, no libraries. Everything is drawn in code.
 (() => {
 "use strict";
@@ -15,7 +18,9 @@ const INK = "#2a2140";
 const TAU = Math.PI * 2;
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
 const lerp = (a, b, t) => a + (b - a) * t;
-const rnd = (a = 0, b = 1) => a + Math.random() * (b - a);
+// the game's dice. Math.random, unless the evidence checks seed it (__pwp.seed); the sound keeps Math.random
+let rand = Math.random;
+const rnd = (a = 0, b = 1) => a + rand() * (b - a);
 const ease = t => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
 function mulberry(seed) {
   return () => {
@@ -27,11 +32,12 @@ function mulberry(seed) {
 }
 
 // ---------------------------------------------------------------- saves
-// All versions share gameon.pet-wash-payback.*. jeremy.v1 saved best, reached and muted there.
-// This version only reads jeremy.v1's best and reached (and never writes them), shares muted (same
-// format), and keeps its own progress under gameon.pet-wash-payback.jeremy.v2.*
+// All versions share gameon.pet-wash-payback.*. jeremy.v1 saved best, reached and muted there, and
+// jeremy.v2 saved jeremy.v2.best and jeremy.v2.reached. This version reads all of those and never
+// writes them, shares muted (same format), and keeps its own progress under
+// gameon.pet-wash-payback.jeremy.v3.* (best, reached, and survival for Survival mode).
 const KEY = "gameon.pet-wash-payback.";
-const V2 = "jeremy.v2.";
+const V2 = "jeremy.v2.", V3 = "jeremy.v3.";
 const store = {
   get(k, d) { try { const v = localStorage.getItem(KEY + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
   set(k, v) { try { localStorage.setItem(KEY + k, JSON.stringify(v)); } catch (e) { /* storage blocked: play on */ } }
@@ -39,7 +45,14 @@ const store = {
 const cleanBest = b => (b && typeof b === "object" ? { total: +b.total || 0, pets: b.pets && typeof b.pets === "object" ? b.pets : {} } : { total: 0, pets: {} });
 const V1_ORDER = ["dog", "cat", "bunny", "pig", "duck"];
 const old = { best: cleanBest(store.get("best", null)), reached: clamp(+store.get("reached", 1) || 1, 1, 5) };
-const saved = { best: cleanBest(store.get(V2 + "best", null)), reached: +store.get(V2 + "reached", 0) || 0 };
+const prev = { best: cleanBest(store.get(V2 + "best", null)), reached: +store.get(V2 + "reached", 0) || 0 };   // jeremy.v2, read only
+const saved = { best: cleanBest(store.get(V3 + "best", null)), reached: +store.get(V3 + "reached", 0) || 0 };
+// Survival mode's best: { best: seconds, animals: how many were chasing then, runs }
+const SURV_KEY = V3 + "survival";
+const cleanSurv = v => (v && typeof v === "object"
+  ? { best: Math.max(0, +v.best || 0), animals: Math.max(0, Math.round(+v.animals || 0)), runs: Math.max(0, Math.round(+v.runs || 0)) }
+  : { best: 0, animals: 0, runs: 0 });
+const surv = cleanSurv(store.get(SURV_KEY, null));
 
 // ---------------------------------------------------------------- pets
 const TOOLS = ["soap", "rinse", "towel"];
@@ -96,12 +109,14 @@ const PET = Object.fromEntries(PETS.map(p => [p.id, p]));
 const fullName = p => p.full || `${p.name} the ${p.kind}`;
 // What jeremy.v1 unlocked carries over: every pet up to the last one you reached there.
 const v1Reach = 1 + Math.max(...V1_ORDER.slice(0, old.reached).map(id => PETS.findIndex(p => p.id === id)));
-saved.reached = clamp(Math.max(saved.reached, v1Reach), 1, PETS.length);
-// best stars per pet: this version's, or jeremy.v1's if those are better
+saved.reached = clamp(Math.max(saved.reached, v1Reach, prev.reached), 1, PETS.length);
+// best stars per pet: this version's, or jeremy.v2's or jeremy.v1's if those are better
 function bestStars(id) {
-  const a = saved.best.pets[id] || {}, b = old.best.pets[id] || {};
-  return { wash: Math.max(+a.wash || 0, +b.wash || 0), hose: Math.max(+a.hose || 0, +b.hose || 0) };
+  const a = saved.best.pets[id] || {}, b = old.best.pets[id] || {}, c = prev.best.pets[id] || {};
+  return { wash: Math.max(+a.wash || 0, +b.wash || 0, +c.wash || 0), hose: Math.max(+a.hose || 0, +b.hose || 0, +c.hose || 0) };
 }
+// the best total score for a run from Biscuit: this version's, or jeremy.v2's
+const bestTotal = () => Math.max(saved.best.total || 0, prev.best.total || 0);
 
 // The Nutty Gang: one squirrel per spot, each with a muddy belly, scattered around the tub.
 const GANG_HOME = [[-112, 14], [-62, 4], [-12, 10], [38, 2], [88, 14], [-92, 52], [-40, 46], [12, 54], [62, 48], [112, 56]];
@@ -757,7 +772,7 @@ const WASH_MOVES = {
     if (b.shaking > 0) {
       b.shaking -= dt;
       r.off.rot += Math.sin(r.t * 42) * 0.2; r.off.x += Math.sin(r.t * 37) * 9;
-      if (Math.random() < dt * 30) { const L = washLayout(), T = petTransform(r, L); puff(T.x + rnd(-90, 90) * L.k, T.y + rnd(-60, 40) * L.k, "drop", 1, { min: 120, max: 260, rmin: 4, rmax: 7 }); }
+      if (rand() < dt * 30) { const L = washLayout(), T = petTransform(r, L); puff(T.x + rnd(-90, 90) * L.k, T.y + rnd(-60, 40) * L.k, "drop", 1, { min: 120, max: 260, rmin: 4, rmax: 7 }); }
     }
   },
   cat(r, dt) {
@@ -870,7 +885,7 @@ const WASH_MOVES = {
     if (b.sinkT <= 0 && b.under <= 0) { b.under = 2.3; b.sinkT = rnd(5.5, 7); sfx("hrumph"); showTip("Glub glub... she sank!", 1.2); }
     if (b.under > 0) {
       b.under -= dt;
-      if (Math.random() < dt * 8) { const L = washLayout(); puff(L.cx + rnd(-90, 90) * L.k, L.rimY - 6, "bubble", 1, { angle: -Math.PI / 2, spread: 0.4, min: 30, max: 90, rmin: 5, rmax: 12, life: 1.4 }); if (Math.random() < 0.4) sfx("blub"); }
+      if (rand() < dt * 8) { const L = washLayout(); puff(L.cx + rnd(-90, 90) * L.k, L.rimY - 6, "bubble", 1, { angle: -Math.PI / 2, spread: 0.4, min: 30, max: 90, rmin: 5, rmax: 12, life: 1.4 }); if (rand() < 0.4) sfx("blub"); }
       if (b.under <= 0) { const L = washLayout(); puff(L.cx, L.rimY - 10, "drop", 22, { angle: -Math.PI / 2, spread: 1.3, min: 160, max: 340, rmin: 4, rmax: 8 }); sfx("splash"); showTip("FWOOSH! She's back up!", 1); }
     }
     b.depth = lerp(b.depth, b.under > 0 ? 1 : 0, 1 - Math.exp(-dt * 7));
@@ -937,14 +952,14 @@ function updateWash(dt) {
         if (s.hp <= 0) advanceSpot(r, s, T);
       } else wrong = s.stage;
     }
-    if (tool === 0 && moved > 1 && Math.random() < 0.6) puff(ptr.x, ptr.y, "bubble", 1, { min: 10, max: 60, rmin: 3, rmax: 9, life: 1.4 });
-    if (tool === 2 && moved > 2 && Math.random() < 0.3) puff(ptr.x, ptr.y, "fluff", 1, { min: 10, max: 50 });
+    if (tool === 0 && moved > 1 && rand() < 0.6) puff(ptr.x, ptr.y, "bubble", 1, { min: 10, max: 60, rmin: 3, rmax: 9, life: 1.4 });
+    if (tool === 2 && moved > 2 && rand() < 0.3) puff(ptr.x, ptr.y, "fluff", 1, { min: 10, max: 50 });
     if (tool === 0 && scrubbing && r.pet.id === "duck") r.b.flap = 0.3;
     if (scrubbing && moved > 1.5) { r.scrubSound -= dt; if (r.scrubSound <= 0) { r.scrubSound = 0.09; if (tool !== 1) sfx("scrub"); } }
   } else r.prevLocal = null;
   // the rinse shower sprays whether or not it hits
   Sound.loop("rinse", ptr.down && !r.over && r.tool === 1 && !paused, 2200, 0.1);
-  if (ptr.down && r.tool === 1 && !r.over && Math.random() < 0.8) puff(ptr.x + rnd(-8, 8), ptr.y + rnd(-6, 6), "drop", 1, { angle: Math.PI / 2, spread: 0.9, min: 40, max: 120, rmin: 3, rmax: 6, life: 0.6 });
+  if (ptr.down && r.tool === 1 && !r.over && rand() < 0.8) puff(ptr.x + rnd(-8, 8), ptr.y + rnd(-6, 6), "drop", 1, { angle: Math.PI / 2, spread: 0.9, min: 40, max: 120, rmin: 3, rmax: 6, life: 0.6 });
   // a hint when you're using the wrong tool
   if (wrong >= 0 && !scrubbing) { r.wrongT += dt; if (r.wrongT > 0.35 && r.hintT <= 0) { showTip(`That spot needs ${TOOL_NAMES[wrong]}! (${wrong + 1})`, 1.4); r.hintT = 2.2; r.wrongT = 0; } }
   else r.wrongT = Math.max(0, r.wrongT - dt);
@@ -956,7 +971,7 @@ function updateWash(dt) {
   for (let i = 0; i < 3; i++) $("tool-" + i).classList.toggle("want", i === need);
   // all clean?
   if (!r.over && r.spots.every(s => s.stage >= 3)) endWash(true);
-  if (r.over) { r.endT -= dt; if (r.done) { if (Math.random() < 0.5) { T = petTransform(r, L); puff(T.x + rnd(-100, 100) * L.k, T.y + rnd(-120, 60) * L.k, "spark", 1, { min: 5, max: 40, rmin: 6, rmax: 12 }); } } if (r.endT <= 0) finishRound(); }
+  if (r.over) { r.endT -= dt; if (r.done) { if (rand() < 0.5) { T = petTransform(r, L); puff(T.x + rnd(-100, 100) * L.k, T.y + rnd(-120, 60) * L.k, "spark", 1, { min: 5, max: 40, rmin: 6, rmax: 12 }); } } if (r.endT <= 0) finishRound(); }
   updateHud();
 }
 function advanceSpot(r, s, T) {
@@ -1191,7 +1206,7 @@ function walk(r, e, tx, ty, speed, dt, rad, keep = 0) {
   e.x += vx * step; e.y += vy * step;
   pushOut(r.Y, e, rad);
   const moved = Math.hypot(e.x - ox, e.y - oy);
-  if (moved < step * 0.35 && !(e.detour > 0)) { e.detour = 0.7; e.detourSide = Math.random() < 0.5 ? 1 : -1; }
+  if (moved < step * 0.35 && !(e.detour > 0)) { e.detour = 0.7; e.detourSide = rand() < 0.5 ? 1 : -1; }
   if (moved > 0.1) e.dir = Math.atan2(e.y - oy, e.x - ox);
 }
 function nozzle(p) { return { x: p.x + Math.cos(p.aim) * 24, y: p.y - p.z + Math.sin(p.aim) * 24 - 6 }; }
@@ -1281,7 +1296,7 @@ const WEAPONS = {
     if (p.st === "move" && p.timer <= 0 && d < P.range) {
       p.st = "rest"; p.timer = P.rest;
       const t = leadSpot(r, 0.3);
-      r.buckets.push({ x: t.x, y: t.y, sx: p.x, sy: p.y - 40, t: 0, dur: P.aim, dmg: P.dmg, who: p.id });
+      r.buckets.push({ x: t.x, y: t.y, sx: p.x, sy: p.y - 40, t: 0, dur: P.aim, dmg: P.dmg, who: p.id, src: p });
       sfx("creak"); sfx("chitter");
     }
   },
@@ -1338,7 +1353,7 @@ const WEAPONS = {
     p.timer -= dt;
     p.mudT = (p.mudT == null ? 1.2 : p.mudT) - dt;
     if (p.jumpT > 0) { p.jumpT -= dt; p.z = Math.sin(Math.PI * clamp(1 - p.jumpT / 0.35, 0, 1)) * 26; } else p.z = 0;
-    if (p.mudT <= 0 && p.st === "move") { p.mudT = 1.4; r.puddles.push({ x: p.x, y: p.y + 8, r: 34, life: 11 }); if (r.puddles.length > 8) r.puddles.shift(); if (Math.random() < 0.4) sfx("oink"); }
+    if (p.mudT <= 0 && p.st === "move") { p.mudT = 1.4; r.puddles.push({ x: p.x, y: p.y + 8, r: 34, life: 11 }); if (r.puddles.length > 8) r.puddles.shift(); if (rand() < 0.4) sfx("oink"); }
     if (p.st === "move") {
       walk(r, p, me.x, me.y, P.speed, dt, PET_R, 60);
       if (p.timer <= 0) {
@@ -1450,14 +1465,106 @@ function rotateBench(r, dt) {
   r.foes[slot] = inn;
   r.bench.push(out);
   puff(inn.x, inn.y - 20, "spark", 8, { min: 30, max: 120, rmin: 5, rmax: 9 });
-  sfx("tagin"); showTip(`${inn.pet.name} tags in!`, 1.1);
+  sfx("tagin"); showTip(`${inn.nick || inn.pet.name} tags in!`, 1.1);
 }
 function benchSpot(r, j) { return { x: r.Y.x0 + 34 + j * 46, y: r.Y.y1 + 2 }; }
+
+// ---------------------------------------------------------------- survival (new in jeremy.v3)
+// No timer. Biscuit starts alone with the hose; another animal joins every SURV_EVERY seconds, in a
+// shuffled order, then repeats ("Mittens #2"), never a second hose. Up to the on-screen cap (as in the
+// payback rounds) they come into the yard; after that they wait on the fence and tag in, and each one
+// makes everyone attack a little more often (FURY). The run ends when the wet meter hits 100%.
+const SURV_EVERY = 5, FURY = 0.14;
+function shuffled(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+const NOT_HOSE = PETS.filter(p => p.weapon !== "hose").map(p => p.id);
+function startSurvival() {
+  run = null;
+  const Y = yardLayout();
+  round = { kind: "hose", surv: true, i: 0, pet: PETS[0], total: 0, time: 0, t: 0, Y, wet: 0, over: false, endT: 0,
+            player: { x: Y.x0 + Y.w * 0.3, y: Y.y0 + Y.h * 0.9, vx: 0, vy: 0, face: 1, step: 0, hitT: 0 },
+            foes: [], bench: [], drops: [], balloons: [], puddles: [], buckets: [], rain: [], waves: [], splats: [],
+            squelchT: 0, tickT: 0, hits: 0, wobble: 0, soaked: false, swapT: SURV_EVERY * 1.5, cap: maxChasers(), hitsBy: {},
+            crowd: 1, dm: 1, fury: 1, nextT: SURV_EVERY, queue: ["dog"], count: {}, ids: [] };
+  survJoin(round);
+  round.foe = round.foes[0];
+  mode = "hose"; paused = false;
+  hideScreens(); showHud(true); $("tools").hidden = true;
+  showTip("Survival! Stay dry!", 1.8);
+  Sound.startMusic("hose");
+  sfx("giggle");
+  updateHud();
+}
+function survJoin(r) {
+  if (!r.queue.length) r.queue = shuffled(NOT_HOSE);
+  if (r.ids.length === 1) r.queue = shuffled(NOT_HOSE);     // after Biscuit, the other eight in a new order each run
+  const id = r.queue.shift(), pet = PET[id];
+  r.count[id] = (r.count[id] || 0) + 1;
+  const all = r.foes.length + r.bench.length + 1;
+  r.crowd = Math.min(all, r.cap);
+  const f = makeFoe(r, id, all - 1);
+  f.nick = r.count[id] > 1 ? `${pet.name} #${r.count[id]}` : pet.name;
+  r.ids.push(id);
+  if (r.foes.length < r.cap) {
+    // in from the corner of the yard farthest from you, with a moment before the first attack
+    const Y = r.Y, far = SPAWN.map(([fx, fy]) => ({ x: Y.x0 + Y.w * fx, y: Y.y0 + Y.h * fy })).sort((a, b) => dist(b, r.player) - dist(a, r.player))[0];
+    if (pet.weapon !== "squirt") { f.x = far.x; f.y = far.y; pushOut(Y, f, PET_R); }
+    f.timer = pet.weapon === "squirt" ? 1.0 : 1.4; f.tagT = 2.6;
+    r.foes.push(f);
+    if (all > 1) { showTip(`${f.nick} joins the chase!`, 1.3); puff(f.x, f.y - 20, "spark", 10, { min: 30, max: 140, rmin: 5, rmax: 9 }); }
+  } else {
+    r.bench.push(f);
+    showTip(`${f.nick} is on the fence. Everyone attacks faster!`, 1.4);
+  }
+  if (all > 1) { sfx("tagin"); sfx(pet.voice); }
+  // as in the payback rounds: a busier yard waits a little longer between attacks and hits a bit softer...
+  for (const p of r.foes.concat(r.bench)) p.P.rest = GEAR[p.weapon].rest * (1 + 0.15 * (r.crowd - 1));
+  r.dm = 1 / (1 + 0.4 * (r.foes.length - 1));
+  // ...and every animal past the cap speeds up those waits for everyone
+  r.fury = 1 + FURY * Math.max(0, all - r.cap);
+}
+const SURV_RANKS = [[20, "Splashed!"], [40, "Puddle hopper"], [60, "Quick and dry"], [90, "Dodge master"], [130, "Towel? No thanks"], [1e9, "Bone-dry legend"]];
+let lastSurv = null;
+function finishSurvival(r) {
+  const secs = Math.floor(r.time * 10 + 1e-6) / 10, n = r.foes.length + r.bench.length;
+  const isBest = secs > surv.best;
+  surv.runs++;
+  if (isBest) { surv.best = secs; surv.animals = n; }
+  store.set(SURV_KEY, surv);
+  const top = Object.entries(r.hitsBy).sort((a, b) => b[1] - a[1])[0], who = top ? PET[top[0]] : null;
+  lastSurv = { secs, n, isBest, top: who && who.id };
+  mode = "survived";
+  showHud(false); hideScreens();
+  $("surv-screen").hidden = false;
+  $("surv-rank").textContent = SURV_RANKS.find(([t]) => secs < t)[1];
+  $("surv-time").textContent = fmtClock(secs, true);
+  $("surv-line").textContent = `You stayed dry for ${secs.toFixed(1)} seconds, with ${n} animal${n === 1 ? "" : "s"} chasing you.` +
+    (who ? ` ${who.name} got you most, with ${who.gear}.` : "");
+  $("surv-best").innerHTML = isBest ? '<span class="new-best">New best time!</span>'
+    : `<span class="muted">Best: ${fmtClock(surv.best, true)} with ${surv.animals} animals</span>`;
+  updateTitleBest();
+  sfx(isBest ? "win" : "soaked");
+  setTimeout(() => { try { $("surv-again").focus({ preventScroll: true }); } catch (e) {} }, 50);
+}
+function showSurvivalIntro() {
+  round = null; mode = "intro"; paused = false;
+  hideScreens(); showHud(false); $("tools").hidden = true;
+  $("intro-screen").hidden = false;
+  $("intro-kicker").textContent = "Survival mode";
+  $("intro-title").textContent = "How long can you last?";
+  $("intro-tip").textContent = "No timer! Biscuit starts with the hose, then more and more animals join the chase.";
+  $("intro-how").textContent = "Run with the arrow keys, WASD, or drag anywhere. Hide behind things. You're out when the wet meter hits 100%." +
+    (surv.best ? ` Your best: ${fmtClock(surv.best, true)} with ${surv.animals} animals.` : "");
+  $("go-btn").dataset.kind = "survival"; $("go-btn").dataset.i = 0;
+  drawPetPic($("intro-pet"), "dog", "sly", null);
+  sfx("bark");
+  setTimeout(() => { try { $("go-btn").focus({ preventScroll: true }); } catch (e) {} }, 50);
+}
 function updateHose(dt) {
   const r = round, Y = r.Y, me = r.player;
   r.t += dt;
   r.squelchT -= dt;
-  if (!r.over) { r.time -= dt; if (r.time <= 0) { r.time = 0; endHose(true); } }
+  if (r.surv) { if (!r.over) { r.time += dt; r.nextT -= dt; if (r.nextT <= 0) { r.nextT += SURV_EVERY; survJoin(r); } } }
+  else if (!r.over) { r.time -= dt; if (r.time <= 0) { r.time = 0; endHose(true); } }
   // you
   let ix = (keys.right ? 1 : 0) - (keys.left ? 1 : 0), iy = (keys.down ? 1 : 0) - (keys.up ? 1 : 0);
   if (joy) { const dx = joy.x - joy.sx, dy = joy.y - joy.sy, m = Math.hypot(dx, dy); if (m > 6) { ix += dx / Math.max(m, 44); iy += dy / Math.max(m, 44); } }
@@ -1471,10 +1578,15 @@ function updateHose(dt) {
   if (Math.abs(ix) > 0.1) me.face = ix > 0 ? 1 : -1;
   me.step += Math.hypot(me.vx, me.vy) * dt * 0.06;
   if (me.hitT > 0) me.hitT -= dt;
-  if (r.wet > 15 && Math.random() < dt * r.wet * 0.05) puff(me.x + rnd(-10, 10), me.y - 10, "drop", 1, { angle: Math.PI / 2, spread: 0.3, min: 10, max: 40, rmin: 3, rmax: 5, life: 0.5 });
+  if (r.wet > 15 && rand() < dt * r.wet * 0.05) puff(me.x + rnd(-10, 10), me.y - 10, "drop", 1, { angle: Math.PI / 2, spread: 0.3, min: 10, max: 40, rmin: 3, rmax: 5, life: 0.5 });
   // the pets
   r.hoseOn = false; r.tickOn = false;
-  if (!r.over) for (const p of r.foes) { p.inT += dt; if (p.tagT > 0) p.tagT -= dt; WEAPONS[p.weapon](r, p, dt); }
+  if (!r.over) for (const p of r.foes) {
+    p.inT += dt; if (p.tagT > 0) p.tagT -= dt;
+    // Survival, past the cap: the waits between attacks run faster (moving and spraying don't)
+    if (r.fury > 1 && (p.st === "move" || p.st === "rest" || p.st === "sneak")) { const x = dt * (r.fury - 1); p.timer -= x; if (p.throwT != null) p.throwT -= x; }
+    WEAPONS[p.weapon](r, p, dt);
+  }
   rotateBench(r, dt);
   Sound.loop("spray", r.hoseOn && !paused, 3200, 0.07);
   if (r.tickOn) { r.tickT -= dt; if (r.tickT <= 0) { r.tickT = 0.11; sfx("tick"); } }
@@ -1486,7 +1598,7 @@ function updateHose(dt) {
     let dead = d.life <= 0;
     if (!dead) for (const o of blockers(Y)) if (blocksAt(o, d.x, d.y)) { dead = true; if (o.name === "laundry") o.flap = 0.4; if (o.name === "bush") o.rustle = 0.3; break; }
     if (!dead && Math.hypot(d.x - me.x, d.y - (me.y - 8)) < PLAYER_R + d.r) { dead = true; getWet(r, d.dmg, d.who); puff(d.x, d.y, "drop", 2, { min: 40, max: 120 }); }
-    if (dead) { if (Math.random() < 0.3) puff(d.x, d.y, "drop", 1, { min: 20, max: 80, rmin: 3, rmax: 5, life: 0.4 }); r.drops.splice(i, 1); }
+    if (dead) { if (rand() < 0.3) puff(d.x, d.y, "drop", 1, { min: 20, max: 80, rmin: 3, rmax: 5, life: 0.4 }); r.drops.splice(i, 1); }
   }
   // water balloons: fly, bounce once, splash
   for (let i = r.balloons.length - 1; i >= 0; i--) {
@@ -1527,7 +1639,7 @@ function updateHose(dt) {
     if (!d) continue;
     d.vz += 620 * dt; d.z -= d.vz * dt;
     if (d.z <= 0) {
-      if (Math.random() < 0.5) sfx("plip");
+      if (rand() < 0.5) sfx("plip");
       puff(d.x, d.y, "drop", 3, { angle: -Math.PI / 2, spread: 1.2, min: 30, max: 90, rmin: 2, rmax: 4, life: 0.35 });
       if (Math.hypot(me.x - d.x, (me.y - d.y) * 1.3) < PLAYER_R + 6) getWet(r, d.dmg, d.who);
       r.rain.splice(i, 1);
@@ -1640,7 +1752,7 @@ function drawYardPet(r, p) {
   const sh = p.z > 0 ? clamp(1 - p.z / 120, 0.45, 1) : 1;
   ell(p.x, p.y + 8, 22 * sh * (p.id === "hippo" ? 1.5 : 1), 8 * sh, "rgba(0,0,0,0.22)", 0, null);
   // the bucket the squirrels carry (when it isn't up in the air)
-  if (p.weapon === "bucket" && !r.buckets.some(b => b.who === p.id)) drawBucket(p.x, p.y - 48 + Math.sin(now * 10) * 2, Math.sin(now * 4) * 0.1);
+  if (p.weapon === "bucket" && !r.buckets.some(b => b.src === p)) drawBucket(p.x, p.y - 48 + Math.sin(now * 10) * 2, Math.sin(now * 4) * 0.1);
   g.save(); g.translate(p.x, p.y - p.z - 22); g.scale(s, s);
   const pose = { t: now + p.k, mood: "sly", blink: false, tense: p.id === "cat", flap: p.st === "wind", hop: p.st === "hop", lid: p.pet.lid, flying: p.id === "parrot", wet: 0,
                  yawn: p.st === "jump" ? 0.8 : 0, grab: null, gang: p.gangPos };
@@ -1675,7 +1787,7 @@ function drawYardPet(r, p) {
 function drawTag(p) {
   if (!(p.tagT > 0) || !p.visible) return;
   g.globalAlpha = clamp(p.tagT, 0, 1);
-  const text = `${p.pet.name}: ${p.P.label}`;
+  const text = `${p.nick || p.pet.name}: ${p.P.label}`;
   g.font = "900 12px ui-rounded, system-ui, sans-serif";
   const w = g.measureText(text).width + 14, x = clamp(p.x, Y_of(round).x0 + w / 2, Y_of(round).x1 - w / 2), y = p.y - p.z - 92;
   rrect(x - w / 2, y - 10, w, 20, 10, "#fffaf0", INK, 2.5);
@@ -1684,7 +1796,14 @@ function drawTag(p) {
 }
 const Y_of = r => r.Y;
 function drawBench(r) {
-  r.bench.forEach((p, j) => {
+  // Survival can fill the fence: show as many as fit, then "+N"
+  const fit = Math.max(1, Math.floor((r.Y.w - 40) / 46)), shown = r.bench.length > fit ? fit - 1 : r.bench.length;
+  if (shown < r.bench.length) {
+    const b = benchSpot(r, shown), text = `+${r.bench.length - shown}`;
+    rrect(b.x - 20, b.y - 26, 40, 24, 12, "#fffaf0", INK, 2.5);
+    g.fillStyle = INK; g.font = "900 14px ui-rounded, system-ui, sans-serif"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(text, b.x, b.y - 13);
+  }
+  r.bench.slice(0, shown).forEach((p, j) => {
     const b = benchSpot(r, j), hop = Math.abs(Math.sin(now * 5 + j)) * 5;
     g.save(); g.translate(b.x, b.y - hop); g.scale(0.17, 0.17);
     drawPet(p.id, { t: now + j, mood: "happy", blink: false, wet: 0, lid: p.pet.lid, gang: p.gangPos, flying: false }, null);
@@ -1768,15 +1887,30 @@ function renderHose() {
 
 // ================================================================= flow
 function showHud(on) { $("hud").hidden = !on; }
-function hideScreens() { for (const id of ["title-screen", "pets-screen", "intro-screen", "result-screen", "pause-screen", "final-screen"]) $(id).hidden = true; }
+function hideScreens() { for (const id of ["title-screen", "pets-screen", "intro-screen", "result-screen", "pause-screen", "final-screen", "surv-screen"]) $(id).hidden = true; }
 function fmtTime(t) { const s = Math.ceil(t); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; }
+// a clock that counts up (Survival): 1:07, or 1:07.4 with tenths
+function fmtClock(t, tenths = false) {
+  const d = Math.floor(t * 10 + 1e-6), m = Math.floor(d / 600), s = (d % 600) / 10;
+  return `${m}:${String(Math.floor(s)).padStart(2, "0")}${tenths ? "." + (d % 10) : ""}`;
+}
 function updateHud() {
   if (!round) return;
   const r = round;
   const n = r.kind === "hose" ? r.foes.length + r.bench.length : 1;
-  $("hud-pet").textContent = n > 1 ? `${n} pets · Payback!` : `${r.pet.name} · ${r.kind === "wash" ? "Wash!" : "Payback!"}`;
-  $("hud-time").textContent = fmtTime(r.time);
-  $("hud-time").classList.toggle("hurry", r.time <= 5 && !r.over);
+  const hp = $("hud-pet"), ht = $("hud-time");
+  hp.classList.toggle("surv", !!r.surv); ht.classList.toggle("big", !!r.surv);
+  if (r.surv) {
+    // the pill fills up as the next animal gets closer
+    hp.textContent = `${n} chasing`;
+    hp.style.setProperty("--next", Math.round(clamp(1 - r.nextT / SURV_EVERY, 0, 1) * 100) + "%");
+    ht.textContent = fmtClock(r.time);
+    ht.classList.remove("hurry");
+  } else {
+    hp.textContent = n > 1 ? `${n} pets · Payback!` : `${r.pet.name} · ${r.kind === "wash" ? "Wash!" : "Payback!"}`;
+    ht.textContent = fmtTime(r.time);
+    ht.classList.toggle("hurry", r.time <= 5 && !r.over);
+  }
   const meter = $("hud-meter");
   if (r.kind === "wash") {
     meter.classList.remove("wet", "danger");
@@ -1805,6 +1939,7 @@ function finishRound() {
   const r = round;
   if (mode !== "wash" && mode !== "hose") return;
   Sound.quiet(); Sound.stopMusic();
+  if (r.surv) { finishSurvival(r); return; }
   const res = r.kind === "wash" ? washScore(r) : hoseScore(r);
   lastResult = { kind: r.kind, i: r.i, ...res };
   const slot = run.scores[r.i] || (run.scores[r.i] = {});
@@ -1812,8 +1947,8 @@ function finishRound() {
   // best stars per pet
   const bp = saved.best.pets[r.pet.id] || (saved.best.pets[r.pet.id] = { wash: 0, hose: 0 });
   bp[r.kind] = Math.max(bp[r.kind] || 0, res.stars);
-  if (r.kind === "hose") { saved.reached = Math.max(saved.reached, Math.min(PETS.length, r.i + 2)); store.set(V2 + "reached", saved.reached); }
-  store.set(V2 + "best", saved.best);
+  if (r.kind === "hose") { saved.reached = Math.max(saved.reached, Math.min(PETS.length, r.i + 2)); store.set(V3 + "reached", saved.reached); }
+  store.set(V3 + "best", saved.best);
   mode = "result";
   $("tools").hidden = true; showHud(false); hideScreens();
   const s = $("result-screen"); s.hidden = false;
@@ -1877,7 +2012,8 @@ function drawPetPic(cv, id, mood, spots, locked) {
 function beginRound(i, kind, lineup) {
   hideScreens();
   particles.length = 0;
-  if (kind === "wash") startWash(i); else startHose(i, lineup);
+  if (kind === "survival") startSurvival();
+  else if (kind === "wash") startWash(i); else startHose(i, lineup);
 }
 function newRun(start) {
   run = { start, index: start, scores: [] };
@@ -1897,8 +2033,8 @@ function showFinal() {
   $("final-total").textContent = `${total} points`;
   let best = "";
   if (run.start === 0) {
-    if (total > (saved.best.total || 0)) { saved.best.total = total; store.set(V2 + "best", saved.best); best = '<span class="new-best">New best score!</span>'; }
-    else best = `<span class="muted">Best: ${saved.best.total} points</span>`;
+    if (total > bestTotal()) { saved.best.total = total; store.set(V3 + "best", saved.best); best = '<span class="new-best">New best score!</span>'; }
+    else best = `<span class="muted">Best: ${bestTotal()} points</span>`;
   } else best = `<span class="muted">Start from Biscuit to set a best score.</span>`;
   $("final-best").innerHTML = best;
   const soaks = run.scores.filter(s => s && s.hose && s.hose.soaked).length;
@@ -1907,7 +2043,9 @@ function showFinal() {
   updateTitleBest();
 }
 function updateTitleBest() {
-  $("title-best").textContent = saved.best.total ? `Best score: ${saved.best.total} points`
+  $("title-surv").textContent = surv.best ? `Best survival: ${fmtClock(surv.best)} with ${surv.animals} animal${surv.animals === 1 ? "" : "s"} chasing`
+    : "New! Survival: no timer, and the animals keep coming. You're out at 100% wet.";
+  $("title-best").textContent = bestTotal() ? `Best score: ${bestTotal()} points`
     : old.best.total ? `Your best with 5 pets (jeremy.v1): ${old.best.total} points. Now there are 9!`
     : "Nine pets. Two rounds each. One very wet backyard.";
 }
@@ -1948,7 +2086,7 @@ function pause(on) {
 }
 function restartRound() {
   if (!round) return;
-  const i = round.i, kind = round.kind, ids = round.ids;
+  const i = round.i, kind = round.surv ? "survival" : round.kind, ids = round.ids;
   paused = false; $("pause-screen").hidden = true;
   Sound.quiet();
   beginRound(i, kind, ids);
@@ -2004,6 +2142,7 @@ window.addEventListener("keydown", e => {
     if (mode === "intro") { $("go-btn").click(); e.preventDefault(); }
     else if (mode === "result") { $("next-btn").click(); e.preventDefault(); }
     else if (mode === "title") { $("play-btn").click(); e.preventDefault(); }
+    else if (mode === "survived") { $("surv-again").click(); e.preventDefault(); }
   }
 });
 window.addEventListener("keyup", e => { const k = KEYMAP[e.code]; if (k) keys[k] = false; });
@@ -2012,6 +2151,9 @@ document.addEventListener("visibilitychange", () => { if (document.hidden && (mo
 
 $("play-btn").addEventListener("click", () => { Sound.init(); sfx("click"); newRun(0); });
 $("pets-btn").addEventListener("click", () => { Sound.init(); sfx("click"); showPets(); });
+$("surv-btn").addEventListener("click", () => { Sound.init(); sfx("click"); showSurvivalIntro(); });
+$("surv-again").addEventListener("click", () => { Sound.init(); sfx("click"); beginRound(0, "survival"); });
+$("surv-title").addEventListener("click", () => { sfx("click"); showTitle(); });
 $("pets-back").addEventListener("click", () => { sfx("click"); showTitle(); });
 $("go-btn").addEventListener("click", () => { Sound.init(); sfx("click"); beginRound(+$("go-btn").dataset.i, $("go-btn").dataset.kind); });
 $("next-btn").addEventListener("click", () => { sfx("click"); nextAfterResult(); });
@@ -2054,7 +2196,7 @@ function update(dt) {
   now += dt;
   if (tipTimer > 0) { tipTimer -= dt; if (tipTimer <= 0) $("tip").classList.add("fade"); }
   if (mode === "title" || mode === "pets") {
-    if (Math.random() < dt * 5) { const L = washLayout(); puff(L.cx + rnd(-1, 1) * L.tubW, L.rimY - 10, "bubble", 1, { angle: -Math.PI / 2, spread: 0.5, min: 20, max: 60, rmin: 5, rmax: 14, life: 3 }); }
+    if (rand() < dt * 5) { const L = washLayout(); puff(L.cx + rnd(-1, 1) * L.tubW, L.rimY - 10, "bubble", 1, { angle: -Math.PI / 2, spread: 0.5, min: 20, max: 60, rmin: 5, rmax: 14, life: 3 }); }
     updateParticles(dt);
     return;
   }
@@ -2087,11 +2229,13 @@ requestAnimationFrame(frame);
 window.__pwp = {
   get mode() { return mode; }, get paused() { return paused; }, get round() { return round; }, get run() { return run; },
   get layout() { return { U, W, H }; }, get ptr() { return ptr; }, get keys() { return keys; },
-  pets: PETS, HP, PLAYER_SPEED, GEAR, maxChasers, lineupFor,
+  pets: PETS, HP, PLAYER_SPEED, GEAR, maxChasers, lineupFor, fmtClock,
   start(i, kind = "wash", lineup) { if (!run) run = { start: i, index: i, scores: [] }; run.index = i; beginRound(i, kind, lineup); },
   petScreen() { const r = round, T = petTransform(r, washLayout()); return { x: T.x * U, y: (T.y - 10 * T.k) * U, lx: T.x, ly: T.y - 10 * T.k }; },
   saved: () => ({ best: saved.best, reached: saved.reached, old }),
   newRun, freeze(on) { frozen = !!on; },
+  seed(n) { rand = mulberry(n >>> 0); },
+  survival() { beginRound(0, "survival"); }, survivalIntro: () => showSurvivalIntro(), SURV_EVERY, get surv() { return { ...surv }; },
   tick(dt = 1 / 60, n = 1) { for (let k = 0; k < n; k++) { update(dt); if (mode !== "wash" && mode !== "hose") break; } render(); return mode; },
   spotScreen(j) { const r = round, L = washLayout(), w = toWorld(petTransform(r, L), r.spots[j].x, r.spots[j].y); return { x: w.x * U, y: w.y * U }; },
   spotLogical(j) { const r = round, L = washLayout(); return toWorld(petTransform(r, L), r.spots[j].x, r.spots[j].y); },

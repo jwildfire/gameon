@@ -32,6 +32,9 @@ button { font-family: var(--round); color: var(--ink); }
 #hud-pet { overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 0 1 auto; }
 #hud-time { font-variant-numeric: tabular-nums; min-width: 3.4em; text-align: center; flex: none; }
 #hud-time.hurry { background: #ffd0d0; animation: throb 0.5s infinite alternate; }
+/* Survival: a big clock that counts up, and the pet pill fills up as the next animal gets closer */
+#hud-time.big { font-size: 22px; padding: 1px 12px; background: #fff3b0; }
+#hud-pet.surv { background: linear-gradient(90deg, #ffd23f var(--next, 0%), rgba(255, 250, 240, 0.95) var(--next, 0%)); }
 @keyframes throb { to { transform: scale(1.08); } }
 #hud-meter { flex: 1 1 90px; min-width: 70px; max-width: 260px; display: flex; align-items: center; gap: 6px; padding: 3px 8px; }
 #meter-label { font-size: 12px; flex: none; }
@@ -86,6 +89,7 @@ h2.blue { color: #57c4ff; }
 .stars .on { color: var(--sun); -webkit-text-stroke: 2px var(--ink); paint-order: stroke fill; }
 .stars .off { color: #ddd5ea; -webkit-text-stroke: 2px #b4a8c8; paint-order: stroke fill; }
 .points { font: 900 26px var(--round); font-variant-numeric: tabular-nums; }
+.clock { font: 900 clamp(48px, 15vw, 72px) var(--round); font-variant-numeric: tabular-nums; color: #7fd4ff; -webkit-text-stroke: 3px var(--ink); paint-order: stroke fill; text-shadow: 4px 5px 0 var(--ink); line-height: 1; }
 .new-best { display: inline-block; justify-self: center; background: var(--sun); border: 2.5px solid var(--ink); border-radius: 999px; padding: 2px 12px; font-weight: 900; transform: rotate(-3deg); }
 .petpic { width: 180px; height: 150px; justify-self: center; }
 #pet-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
@@ -106,6 +110,7 @@ table.sum td.n { text-align: right; font-variant-numeric: tabular-nums; }
   #hud { font-size: 13px; gap: 4px; }
   .pill { padding: 3px 7px; }
   .hud-btn { width: 32px; height: 32px; }
+  #hud-time.big { font-size: 19px; padding: 1px 8px; }
   .tool { width: 88px; height: 72px; }
   .stars { font-size: 38px; }
 }
@@ -150,9 +155,11 @@ table.sum td.n { text-align: right; font-variant-numeric: tabular-nums; }
     <p class="tag">More silly animals, and now they all chase you with squirt guns, sprinklers and more!</p>
     <div class="row">
       <button class="btn" id="play-btn">Play!</button>
+      <button class="btn pink" id="surv-btn">Survival!</button>
       <button class="btn alt" id="pets-btn">Pick a pet</button>
     </div>
     <p class="muted" id="title-best"></p>
+    <p class="muted" id="title-surv"></p>
     <p class="keys">Round 1: drag over the mud to scrub. Soap <kbd>1</kbd>, rinse <kbd>2</kbd>, towel <kbd>3</kbd>. Tap the parrot to catch him.<br>Round 2: everyone you washed wants payback! Run with <kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd> or <kbd>WASD</kbd>, or drag anywhere. <kbd>P</kbd> pause · <kbd>R</kbd> restart · <kbd>M</kbd> sound</p>
     <p class="muted">Designed by Jeremy · GameOn</p>
   </div>
@@ -221,6 +228,21 @@ table.sum td.n { text-align: right; font-variant-numeric: tabular-nums; }
     <div class="row">
       <button class="btn" id="again-btn">Play again</button>
       <button class="btn alt" id="final-title-btn">Title screen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Survival result -->
+<div class="screen" id="surv-screen" hidden>
+  <div class="card">
+    <div class="kicker">Survival · SOAKED!</div>
+    <h2 id="surv-rank">Splashed!</h2>
+    <div class="clock" id="surv-time">0:00.0</div>
+    <p class="tag" id="surv-line"></p>
+    <div id="surv-best"></div>
+    <div class="row">
+      <button class="btn pink" id="surv-again">Try again</button>
+      <button class="btn alt" id="surv-title">Title screen</button>
     </div>
   </div>
 </div>
