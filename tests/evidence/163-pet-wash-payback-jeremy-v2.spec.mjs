@@ -518,18 +518,18 @@ test("jeremy.v1 still plays at games/pet-wash-payback/", async ({ page, shot, no
 test("in the arcade, Pet Wash Payback plays jeremy.v2 by default and the picker still offers jeremy.v1", async ({ page, shot, note, browserErrors }) => {
   await page.goto("./");
   const entry = games.find(g => g.slug === SLUG);
-  expect(entry).toMatchObject({ default: "jeremy.v2", url: V2 });
+  // Since jeremy.v3 (jwildfire/gameon-ideas#3) jeremy.v3 is the default, listed first; jeremy.v2 comes next.
+  expect(entry.versions.find(v => v.id === "jeremy.v2")).toMatchObject({ url: V2 });
   const card = page.locator(`#shelf .cart[href="#${SLUG}"]`);
-  await expect(card).toContainText("2 versions");
+  await expect(card).toContainText("3 versions");
   await card.click();
   await expect(page.locator("#chooser")).toBeVisible();
   const items = page.locator("#ver-list .ver-item");
-  await expect(items).toHaveCount(2);
-  await expect(items.nth(0)).toContainText("jeremy.v2");
-  await expect(items.nth(0)).toContainText("Latest");
-  await expect(items.nth(0)).toContainText("More animals, and they all want payback");
-  await expect(items.nth(1)).toContainText("jeremy.v1");
-  await items.nth(0).click();
+  await expect(items).toHaveCount(3);
+  await expect(items.nth(1)).toContainText("jeremy.v2");
+  await expect(items.nth(1)).toContainText("More animals, and they all want payback");
+  await expect(items.nth(2)).toContainText("jeremy.v1");
+  await items.nth(1).click();
   await expect(page).toHaveURL(new RegExp(`#${SLUG}@jeremy\\.v2$`));
   await expect(page.locator("#gh-btn")).toHaveAttribute("href", `https://github.com/jwildfire/gameon/tree/main/games/${SLUG}/jeremy.v2`);
   const frame = page.frameLocator("#frame");
