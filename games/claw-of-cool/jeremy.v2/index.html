@@ -1,7 +1,8 @@
 <!doctype html>
-<!-- Claw of Cool for GameOn (game idea jwildfire/gameon#200). The claw machine and the inlined engine are from Colorfigures,
-     Copyright (c) 2026 April Zhu, MIT licence; built on ISO-GLOW (c) 2026 April Zhu (MIT) and iso-figure (c) 2026 Tolga Cohce (MIT).
-     The full MIT notice is in README.md next to this file. -->
+<!-- Claw of Cool jeremy.v2 for GameOn (update idea jwildfire/gameon#203, from jeremy.v1 built for game idea #200).
+     The claw machine and the inlined engine are from Colorfigures, Copyright (c) 2026 April Zhu, MIT licence; built on
+     ISO-GLOW (c) 2026 April Zhu (MIT) and iso-figure (c) 2026 Tolga Cohce (MIT). The full MIT notice is in README.md
+     next to this file. -->
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Claw of Cool</title><style>.mcap{display:none!important}@media (max-width:560px){.stat .v{font-size:20px!important}.stats{align-items:flex-end}}@media (min-width:561px){.vset{top:4px!important}#stats{top:var(--vset-h,44px)!important}}</style><style>@media (max-width:560px){body > header{display:none}}</style><script>window.FIG_A = () => innerWidth <= 560 ? 1.1 : .75;</script><script>window.LBL_U = () => { if (innerWidth > 560) return 0; const s = document.getElementById("fig"); return s && s.clientWidth && s.viewBox.baseVal.width ? s.viewBox.baseVal.width / s.clientWidth : 0; };</script></head><body>
 <script>
@@ -650,26 +651,39 @@ function mountKeypad(spec){
 </script>
 <script>
 /* ============================================================
-   CLAW OF COOL, a GameOn game (game idea jwildfire/gameon#200, designed by Jeremy).
-   The claw machine is a Colorfigures figure (MIT, April Zhu), adapted from the skill's claw machine example:
-   the same cabinet, gantry, claw, chute, pickup bay and see-through, turned into a game with prizes in four
-   coolness tiers, coins as tries, a grip that can slip, rounds, a collection shelf and a best score.
+   CLAW OF COOL jeremy.v2, a GameOn game (update idea jwildfire/gameon#203, designed by Jeremy).
+   jeremy.v1 (game idea #200): a Colorfigures claw machine with prizes in four coolness tiers, coins as tries, a grip
+   that can slip, rounds, a collection shelf and a best score. jeremy.v2 adds:
+   - ZOOM VIEWS. After a coin goes in, the camera zooms way in on the prize pit. Four views, cycled with the View
+     button or V: TOP-DOWN (through the roof window), FRONT (eye level through the front glass), CLAW-CAM (riding on
+     the claw, looking straight down) and SIDE (through the side glass, for judging depth). It zooms back out when the
+     try or the round ends. Every view is the same 3D model drawn from that camera: everything is depth-sorted with
+     boxes, faces and decals draw only when they face the camera, the pit's contents are clipped to the glass box, and
+     the claw-cam drops everything behind the camera (the hub, cable, gantry, roof and the outside of the cabinet).
+   - THEMED MACHINES as levels after the first: Aquarium (water: prizes bob and drift, the claw is slower, bubbles),
+     Dino Dig (prizes half-buried in sand), Space Station (low gravity: prizes float and drift down slowly) and Snack
+     Attack (flat and ring-shaped snacks). No capsule balls: every prize is a loose 3D toy with its own shape; odd
+     shapes (long, flat, rings) are harder to grip and worth more, and each machine has one legendary prize.
+     Win 5 prizes on a machine to unlock the next one; the title screen's machine picker shows what is unlocked.
+   - FIX: the round refill now comes on the 5th win (v1 waited for the machine to be completely idle).
 
    Real process (each step is where every coin / prize is afterwards):
    1. Insert coin: the top coin leaves the stack on the control ledge and drops into the coin slot -> the coin box;
-      the display shows GET READY. One coin is one try.
+      the display shows GET READY and the camera zooms in. One coin is one try.
    2. The try starts: TIME counts down on the display (shorter in later rounds).
    3. Steer: the joystick tilts; the bridge runs along the two rails (forward/back), the carriage along the bridge (left/right).
    4. Drop (or time runs out): the claw lowers on its cable and opens, stops on a prize or the floor, closes,
       lifts and carries back to its home above the prize chute, then opens. A centred grip holds; an off-centre
-      grip slips and the prize falls back onto the pile on the way. Cooler prizes are smaller and more slippery,
+      grip slips and the prize falls back into the pit on the way. Cooler prizes and odd shapes are slipperier,
       and the claw gets looser each round.
    5. A held prize falls down the chute (scoring its points), through the base, into the pickup bay behind the
-      clear flap, and goes on the collection shelf.
-   6. Win 5 prizes and the machine refills with cooler prizes for the next round. Out of coins: game over.
+      clear flap, and goes on the collection shelf. The claw is home: the camera zooms back out.
+   6. The 5th win of a round refills the machine with cooler prizes for the next round. Out of coins: game over.
 
-   GameOn rules kept here: no network, saves only under gameon.claw-of-cool.*, touch + keyboard, fits 375 px.
-   window.__claw is a small test hook (hold and step the clock, seed the random numbers) used by the evidence spec. */
+   GameOn rules kept here: no network, saves only under gameon.claw-of-cool.* (v1's keys are read, never changed,
+   except the shared sound setting), touch + keyboard, fits 375 px.
+   window.__claw is a small test hook (hold and step the clock, seed the random numbers, pick a machine and a view)
+   used by the evidence spec. */
 
 /* ---------- geometry (x = depth toward viewer-right, y = width toward viewer-left, z = up) ---------- */
 const W = 80, D = 86;                         // cabinet depth, width
@@ -697,13 +711,13 @@ try { const sq = new URLSearchParams(location.search).get('seed'); if (sq) clawS
 const crand = () => (clawSeed = (clawSeed * 16807) % 2147483647) / 2147483647;
 
 /* ---------- prizes: four coolness tiers, three prizes in each ---------- */
-const TIERS = [
+const TIERS_V1 = [
   { id:'cool',    name:'COOL',       pts:10,  col:'#5cc0e8', grip:1,   slip:0,   r:7,   coins:0 },
   { id:'cooler',  name:'COOLER',     pts:25,  col:'#43c25c', grip:.95, slip:.06, r:7,   coins:0 },
   { id:'super',   name:'SUPER COOL', pts:60,  col:'#a26be0', grip:.82, slip:.15, r:6.4, coins:1 },
   { id:'coolest', name:'COOLEST',    pts:150, col:'#f4b829', grip:.7,  slip:.25, r:5.8, coins:2 },
 ];
-const KINDS = {
+const KINDS_V1 = {
   duck:    { name:'Rubber Duck',    tier:0, cols:['#f6d04a'] },
   frog:    { name:'Frog Plush',     tier:0, cols:['#7cc46a', '#a6d36a'] },
   pig:     { name:'Piggy Plush',    tier:0, cols:['#f4a6b4'] },
@@ -717,9 +731,11 @@ const KINDS = {
   egg:     { name:'Ice Dragon Egg', tier:3, cols:['#a9e3f2'] },
   star:    { name:'Gold Star',      tier:3, cols:['#f6c935'] },
 };
-const KIND_ORDER = Object.keys(KINDS);
+// the machine being played sets these (see setMachine): its tiers, its prizes and their order on the shelf
+let TIERS = TIERS_V1, KINDS = KINDS_V1, KIND_ORDER = Object.keys(KINDS);
 const kindsOf = t => KIND_ORDER.filter(k => KINDS[k].tier === t);
 const tierOf = p => TIERS[KINDS[p.kind].tier];
+const kindPts = k => KINDS[k].pts != null ? KINDS[k].pts : TIERS[KINDS[k].tier].pts;
 
 // floor spots (a 5 x 5 grid, clear of the chute) and the six gaps on top of them
 const FLOOR_SPOTS = [], TOP_SPOTS = [[16.75,17.5],[32.25,51.5],[16.75,68.5],[47.75,68.5],[63.25,51.5],[32.25,34.5]];
@@ -728,6 +744,7 @@ for (const x of [9, 24.5, 40, 55.5, 71]) for (const y of [9, 26, 43, 60, 77]) if
 const ROUND_MIX = [[1, 3, 8], [2, 5, 10], [3, 7, 10]];
 let prizeN = 0;
 function layout(round){
+  if (!MC.classic) return layoutT(round);
   const [nL, nS, nC] = ROUND_MIX[Math.min(round, 3) - 1];
   const shuffle = a => { for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(crand() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
   // the coolest prizes sit far from the chute (a long carry), the rest anywhere
@@ -882,8 +899,354 @@ function orb(p, spot, fx){
 const ballB = p => { const r = p.r, t = plushTop[p.kind] || 1; return [[p.x - r * 1.05, p.y - r * 1.05, p.z - p.r], [p.x + r * 1.05, p.y + r * 1.05, p.z + r * t]]; };
 // a prize on its own, for the collection shelf and the screens
 function prizeIcon(kind, col){
+  if (KINDS !== KINDS_V1) return prizeIconT(kind, col);
   const p = { id:0, kind, col: col || KINDS[kind].cols[0], r:7, x:0, y:0, z:0 }, [X, Y] = P(0, 0, 0), R = 7 * 1.2247;
   return `<svg viewBox="${f(X - R * 1.8)} ${f(Y - R * 1.78)} ${f(R * 3.6)} ${f(R * 3.6)}" aria-hidden="true">${orb(p, '')}</svg>`;
+}
+// a themed prize on its own, always drawn from the shelf's camera (the classic three-quarter view)
+function prizeIconT(kind, col){
+  const keep = [YAW, PITCH]; camRaw(YAW0, PITCH0);
+  const K = KINDS[kind], p = { id:0, kind, col: col || K.cols[0], r:K.r, x:0, y:0, z:0, rot:-.45 };
+  const parts = K.model(prizeKit(p), p).filter(Boolean), pts = parts.flatMap(q => q.rings.flat()).map(q => P(...q));
+  const x0 = Math.min(...pts.map(q => q[0])), x1 = Math.max(...pts.map(q => q[0])), y0 = Math.min(...pts.map(q => q[1])), y1 = Math.max(...pts.map(q => q[1]));
+  const sz = Math.max(x1 - x0, y1 - y0, 12) * 1.18, cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+  const svg = byDepth(parts.map(q => ({ box: q.box, at: q.at, svg: q.svg })));
+  camRaw(...keep);
+  return `<svg viewBox="${f(cx - sz / 2)} ${f(cy - sz / 2)} ${f(sz)} ${f(sz)}" aria-hidden="true">${svg}</svg>`;
+}
+// set the camera directly (the engine's setCam stops at 78 degrees; the claw-cam looks straight down)
+function camRaw(yaw, pitch){ YAW = yaw; PITCH = pitch; const b = camBasis(yaw, pitch); CAM_R = b.R; CAM_U = b.U; CAM_V = b.V; CAM_D = CAM_U.map(v => -v); }
+
+/* ---------- jeremy.v2: the machines (levels) ----------
+   The first machine is v1's, unchanged. Each themed machine has its own cabinet colours, prizes and grab feel:
+   speed / lower = how fast the claw moves and drops (1 = v1), fall = gravity for a prize that slips (v1: 300),
+   water / sand = the height of the water or sand in the pit, float = the prizes bob (aquarium) or hover (space). */
+Object.assign(PALS, {
+  sea:   { l:'#6fd6cf', m:'#36aaa8', d:'#123f46' },
+  dig:   { l:'#f2bd6e', m:'#d8913f', d:'#4c2c12' },
+  space: { l:'#9a8ff0', m:'#6455c4', d:'#191440' },
+  diner: { l:'#f4766a', m:'#d6463c', d:'#4a1714' },
+});
+const MACHINES = [
+  { id:'classic',  name:'Classic',       sign:'CLAW OF COOL',  side:'COOL',   pal:'cobalt', classic:true,
+    blurb:'The first machine: plushies, disco balls and an ice dragon egg.' },
+  { id:'aquarium', name:'Aquarium',      sign:'AQUARIUM',      side:'SPLASH', pal:'sea', water: HB + 22, float:'bob',
+    speed:.6, lower:.55, fall:110, back:'#bfe6ee', side2:'#a6dbe6', floor:'#e6d7a8',
+    blurb:'Prizes bob and drift in the water, and the claw moves slower.' },
+  { id:'dino',     name:'Dino Dig',      sign:'DINO DIG',      side:'DIG',    pal:'dig', sand: HB + 6,
+    back:'#f4dfb6', side2:'#ecd09c', floor:'#e8c27c', blurb:'Prizes are half-buried in the sand.' },
+  { id:'space',    name:'Space Station', sign:'SPACE STATION', side:'ZERO G', pal:'space', float:'hover', fall:55,
+    back:'#2c2756', side2:'#3a3470', floor:'#3c376a', blurb:'Low gravity: prizes float up and down, and drift down slowly.' },
+  { id:'snack',    name:'Snack Attack',  sign:'SNACK ATTACK',  side:'YUM',    pal:'diner', back:'#fff1d6', side2:'#ffe4b8',
+    floor:'checker', blurb:'Flat and ring-shaped snacks are the hardest to grip.' },
+];
+let MC = MACHINES[0], MCI = 0;
+// themed tiers: the colour and name a prize shows; its points are its own (odd shapes score more)
+const TIERS_T = [
+  { id:'cool',   name:'COOL',       pts:10,  col:'#5cc0e8', coins:0 },
+  { id:'cooler', name:'COOLER',     pts:25,  col:'#43c25c', coins:0 },
+  { id:'super',  name:'SUPER COOL', pts:50,  col:'#a26be0', coins:1 },
+  { id:'legend', name:'LEGENDARY',  pts:200, col:'#f4b829', coins:2 },
+];
+// how a shape grips: grip shrinks the hold zone, slip is the chance a held prize wobbles loose on the way
+const SHAPES = { round:{ grip:1, slip:0 }, chunky:{ grip:.95, slip:.04 }, figure:{ grip:.92, slip:.06 },
+  long:{ grip:.8, slip:.12 }, flat:{ grip:.72, slip:.15 }, ring:{ grip:.66, slip:.18 } };
+const ODD = { long:'long', flat:'flat', ring:'ring' };
+
+/* ---------- 3D prizes for the themed machines ----------
+   Every prize is built from a few solid parts in its own coordinates (u forward, v left, w up from its base),
+   turned by p.rot about the vertical and moved to (p.x, p.y, p.z). Each part gives its SVG, its outline rings
+   (to clip it at the sand or tint it under the water) and its box (for depth sorting, so it is right from every
+   view). Decals (eyes, windows, sprinkles) draw only when the face they sit on is toward the camera. */
+function prizeKit(p){
+  const c = Math.cos(p.rot || 0), s = Math.sin(p.rot || 0);
+  const W3 = (u, v, w) => [p.x + u * c - v * s, p.y + u * s + v * c, p.z + w];
+  const Wd = (u, v, w) => [u * c - v * s, u * s + v * c, w];
+  const bnd = pts => [[0,1,2].map(i => Math.min(...pts.map(q => q[i]))), [0,1,2].map(i => Math.max(...pts.map(q => q[i])))];
+  const part = (svg, rings) => { const b = bnd(rings.flat()); return { svg, rings, box: b, at: boxMid(b) }; };
+  const ringAt = (cu, cv, w, ru, rv, n = 14) => Array.from({ length: n }, (_, i) => { const a = i / n * 2 * Math.PI; return W3(cu + ru * Math.cos(a), cv + rv * Math.sin(a), w); });
+  const blob = (pts3, col, w = 1) => { const m = matOf(col), h = hull(pts3.map(q => P(...q)));
+    const cx = h.reduce((a, q) => a + q[0], 0) / h.length, cy = h.reduce((a, q) => a + q[1], 0) / h.length;
+    const hw = Math.max(...h.map(q => Math.abs(q[0] - cx))), hh = Math.max(...h.map(q => Math.abs(q[1] - cy)));
+    const inner = h.map(([x, y]) => [cx + (x - cx) * .84 + .1 * hw, cy + (y - cy) * .84 - .12 * hh]);
+    return fill(sp(h), m.m) + fill(sp(inner), col) + ink(sp(h), w); };
+  const K = {
+    W3, Wd,
+    // a point on the surface of a sphere / ellipsoid in direction dir, drawn only when that side faces the camera
+    eye(u, v, w, dir, r = .55, col = INK){ const d = Wd(...dir); if (!facing(d)) return ''; const [X, Y] = P(...W3(u, v, w));
+      return circ(X, Y, r * CAM_K, col) + (col === INK ? circ(X + r * .4, Y - r * .45, r * .38, '#ffffff') : ''); },
+    sph(u, v, w, r, col, deco = ''){
+      const c3 = W3(u, v, w), [X, Y] = P(...c3), R = r * CAM_K, m = matOf(col);
+      const svg = circ(X, Y, R, m.m) + circ(X + .1 * R, Y - .12 * R, .84 * R, col)
+        + `<ellipse cx="${f(X + R * .36)}" cy="${f(Y - R * .44)}" rx="${f(R * .26)}" ry="${f(R * .16)}" fill="#ffffff" opacity=".3"/>` + circInk(X, Y, R, 1) + deco;
+      return part(svg, [-.95, -.6, 0, .6, .95].map(z => ringAt(u, v, w + r * z, r * Math.sqrt(1 - z * z), r * Math.sqrt(1 - z * z), 18)));
+    },
+    ell(u, v, w, ru, rv, rw, col, deco = '', iw = 1){
+      const rings = [-.95, -.6, 0, .6, .95].map(z => ringAt(u, v, w + rw * z, ru * Math.sqrt(1 - z * z), rv * Math.sqrt(1 - z * z), 16));
+      return part(blob(rings.flat(), col, iw) + deco, rings);
+    },
+    dome(u, v, w, ru, rv, rw, col, deco = ''){
+      const rings = [0, .5, .85, 1].map(z => ringAt(u, v, w + rw * z, ru * Math.sqrt(1 - z * z) + (z === 1 ? .01 : 0), rv * Math.sqrt(1 - z * z), 16));
+      return part(blob(rings.flat(), col) + deco, rings);
+    },
+    // an upright box turned with the prize
+    box(u0, v0, w0, u1, v1, w1, col, deco = '', iw = .9){
+      const m = matOf(col), q = (u, v, w) => W3(u, v, w);
+      const F = [[[1,0,0], [q(u1,v0,w0), q(u1,v1,w0), q(u1,v1,w1), q(u1,v0,w1)]], [[-1,0,0], [q(u0,v0,w0), q(u0,v1,w0), q(u0,v1,w1), q(u0,v0,w1)]],
+        [[0,1,0], [q(u0,v1,w0), q(u1,v1,w0), q(u1,v1,w1), q(u0,v1,w1)]], [[0,-1,0], [q(u0,v0,w0), q(u1,v0,w0), q(u1,v0,w1), q(u0,v0,w1)]],
+        [[0,0,1], [q(u0,v0,w1), q(u1,v0,w1), q(u1,v1,w1), q(u0,v1,w1)]]];
+      let svg = ''; for (const [n, pts] of F){ const nw = Wd(...n); if (facing(nw)) svg += shape(pts, toneI(nw, m), iw); }
+      return part(svg + deco, [[q(u0,v0,w0), q(u1,v0,w0), q(u1,v1,w0), q(u0,v1,w0)], [q(u0,v0,w1), q(u1,v0,w1), q(u1,v1,w1), q(u0,v1,w1)]]);
+    },
+    // a flat shape lying down (any outline, convex or not), w0..w1 thick: visible sides, then the top
+    slab(poly, w0, w1, col, o = {}){
+      const m = matOf(col), B = poly.map(([u, v]) => W3(u, v, w0)), T = poly.map(([u, v]) => W3(u, v, w1));
+      let ar = 0; poly.forEach((a, i) => { const b = poly[(i + 1) % poly.length]; ar += a[0] * b[1] - b[0] * a[1]; });
+      const sg = ar > 0 ? 1 : -1, sides = [];
+      poly.forEach((a, i) => { const j = (i + 1) % poly.length, b = poly[j], n = norm(Wd(sg * (b[1] - a[1]), -sg * (b[0] - a[0]), 0));
+        if (facing(n)) sides.push({ at: avg([B[i], B[j], T[j], T[i]]), svg: face(pd([B[i], B[j], T[j], T[i]]), toneI(n, m)) + line([B[i], B[j]], .8) }); });
+      let svg = byDepth(sides);
+      if (o.sharp) poly.forEach((a, i) => svg += line([B[i], T[i]], .6));
+      svg += shape(T, o.topCol || col, 1) + (o.top ? o.top(K, w1) : '');
+      return part(svg, [B, T]);
+    },
+    // a solid lying along u (axis 'u') or v (axis 'v'), with a convex cross-section
+    bar(profile, a0, a1, col, o = {}){
+      const m = matOf(col), alongV = o.axis === 'v';
+      const at = (a, x, w) => alongV ? W3(x, a, w) : W3(a, x, w);
+      const A = profile.map(([x, w]) => at(a0, x, w)), Bq = profile.map(([x, w]) => at(a1, x, w));
+      const ax = alongV ? Wd(0, 1, 0) : Wd(1, 0, 0);
+      let svg = '';
+      let ar = 0; profile.forEach((a, i) => { const b = profile[(i + 1) % profile.length]; ar += a[0] * b[1] - b[0] * a[1]; });
+      profile.forEach((a, i) => { const j = (i + 1) % profile.length, b = profile[j];
+        const nx = (b[1] - a[1]) * (ar > 0 ? 1 : -1), nw = -(b[0] - a[0]) * (ar > 0 ? 1 : -1);
+        const n = norm(alongV ? Wd(nx, 0, nw) : Wd(0, nx, nw));
+        if (facing(n)) svg += o.smooth ? face(pd([A[i], A[j], Bq[j], Bq[i]]), toneI(n, m)) : shape([A[i], A[j], Bq[j], Bq[i]], toneI(n, m), .8); });
+      for (const [cap, n] of [[A, ax.map(x => -x)], [Bq, ax]]) if (facing(n)) svg += shape(cap, toneI(n, m), 1);
+      if (o.smooth) svg += hullInk([...A, ...Bq], 1.1);
+      return part(svg + (o.deco || ''), [A, Bq]);
+    },
+    rod(a, b, r, col, r1 = r, iw = .9){
+      const A = W3(...a), B3 = W3(...b), d = norm(sub(B3, A)), u = norm(cross(d, Math.abs(d[2]) < .9 ? [0,0,1] : [1,0,0])), v = cross(d, u);
+      const ring = (q, rr) => Array.from({ length: 10 }, (_, i) => { const t = i / 10 * 2 * Math.PI; return [0,1,2].map(k => q[k] + (u[k] * Math.cos(t) + v[k] * Math.sin(t)) * rr); });
+      return part(rod(A, B3, r, matOf(col), toneI, iw, r1), [ring(A, r), ring(B3, Math.max(r1, .01))]);
+    },
+    cyl(u, v, w0, w1, r, col, top = ''){
+      const [x, y, z0] = W3(u, v, w0), z1 = z0 + (w1 - w0);
+      return part(cyl(x, y, z0, z1, r, matOf(col), toneI, 1, 20) + top, [ringAt(u, v, w0, r, r, 16), ringAt(u, v, w1, r, r, 16)]);
+    },
+    // a ring lying flat (donut, gear): the far half of the hole's wall, the outer wall, then the top with its hole
+    ring(u, v, w0, w1, R, r, col, top = ''){
+      const m = matOf(col), A0 = ringAt(u, v, w0, R, R, 20), A1 = ringAt(u, v, w1, R, R, 20), B0 = ringAt(u, v, w0, r, r, 16), B1 = ringAt(u, v, w1, r, r, 16);
+      const svg = loft(B0, B1, n => toneI(n, m), true) + loft(A0, A1, n => toneI(n, m))
+        + `<path d="${pd(A1)}${pd(B1)}" fill="${toneI([0,0,1], m)}" fill-rule="evenodd"/>` + ink(pd(B1), .9) + ink(pd(A1), .9) + hullInk([...A0, ...A1], 1.1) + top;
+      return part(svg, [A0, A1]);
+    },
+    // little flat decals lying on a horizontal surface at height w (seen from above, so always toward the camera)
+    flatDot(u, v, w, r, col, iw = .4){ const pts = ringAt(u, v, w, r, r, 10); return fill(pd(pts), col) + (iw ? ink(pd(pts), iw) : ''); },
+    flatLine(pts, w, col, sw = .8){ return `<path d="${pd(pts.map(([u, v]) => W3(u, v, w)), false)}" fill="none" stroke="${col}" stroke-width="${sw}" stroke-linecap="round"/>`; },
+  };
+  return K;
+}
+const star5 = (R, r, n = 5) => Array.from({ length: n * 2 }, (_, i) => { const a = i * Math.PI / n, rr = i % 2 ? r : R; return [rr * Math.cos(a), rr * Math.sin(a)]; });
+const ngon = (R, n, a0 = 0) => Array.from({ length: n }, (_, i) => { const a = a0 + i / n * 2 * Math.PI; return [R * Math.cos(a), R * Math.sin(a)]; });
+
+/* The prizes. r: footprint radius (how close the claw must be), h: height. Points: odd shapes (long, flat,
+   ring) are worth more than round and chunky ones; the legendary prize is rare and gives 2 coins back. */
+const KINDS_AQ = {
+  duck: { name:'Rubber Duck', tier:0, pts:10, shape:'round', r:5.6, gr:4.6, h:11, floats:true, cols:['#f6d04a'],
+    model:(k, p) => [
+      k.ell(0, 0, 3.6, 5.6, 4.6, 3.6, p.col),
+      k.rod([-4.6, 0, 4.4], [-7, 0, 6.6], 1.7, p.col, .4),
+      k.sph(3.3, 0, 8, 2.9, p.col, k.eye(4.4, 1.5, 8.9, [.5, .6, .4]) + k.eye(4.4, -1.5, 8.9, [.5, -.6, .4])),
+      k.rod([5.6, 0, 7.6], [8, 0, 7.4], 1, '#f08a2b', .35) ] },
+  octopus: { name:'Octopus Plush', tier:1, pts:25, shape:'figure', r:6.4, gr:5, h:12, cols:['#b47ddc', '#f08aa8'],
+    model:(k, p) => [
+      ...[0, 1, 2, 3, 4, 5, 6, 7].map(i => { const a = i / 8 * 2 * Math.PI + .2; return k.rod([2.4 * Math.cos(a), 2.4 * Math.sin(a), 2.6], [6.2 * Math.cos(a), 6.2 * Math.sin(a), .9], 1.15, mix(p.col, '#000000', .12), .55, .8); }),
+      k.ell(0, 0, 7.2, 4.4, 4.4, 4.8, p.col, k.eye(3.6, 1.5, 7.6, [.8, .4, .1], .7) + k.eye(3.6, -1.5, 7.6, [.8, -.4, .1], .7)) ] },
+  sub: { name:'Toy Submarine', tier:2, pts:45, shape:'long', r:7.3, gr:3.4, h:10.4, cols:['#f2b33d', '#e2483d'],
+    model:(k, p) => { const port = sg => [-2.5, 1, 4].map(u => k.eye(u, 3 * sg, 3.6, [0, sg, 0], .8, '#bfe8f4')).join('');
+      return [ k.rod([-4.6, 0, 3], [4, 0, 3], 3, p.col, 3, 1),
+        k.sph(4, 0, 3, 3, p.col, port(1) + port(-1)),
+        k.rod([-4.6, 0, 3], [-7.4, 0, 3], 3, p.col, 1.1),
+        k.box(-7.9, -.25, .8, -7.4, .25, 5.2, '#8f989b'),
+        k.box(-1.6, -1.1, 5.7, 1.8, 1.1, 8.4, mix(p.col, '#000000', .1)),
+        k.rod([.9, 0, 8.4], [.9, 0, 10.4], .45, '#8f989b'),
+        k.rod([.9, 0, 10.2], [2.4, 0, 10.2], .45, '#8f989b') ]; } },
+  starfish: { name:'Starfish', tier:2, pts:60, shape:'flat', r:7, gr:5.6, h:2.6, cols:['#f08a4b', '#f4a6b4', '#a26be0'],
+    model:(k, p) => [ k.slab(star5(7.2, 3), 0, 2.6, p.col, { sharp:true, top:(K, w) =>
+      [0, 1, 2, 3, 4].map(i => { const a = i * 2 * Math.PI / 5; return [2.4, 4.2].map(d => K.flatDot(d * Math.cos(a), d * Math.sin(a), w + .02, .55, mix(p.col, '#ffffff', .5), 0)).join(''); }).join('') }) ] },
+  chest: { name:'Treasure Chest', tier:3, pts:200, shape:'chunky', r:6.2, gr:5, h:8.6, cols:['#9a5b2c'],
+    model:(k, p) => [
+      k.box(-5, -3.6, 0, 5, 3.6, 4.9, p.col, k.eye(5.05, 0, 3.4, [1, 0, 0], .9, '#f4c542')),
+      k.box(-5.2, -3.8, 4.9, 5.2, 3.8, 5.6, '#f4c542'),
+      k.bar([[-3.6, 5.6], [3.6, 5.6], [3.6, 6.9], [2.5, 8], [0, 8.6], [-2.5, 8], [-3.6, 6.9]], -5, 5, mix(p.col, '#ffffff', .12)) ] },
+};
+const KINDS_DINO = {
+  egg: { name:'Dino Egg', tier:0, pts:10, shape:'round', r:4.2, gr:3.8, h:9, bury:.4, cols:['#d9e6a8', '#bfe0f0'],
+    model:(k, p) => [ k.ell(0, 0, 4.5, 3.7, 3.7, 4.5, p.col,
+      [[.7, .3, .3], [.2, .8, .6], [.6, -.6, -.2], [-.3, .7, -.3], [.4, -.2, .85]].map(([a, b, c]) => { const n = norm([a, b, c]); return k.eye(n[0] * 3.7, n[1] * 3.7, 4.5 + n[2] * 4.5, n, .55, '#6f9a4a'); }).join('')) ] },
+  rock: { name:'Volcano Rock', tier:0, pts:15, shape:'round', r:5, gr:4.6, h:7.4, bury:.4, cols:['#5a4b4b'],
+    model:(k, p) => [ k.ell(0, 0, 3.7, 5, 4.4, 3.7, p.col,
+      k.flatLine([[-2.6, -1], [-1, .4], [.4, -.6], [2.2, .8]], 7.2, '#ff8a2a', 1.1) + k.flatLine([[-.6, 1.8], [.2, .4]], 7.2, '#ffc23a', .8), 1.1) ] },
+  trex: { name:'Toy T-Rex', tier:1, pts:30, shape:'figure', r:7.4, gr:3.6, h:11.4, bury:.25, cols:['#5fae4e', '#e2873a'],
+    model:(k, p) => { const dk = mix(p.col, '#000000', .2); return [
+      k.rod([.6, 1.8, 3.4], [1.1, 2, 0], 1.2, dk), k.rod([.6, -1.8, 3.4], [1.1, -2, 0], 1.2, dk),
+      k.rod([-3.2, 0, 5.4], [-8.6, 0, 2.6], 2.3, p.col, .45),
+      k.ell(0, 0, 5.6, 4.6, 3, 3.4, p.col),
+      k.rod([3.1, 1.5, 6.6], [4.3, 1.9, 5.6], .5, dk), k.rod([3.1, -1.5, 6.6], [4.3, -1.9, 5.6], .5, dk),
+      k.ell(4.6, 0, 9, 2.9, 2.2, 2.3, p.col, k.eye(5.4, 1.6, 9.9, [.3, .8, .4], .5) + k.eye(5.4, -1.6, 9.9, [.3, -.8, .4], .5)) ]; } },
+  bone: { name:'Fossil Bone', tier:2, pts:50, shape:'long', r:7.6, gr:2.8, h:3.6, bury:.4, cols:['#efe4c8'],
+    model:(k, p) => [ k.rod([-5.2, 0, 1.8], [5.2, 0, 1.8], 1.3, p.col),
+      ...[[-5.8, 1.4], [-5.8, -1.4], [5.8, 1.4], [5.8, -1.4]].map(([u, v]) => k.sph(u, v, 1.8, 1.8, p.col)) ] },
+  amber: { name:'Amber with a Bug', tier:3, pts:200, shape:'chunky', r:5, gr:4.9, h:6.6, bury:.3, cols:['#f2a03a'],
+    model:(k, p) => { const [bx, by] = P(...k.W3(0, 0, 3.4));
+      // the bug inside first; the amber's faces go over it, see-through
+      const bug = `<ellipse cx="${f(bx)}" cy="${f(by)}" rx="2.4" ry="1.5" fill="#3a2414"/>` + circ(bx + 2.4, by - .6, 1, '#3a2414')
+        + [-1.4, 0, 1.4].map(d => `<path d="M${f(bx + d)} ${f(by)}l${f(d * .3 - .6)} 2.2M${f(bx + d)} ${f(by)}l${f(d * .3 + .6)} -2.2" stroke="#3a2414" stroke-width=".5"/>`).join('');
+      const sl = k.slab(ngon(4.8, 6, .3), 0, 6.6, p.col, { sharp:true });
+      sl.svg = bug + `<g opacity=".78">${sl.svg}</g>`; return [sl]; } },
+};
+const KINDS_SPACE = {
+  moon: { name:'Moon Rock', tier:0, pts:10, shape:'round', r:4.6, gr:4.4, h:7.2, cols:['#b9b6c4'],
+    model:(k, p) => [ k.ell(0, 0, 3.6, 4.6, 4.2, 3.6, p.col,
+      [[.5, .5, .7], [-.4, .6, .4], [.8, -.3, .3], [.1, -.6, .75]].map(n => { n = norm(n); return k.eye(n[0] * 4.4, n[1] * 4, 3.6 + n[2] * 3.4, n, .9, '#8f8b9c'); }).join('')) ] },
+  astro: { name:'Astronaut', tier:1, pts:25, shape:'figure', r:4.6, gr:3, h:12.4, cols:['#f4f4f0'],
+    model:(k, p) => [
+      k.box(-3.7, -1.9, 3.2, -2.3, 1.9, 7.4, '#c3c9cf'),
+      k.rod([0, 1.2, 3], [.2, 1.4, 0], 1.1, p.col), k.rod([0, -1.2, 3], [.2, -1.4, 0], 1.1, p.col),
+      k.ell(0, 0, 5, 2.8, 2.6, 3.4, p.col),
+      k.rod([0, 2.4, 6.8], [1.2, 3.6, 4.4], .9, p.col), k.rod([0, -2.4, 6.8], [1.2, -3.6, 4.4], .9, p.col),
+      k.sph(0, 0, 9.6, 2.8, p.col, k.eye(2.1, 0, 9.8, [1, 0, .1], 1.6, '#1d2a4a')) ] },
+  rocket: { name:'Toy Rocket', tier:2, pts:45, shape:'long', r:7.6, gr:2.9, h:7.4, cols:['#f4f4f0'],
+    model:(k, p) => [
+      k.box(-5.6, -.3, 5, -3.4, .3, 7.4, '#e2483d'),
+      k.box(-5.6, 2.3, 2.3, -3.4, 4.8, 2.9, '#e2483d'), k.box(-5.6, -4.8, 2.3, -3.4, -2.3, 2.9, '#e2483d'),
+      k.rod([-5.6, 0, 2.6], [3, 0, 2.6], 2.6, p.col, 2.6, 1),
+      k.rod([3, 0, 2.6], [7.6, 0, 2.6], 2.6, '#e2483d', 0),
+      k.rod([-5.6, 0, 2.6], [-6.6, 0, 2.6], 1.6, '#8f989b', 1.2) ] },
+  ufo: { name:'Flying Saucer', tier:2, pts:60, shape:'flat', r:6.6, gr:6.3, h:4.6, cols:['#c6ccce'],
+    model:(k, p) => [
+      k.cyl(0, 0, 0, 1.8, 6.6, p.col, [0, 1, 2, 3, 4, 5, 6, 7].map(i => { const a = i / 8 * 2 * Math.PI; return k.flatDot(5.4 * Math.cos(a), 5.4 * Math.sin(a), 1.82, .6, i % 2 ? '#ffe066' : '#7dff9a'); }).join('')),
+      k.dome(0, 0, 1.8, 3.2, 3.2, 2.8, '#9be3f0') ] },
+  alien: { name:'Alien Plush', tier:3, pts:200, shape:'figure', r:4.6, gr:4.1, h:13, cols:['#7fe07a'],
+    model:(k, p) => [
+      k.ell(0, 0, 2.6, 2.8, 2.6, 2.6, p.col),
+      k.rod([0, 1.2, 9.4], [-.4, 2.4, 12], .35, p.col), k.rod([0, -1.2, 9.4], [-.4, -2.4, 12], .35, p.col),
+      k.ell(0, 0, 7, 4, 3.8, 3.6, p.col, k.eye(3.3, 1.4, 7.6, [.8, .45, .2], 1.1) + k.eye(3.3, -1.4, 7.6, [.8, -.45, .2], 1.1)),
+      k.sph(-.4, 2.5, 12.2, .9, '#f4b829'), k.sph(-.4, -2.5, 12.2, .9, '#f4b829') ] },
+};
+const KINDS_SNACK = {
+  burger: { name:'Burger', tier:0, pts:15, shape:'chunky', r:5, gr:4.9, h:6.8, cols:['#e2a24e'],
+    model:(k, p) => [
+      k.cyl(0, 0, 0, 1.6, 4.6, p.col),
+      k.cyl(0, 0, 1.6, 3, 4.9, '#7a4a2e'),
+      k.slab(ngon(5.2, 4, Math.PI / 4), 3, 3.4, '#f6c935'),
+      k.dome(0, 0, 3.4, 4.7, 4.7, 3.4, p.col, [[1.5, 1], [-1, 2], [0, -1.8], [-2, -.4], [2.2, -1.2]].map(([u, v]) => k.flatDot(u, v, 3.4 + 3.4 * Math.sqrt(Math.max(0, 1 - (u * u + v * v) / 22)), .45, '#fff4d6', 0)).join('')) ] },
+  taco: { name:'Taco', tier:1, pts:30, shape:'figure', r:5.4, gr:2.6, h:6, cols:['#f2c45a'],
+    model:(k, p) => { const arc = Array.from({ length: 9 }, (_, i) => { const a = Math.PI * i / 8; return [5.2 * Math.cos(a), 5.4 * Math.sin(a) + .2]; });
+      return [ ...[-.35, 1, 2.4, -1.8, -3.4].map((u, i) => k.sph(u * 1.1, 0, 4.8 - Math.abs(u) * .45, 1.15, i % 2 ? '#e2483d' : '#6cc04a')),
+        k.bar(arc, -2.1, 2.1, p.col, { axis:'v', smooth:true }) ]; } },
+  pizza: { name:'Pizza Slice', tier:2, pts:50, shape:'flat', r:6.4, gr:4.2, h:2.8, cols:['#f6d26a'],
+    model:(k, p) => [ k.slab([[-4.6, -4.4], [-4.6, 4.4], [6.4, 0]], 0, 1.4, p.col, { sharp:true, top:(K, w) =>
+        [[-2, 1.6], [-2.2, -1.8], [1.4, .2], [-.4, -.1]].map(([u, v]) => K.flatDot(u, v, w + .02, 1.05, '#d9443a', .5)).join('') }),
+      k.rod([-4.8, -4.5, 1.3], [-4.8, 4.5, 1.3], 1.4, '#d9963e') ] },
+  donut: { name:'Donut', tier:2, pts:60, shape:'ring', r:5.2, gr:5.3, h:2.9, cols:['#e0a35e'],
+    model:(k, p) => [ k.ring(0, 0, 0, 2.9, 5.2, 2, p.col,
+      fill(pd(Array.from({ length: 20 }, (_, i) => { const a = i / 20 * 2 * Math.PI; return k.W3(4.5 * Math.cos(a), 4.5 * Math.sin(a), 2.92); })) + pd(Array.from({ length: 16 }, (_, i) => { const a = i / 16 * 2 * Math.PI; return k.W3(2.5 * Math.cos(a), 2.5 * Math.sin(a), 2.92); })), '#f49ac0', 'fill-rule="evenodd"')
+      + [0, 1, 2, 3, 4, 5, 6, 7, 8].map(i => { const a = i / 9 * 2 * Math.PI + .3, d = 3.5; return k.flatLine([[d * Math.cos(a), d * Math.sin(a)], [d * Math.cos(a) + .7 * Math.cos(a + 1.2), d * Math.sin(a) + .7 * Math.sin(a + 1.2)]], 2.95, ['#3e86d9', '#ffffff', '#43c25c', '#f6d04a'][i % 4], .7); }).join('')) ] },
+  pickle: { name:'Golden Pickle', tier:3, pts:200, shape:'long', r:7.4, gr:2.5, h:4.2, cols:['#f4c535'],
+    model:(k, p) => [ k.rod([-5, 0, 2.1], [5, 0, 2.1], 2.1, p.col), k.sph(-5, 0, 2.1, 2.1, p.col), k.sph(5, 0, 2.1, 2.1, p.col,
+      [-3, -1, 1, 3].map(u => k.eye(u, 1.5, 3.6, [0, .6, .8], .45, '#c48a10') + k.eye(u + .9, -1.4, 3.7, [0, -.6, .8], .45, '#c48a10')).join('')) ] },
+};
+MACHINES[1].kinds = KINDS_AQ; MACHINES[2].kinds = KINDS_DINO; MACHINES[3].kinds = KINDS_SPACE; MACHINES[4].kinds = KINDS_SNACK;
+MACHINES[0].kinds = KINDS_V1;
+function setMachine(i){
+  MCI = Math.max(0, Math.min(MACHINES.length - 1, i | 0)); MC = MACHINES[MCI];
+  KINDS = MC.kinds; KIND_ORDER = Object.keys(KINDS); TIERS = MC.classic ? TIERS_V1 : TIERS_T;
+}
+const kindShape = k => SHAPES[KINDS[k].shape || 'round'];
+// where a prize's base rests: the floor, the sand (buried part way) or the water's surface (a floating duck)
+const restZ = (K, buried) => MC.sand != null ? MC.sand - (buried ? K.h * (K.bury || 0) : 0) : MC.water != null && K.floats ? MC.water - K.h * .42 : HB;
+// how many of each tier go in a themed machine, by round: [legendary, super cool (odd shapes), cooler]; the rest are cool
+const ROUND_MIX_T = [[1, 6, 5], [2, 8, 6], [3, 10, 6]];
+function layoutT(round){
+  const [nL, nS, nC] = ROUND_MIX_T[Math.min(round, 3) - 1];
+  const shuffle = a => { for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(crand() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const floor = FLOOR_SPOTS.map(([x, y]) => ({ x, y, far: Math.hypot(x - HOME[0], y - HOME[1]) })).sort((a, b) => b.far - a.far);
+  const farOnes = shuffle(floor.slice(0, 7)), rest = shuffle([...farOnes.slice(nL), ...floor.slice(7)]);
+  const tiersFor = shuffle([...Array(nS).fill(2), ...Array(nC).fill(1), ...Array(FLOOR_SPOTS.length - nL - nS - nC).fill(0)]);
+  const out = [], pick = t => { const ks = kindsOf(t); return ks[Math.floor(crand() * ks.length)]; };
+  const add = (x, y, t) => {
+    const kind = pick(t), K = KINDS[kind], cols = K.cols, jx = (crand() - .5) * 2.4, jy = (crand() - .5) * 2.4;
+    const p = { id: prizeN++, kind, col: cols[Math.floor(crand() * cols.length)], r: K.r, x: x + jx, y: y + jy, layer: 0,
+      rot: crand() * 2 * Math.PI, ph: crand() * 2 * Math.PI, buried: MC.sand != null };
+    p.hx = p.x; p.hy = p.y; p.z = p.bz = restZ(K, p.buried);
+    out.push(p);
+  };
+  farOnes.slice(0, nL).forEach(s => add(s.x, s.y, 3));
+  let ti = 0;
+  for (const s of rest) add(s.x, s.y, tiersFor[ti++]);
+  return out;
+}
+// a prize's height above its base, its centre and its top
+const pH = p => MC.classic ? p.r * 2 : KINDS[p.kind].h;
+const pMidZ = p => MC.classic ? p.z : p.z + pH(p) / 2;
+const pTopZ = p => MC.classic ? p.z + p.r : p.z + pH(p);
+
+/* ---------- drawing a themed prize, with the sand or water it sits in ---------- */
+// the outline (screen space) of the part of a solid above height zc, from its rings: every ring point above zc
+// plus the points where its edges cross zc. Returns the hull and the crossing points (3D)
+function cutAbove(rings, zc, grow = 1){
+  const out = [], cross3 = [];
+  const R = grow === 1 ? rings : rings.map(r => { const c = avg(r); return r.map(q => [c[0] + (q[0] - c[0]) * grow, c[1] + (q[1] - c[1]) * grow, q[2]]); });
+  const cut = (a, b) => { if ((a[2] - zc) * (b[2] - zc) < 0){ const t = (zc - a[2]) / (b[2] - a[2]), q = [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, zc]; cross3.push(q); out.push(P(...q)); } };
+  R.forEach((r, i) => r.forEach((q, j) => { if (q[2] >= zc) out.push(P(...q)); cut(q, r[(j + 1) % r.length]); if (R[i + 1] && R[i + 1].length === r.length) cut(q, R[i + 1][j]); }));
+  return { hull: out.length > 2 ? hull(out) : null, cross3 };
+}
+const WATER_TINT = '#2f8fd0', SAND_LIP = '#c99a4e';
+function envPart(pt, env){
+  if (!env) return pt.svg;
+  const pts = pt.rings.flat(), zc = env.z;
+  const anyAbove = pts.some(q => q[2] >= zc), anyBelow = pts.some(q => q[2] < zc);
+  if (env.sand){
+    if (!anyBelow) return pt.svg;
+    if (!anyAbove) return '';
+    const { hull: h, cross3 } = cutAbove(pt.rings, zc, 1.08);
+    if (!h) return '';
+    const id = 'k' + (++_clipN);
+    let s = `<clipPath id="${id}"><path d="${sp(h)}"/></clipPath><g clip-path="url(#${id})">${pt.svg}</g>`;
+    // the sand heaped round it on the near side
+    if (cross3.length > 2){ const ch = hull(cross3.map(q => P(...q))), L = ch.reduce((a, q) => q[0] < a[0] ? q : a), Rr = ch.reduce((a, q) => q[0] > a[0] ? q : a);
+      const below = ch.filter(q => q !== L && q !== Rr && q[1] >= L[1] + (Rr[1] - L[1]) * (q[0] - L[0]) / Math.max(1e-6, Rr[0] - L[0])).sort((a, b) => a[0] - b[0]);
+      const d = 'M' + [L, ...below, Rr].map(q => f(q[0]) + ' ' + f(q[1])).join('L');
+      s += `<path d="${d}" fill="none" stroke="${SAND_LIP}" stroke-width="2.2" stroke-linecap="round"/><path d="${d}" fill="none" stroke="${INK}" stroke-width=".6" stroke-linecap="round" opacity=".55"/>`; }
+    return s;
+  }
+  // water: tint what is under the surface. Seen from above the surface, a solid's part above the water is in front of
+  // its part below, so the tint covers the solid's outline minus the outline of its part above the water
+  if (!anyBelow) return pt.svg;
+  const all = hull(pts.map(q => P(...q)));
+  if (!anyAbove) return pt.svg + fill(sp(all), WATER_TINT, 'opacity=".26"');
+  const { hull: h } = cutAbove(pt.rings, zc);
+  return pt.svg + `<path d="${sp(all)}${h ? sp(h) : ''}" fill="${WATER_TINT}" fill-rule="evenodd" opacity=".26"/>`;
+}
+const envNow = () => MC.sand != null ? { sand:true, z: MC.sand } : MC.water != null ? { water:true, z: MC.water } : null;
+// a themed prize as one depth-sorted drawing; returns its svg and its box
+function prizeDraw(p, fx, o = {}){
+  if (MC.classic){ const svg = orb(p, o.spot || '', fx); return { svg, box: ballB(p) }; }
+  const K = KINDS[p.kind], parts = K.model(prizeKit(p), p).filter(Boolean), env = o.env === false ? null : envNow();
+  const box = [[0,1,2].map(i => Math.min(...parts.map(q => q.box[0][i]))), [0,1,2].map(i => Math.max(...parts.map(q => q.box[1][i])))];
+  let s = '';
+  const [X, Y] = P(p.x, p.y, p.z + K.h / 2), R = Math.max(K.r, K.h / 2) * CAM_K;
+  if (fx != null && K.tier === 3){ const g = .18 + .08 * Math.sin(fx * 4 + p.id); s += circ(X, Y, R * 1.15, TIERS[3].col, `opacity="${f(g)}"`); }
+  s += byDepth(parts.map(q => ({ box: q.box, at: q.at, svg: envPart(q, env) })));
+  if (o.spot) s += o.spot;
+  if (fx != null && K.tier === 3) for (let i = 0; i < 3; i++){
+    const a = fx * 1.6 + i * 2.09 + p.id, tw = .5 + .5 * Math.sin(fx * 5 + i * 1.7);
+    s += sparkle(X + Math.cos(a) * R * 1.15, Y + Math.sin(a) * R * .9, 1.4 + 1.6 * tw, '#fff8c8', .45);
+  }
+  return { svg: s, box };
 }
 
 /* ---------- the claw ---------- */
@@ -894,15 +1257,25 @@ function clawParts(cl){
   for (const a of FING){
     const u = [Math.cos(a), Math.sin(a)];
     const K = [x + 3 * u[0], y + 3 * u[1], z + .5], E = [x + elR * u[0], y + elR * u[1], z - 6], T = [x + tipR * u[0], y + tipR * u[1], tz];
-    const svg = rod(K, E, 1.35, STEELM, toneI, 1.1) + rod(E, T, 1.2, STEELM, toneI, 1.1);
-    const fp = [K, E, T], lo = k => Math.min(...fp.map(p => p[k])) - 1.4, hi = k => Math.max(...fp.map(p => p[k])) + 1.4;
-    parts.push({ at:[x + 6 * u[0], y + 6 * u[1], z - 13], box:[[lo(0), lo(1), lo(2)], [hi(0), hi(1), hi(2)]], svg });
+    // each finger is two pieces (knuckle to elbow, elbow to tip), each sorted by its own box: a finger is tall, and
+    // from above its top half is over the prize it grips while its tip is beside it
+    for (const [a, b2, r] of [[K, E, 1.35], [E, T, 1.2]]){
+      let svg = rod(a, b2, r, STEELM, toneI, 1.1);
+      const fp = [a, b2], lo = k => Math.min(...fp.map(p => p[k])) - 1.4, hi = k => Math.max(...fp.map(p => p[k])) + 1.4, bx = [[lo(0), lo(1), lo(2)], [hi(0), hi(1), hi(2)]];
+      // under the aquarium's water, the finger is tinted below the surface
+      if (MC.water != null){ const jr = q => [[1.3,0,0],[0,1.3,0],[-1.3,0,0],[0,-1.3,0],[0,0,1.3],[0,0,-1.3]].map(d => [q[0] + d[0], q[1] + d[1], q[2] + d[2]]);
+        svg = envPart({ svg, rings: [jr(a), jr(b2)] }, envNow()); }
+      parts.push({ at: boxMid(bx), box: bx, svg });
+    }
   }
-  // cable from the carriage + the hub
+  // cable from the carriage + the hub. The claw-cam rides on the hub, so it never sees them
+  if (CLAWCAM) return parts;
   const cab = pd([[x, y, z + 5], [x, y, 136]], false);
   let hub = `<path d="${cab}" fill="none" stroke="${INK}" stroke-width="1.7" stroke-linecap="round"/><path d="${cab}" fill="none" stroke="${METAL.m}" stroke-width=".6"/>`;
   hub += cyl(x, y, z, z + 5, 3.6, STEELM, toneI, 1.1, 18);
   hub += cyl(x, y, z + 5, z + 6.2, 1.6, DARK, toneI, .8, 12);
+  if (MC.water != null && z < MC.water) hub = envPart({ svg: hub, rings: [ellZ(x, y, z, 3.6, 12), ellZ(x, y, z + 6.2, 3.6, 12)] }, envNow())
+    + `<path d="${pd([[x, y, z + 6.2], [x, y, Math.max(z + 6.2, MC.water)]], false)}" stroke="${WATER_TINT}" stroke-width=".9" opacity=".5"/>`;
   parts.push({ at:[x, y, z + 3], box:[[x - 3.6, y - 3.6, z], [x + 3.6, y + 3.6, 136]], svg: hub });
   return parts;
 }
@@ -913,8 +1286,11 @@ function fresh(){
   return { coins:START_COINS, credit:0, score:0, round:1, roundWins:0, won:[], phase:'idle', pt:0, time:0,
     claw:{ x:HOME[0], y:HOME[1], z:ZTOP, o:0 }, drop:null, held:null,
     prizes:layout(1), falls:[], bayIn:[], bay:[], bayRest:0, flap:0, flapT:0, take:null, coin:null, refill:false, endT:0,
-    tilt:[0, 0], tiltDir:[0, 0], tiltHold:0, step:null, btn:0, msg:null, msgT:0, t:0, whirD:0, pop:null };
+    tilt:[0, 0], tiltDir:[0, 0], tiltHold:0, step:null, btn:0, msg:null, msgT:0, t:0, whirD:0, pop:null,
+    zoom:0, view:0, vprev:0, vblend:1 };
 }
+// the claw-cam is drawing: everything behind the camera (above the claw's hub) is left out
+let CLAWCAM = false;
 const st = Object.assign({ pal:'cobalt' }, fresh());
 const keys = {};
 
@@ -929,6 +1305,99 @@ const WALLS = [
   { n:[1,0,0],  glass:true,  pts:[[W,0,HB],[W,D,HB],[W,D,HG],[W,0,HG]] },
   { n:[0,1,0],  glass:true,  pts:[[0,D,HB],[W,D,HB],[W,D,HG],[0,D,HG]] },
 ];
+/* ---------- the themed pit: prints on the far walls, the floor, the sand and the water ---------- */
+// a print on a far wall (seen from inside): flat shapes in the wall's own plane, so they vanish when it is edge-on
+function wallPrint(w){
+  const onW = (a, b, z) => w.n[0] ? [.25, a, z] : [a, .25, z];      // a runs along the wall, z up it
+  const L = w.n[0] ? D : W;
+  if (MC.id === 'space'){
+    let s = '';
+    for (let i = 0; i < 9; i++){ const a = 8 + ((i * 37 + (w.n[0] ? 11 : 3)) % (L - 16)), z = HB + 8 + ((i * 23) % 58), r = 1 + (i % 3) * .6;
+      s += fill(pd(star5(r, r * .38, 4).map(([u, v]) => onW(a + u, 0, z + v))), i % 4 ? '#fff8c8' : '#9be3f0'); }
+    if (w.n[0]) s += fill(pd(ellUV(D * .7, HB + 50, 8, 8, 20).map(([a, z]) => onW(a, 0, z))), '#f08a4b') + fill(pd(ellUV(D * .7 + 2, HB + 52, 6.4, 6.4, 20).map(([a, z]) => onW(a, 0, z))), '#f4a66b');
+    return s;
+  }
+  if (MC.id === 'aquarium'){
+    let s = '';
+    for (let i = 0; i < 5; i++){ const a0 = 10 + i * (L - 20) / 4, pts = [];
+      for (let j = 0; j <= 8; j++) pts.push(onW(a0 + Math.sin(j * .9 + i) * 2.4, 0, HB + j * 3.2));
+      s += `<path d="${pd(pts, false)}" fill="none" stroke="#3f9b6a" stroke-width="1.6" stroke-linecap="round" opacity=".7"/>`; }
+    return s;
+  }
+  if (MC.id === 'dino'){
+    let s = '';
+    for (const [a, z, r] of [[20, 120, 7], [L - 22, 128, 5]]) s += fill(pd(ellUV(a, z, r, r * .7, 16).map(([u, v]) => onW(u, 0, v))), '#e8c890');
+    return s;
+  }
+  if (MC.id === 'snack'){
+    let s = '';
+    for (let i = 0; i < 6; i++){ const a = 6 + i * (L - 12) / 6;
+      s += fill(pd([[a, HG - 14], [a + (L - 12) / 12, HG - 14], [a + (L - 12) / 12, HG - 9], [a, HG - 9]].map(([u, v]) => onW(u, 0, v))), i % 2 ? '#e2483d' : '#ffffff'); }
+    return s;
+  }
+  return '';
+}
+const LPOLY = [[0,0],[CHX,0],[CHX,CHY],[W,CHY],[W,D],[0,D]];   // the pit floor round the chute
+const SANDM = { l:'#ecc584', m:'#d9a95c', d:'#b4863c' };
+function floorSvg(m){
+  if (MC.classic) return fill(pd([[0,0,HB],[W,0,HB],[W,D,HB],[0,D,HB]]), mix(m.d, '#ffffff', .62));
+  const fl = [[0,0,HB],[W,0,HB],[W,D,HB],[0,D,HB]];
+  if (MC.sand != null){
+    const zs = MC.sand;
+    let s = '';
+    // the sand against the front and side glass and round the chute (only the sides toward the camera), then its top
+    for (const [n, q] of [[[1,0,0], [[W,CHY,HB],[W,D,HB],[W,D,zs],[W,CHY,zs]]], [[0,1,0], [[0,D,HB],[W,D,HB],[W,D,zs],[0,D,zs]]],
+                          [[1,0,0], [[CHX,0,HB],[CHX,CHY,HB],[CHX,CHY,zs],[CHX,0,zs]]], [[0,-1,0], [[CHX,CHY,HB],[W,CHY,HB],[W,CHY,zs],[CHX,CHY,zs]]]])
+      if (vis(n)) s += face(pd(q), toneI(n, SANDM)) + line([q[2], q[3]], .7);
+    s += fill(pd(on(PZ(zs), LPOLY)), MC.floor);
+    for (let i = 0; i < 6; i++){ const y0 = 8 + i * 13, x1 = y0 < CHY + 2 ? CHX - 3 : W - 4, pts = [];
+      for (let j = 0; j <= 10; j++) pts.push([4 + j * (x1 - 4) / 10, y0 + Math.sin(j * .8 + i) * 1.6, zs + .05]);
+      s += `<path d="${pd(pts, false)}" fill="none" stroke="#c99a4e" stroke-width=".7" opacity=".7"/>`; }
+    for (let i = 0; i < 10; i++){ const x = 5 + (i * 29) % (W - 10), y = 6 + (i * 41) % (D - 12); if (x > CHX - 2 && y < CHY + 2) continue;
+      s += fill(pd(ellZ(x, y, zs + .05, .8 + (i % 3) * .3, 8)), '#9a7a5a'); }
+    return s;
+  }
+  let s = '';
+  if (MC.floor === 'checker'){
+    s += fill(pd(fl), '#fff8ec');
+    const n = 8, dx = W / n, dy = D / n;
+    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) if ((i + j) % 2) s += fill(pd([[i * dx, j * dy, HB + .02], [(i + 1) * dx, j * dy, HB + .02], [(i + 1) * dx, (j + 1) * dy, HB + .02], [i * dx, (j + 1) * dy, HB + .02]]), '#e2483d', 'opacity=".75"');
+    return s;
+  }
+  s += fill(pd(fl), MC.floor);
+  if (MC.id === 'space') for (let i = 1; i < 6; i++){ s += `<path d="${pd([[i * W / 6, 0, HB + .02], [i * W / 6, D, HB + .02]], false)}" stroke="#6a64a8" stroke-width=".6"/>`
+    + `<path d="${pd([[0, i * D / 6, HB + .02], [W, i * D / 6, HB + .02]], false)}" stroke="#6a64a8" stroke-width=".6"/>`; }
+  if (MC.id === 'aquarium') for (let i = 0; i < 14; i++){ const x = 4 + (i * 31) % (W - 8), y = 5 + (i * 47) % (D - 10); if (x > CHX - 2 && y < CHY + 2) continue;
+    s += fill(pd(ellZ(x, y, HB + .05, .9 + (i % 3) * .4, 8)), ['#c9b07e', '#9fb8c0', '#e8a0a8'][i % 3]); }
+  return s;
+}
+// the water: the volume between the floor and the surface, round the dry chute (two boxes); a light sheen on top
+const boxCorners = (x0, y0, z0, x1, y1, z1) => { const o = []; for (const x of [x0, x1]) for (const y of [y0, y1]) for (const z of [z0, z1]) o.push([x, y, z]); return o; };
+function waterBody(){
+  const zw = MC.water, hA = hull(boxCorners(0, 0, HB, CHX, D, zw).map(q => P(...q))), hB = hull(boxCorners(CHX, CHY, HB, W, D, zw).map(q => P(...q)));
+  return `<path d="${sp(hA)}${sp(hB)}" fill="${WATER_TINT}" opacity=".2"/>` + fill(pd(on(PZ(zw), LPOLY)), '#e8fbff', 'opacity=".18"');
+}
+// bubbles rising from the floor (and off the claw when it is under water) and ripples on the surface, as depth-sorted parts
+function waterBits(){
+  const zw = MC.water, t = st.t, cl = st.claw, out = [];
+  const bub = (x, y, z, r) => ({ at:[x, y, z], box:[[x - r, y - r, z - r], [x + r, y + r, z + r]], svg: (() => { const [X, Y] = P(x, y, z), R = r * CAM_K;
+    return circ(X, Y, R, '#e8fbff', 'opacity=".55"') + `<circle cx="${f(X)}" cy="${f(Y)}" r="${f(R)}" fill="none" stroke="#2f6f9a" stroke-width=".45" opacity=".8"/>` + circ(X + R * .35, Y - R * .35, R * .3, '#ffffff'); })() });
+  [[16.75, 68.5], [32.25, 34.5], [47.75, 51.5], [63.25, 68.5], [16.75, 17.5], [32.25, 51.5]].forEach(([x, y], i) => {
+    for (let j = 0; j < 3; j++){ const H = zw - HB - 2, k = ((t * (5 + i)) / H + j / 3 + i * .17) % 1;
+      out.push(bub(x + Math.sin(t * 2 + i + j) * 1.1, y + Math.cos(t * 1.7 + i) * .8, HB + 1 + k * H, .55 + .55 * k)); } });
+  if (cl.z - 13 < zw) for (let j = 0; j < 4; j++){ const lo = Math.max(HB + 2, cl.z - 10), k = (t * 1.6 + j / 4) % 1, z = lo + k * (zw - lo);
+    if (z < zw) out.push(bub(cl.x + 2 * Math.sin(j * 2 + t * 3), cl.y + 2 * Math.cos(j * 2 + t * 2), z, .5 + .4 * k)); }
+  [[22, 30], [12, 72], [40, 62], [60, 76], [36, 14], [64, 44]].forEach(([x, y], i) => {
+    const k = (t * .45 + i * .37) % 1, rr = 1.5 + 5 * k, ring = ellZ(x, y, zw + .05, rr, 16).filter(q => !(q[0] > CHX && q[1] < CHY) && q[0] > 0 && q[0] < W && q[1] > 0 && q[1] < D);
+    if (ring.length > 3) out.push({ at:[x, y, zw], box:[[x - rr, y - rr, zw], [x + rr, y + rr, zw + .1]], svg: `<path d="${pd(ring)}" fill="none" stroke="#ffffff" stroke-width=".8" opacity="${f(.75 * (1 - k))}"/>` }); });
+  return out;
+}
+// where the water meets the near glass
+function waterLine(n){
+  const zw = MC.water, q = n[0] ? [[W, CHY, zw], [W, D, zw]] : [[0, D, zw], [W, D, zw]];
+  return `<path d="${pd(q, false)}" fill="none" stroke="#7fd0f0" stroke-width="1.6" opacity=".8"/><path d="${pd(q, false)}" fill="none" stroke="#ffffff" stroke-width=".6" opacity=".9"/>`;
+}
+
 function glassTintWall(n, k){
   let s = '';
   if (n[0] === 1){
@@ -945,19 +1414,22 @@ function glassBox(m){
   const cl = st.claw;
   let s = '';
   // far walls: the printed panels show their inside, far glass only a faint tint
-  const backC = mix(m.l, '#ffffff', .55), rightC = mix(m.m, '#ffffff', .45);
+  const backC = MC.back || mix(m.l, '#ffffff', .55), rightC = MC.side2 || mix(m.m, '#ffffff', .45);
   for (const w of WALLS) if (!vis(w.n)){
     if (w.glass) s += glassTintWall(w.n, .5);
     else {
-      s += fill(pd(w.pts), w.n[0] ? backC : rightC);
+      s += fill(pd(w.pts), w.n[0] ? backC : rightC) + wallPrint(w);
       // a light strip under the roof on the back wall: the light inside the cabinet
       if (w.n[0]) s += shape([[.2, 8, HG - 9],[.2, D - 8, HG - 9],[.2, D - 8, HG - 5],[.2, 8, HG - 5]], '#fffbea', .8);
     }
   }
   if (!vis([-1,0,0]) && !vis([0,-1,0])) s += line([[0,0,HB],[0,0,HG]], .8);
-  s += fill(pd([[0,0,HB],[W,0,HB],[W,D,HB],[0,D,HB]]), mix(m.d, '#ffffff', .62));
-  // claw's shadow straight down from the lamp, on the floor
-  s += fill(pd(ellZ(cl.x, cl.y, HB + .1, 5)), '#1c2948', 'opacity=".16"');
+  s += floorSvg(m);
+  // claw's shadow straight down from the lamp, on the floor (or the sand)
+  s += fill(pd(ellZ(cl.x, cl.y, (MC.sand || HB) + .1, 5)), '#1c2948', 'opacity=".16"');
+  // the water seen through the glass: everything under the surface (floor, far walls) is tinted; prizes and the
+  // claw tint their own parts below the surface as they are drawn
+  if (MC.water != null) s += waterBody();
 
   const parts = [];
   // chute: hole + far acrylic walls + whatever is falling inside it, then the near acrylic walls as their own parts
@@ -974,7 +1446,7 @@ function glassBox(m){
   const col = [[CHX,0,HB],[W,0,HB],[W,CHY,HB],[CHX,CHY,HB],[CHX,CHY,HG],[CHX,0,HG],[W,0,HG],[W,CHY,HG]];
   const colHull = hull(col.map(p => P(...p)));
   let inChute = '';
-  for (const fl of st.falls) if (fl.mode === 'chute' && fl.delay <= 0) inChute += orb({ ...fl.p, x:fl.x, y:fl.y, z:fl.z });
+  for (const fl of st.falls) if (fl.mode === 'chute' && fl.delay <= 0) inChute += prizeDraw({ ...fl.p, x:fl.x, y:fl.y, z:fl.z }, null, { env:false }).svg;
   if (inChute) ch += `<clipPath id="cChute"><path d="${sp(colHull)}"/></clipPath><g clip-path="url(#cChute)">${inChute}</g>`;
   // the chute is one block in the corner: hole + far walls + what falls inside, then its near walls
   const chuteSvg = ch + (nearX ? wallX() : '') + (nearY ? wallY() : '');
@@ -982,6 +1454,18 @@ function glassBox(m){
 
   // the pile
   const aim = st.phase === 'play' || st.phase === 'ready';
+  if (!MC.classic){
+    const zs = (MC.sand || HB) + .1;
+    for (const p of st.prizes){
+      const d = Math.hypot(p.x - cl.x, p.y - cl.y);
+      const spot = d < p.r * .8 && pTopZ(p) > zs ? fill(pd(ellZ(cl.x, cl.y, pTopZ(p) + .05, 2.2, 14)), '#1c2948', `opacity="${aim ? .3 : .16}"`) : '';
+      const dr = prizeDraw(p, st.t, { spot });
+      parts.push({ at: boxMid(dr.box), box: dr.box, sb: dr.box, svg: dr.svg });
+    }
+    for (const fl of st.falls) if (fl.mode === 'floor' && fl.delay <= 0){ const q = { ...fl.p, x:fl.x, y:fl.y, z:fl.z }, dr = prizeDraw(q, st.t); parts.push({ at: boxMid(dr.box), box: dr.box, sb: dr.box, svg: dr.svg }); }
+    if (st.held){ const dr = prizeDraw(st.held.p, st.t); parts.push({ at: boxMid(dr.box), box: dr.box, sb: dr.box, svg: dr.svg }); }
+    if (MC.water != null) parts.push(...waterBits());
+  } else
   for (const p of st.prizes){
     let spot = '';
     const d = Math.hypot(p.x - cl.x, p.y - cl.y);
@@ -993,8 +1477,10 @@ function glassBox(m){
     }
     parts.push({ at:[p.x, p.y, p.z], sb: ballB(p), svg: orb(p, spot, st.t) });
   }
-  for (const fl of st.falls) if (fl.mode === 'floor' && fl.delay <= 0){ const q = { ...fl.p, x:fl.x, y:fl.y, z:fl.z }; parts.push({ at:[fl.x, fl.y, fl.z], sb: ballB(q), svg: orb(q, '', st.t) }); }
-  if (st.held){ const p = st.held.p; parts.push({ at:[p.x, p.y, p.z], sb: ballB(p), svg: orb(p, '', st.t) }); }
+  if (MC.classic){
+    for (const fl of st.falls) if (fl.mode === 'floor' && fl.delay <= 0){ const q = { ...fl.p, x:fl.x, y:fl.y, z:fl.z }; parts.push({ at:[fl.x, fl.y, fl.z], sb: ballB(q), svg: orb(q, '', st.t) }); }
+    if (st.held){ const p = st.held.p; parts.push({ at:[p.x, p.y, p.z], sb: ballB(p), svg: orb(p, '', st.t) }); }
+  }
   for (const c of clawParts(cl)) parts.push({ ...c, sb: c.box });
   // prizes and claw sort among themselves by centre (touching spheres); the chute block then goes in right after the
   // last part that lies wholly behind it (every prize is wholly on one side of it, so this is exact)
@@ -1015,7 +1501,7 @@ function glassBox(m){
   }
   gp.push({ box:[[cl.x - 5, cl.y - 4, 136], [cl.x + 5, cl.y + 4, 144]], svg: box(cl.x - 5, cl.y - 4, 136, cl.x + 5, cl.y + 4, 144, METAL, toneI, 1) });   // y ±4: clears the rails at the edge
   gp.push({ box:[[cl.x - 3, 2, 144], [cl.x + 3, D - 2, 147.5]], svg: box(cl.x - 3, 2, 144, cl.x + 3, D - 2, 147.5, matOf('#7d8689'), toneI, 1) });
-  s += byDepth(gp);
+  if (!CLAWCAM) s += byDepth(gp);
 
   // near walls: the printed panels show their outside and hide what is behind them
   let near = '';
@@ -1024,8 +1510,10 @@ function glassBox(m){
   s += near;
   const out = clipHull([[0,0,HB],[W,0,HB],[W,D,HB],[0,D,HB],[0,0,HG],[W,0,HG],[W,D,HG],[0,D,HG]], s);
   // near glass, then the corner posts that frame it (far posts first, behind the glass)
+  // the claw-cam is inside the glass box: no glass or corner posts between it and the prizes
+  if (CLAWCAM) return out;
   let tint = '';
-  for (const w of WALLS) if (vis(w.n) && w.glass) tint += glassTintWall(w.n, 1);
+  for (const w of WALLS) if (vis(w.n) && w.glass) tint += glassTintWall(w.n, 1) + (MC.water != null ? waterLine(w.n) : '');
   const posts = [[0, D - 3, 0, D], [W - 3, 0, W, 3], [W - 3, D - 3, W, D]].map(([x0, y0, x1, y1]) =>
     ({ at:[(x0 + x1) / 2, (y0 + y1) / 2, (HB + HG) / 2], svg: box(x0, y0, HB, x1, y1, HG, m, tone, x0 && y0 ? 1.1 : 1) }));
   const mid = depthOf([W / 2, D / 2, (HB + HG) / 2]);
@@ -1064,7 +1552,7 @@ function marquee(m){
   }
   s += shape(on(PX(10), CREST), tone([1,0,0], m), 1.6);
   s += shape(on(PX(10.3), rrUV(9, HR + 4.5, D - 9, HC - 4.5, 4)), '#fff4d6', 1.3);
-  s += tx(10.4, D / 2, HR + 11.2, 'CLAW OF COOL', 7.4, '#3e86d9', 800);
+  s += tx(10.4, D / 2, HR + 11.2, MC.sign, Math.min(7.4, 7.4 * 12 / MC.sign.length), MC.classic ? '#3e86d9' : PALS[MC.pal].d, 800);
   // bulbs round the sign: chase while a game runs, all lit when idle
   const bulbs = [];
   for (let i = 0; i < 8; i++) bulbs.push([12 + i * (D - 24) / 7, HC - 2.4]);
@@ -1131,7 +1619,7 @@ function base(m){
     }
     if (vis([0,1,0])){
       s += shape(on(PY(D + .2), rrUV(12, 16, W - 12, 60, 6)), mix(sm, '#ffffff', .16), 1.2);
-      s += txY(W / 2, D + .3, 33, 'COOL', 11, tc, 800);
+      s += txY(W / 2, D + .3, 33, MC.side, Math.min(11, 11 * 4 / MC.side.length), tc, 800);
     }
     s += ink(pd(on(PX(0), BASE)), 2);
     return s;
@@ -1142,8 +1630,8 @@ function base(m){
   cav += face(pd([[BAY_X,sideY,BAY[1]],[W,sideY,BAY[1]],[W,sideY,BAY[3]],[BAY_X,sideY,BAY[3]]]), mix(m.d, '#000000', .25));
   cav += face(pd([[BAY_X,BAY[0],BAY[1]],[W,BAY[0],BAY[1]],[W,BAY[2],BAY[1]],[BAY_X,BAY[2],BAY[1]]]), mix(m.d, '#ffffff', .14));
   const inBay = [];
-  st.bay.forEach((p, i) => { if (st.take) return; const [x, y, z] = baySpot(i); inBay.push({ at:[x, y, z], svg: orb({ ...p, x, y, z }) }); });
-  for (const b of st.bayIn) if (b.t >= 0) inBay.push({ at:[b.x, b.y, b.z], svg: orb({ ...b.p, x:b.x, y:b.y, z:b.z }) });
+  st.bay.forEach((p, i) => { if (st.take) return; const [x, y, z] = baySpot(i); inBay.push({ at:[x, y, z], svg: prizeAt(p, x, y, z) }); });
+  for (const b of st.bayIn) if (b.t >= 0) inBay.push({ at:[b.x, b.y, b.z], svg: prizeAt(b.p, b.x, b.y, b.z) });
   cav += byDepth(inBay);
   s += act('take', clipTo(on(PX(W), bayR), fill(pd(on(PX(W), bayR)), 'transparent') + cav));
   // front face with the bay hole
@@ -1163,7 +1651,7 @@ function base(m){
   s += extrude(BASE, 0, W, m);
   if (vis([0,1,0])){
     s += shape(on(PY(D + .2), rrUV(12, 16, W - 12, 60, 6)), mix(sm, '#ffffff', .16), 1.2);
-    s += txY(W / 2, D + .3, 33, 'COOL', 11, tc, 800);
+    s += txY(W / 2, D + .3, 33, MC.side, Math.min(11, 11 * 4 / MC.side.length), tc, 800);
   }
   s += ink(pd(on(PX(W), BASE)), 2);
   return s;
@@ -1235,7 +1723,11 @@ function ledge(m){
   return s;
 }
 
+// a prize outside the pit (in the bay, being taken out), placed by its centre
+const prizeAt = (p, x, y, zc) => MC.classic ? orb({ ...p, x, y, z: zc }) : prizeDraw({ ...p, x, y, z: zc - KINDS[p.kind].h / 2 }, null, { env:false }).svg;
 function scene(st, m){
+  // the claw-cam rides inside the glass box: only the pit is in front of it
+  if (CLAWCAM) return glassBox(m);
   let s = '';
   s += castShadow([...on(PX(0), BASE), ...on(PX(W + LX), rectUV(1, 0, D - 1, LZ1)),
     [0,0,HR],[W,0,HR],[W,D,HR],[0,D,HR], ...on(PX(0), CREST), ...on(PX(10), CREST)]);
@@ -1246,7 +1738,7 @@ function scene(st, m){
   if (st.take){
     const k = ease(Math.min(1, st.take.t));
     st.take.ps.forEach((p, i) => { const [x, y, z] = baySpot(i);
-      front += `<g opacity="${f(1 - Math.max(0, (st.take.t - .55) / .45))}">${orb({ ...p, x: x + 22 * k, y, z: z + 16 * k })}</g>`; });
+      front += `<g opacity="${f(1 - Math.max(0, (st.take.t - .55) / .45))}">${prizeAt(p, x + 22 * k, y, z + 16 * k)}</g>`; });
   }
   front += ledge(m);
   const frontVis = vis([1,0,0]);
@@ -1269,8 +1761,24 @@ const store = {
   get(k, d){ try { const v = localStorage.getItem(SAVE_KEY + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
   set(k, v){ try { localStorage.setItem(SAVE_KEY + k, JSON.stringify(v)); } catch (e) {} },
 };
+// jeremy.v1's saves: read, never written (its best score and collection count for the Classic machine)
 const saved = { best: +store.get('best', 0) || 0, found: store.get('collection', {}) || {} };
 if (typeof saved.found !== 'object' || Array.isArray(saved.found)) saved.found = {};
+// jeremy.v2's own saves, under gameon.claw-of-cool.jeremy.v2.: best score and collection per machine, machines
+// unlocked, the last machine and zoom view picked. The sound setting is shared with v1 (gameon.claw-of-cool.sound)
+const V2 = 'jeremy.v2.';
+const isObj = o => o && typeof o === 'object' && !Array.isArray(o);
+const s2 = { best: store.get(V2 + 'best', {}), found: store.get(V2 + 'collection', {}), unlocked: +store.get(V2 + 'unlocked', 1) || 1,
+  machine: +store.get(V2 + 'machine', 0) || 0, view: +store.get(V2 + 'view', 0) || 0 };
+if (!isObj(s2.best)) s2.best = {};
+if (!isObj(s2.found)) s2.found = {};
+for (const k in s2.found) if (!isObj(s2.found[k])) s2.found[k] = {};
+s2.unlocked = Math.max(1, Math.min(MACHINES.length, s2.unlocked | 0));
+const bestOf = i => Math.max(i === 0 ? saved.best : 0, +s2.best[MACHINES[i].id] || 0);
+const foundOf = k => (MCI === 0 && saved.found[k] ? +saved.found[k] || 1 : 0) + (+(s2.found[MC.id] || {})[k] || 0);
+// start on the machine and view picked last time
+setMachine(s2.machine < s2.unlocked ? s2.machine : 0);
+Object.assign(st, fresh(), { pal: MC.pal, view: Math.max(0, Math.min(3, s2.view | 0)) });
 
 /* ---------- sound: made on the spot with WebAudio, no sound files ---------- */
 const SND = (() => {
@@ -1324,13 +1832,14 @@ const tryTime = () => Math.max(9, 17 - 2 * st.round);
 // something is still moving through the machine (a coin, the claw, a prize falling or in the bay)
 const busy = () => st.coin != null || st.credit > 0 || st.phase !== 'idle' || st.falls.length || st.bayIn.length || st.bay.length || st.take || st.held || st.refill;
 
-function findSpot(x, y, r){
+function findSpot(x, y, r, p){
+  const tz = MC.classic ? HB + r : restZ(KINDS[p.kind], false);
   const ok = (a, b) => a >= 2 + r && a <= W - 2 - r && b >= 2 + r && b <= D - 2 - r && !(a > W - 34 && b < 34)
     && st.prizes.every(q => Math.hypot(q.x - a, q.y - b) >= q.r + r - 1)
     && st.falls.every(fl => Math.hypot(fl.tx - a, fl.ty - b) >= fl.p.r + r - 1);
   for (let rad = 0; rad <= 40; rad += 2.5)
-    for (let i = 0; i < 16; i++){ const a = x + rad * Math.cos(i / 16 * 2 * Math.PI), b = y + rad * Math.sin(i / 16 * 2 * Math.PI); if (ok(a, b)) return [a, b, HB + r, 0]; }
-  return [clampX(Math.min(x, W - 36)), y, HB + r + 8, 1];
+    for (let i = 0; i < 16; i++){ const a = x + rad * Math.cos(i / 16 * 2 * Math.PI), b = y + rad * Math.sin(i / 16 * 2 * Math.PI); if (ok(a, b)) return [a, b, tz, 0]; }
+  return MC.classic ? [clampX(Math.min(x, W - 36)), y, HB + r + 8, 1] : [clampX(Math.min(x, W - 36)), y, tz, 0];
 }
 function removePrize(p){
   st.prizes = st.prizes.filter(q => q !== p);
@@ -1344,25 +1853,29 @@ function removePrize(p){
 const overHole = (x, y) => x > CHX + 2 && y < CHY - 2;
 // a prize drops into the chute: it breaks the beam, the board counts the win
 function winPrize(p){
-  const T = tierOf(p), tier = KINDS[p.kind].tier;
-  st.score += T.pts; st.coins += T.coins; st.roundWins++; st.won.push(p.kind);
-  saved.found[p.kind] = (saved.found[p.kind] || 0) + 1; store.set('collection', saved.found);
-  say(T.name, '+' + T.pts, 3);
-  popUp(`+${T.pts} ${T.name}!`, KINDS[p.kind].name + (T.coins ? `  +${T.coins} coin${T.coins > 1 ? 's' : ''}` : ''), T.col, tier >= 2);
+  const T = tierOf(p), tier = KINDS[p.kind].tier, pts = kindPts(p.kind);
+  st.score += pts; st.coins += T.coins; st.roundWins++; st.won.push(p.kind);
+  // jeremy.v2 keeps its own collection; v1's is only read
+  const fm = s2.found[MC.id] = s2.found[MC.id] || {}; fm[p.kind] = (fm[p.kind] || 0) + 1; store.set(V2 + 'collection', s2.found);
+  say(T.name, '+' + pts, 3);
+  popUp(`+${pts} ${T.name}!`, KINDS[p.kind].name + (T.coins ? `  +${T.coins} coin${T.coins > 1 ? 's' : ''}` : ''), T.col, tier >= 2);
   SND.win(tier);
+  // FIX (v1 waited until the machine was completely idle, so round 2 could come after 8 or 9 wins):
+  // the 5th win of a round refills the machine straight away
+  if (st.roundWins >= WINS_PER_ROUND) refill(p);
 }
 function dropHeld(){
   const h = st.held; if (!h) return;
   const p = h.p; st.held = null;
   if (overHole(p.x, p.y)){ st.falls.push({ p, x:p.x, y:p.y, z:p.z, vz:0, tx:p.x, ty:p.y, tz:-99, mode:'chute', delay:0 }); winPrize(p); return true; }
-  const [tx, ty, tz, layer] = findSpot(p.x, p.y, p.r);
+  const [tx, ty, tz, layer] = findSpot(p.x, p.y, p.r, p);
   p.layer = layer;
   st.falls.push({ p, x:p.x, y:p.y, z:p.z, vz:0, tx, ty, tz, mode:'floor', delay:0 });
   return false;
 }
 // the prize the claw would land on from where it is now (the highest one under it)
 function prizeUnder(x, y){
-  return st.prizes.map(p => ({ p, d: Math.hypot(p.x - x, p.y - y) })).filter(o => o.d < o.p.r + 2).sort((a, b) => b.p.z - a.p.z)[0] || null;
+  return st.prizes.map(p => ({ p, d: Math.hypot(p.x - x, p.y - y) })).filter(o => o.d < o.p.r + 2).sort((a, b) => (MC.classic ? b.p.z - a.p.z : pTopZ(b.p) - pTopZ(a.p)))[0] || null;
 }
 function startDrop(){
   const cl = st.claw;
@@ -1376,7 +1889,22 @@ function startDrop(){
   else if (under) tips = under.p.z - 2.5;
   else if (side) tips = side.p.z + 3.5;
   st.drop = { stop: Math.min(ZTOP, tips + 13 - 2), c: under && tips === under.p.z - 2.5 ? under.p : null, d: under ? under.d : 99 };
+  if (!MC.classic) st.drop = { stop: dropStop(cl), c: null, d: 99 };
   SND.zip();
+}
+// themed machines: how low the claw's hub goes from where it is now: onto the middle of the prize under it, beside
+// one it would land on, the chute's rim, or the floor (the sand). Worked out every frame, since prizes can move
+function dropStop(cl){
+  const floor = (MC.sand != null ? MC.sand : HB) + 2.5;
+  let tips = floor;
+  if (cl.x > CHX - 6 && cl.y < CHY + 6) tips = CHT + 3;
+  else {
+    const under = prizeUnder(cl.x, cl.y);
+    const side = st.prizes.map(p => ({ p, d: Math.hypot(p.x - cl.x, p.y - cl.y) })).filter(o => o.d < o.p.r + 4.5).sort((a, b) => pTopZ(b.p) - pTopZ(a.p))[0];
+    if (under) tips = Math.max(floor, pMidZ(under.p) - 2.5);
+    else if (side) tips = Math.max(floor, pTopZ(side.p) + 1);
+  }
+  return Math.min(ZTOP, tips + 11);
 }
 
 function update(dt){
@@ -1405,12 +1933,12 @@ function update(dt){
       break;
     case 'play': {
       if (st.step){
-        const mv = Math.min(st.step.rem, SPEED * dt);
+        const mv = Math.min(st.step.rem, SPEED * (MC.speed || 1) * dt);
         cl.x = clampX(cl.x + st.step.dir[0] * mv); cl.y = clampY(cl.y + st.step.dir[1] * mv);
         st.step.rem -= mv; if (st.step.rem <= 1e-6) st.step = null;
       } else if (kx || ky){
         const n = Math.hypot(kx, ky);
-        cl.x = clampX(cl.x + kx / n * SPEED * dt); cl.y = clampY(cl.y + ky / n * SPEED * dt);
+        cl.x = clampX(cl.x + kx / n * SPEED * (MC.speed || 1) * dt); cl.y = clampY(cl.y + ky / n * SPEED * (MC.speed || 1) * dt);
       }
       st.time -= dt;
       if (st.time <= 0){ st.time = 0; startDrop(); }
@@ -1418,17 +1946,27 @@ function update(dt){
     }
     case 'lower':
       cl.o = Math.min(1, st.pt / .35);
-      cl.z = Math.max(dr.stop, cl.z - 42 * dt);
-      if (cl.z <= dr.stop && st.pt > .35){
+      if (!MC.classic) dr.stop = dropStop(cl);
+      if (cl.z > dr.stop) cl.z = Math.max(dr.stop, cl.z - 42 * (MC.lower || 1) * dt);
+      if (cl.z <= dr.stop + 1e-6 && st.pt > .35){
         st.phase = 'close'; st.pt = 0; SND.clunk();
+        if (!MC.classic && !(cl.x > CHX - 6 && cl.y < CHY + 6)){ const u = prizeUnder(cl.x, cl.y); dr.c = u ? u.p : null; dr.d = u ? u.d : 99; }
         const p = dr.c;
         if (p && dr.d < p.r + 2){
           // the grip: centred holds, off-centre slips. Cooler prizes are smaller and slipperier, the claw looser each round,
-          // and even a good grip on a rare prize can wobble loose on the way
-          const T = tierOf(p), holdR = 4.5 * T.grip * looseness(), edge = p.r + 2;
+          // and even a good grip on a rare prize can wobble loose on the way. Themed machines: odd shapes (long, flat,
+          // rings) grip worse and slip more, a buried prize has to be pulled free, and the legendary one is slipperiest
+          const T = tierOf(p), K = KINDS[p.kind], sh = kindShape(p.kind);
+          const grip = MC.classic ? T.grip : sh.grip * (K.tier === 3 ? .88 : 1) * (p.buried ? .9 : 1);
+          const slip = MC.classic ? T.slip : sh.slip + (K.tier === 3 ? .1 : 0);
+          const holdR = 4.5 * grip * looseness(), edge = p.r + 2;
+          p.caught = true;
           dr.grip = dr.d < holdR ? 'hold' : 'slip';
-          if (dr.grip === 'hold' && crand() < T.slip * (.5 + dr.d / holdR)){ dr.grip = 'slip'; dr.late = true; }
-          dr.oEnd = Math.max(0, (p.r * (dr.grip === 'hold' || dr.late ? .72 : .98) - 1.5) / 8.5); dr.px = p.x; dr.py = p.y;
+          if (dr.grip === 'hold' && crand() < slip * (.5 + dr.d / holdR)){ dr.grip = 'slip'; dr.late = true; }
+          // the fingers close on the prize's edge (a themed prize says how wide it is where the claw grips it)
+          dr.oEnd = MC.classic ? Math.max(0, (p.r * (dr.grip === 'hold' || dr.late ? .72 : .98) - 1.5) / 8.5)
+            : Math.max(0, Math.min(1, (K.gr * (dr.grip === 'hold' || dr.late ? .95 : 1.1) - 1.5) / 8.5));
+          dr.px = p.x; dr.py = p.y;
           dr.holdR = holdR; dr.edge = edge;
         }
         else { dr.grip = 'miss'; dr.oEnd = 0; }
@@ -1451,8 +1989,8 @@ function update(dt){
     }
     case 'lift': case 'carry': {
       if (st.phase === 'lift'){
-        const k = Math.min(1, st.pt / 1.1); cl.z = dr.z0 + (ZTOP - dr.z0) * ease(k);
-        if (k >= 1){ st.phase = 'carry'; st.pt = 0; dr.x0 = cl.x; dr.y0 = cl.y; dr.dur = Math.max(.5, Math.hypot(HOME[0] - cl.x, HOME[1] - cl.y) / 32); }
+        const k = Math.min(1, st.pt / (1.1 / (MC.speed || 1))); cl.z = dr.z0 + (ZTOP - dr.z0) * ease(k);
+        if (k >= 1){ st.phase = 'carry'; st.pt = 0; dr.x0 = cl.x; dr.y0 = cl.y; dr.dur = Math.max(.5, Math.hypot(HOME[0] - cl.x, HOME[1] - cl.y) / (32 * (MC.speed || 1))); }
       } else {
         const k = Math.min(1, st.pt / dr.dur), q = ease(k);
         cl.x = dr.x0 + (HOME[0] - dr.x0) * q; cl.y = dr.y0 + (HOME[1] - dr.y0) * q;
@@ -1489,18 +2027,21 @@ function update(dt){
   // falling prizes
   for (const fl of st.falls.slice()){
     if (fl.delay > 0){ fl.delay -= dt; continue; }
-    fl.vz += 300 * dt; fl.z -= fl.vz * dt;
+    fl.vz += (fl.mode === 'floor' ? MC.fall || 300 : 300) * dt; fl.z -= fl.vz * dt;
     const lk2 = Math.min(1, dt * 7); fl.x += (fl.tx - fl.x) * lk2; fl.y += (fl.ty - fl.y) * lk2;
     if (fl.mode === 'floor' && fl.z <= fl.tz){
       fl.z = fl.tz;
       if (fl.vz > 70){ fl.vz = -fl.vz * .3; continue; }
       st.falls.splice(st.falls.indexOf(fl), 1);
-      st.prizes.push({ ...fl.p, x:fl.tx, y:fl.ty, z:fl.tz });
+      const q = { ...fl.p, x:fl.tx, y:fl.ty, z:fl.tz, caught:false };
+      if (!MC.classic){ q.hx = q.x; q.hy = q.y; q.bz = q.z; q.buried = false; }
+      st.prizes.push(q);
     }
-    if (fl.mode === 'chute' && fl.z < HB - fl.p.r - 3){
+    const ph = MC.classic ? fl.p.r : KINDS[fl.p.kind].h;
+    if (fl.mode === 'chute' && fl.z + (MC.classic ? 0 : ph) < HB - (MC.classic ? fl.p.r : 0) - 3){
       st.falls.splice(st.falls.indexOf(fl), 1);
       const i = st.bay.length + st.bayIn.length, [sx, sy, sz] = baySpot(i);
-      st.bayIn.push({ p:fl.p, t:-.35, x:BAY_X + 2, y:sy, z:BAY[3] + fl.p.r + 2, sx, sy, sz, vz:0 });
+      st.bayIn.push({ p:fl.p, t:-.35, x:BAY_X + 2, y:sy, z:BAY[3] + (MC.classic ? fl.p.r : ph / 2) + 2, sx, sy, sz, vz:0 });
     }
   }
   if (st.refill && !st.falls.length) st.refill = false;
@@ -1522,17 +2063,35 @@ function update(dt){
   // between tries: out of coins ends the game; five wins (or a nearly empty machine) refill it for the next round
   if (!busy()){
     if (!st.coins){ st.endT += dt; if (st.endT > 1.2) gameOver(); }
-    else if (st.roundWins >= WINS_PER_ROUND || st.prizes.length < 8) refill();
+    else if (st.prizes.length < 8) refill();
   } else st.endT = 0;
-}
 
-function refill(){
+  // themed machines: prizes bob and drift in the water, or hover in low gravity
+  if (MC.float) for (const p of st.prizes){
+    if (p.caught) continue;
+    const t = st.t + p.ph * 3;
+    if (MC.float === 'bob'){ p.x = p.hx + 1.3 * Math.sin(t * .7); p.y = p.hy + 1.3 * Math.cos(t * .53); p.z = p.bz + (KINDS[p.kind].floats ? .8 * Math.sin(t * 1.7) : .6 + .6 * Math.sin(t * 1.3)); }
+    else { p.x = p.hx + 1.2 * Math.sin(t * .4); p.y = p.hy + 1.2 * Math.cos(t * .33); p.z = p.bz + 1 + 5 * (1 + Math.sin(t * .6)); p.rot = (p.rot || 0) + dt * .12; }
+  }
+  // the camera: zoomed in on the pit from when the coin lands until the claw is home (or the round ends)
+  const inTry = !st.refill && (st.phase === 'ready' || st.phase === 'play' || DROP_PH.includes(st.phase));
+  if (inTry && st.zoom < 1) st.zoom = Math.min(1, st.zoom + dt / ZOOM_IN);
+  else if (!inTry && st.zoom > 0) st.zoom = Math.max(0, st.zoom - dt / ZOOM_OUT);
+  if (st.vblend < 1) st.vblend = Math.min(1, st.vblend + dt / .5);
+}
+const ZOOM_IN = .8, ZOOM_OUT = .7;
+
+function refill(won){
   st.round++; st.roundWins = 0; st.refill = true;
   const ps = layout(st.round);
   st.prizes = [];
-  st.falls = ps.map((p, i) => ({ p, x:p.x, y:p.y, z:p.z + 70, vz:0, tx:p.x, ty:p.y, tz:p.z, mode:'floor', delay:(p.layer ? .9 : 0) + i * .025 }));
+  // the prize just won keeps falling down the chute; the new prizes rain in from the top
+  st.falls = st.falls.filter(fl => fl.mode === 'chute').concat(ps.map((p, i) => ({ p, x:p.x, y:p.y, z:p.z + 70, vz:0, tx:p.x, ty:p.y, tz:p.z, mode:'floor', delay:(p.layer ? .9 : 0) + i * .025 })));
+  // reaching round 2 unlocks the next machine
+  let news = 'Cooler prizes, looser claw';
+  if (st.round === 2 && MCI + 1 < MACHINES.length && s2.unlocked < MCI + 2){ s2.unlocked = MCI + 2; store.set(V2 + 'unlocked', s2.unlocked); news = MACHINES[MCI + 1].name + ' unlocked!'; st.unlockedNow = MCI + 1; }
   say('ROUND', String(st.round), 3);
-  popUp(`Round ${st.round}!`, 'Cooler prizes, looser claw', '#5a82c6', true);
+  popUp(`Round ${st.round}!`, (won ? `+${kindPts(won.kind)} ${KINDS[won.kind].name} · ` : '') + news, '#5a82c6', true);
   SND.refill();
 }
 
@@ -1579,9 +2138,10 @@ function showScreen(name){
   document.documentElement.classList.toggle('overlay', !!name);
   const b = name && $(name).querySelector('.big'); if (b) try { b.focus({ preventScroll:true }); } catch (e) {}
 }
-function startGame(){
+function startGame(i){
   SND.unlock();
-  const keep = { pal: st.pal, xr: st.xr, xrT: st.xrT };
+  if (i != null && i !== MCI){ if (i >= s2.unlocked) return; setMachine(i); buildShelf(); store.set(V2 + 'machine', MCI); }
+  const keep = { pal: MC.pal, xr: st.xr, xrT: st.xrT, view: st.view };
   Object.assign(st, fresh(), keep);
   for (const k in keys) keys[k] = false;
   game.screen = 'play'; game.newBest = false; showScreen(null);
@@ -1599,17 +2159,39 @@ function resumeGame(){
 }
 function toTitle(){
   game.screen = 'title';
-  const keep = { pal: st.pal, xr: st.xr, xrT: st.xrT };
+  const keep = { pal: MC.pal, xr: st.xr, xrT: st.xrT, view: st.view };
   Object.assign(st, fresh(), keep);
   showScreen('title'); ui.render();
 }
 function gameOver(){
   game.screen = 'over'; game.overAt = performance.now();
-  game.newBest = st.score > saved.best;
-  if (game.newBest){ saved.best = st.score; store.set('best', saved.best); }
+  game.newBest = st.score > bestOf(MCI);
+  if (game.newBest){ s2.best[MC.id] = st.score; store.set(V2 + 'best', s2.best); }
   SND.over(); showScreen('over'); ui.render();
 }
 function toggleSound(){ SND.toggle(); ui.render(); }
+// the machine picker on the title screen: a locked machine says how to unlock it
+function pickMachine(i){
+  if (i < 0 || i >= MACHINES.length) return;
+  if (i >= s2.unlocked) return ui.flash(`Win 5 prizes on ${MACHINES[i - 1].name} to unlock ${MACHINES[i].name}`);
+  if (i !== MCI){ setMachine(i); store.set(V2 + 'machine', MCI); buildShelf();
+    const keep = { pal: MC.pal, xr: st.xr, xrT: st.xrT, view: st.view }; Object.assign(st, fresh(), keep); }
+  SND.tap(); ui.render();
+}
+// the zoom views: the View button or V cycles them; a try in progress turns the camera to the new one
+const VIEWS = [
+  { id:'top',   name:'Top-down', yaw:0,  pitch:82 },
+  { id:'front', name:'Front',    yaw:0,  pitch:9 },
+  { id:'claw',  name:'Claw-cam', yaw:0,  pitch:90 },
+  { id:'side',  name:'Side',     yaw:90, pitch:9 },
+];
+function cycleView(){
+  if (game.screen !== 'play') return;
+  st.vprev = st.view; st.view = (st.view + 1) % VIEWS.length; st.vblend = st.zoom > 0 ? 0 : 1;
+  store.set(V2 + 'view', st.view);
+  if (st.zoom <= 0) ui.flash(`${VIEWS[st.view].name} view: you'll see it after the next coin`);
+  SND.tap(); kick(); ui.render();
+}
 
 window.GAME_KEYS = true;   // the arrows and space play the game; they don't turn the camera here
 const KEYDIR = { ArrowLeft:[0,1], ArrowRight:[0,-1], ArrowUp:[-1,0], ArrowDown:[1,0] };
@@ -1618,11 +2200,17 @@ const onButton = e => e.target && e.target.closest && e.target.closest('button')
 addEventListener('keydown', e => {
   const key = KEYALIAS[e.key] || e.key, go = e.key === ' ' || e.key === 'Enter';
   if (/input|textarea/i.test(e.target.tagName || '')) return;
-  if (game.screen === 'title'){ if (go && !(e.key === 'Enter' && onButton(e))){ e.preventDefault(); if (!e.repeat) startGame(); } return; }
+  if (game.screen === 'title'){
+    if (go && !(e.key === 'Enter' && onButton(e))){ e.preventDefault(); if (!e.repeat) startGame(); return; }
+    // left and right pick a machine
+    if ((key === 'ArrowLeft' || key === 'ArrowRight') && !e.repeat){ e.preventDefault(); const d = key === 'ArrowRight' ? 1 : -1;
+      let i = MCI + d; if (i >= s2.unlocked) i = 0; if (i < 0) i = s2.unlocked - 1; pickMachine(i); }
+    return; }
   if (game.screen === 'over'){ if (go && !(e.key === 'Enter' && onButton(e))){ e.preventDefault(); if (!e.repeat && performance.now() - game.overAt > 700) startGame(); } return; }
   if (game.screen === 'paused'){ if (e.key === 'p' || e.key === 'P' || e.key === 'Escape'){ e.preventDefault(); resumeGame(); } return; }
   if (e.key === 'p' || e.key === 'P' || e.key === 'Escape'){ e.preventDefault(); pauseGame(); return; }
   if (e.key === 'm' || e.key === 'M'){ toggleSound(); return; }
+  if (e.key === 'v' || e.key === 'V'){ if (!e.repeat) cycleView(); return; }
   if (KEYDIR[key]){ e.preventDefault(); if (e.repeat) return;
     if (st.phase !== 'play'){ move(...KEYDIR[key]); ui.render(); return; }
     // a tap nudges the claw one step; holding the key keeps it moving after that
@@ -1833,8 +2421,88 @@ const XR_CAPTION = st => {
   return 'Inside: a gantry under the roof moves the claw on two motors and a winch. The main board, power supply, coin box and prize chute sit in the base.';
 };
 
+/* ---------- jeremy.v2: the zoom camera ----------
+   The engine draws the machine for one orthographic camera (YAW, PITCH) into a fixed viewBox. Zooming in moves that
+   camera to the view's angle and shrinks the viewBox onto the pit, both eased, so it is still the one 3D model drawn
+   from the new angle: every part is sorted and clipped for that camera as it is drawn. Ink and the hand-drawn wobble
+   are rescaled so lines stay neat when zoomed. */
+let VB0 = null, INK0 = 1, OV = null, CAMON = false, FILT_K = null;
+const lerp = (a, b, t) => a + (b - a) * t;
+// the part of the figure the buttons, keypad and scores don't cover (fractions of its box): the zoomed pit goes there
+let FREE = null;
+function measureFree(){
+  const fig = document.getElementById('fig'), R = fig.getBoundingClientRect(); let a0 = 0, a1 = 1, b0 = 0, b1 = 1;
+  if (R.width && R.height) for (const el of document.querySelectorAll('#btns, #stats, .kpad')){
+    const r = el.getBoundingClientRect();
+    if (!r.width || r.bottom <= R.top || r.top >= R.bottom || r.right <= R.left || r.left >= R.right) continue;
+    if (r.width > R.width * .35){ if (r.top - R.top < R.bottom - r.bottom) b0 = Math.max(b0, (r.bottom - R.top) / R.height); else b1 = Math.min(b1, (r.top - R.top) / R.height); }
+    else if (r.left + r.width / 2 < R.left + R.width / 2) a0 = Math.max(a0, (r.right - R.left) / R.width);
+    else a1 = Math.min(a1, (r.left - R.left) / R.width);
+  }
+  if (a1 - a0 < .3){ a0 = 0; a1 = 1; } if (b1 - b0 < .3){ b0 = 0; b1 = 1; }
+  return { a0: a0 + .01, a1: a1 - .01, b0: b0 + .01, b1: b1 - .02 };
+}
+addEventListener('resize', () => { FREE = null; });
+// the viewBox that puts a drawing-space box [x0, x1] x [y0, y1] in the free part of the figure
+function fitBox(x0, x1, y0, y1, pad){
+  const F = FREE || { a0:0, a1:1, b0:0, b1:1 }, A = VB0.h / VB0.w;
+  const w = Math.max((x1 - x0) * (1 + pad) / (F.a1 - F.a0), (y1 - y0) * (1 + pad) / ((F.b1 - F.b0) * A)), h = w * A;
+  return [(x0 + x1) / 2 - (F.a0 + F.a1) / 2 * w, (y0 + y1) / 2 - (F.b0 + F.b1) / 2 * h, w, h];
+}
+const bbox2 = pts3 => { const ps = pts3.map(q => P(...q)); return [Math.min(...ps.map(q => q[0])), Math.max(...ps.map(q => q[0])), Math.min(...ps.map(q => q[1])), Math.max(...ps.map(q => q[1]))]; };
+function fitRect(pts3, pad){ const [x0, x1, y0, y1] = bbox2(pts3); return fitBox(x0, x1, y0, y1, pad); }
+// a view's camera and the part of the drawing it frames: the pit (top-down: its floor and prizes; front and side:
+// the whole glass section), or for the claw-cam a close square round the claw, kept inside the pit
+function viewCam(v){
+  camRaw(v.yaw, v.pitch);
+  let rect;
+  if (v.id === 'claw'){
+    // a 44-unit square of the pit round the claw, kept inside the pit
+    const cl = st.claw, [cx, cy] = P(cl.x, cl.y, HB), side = 44 * CAM_K, [x0, x1, y0, y1] = bbox2(boxCorners(0, 0, HB, W, D, HB));
+    const keep = (c, lo, hi) => hi - lo <= side ? (lo + hi) / 2 : Math.max(lo + side / 2, Math.min(hi - side / 2, c));
+    const kx = keep(cx, x0, x1), ky = keep(cy, y0, y1);
+    rect = fitBox(kx - side / 2, kx + side / 2, ky - side / 2, ky + side / 2, 0);
+  } else rect = fitRect(v.id === 'top' ? boxCorners(0, 0, HB, W, D, HB + 26) : boxCorners(0, 0, HB - 4, W, D, ZTOP + 10), .05);
+  return { yaw: v.yaw, pitch: v.pitch, rect };
+}
+function blendCam(a, b, t){ const dy = ((b.yaw - a.yaw + 540) % 360) - 180; return { yaw: a.yaw + dy * t, pitch: lerp(a.pitch, b.pitch, t), rect: a.rect.map((v, i) => lerp(v, b.rect[i], t)) }; }
+function setVB(r, k){ const fig = document.getElementById('fig'); if (fig){ fig.setAttribute('viewBox', r.map(v => v.toFixed(2)).join(' ')); fig.classList.toggle('zoomcam', r[2] < VB0.w - .01); } INK_K = k; }
+function syncFilter(k){
+  if (FILT_K != null && Math.abs(FILT_K - k) / k < .02) return;
+  FILT_K = k; const fd = document.getElementById('fdefs');
+  if (fd){ fd.innerHTML = filterFor(k); try { bakeNoise(document.getElementById('fig')); } catch (e) {} }
+}
+function applyCam(){
+  if (!VB0) return;
+  const z = ease(Math.max(0, Math.min(1, st.zoom || 0)));
+  if (z <= 0){
+    if (CAMON){ CAMON = false; CLAWCAM = false; camRaw(OV.yaw, OV.pitch); setVB([VB0.x, VB0.y, VB0.w, VB0.h], INK0); syncFilter(INK0); document.documentElement.classList.remove('zoomcam'); }
+    return;
+  }
+  // the overview camera (where the player left it) is kept, to go back to when the camera zooms out
+  if (!CAMON){ CAMON = true; OV = { yaw: YAW, pitch: PITCH }; document.documentElement.classList.add('zoomcam'); }
+  if (!FREE) FREE = measureFree();
+  const cur = viewCam(VIEWS[st.view]);
+  const tgt = st.vblend < 1 ? blendCam(viewCam(VIEWS[st.vprev]), cur, ease(st.vblend)) : cur;
+  const fin = blendCam({ yaw: OV.yaw, pitch: OV.pitch, rect: [VB0.x, VB0.y, VB0.w, VB0.h] }, tgt, z);
+  camRaw(fin.yaw, fin.pitch);
+  // once the camera is (mostly) on the claw, it is inside the glass box, under the hub
+  CLAWCAM = z > .5 && VIEWS[st.vblend >= .5 ? st.view : st.vprev].id === 'claw';
+  const k = INK0 * Math.pow(fin.rect[2] / VB0.w, .6);
+  setVB(fin.rect, k);
+  if (z >= 1 && st.vblend >= 1) syncFilter(k);
+}
+// while zoomed, dragging doesn't turn the machine (the view sets the camera)
+for (const ev of ['pointerdown', 'dblclick']) addEventListener(ev, e => {
+  if (CAMON && e.target && e.target.closest && e.target.closest('#fig') && !e.target.closest('[data-act]')) e.stopPropagation(); }, true);
+// see-through and its labels are for the overview: the zoom views show the machine as it is
+{ const getSt0 = XR_OPTS.getSt, surf0 = XR_OPTS.surface;
+  XR_OPTS.getSt = () => { const s0 = getSt0(); return CAMON ? Object.assign({}, s0, { xr: 0 }) : s0; };
+  XR_OPTS.surface = s0 => CAMON ? [] : surf0(s0); }
+
 XR_OPTS.under = true;
 scene = xrWrap(scene, XR_OPTS);
+{ const sceneXr = scene; scene = (s1, m) => { applyCam(); return sceneXr(s1, m); }; }
 ui = mountFigure({
   fig:'1', turn:'full', title:'Claw of Cool', credit:false,
   size:[W + LX, D, HC], palette:'cobalt', state:st,
@@ -1843,6 +2511,7 @@ ui = mountFigure({
   stats: st => [ { label:'Coins', value: String(st.coins) }, { label:'Score', value: String(st.score) }, { label:'Round', value: String(st.round), small:true } ],
   buttons:[
     { label:'Insert coin', onClick: insertCoin },
+    { label:'View: Top-down', onClick: cycleView },
     { label:'Pause', onClick: pauseGame },
     { label:'Sound on', onClick: toggleSound },
   ],
@@ -1857,6 +2526,7 @@ ui = mountFigure({
     if (q.get('play') === '1'){ game.screen = 'play'; st.phase = 'play'; st.time = +(q.get('time') || tryTime()); }
   },
 });
+{ const vb = document.getElementById('fig').viewBox.baseVal; VB0 = { x: vb.x, y: vb.y, w: vb.width, h: vb.height }; INK0 = INK_K; FILT_K = INK_K; }
 
 /* ---------- the game around the figure: header, banner, aim line, shelf, screens ---------- */
 const hudCss = document.createElement('style');
@@ -1913,6 +2583,23 @@ hudCss.textContent = `
   .wonrow{display:flex;flex-wrap:wrap;justify-content:center;gap:2px;margin:8px 0;min-height:10px}
   .wonrow svg{width:40px;height:40px;overflow:visible}
   html.overlay body{overflow:hidden}
+  html.zoomcam .vset{visibility:hidden}
+  .vchip{position:absolute;right:2px;bottom:40px;z-index:3;font:800 11.5px ui-monospace,Menlo,monospace;letter-spacing:.06em;text-transform:uppercase;
+    background:#1d2a26;color:#8af0ae;border:1.5px solid var(--ink);border-radius:999px;padding:4px 11px;cursor:pointer}
+  .vchip[hidden]{display:none}
+  #fig.zoomcam{overflow:hidden;border-radius:14px;background:#e9e4d8}
+  .mpick{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin:6px 0 4px}
+  .mch{display:flex;flex-direction:column;align-items:center;gap:1px;padding:5px 2px 4px;border:1.5px solid var(--ink);border-radius:10px;background:#fffaf0;
+    font:700 10.5px/1.15 ui-monospace,Menlo,monospace;cursor:pointer;min-width:0}
+  .mch b{display:block;width:20px;height:20px;line-height:20px;border-radius:50%;background:var(--mc);border:1.5px solid var(--ink);font-size:11px}
+  .mch span{display:block;text-align:center;overflow-wrap:anywhere}
+  .mch small{font-size:9px;color:var(--muted);letter-spacing:.02em}
+  .mch[aria-pressed=true]{background:var(--ink);color:var(--paper)} .mch[aria-pressed=true] small{color:#d8d0c0}
+  .mch.locked{opacity:.5;border-style:dashed} .mch.locked b{background:#ddd6c8}
+  .card .blurb{font-size:12px;font-weight:700;margin:4px 0}
+  .tiers.themed{grid-template-columns:1fr 1fr 2fr 1fr}
+  .tiers.themed .tier .slots{grid-template-columns:repeat(var(--n),1fr)}
+  .slot .nm i{display:block;font-style:normal;color:var(--muted)}
   .prow{display:flex;justify-content:center;gap:4px;margin:6px 0 0}
   .prow svg{width:54px;height:54px;overflow:visible}
   #title{background:rgba(242,239,231,.4);backdrop-filter:none;-webkit-backdrop-filter:none}
@@ -1920,54 +2607,74 @@ hudCss.textContent = `
   @media (min-width:700px) and (max-height:560px){#title .how{display:none}#title .card{padding:14px 18px}#title .big{margin-top:6px}}
   @media (max-width:560px){
     .tiers{grid-template-columns:repeat(2,1fr);gap:12px 14px}
+    .tiers.themed{grid-template-columns:1fr 1fr}
+    .tiers.themed .tier:nth-child(3){grid-column:1 / -1}
+    .mpick{gap:3px} .mch{font-size:9.5px;padding:4px 1px 3px;border-radius:8px} .mch small{font-size:8px}
+    .vchip{font-size:10px;padding:3px 8px}
     .logo{font-size:38px} .card{padding:16px 14px}
     .banner b{font-size:18px} .banner.big b{font-size:24px} .banner{top:10%}
     .aim{font-size:10.5px;max-width:calc(100% - 110px)}
   }`;
 document.head.appendChild(hudCss);
 document.querySelector('header').innerHTML = '<h1>CLAW OF COOL</h1><span>Best <b id="h-best">0</b></span>';
-document.querySelectorAll('#btns .act').forEach((b, i) => b.dataset.k = ['coin', 'pause', 'sound'][i]);
+document.querySelectorAll('#btns .act').forEach((b, i) => b.dataset.k = ['coin', 'view', 'pause', 'sound'][i]);
 const stage = document.querySelector('.stage');
 const banner = document.createElement('div'); banner.className = 'banner'; banner.id = 'banner'; banner.setAttribute('role', 'status'); stage.appendChild(banner);
 const aim = document.createElement('div'); aim.className = 'aim'; aim.id = 'aim'; stage.appendChild(aim);
-// the collection shelf: every prize, in its tier, with how many you have won this game
+// the zoom view's name on the figure, and the button to cycle it (touch) next to the key (V)
+const vchip = document.createElement('button'); vchip.className = 'vchip'; vchip.id = 'vchip'; vchip.type = 'button'; vchip.hidden = true; stage.appendChild(vchip);
+vchip.onclick = () => { cycleView(); };
+// the collection shelf: every prize of this machine, in its tier, with how many you have won this game
 const shelf = document.createElement('section'); shelf.id = 'shelf'; shelf.setAttribute('aria-label', 'Collection shelf');
-shelf.innerHTML = `<div class="sh-head"><b>Collection shelf</b><span id="shelf-n"></span></div><div class="tiers">${TIERS.map((T, t) =>
-  `<div class="tier" style="--tc:${T.col}"><div class="slots">${kindsOf(t).map(k =>
-    `<div class="slot" data-kind="${k}">${prizeIcon(k)}<span class="q">?</span><span class="cnt" hidden></span><span class="nm">${KINDS[k].name}</span></div>`).join('')}</div>`
-  + `<div class="plank"></div><div class="tl"><span>${T.name}</span><span>${T.pts} pts</span></div></div>`).join('')}</div>`;
 document.querySelector('.controls').before(shelf);
+function buildShelf(){
+  const tiers = TIERS.map((T, t) => ({ T, t, ks: kindsOf(t) })).filter(o => o.ks.length);
+  shelf.innerHTML = `<div class="sh-head"><b>Collection shelf &middot; ${MC.name}</b><span id="shelf-n"></span></div><div class="tiers${MC.classic ? '' : ' themed'}">${tiers.map(({ T, ks }) =>
+    `<div class="tier" style="--tc:${T.col};--n:${ks.length}"><div class="slots">${ks.map(k =>
+      `<div class="slot" data-kind="${k}">${prizeIcon(k)}<span class="q">?</span><span class="cnt" hidden></span><span class="nm">${KINDS[k].name}${MC.classic ? '' : `<i>${kindPts(k)} pts</i>`}</span></div>`).join('')}</div>`
+    + `<div class="plank"></div><div class="tl"><span>${T.name}</span><span>${MC.classic ? T.pts + ' pts' : ''}</span></div></div>`).join('')}</div>`;
+  hudSig = '';
+  // the title screen's prizes and tiers for this machine
+  const tp = $('t-prow'); if (tp) tp.innerHTML = KIND_ORDER.filter((k, i) => MC.classic ? ['duck', 'bear', 'disco', 'unicorn'].includes(k) : true).slice(0, 5).map(k => prizeIcon(k)).join('');
+  const tc = $('t-chips'); if (tc) tc.innerHTML = MC.classic ? TIERS.map(T => `<span style="--tc:${T.col}">${T.name} ${T.pts}</span>`).join('')
+    : KIND_ORDER.map(k => `<span style="--tc:${TIERS[KINDS[k].tier].col}">${KINDS[k].name.toUpperCase()} ${kindPts(k)}</span>`).join('');
+  const tb = $('t-blurb'); if (tb) tb.textContent = MC.blurb;
+}
 const credit = document.createElement('p'); credit.className = 'cf-credit';
 credit.textContent = 'Claw machine drawn with Colorfigures by April Zhu (MIT). Designed by Jeremy for GameOn.';
 document.body.appendChild(credit);
 // the screens
-const tierChips = TIERS.map(T => `<span style="--tc:${T.col}">${T.name} ${T.pts}</span>`).join('');
 const ovl = (id, label, html) => { const d = document.createElement('div'); d.className = 'ovl'; d.id = id; d.setAttribute('role', 'dialog'); d.setAttribute('aria-label', label); d.innerHTML = `<div class="card">${html}</div>`; document.body.appendChild(d); return d; };
-ovl('title', 'Claw of Cool', `<h1 class="logo">CLAW<span class="of">of</span><span class="cool">${[...'COOL'].map((c, i) => `<span style="color:${TIERS[i].col}">${c}</span>`).join('')}</span></h1>
+ovl('title', 'Claw of Cool', `<h1 class="logo">CLAW<span class="of">of</span><span class="cool">${[...'COOL'].map((c, i) => `<span style="color:${TIERS_V1[i].col}">${c}</span>`).join('')}</span></h1>
   <p class="by">Designed by Jeremy</p>
-  <div class="prow">${['duck', 'bear', 'disco', 'unicorn'].map(k => prizeIcon(k)).join('')}</div>
-  <p class="how">Steer the claw, drop it, and grab the coolest prizes. Each coin is one try, and the cooler the prize, the more points!</p>
-  <div class="chips4">${tierChips}</div>
-  <p>Best score <b id="t-best">0</b> &middot; Prizes found <b id="t-found">0</b>/12</p>
+  <div class="mpick" id="mpick" role="group" aria-label="Pick a machine">${MACHINES.map((M, i) => `<button class="mch" data-i="${i}" style="--mc:${PALS[M.pal].l}"><b>${i + 1}</b><span>${M.name}</span><small></small></button>`).join('')}</div>
+  <p class="blurb" id="t-blurb"></p>
+  <div class="prow" id="t-prow"></div>
+  <p class="how">Steer the claw, drop it, and grab the coolest prizes. A coin zooms you in on the prizes; V changes the view. Win 5 to unlock the next machine!</p>
+  <div class="chips4" id="t-chips"></div>
+  <p>Best score <b id="t-best">0</b> &middot; Prizes found <b id="t-found">0</b>/<b id="t-of">12</b></p>
   <button class="big" id="play-btn">PLAY</button>
-  <p class="keys">Arrows or WASD steer &middot; Space drops &middot; P pauses &middot; M sound</p>`);
+  <p class="keys">Arrows or WASD steer &middot; Space drops &middot; V view &middot; P pauses &middot; M sound</p>`);
 ovl('pause', 'Paused', `<h2 class="logo" style="font-size:34px">PAUSED</h2>
   <p id="p-info"></p>
   <button class="big" id="resume-btn">RESUME</button><br>
-  <button class="alt" id="restart-btn">Start over</button><button class="alt" id="ptitle-btn">Title screen</button>`);
+  <button class="alt" id="restart-btn">Start over</button><button class="alt" id="ptitle-btn">Pick a machine</button>`);
 ovl('over', 'Game over', `<h2 class="logo" style="font-size:32px">OUT OF COINS!</h2>
   <p class="score" id="o-score">0</p><p id="o-best"></p><p id="o-new" hidden><span class="newbest">NEW BEST SCORE!</span></p>
   <div class="wonrow" id="o-won"></div><p id="o-count"></p>
-  <button class="big" id="again-btn">PLAY AGAIN</button><br><button class="alt" id="otitle-btn">Title screen</button>`);
+  <button class="big" id="again-btn">PLAY AGAIN</button><br><button class="alt" id="next-btn" hidden></button><button class="alt" id="otitle-btn">Pick a machine</button>`);
 $('play-btn').onclick = () => startGame();
 $('resume-btn').onclick = () => resumeGame();
 $('restart-btn').onclick = () => startGame();
 $('ptitle-btn').onclick = () => toTitle();
 $('again-btn').onclick = () => startGame();
 $('otitle-btn').onclick = () => toTitle();
+$('next-btn').onclick = () => startGame(MCI + 1);
+$('mpick').addEventListener('click', e => { const b = e.target.closest('.mch'); if (b) pickMachine(+b.dataset.i); });
 
 const counts = () => { const c = {}; for (const k of st.won) c[k] = (c[k] || 0) + 1; return c; };
 let hudSig = '';
+buildShelf();
 function hud(){
   // banner: points and news, for 2.2 s of game time
   const pp = st.pop, showPop = pp && st.t - pp.t0 < 2.2 && game.screen !== 'title';
@@ -1978,25 +2685,38 @@ function hud(){
   // aim line: the prize under the claw right now
   let a = '';
   if (game.screen === 'play' && st.phase === 'play'){ const u = prizeUnder(st.claw.x, st.claw.y);
-    a = u ? `<i style="background:${tierOf(u.p).col}"></i>${KINDS[u.p.kind].name} &middot; ${tierOf(u.p).name} ${tierOf(u.p).pts}` : 'Steer over a prize, then DROP'; }
+    a = u ? `<i style="background:${tierOf(u.p).col}"></i>${KINDS[u.p.kind].name} &middot; ${tierOf(u.p).name} ${kindPts(u.p.kind)}` : 'Steer over a prize, then DROP'; }
   else if (game.screen === 'play' && st.phase === 'idle' && !busy() && st.coins) a = `${st.coins} coin${st.coins > 1 ? 's' : ''} left: press DROP to play`;
   if (aim.innerHTML !== a) aim.innerHTML = a;
   // banner and aim line sit on the figure (the page script wraps the figure in .zwrap after this runs)
-  const zw = document.querySelector('.zwrap'); if (zw && banner.parentNode !== zw){ zw.appendChild(banner); zw.appendChild(aim); }
+  const zw = document.querySelector('.zwrap'); if (zw && banner.parentNode !== zw){ zw.appendChild(banner); zw.appendChild(aim); zw.appendChild(vchip); }
+  // the zoom view's name, while zoomed in (tap it, the View button or V to change it)
+  const vOn = game.screen === 'play' && st.zoom > 0, vt = `${VIEWS[st.view].name} view · V`;
+  if (vchip.hidden === vOn) vchip.hidden = !vOn;
+  if (vchip.textContent !== vt) vchip.textContent = vt;
   // header, buttons, shelf, screens
-  const c = counts(), nFound = KIND_ORDER.filter(k => saved.found[k]).length;
-  const s2 = JSON.stringify([c, nFound, saved.best, SND.on, game.screen, st.score, game.newBest]);
-  if (s2 === hudSig) return; hudSig = s2;
-  $('h-best').textContent = saved.best; $('t-best').textContent = saved.best; $('t-found').textContent = nFound;
+  const c = counts(), nFound = KIND_ORDER.filter(k => foundOf(k)).length, best = bestOf(MCI);
+  const hsig = JSON.stringify([c, nFound, best, SND.on, game.screen, st.score, game.newBest, MCI, s2.unlocked, st.view]);
+  if (hsig === hudSig) return; hudSig = hsig;
+  $('h-best').textContent = best; $('t-best').textContent = best; $('t-found').textContent = nFound; $('t-of').textContent = KIND_ORDER.length;
+  document.querySelector('header h1').textContent = MC.classic ? 'CLAW OF COOL' : 'CLAW OF COOL · ' + MC.name.toUpperCase();
   const sb = document.querySelector('#btns .act[data-k=sound]'); if (sb) sb.textContent = SND.on ? 'Sound on' : 'Sound off';
+  const vb = document.querySelector('#btns .act[data-k=view]'); if (vb) vb.textContent = 'View: ' + VIEWS[st.view].name;
+  // the machine picker: the one picked, the unlocked ones, and how to unlock the rest
+  for (const b of document.querySelectorAll('#mpick .mch')){ const i = +b.dataset.i, locked = i >= s2.unlocked;
+    b.classList.toggle('locked', locked); b.setAttribute('aria-pressed', String(i === MCI)); b.title = locked ? `Win 5 prizes on ${MACHINES[i - 1].name} to unlock` : '';
+    b.querySelector('small').textContent = locked ? 'LOCKED' : bestOf(i) ? 'Best ' + bestOf(i) : 'Unlocked'; }
+  const nx = $('next-btn'), hasNext = MCI + 1 < MACHINES.length && MCI + 1 < s2.unlocked;
+  nx.hidden = !hasNext; if (hasNext) nx.textContent = 'Next machine: ' + MACHINES[MCI + 1].name;
   for (const el of shelf.querySelectorAll('.slot')){ const k = el.dataset.kind, n = c[k] || 0, cnt = el.querySelector('.cnt');
     const was = +(el.dataset.n || 0); el.dataset.n = n;
-    el.classList.toggle('won', n > 0); el.classList.toggle('found', !n && !!saved.found[k]); el.classList.toggle('unknown', !n && !saved.found[k]);
-    el.classList.toggle('new', n > was); el.querySelector('.q').hidden = !!(n || saved.found[k]);
+    const fd = !!foundOf(k);
+    el.classList.toggle('won', n > 0); el.classList.toggle('found', !n && fd); el.classList.toggle('unknown', !n && !fd);
+    el.classList.toggle('new', n > was); el.querySelector('.q').hidden = !!(n || fd);
     cnt.hidden = !n; cnt.textContent = 'x' + n; }
-  $('shelf-n').textContent = `${st.won.length} won this game · ${nFound}/12 found`;
-  $('p-info').textContent = `Round ${st.round} · ${st.score} points · ${st.coins} coin${st.coins === 1 ? '' : 's'} left`;
-  $('o-score').textContent = st.score; $('o-best').textContent = `Best score ${saved.best}`; $('o-new').hidden = !game.newBest;
+  $('shelf-n').textContent = `${st.won.length} won this game · ${nFound}/${KIND_ORDER.length} found`;
+  $('p-info').textContent = `${MC.name} · Round ${st.round} · ${st.score} points · ${st.coins} coin${st.coins === 1 ? '' : 's'} left`;
+  $('o-score').textContent = st.score; $('o-best').textContent = `Best score on ${MC.name}: ${best}`; $('o-new').hidden = !game.newBest;
   $('o-won').innerHTML = st.won.map(k => prizeIcon(k)).join('');
   $('o-count').textContent = st.won.length ? `${st.won.length} prize${st.won.length > 1 ? 's' : ''} won, up to round ${st.round}` : 'No prizes this time. Line the claw up right over one!';
 }
@@ -2016,9 +2736,17 @@ window.__claw = {
   seed(n){ clawSeed = Math.max(1, (n | 0) % 2147483646); },
   step(sec){ const n = Math.round(sec * 60); for (let i = 0; i < n; i++) if (game.screen === 'play') update(1 / 60); ui.render(); },
   aim(x, y){ st.claw.x = clampX(x); st.claw.y = clampY(y); ui.render(); },
-  prizes(){ return st.prizes.map(p => ({ id:p.id, kind:p.kind, tier:KINDS[p.kind].tier, x:p.x, y:p.y, z:p.z, r:p.r, layer:p.layer })); },
+  prizes(){ return st.prizes.map(p => ({ id:p.id, kind:p.kind, tier:KINDS[p.kind].tier, x:p.x, y:p.y, z:p.z, r:p.r, layer:p.layer, shape:KINDS[p.kind].shape || 'round', pts:kindPts(p.kind) })); },
   under(){ const u = prizeUnder(st.claw.x, st.claw.y); return u ? { id:u.p.id, kind:u.p.kind, tier:KINDS[u.p.kind].tier, d:u.d } : null; },
-  get st(){ return st; }, get game(){ return game; }, get saved(){ return saved; }, TIERS, KINDS,
+  // jeremy.v2: the game clock, the machines and the camera
+  clock(){ return st.t; },
+  machines(){ return MACHINES.map((M, i) => ({ i, id:M.id, name:M.name, unlocked: i < s2.unlocked })); },
+  machine(){ return { i:MCI, id:MC.id, name:MC.name }; },
+  unlockAll(){ s2.unlocked = MACHINES.length; hudSig = ''; ui.render(); },   // for the checks only: not saved
+  cam(){ const vb = document.getElementById('fig').viewBox.baseVal;
+    return { yaw:YAW, pitch:PITCH, zoom:st.zoom, view:VIEWS[st.view].id, blend:st.vblend, clawcam:CLAWCAM, viewBox:[vb.x, vb.y, vb.width, vb.height], full:[VB0.x, VB0.y, VB0.w, VB0.h] }; },
+  views: VIEWS.map(v => v.id),
+  get st(){ return st; }, get game(){ return game; }, get saved(){ return saved; }, get s2(){ return s2; }, get TIERS(){ return TIERS; }, get KINDS(){ return KINDS; },
 };
 showScreen(game.screen === 'play' ? null : 'title');
 ui.render();

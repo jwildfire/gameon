@@ -10,5 +10,18 @@
   "sideways": false,
   "needs_internet": false,
   "idea_issue": 200,
-  "path": "games/claw-of-cool/"
+  "path": "games/claw-of-cool/jeremy.v2/",
+  "version": "jeremy.v2",
+  "from": "jeremy.v1",
+  "updates": [
+    {
+      "version": "jeremy.v2",
+      "from": "jeremy.v1",
+      "idea": "For claw of cool, can you zoom way in once user inserts a coin? let the user see with more details what they are trying to get. Make a few different new zoomed views, top down. front. any others you think might work.\n\nalso design some more levels. maybe a claw machine with items in water. some other themes with other types of items. Definitely don't want items in balls either. different shapes make claw machines more fun!",
+      "by": "Jeremy",
+      "made": "2026-10-26",
+      "built_with": "Claude Opus 5.5",
+      "idea_issue": 203
+    }
+  ]
 }
