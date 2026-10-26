@@ -5,10 +5,15 @@
     "title": "Claw of Cool",
     "tagline": "Steer a hand-drawn claw machine and grab the coolest prizes for big points!",
     "credit": "Made by Jeremy",
-    "url": "games/claw-of-cool/",
+    "url": "games/claw-of-cool/jeremy.v2/",
     "repo": "https://github.com/jwildfire/gameon",
     "color": "#5cc0e8",
-    "tags": ["New", "Arcade", "1 player"]
+    "tags": ["New", "Arcade", "1 player"],
+    "default": "jeremy.v2",
+    "versions": [
+      { "id": "jeremy.v1", "url": "games/claw-of-cool/", "made": "2026-10-26", "note": "The first version" },
+      { "id": "jeremy.v2", "url": "games/claw-of-cool/jeremy.v2/", "made": "2026-10-26", "note": "Zoom views and themed machines", "from": "jeremy.v1", "idea": 203 }
+    ]
   },
   {
     "slug": "fidget-factory",
