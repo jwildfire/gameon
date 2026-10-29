@@ -23,9 +23,9 @@ gh pr list -R jwildfire/gameon --state open --search "\"$REF\" in:body" --json n
 
 Pick the PR whose body has `Builds game idea $REF` exactly (a gameon `#3` and `jwildfire/gameon-ideas#3` are different ideas). The idea should carry `status: checking`. Check out the PR in its own worktree to run it: `git fetch -q origin <branch> && git worktree add .claude/worktrees/check-N origin/<branch>`.
 
-**New game or update?** It's an update if the latest eval comment's JSON line has `"update": true` (the idea also carries the `update` label, and the PR is titled "Update … to …" or "Fork … as …"). For an update, run the eight checks as [Updates and forks](#updates-and-forks) below adjusts them.
+**New game or update?** It's an update if the latest eval comment's JSON line has `"update": true` (the idea also carries the `update` label, and the PR is titled "Update … to …" or "Fork … as …"). For an update, run the nine checks as [Updates and forks](#updates-and-forks) below adjusts them.
 
-## 2. The eight checks
+## 2. The nine checks
 
 Run every one and record pass or fail with the evidence.
 
@@ -42,10 +42,17 @@ Run every one and record pass or fail with the evidence.
 6. **Plays.** Serve the worktree (`python3 -m http.server <free port>`; 8765 is taken) and, with Playwright or a browser, load `/games/<slug>/` at 375 and 1280 wide: no console errors, the title screen shows, it starts, a minute of input does something, pause works. Load the arcade too and confirm the new card appears and plays in the frame.
 7. **Fits.** `du -sh games/<slug>/` under about 2 MB; `index.html`, `gameon.json`, `README.md` and the cover exist; `gameon.json` parses and matches the contract in the build skill.
 8. **Credits right.** The kid's words verbatim in `README.md` and `gameon.json`; a nickname, never a real name; `built_with` filled in. **For an idea in gameon-ideas it's the other way round** ([docs/ideas.md](../../../docs/ideas.md#keeping-private-words-private)): `idea` is the eval's one-liner, `idea_repo` is `jwildfire/gameon-ideas`, the README points to the private idea, and the kid's words appear nowhere in the PR. Take two or three distinctive phrases from the private issue and `git grep -niF "<phrase>" origin/<branch> -- games/<slug>/ games.json evidence/ tests/evidence/`, and read the PR title, body and commit messages (`git log origin/dev..origin/<branch>`). Any hit fails.
+9. **Fits a finger.** The build's [phone bar](../gameon-build/SKILL.md#the-phone-bar), checked yourself, not from the builder's evidence. In the check worktree, with Playwright at 375 × 812 (`isMobile`, `hasTouch`; 812 × 375 too for a sideways game):
+   - Tap your way from the title screen into play, use an in-play control, pause and start over, all with `page.touchscreen.tap` on the real controls. Each tap does what it says.
+   - In title, play and pause, `touchTargets(page)` from `tests/evidence/evidence.mjs` returns no `problems` (48 × 48 px, 8 px apart and from the edges). Read the hit test of any canvas-drawn button and pass its box as `drawn`. With `viewport-fit=cover`, edge controls use `env(safe-area-inset-*)`.
+   - At 1280 wide, hold W, then ArrowUp (and A/Left, S/Down, D/Right): each pair does the same thing in play, or moves a visible selection if the game has no directions. Enter or Space does the main action; P or Escape pauses.
+   - The build's evidence has its phone check and keyboard check, and they pass.
+
+   Any miss fails, with the control's name and size in your comment.
 
 ## 3. Pass
 
-- Comment on the PR with the eight results and evidence (screenshots per `docs/evidence.md` if it exists).
+- Comment on the PR with the nine results and evidence (screenshots per `docs/evidence.md` if it exists).
 - **Merge only on a green Evidence run.** Look at the PR's Evidence run:
 
   ```bash
@@ -121,6 +128,7 @@ What changes in each check:
    - **The arcade:** for a creator's update, the game's card now plays the new version. For a fork, the card still plays the old default. If the arcade can open versions (`#<slug>@<version>`), open the new version there and play it in the frame.
 7. **Fits.** `du -sh games/<slug>/<version>/` under about 2 MB, or no more than about 2 MB bigger than the starting version if that was already bigger. `index.html`, `README.md` and `gameon.json` exist in the version folder. `gameon.json` parses, its `version` and `from` match, and its last `updates` item matches the update contract in the build skill (U4). A changed cover is 800 × 450, for a creator's update only.
 8. **Credits right.** The update idea word for word in the version's `README.md` (under the original) and in the last `updates` item's `idea`; `by` is a nickname, never a real name; `built_with` filled in. The original idea and credit are still there, unchanged. For an update idea in gameon-ideas, the private-words check in section 2's check 8 applies instead: the one-liner, `idea_repo`, and none of the kid's words.
+9. **Fits a finger.** As before, on the version folder, even if the starting version didn't. For an import, the repo's code sets it: list its shortfalls in your comment and link the open gameon task for fixing them in that repo (file one if there's none), but don't fail the import for them.
 
 ### The `games.json` entry check
 

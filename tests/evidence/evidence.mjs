@@ -89,3 +89,55 @@ export const test = base.extend({
     await use(text => testInfo.annotations.push({ type: "note", description: `${testInfo.project.name}: ${text}` }));
   }
 });
+
+// The phone bar from the build skill (#187): every control a finger can reach is at least
+// 48x48 CSS px, 8 px clear of its neighbours and of the screen's edges.
+//
+//   const { targets, problems } = await touchTargets(page);
+//   expect(problems).toEqual([]);
+//
+// It finds buttons, links, inputs and anything with a pointer cursor that a tap at its
+// centre actually reaches. Controls drawn on a canvas aren't in the page, so pass their
+// hit boxes (in CSS px from the top-left of the viewport) as `drawn`.
+export const FINGER = { min: 48, gap: 8, edge: 8 };
+
+export async function touchTargets(page, { drawn = [], ...bar } = {}) {
+  const { min, gap, edge } = { ...FINGER, ...bar };
+  const found = await page.evaluate(() => {
+    const sel = 'button,a[href],input:not([type=hidden]),select,textarea,[role=button],[onclick],[tabindex]:not([tabindex="-1"]),summary,label';
+    const els = new Set(document.querySelectorAll(sel));
+    for (const el of document.querySelectorAll("body *")) if (getComputedStyle(el).cursor === "pointer") els.add(el);
+    const out = [];
+    for (const el of els) {
+      if (el instanceof SVGElement && !(el instanceof SVGSVGElement)) continue;
+      let up = el.parentElement, nested = false;
+      while (up) { if (els.has(up)) { nested = true; break; } up = up.parentElement; }
+      if (nested) continue;
+      const r = el.getBoundingClientRect(), cs = getComputedStyle(el);
+      if (r.width < 1 || r.height < 1 || cs.visibility === "hidden" || +cs.opacity === 0) continue;
+      const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+      if (cx < 0 || cy < 0 || cx >= innerWidth || cy >= innerHeight) continue;
+      const hit = document.elementFromPoint(cx, cy);
+      if (!hit || !(el === hit || el.contains(hit))) continue;
+      const name = (el.getAttribute("aria-label") || el.innerText || el.value || el.id || el.tagName).trim().replace(/\s+/g, " ").slice(0, 24);
+      out.push({ name, x: r.left, y: r.top, w: r.width, h: r.height });
+    }
+    const scrolls = document.scrollingElement.scrollHeight > innerHeight + 1;
+    return { out, vw: innerWidth, vh: innerHeight, scrolls };
+  });
+  const targets = [...found.out, ...drawn].map(t => ({ ...t, x: Math.round(t.x), y: Math.round(t.y), w: Math.round(t.w), h: Math.round(t.h) }));
+  const problems = [];
+  for (const t of targets) {
+    if (t.w < min || t.h < min) problems.push(`"${t.name}" is ${t.w}x${t.h} (needs ${min}x${min})`);
+    const sides = [t.x, found.vw - (t.x + t.w)];
+    if (!found.scrolls) sides.push(t.y, found.vh - (t.y + t.h));
+    if (Math.min(...sides) < edge) problems.push(`"${t.name}" is ${Math.max(0, Math.min(...sides))} px from the edge (needs ${edge})`);
+  }
+  for (let i = 0; i < targets.length; i++) for (let j = i + 1; j < targets.length; j++) {
+    const a = targets[i], b = targets[j];
+    const dx = Math.max(0, Math.max(a.x, b.x) - Math.min(a.x + a.w, b.x + b.w));
+    const dy = Math.max(0, Math.max(a.y, b.y) - Math.min(a.y + a.h, b.y + b.h));
+    if (Math.max(dx, dy) < gap) problems.push(`"${a.name}" and "${b.name}" are ${Math.max(dx, dy)} px apart (need ${gap})`);
+  }
+  return { targets, problems };
+}

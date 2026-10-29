@@ -62,6 +62,7 @@ test("the arcade home shows one card per game", async ({ page, shot, note, brows
   as the thing that is true ("the switcher changes to another game"), not as an action.
 - Do something, assert it, then `shot()` it. A screenshot without an assertion proves nothing.
 - `page.frameLocator("#frame")` reaches inside a game in the arcade.
+- `touchTargets(page)` lists every control a finger can reach and what misses the phone bar (48 × 48 px, 8 px clear; the build skill's [phone bar](../.claude/skills/gameon-build/SKILL.md#the-phone-bar)). A game's phone check asserts its `problems` are empty.
 - In local runs, games hosted outside this repo are swapped for a stand-in page, so a slow
   site elsewhere can't fail your check. Games in `games/` load for real. GitHub API calls get
   an empty list; route `https://api.github.com/**` yourself in the spec if you need data.
