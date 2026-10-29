@@ -55,6 +55,6 @@ Started from jeremy.v2. It's the phone and keyboard pass from the phone-friendly
 - **Why V and not S for Sound:** S is already "down" in WASD, for driving and walking. If S also switched the sound, every time a player drove down the sound would flip. V is free (think "volume"), and the help card lists it.
 - **P pauses:** it opens Help, which already stops the town until you press Back to the game (or P again). It's the keyboard twin of the ? button, so a keyboard player has a pause key.
 - The map's place buttons get whole-pixel line heights (each 1 to 2 px taller). Their 8 px gaps were exactly 8 px but sat on half pixels, so a measurement could round them down to 7.
-- The help card's keyboard line lists the new keys.
+- The help card's keyboard line lists the new keys, and the card is 60 px wider on big screens (600 px, was 540), so it still fits without scrolling on a laptop, even with Start over armed.
 
 Driving, the town, the shops, the castle and every other button stay as they were. Saves are the same key and format as jeremy.v2, so the two versions (and jeremy.v1) share them.
