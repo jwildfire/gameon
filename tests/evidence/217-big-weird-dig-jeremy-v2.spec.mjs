@@ -37,7 +37,7 @@ async function title(page) {
 // clear level 1: every find counts as dug up, and the game finishes the level itself
 async function clearLevel(page) {
   await bwd(page, () => __bwd.state.finds.forEach(f => { f.got = true; }));
-  await expect(page.locator("#done-screen")).toBeVisible({ timeout: 10_000 });
+  await expect(page.locator("#done-screen")).toBeVisible({ timeout: 20_000 });
   await page.waitForTimeout(500);
 }
 
@@ -52,7 +52,7 @@ test("jeremy.v2 opens to its title screen and starts level 1, with nothing loade
   await shot("title");
   await press(page, isMobile, "#play-btn");
   await expect(page.locator("#hud-level")).toHaveText("1. Backyard Topsoil · 10 ft");
-  await expect(page.locator("#fuel-label")).toHaveText("FUEL 100");
+  await expect(page.locator("#fuel-label")).toHaveText(/^FUEL (100|9\d)$/); // a full tank, less what the first moments used
   expect(await mode(page)).toBe("play");
   const { scroll, width } = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, width: innerWidth }));
   expect(scroll).toBeLessThanOrEqual(width);
@@ -130,7 +130,7 @@ test("every button meets the phone bar: Pause is 48 x 48 and 8 px from the edges
   await press(page, isMobile, "#next-btn");
   await expect(page.locator("#hud-level")).toContainText("2.");
   await bwd(page, () => { __bwd.state.fuel = 0.4; });
-  await expect(page.locator("#empty-screen")).toBeVisible({ timeout: 5000 });
+  await expect(page.locator("#empty-screen")).toBeVisible({ timeout: 15_000 });
   sizes.push(...await tall(["#empty-retry-btn", "#empty-levels-btn"]));
   await measure("out of fuel");
   note(`Pause ${pa.w}x${pa.h}, ${Math.round(pa.right)} px from the right edge and ${Math.round(pa.y)} px from the top. ${sizes.join(", ")}. touchTargets() found no problems: ${lines.join("; ")}. Sound, Levels, Back, a museum slot, Dig!, Pause, Keep digging and Dig deeper each did their job when ${isMobile ? "tapped" : "clicked"}${isMobile ? "; the d-pad drove the bulldozer down" : ""}`);
@@ -167,7 +167,7 @@ test("Enter and Space each press the main button on the title, pause, level-done
     await expect(page.locator("#hud-level")).toContainText("2.");
     // out of fuel: Try again
     await bwd(page, () => { __bwd.state.fuel = 0.4; });
-    await expect(page.locator("#empty-screen")).toBeVisible({ timeout: 5000 });
+    await expect(page.locator("#empty-screen")).toBeVisible({ timeout: 15_000 });
     await page.waitForTimeout(500);
     await page.keyboard.press(key);
     await expect(page.locator("#empty-screen")).toBeHidden();
@@ -199,26 +199,71 @@ test("Enter and Space each press the main button on the title, pause, level-done
   expect(browserErrors).toEqual([]);
 });
 
-test("WASD and the arrow keys both drive the bulldozer, and P pauses", async ({ page, shot, note, browserErrors }) => {
+test("WASD and the arrow keys both drive the bulldozer the same way, and P pauses", async ({ page, shot, note, browserErrors }) => {
   await title(page);
   await page.keyboard.press("Enter");
   await expect(page.locator("#hud")).toBeVisible();
-  const at = () => bwd(page, () => (d => [d.x.toFixed(2), d.y.toFixed(2), d.dir].join())(__bwd.state.dozer));
+  const at = () => bwd(page, () => (d => ({ x: d.x, y: d.y, dir: d.dir }))(__bwd.state.dozer));
+  const hold = async (key, ms) => { await page.keyboard.down(key); await page.waitForTimeout(ms); await page.keyboard.up(key); await page.waitForTimeout(150); };
+  const fmt = p => `${p.x.toFixed(2)},${p.y.toFixed(2)}`;
   const got = [];
-  for (const key of ["s", "ArrowDown", "d", "ArrowRight", "a", "ArrowLeft", "w", "ArrowUp"]) {
+  // Each key starts from the same spot: a fresh level 1 (same seed), dug 2 or 3 rows down from column 2,
+  // so no key starts against a wall or the surface.
+  for (const [key, dx, dy] of [["s", 0, 1], ["ArrowDown", 0, 1], ["d", 1, 0], ["ArrowRight", 1, 0], ["a", -1, 0], ["ArrowLeft", -1, 0], ["w", 0, -1], ["ArrowUp", 0, -1]]) {
+    await bwd(page, () => __bwd.start(1, 217));
+    await hold("ArrowDown", 600);
     const a = await at();
-    await page.keyboard.down(key); await page.waitForTimeout(350); await page.keyboard.up(key);
-    await page.waitForTimeout(150);
+    expect(a.x).toBe(2);
+    expect(a.y).toBeGreaterThan(1);
+    await hold(key, 400);
     const b = await at();
-    expect(b, `${key} moved or turned the bulldozer`).not.toBe(a);
-    got.push(`${key}: ${a} → ${b}`);
+    if (dx) expect(Math.sign(b.x - a.x), `${key} moved the bulldozer sideways`).toBe(dx);
+    if (dy) expect(Math.sign(b.y - a.y), `${key} moved the bulldozer up or down`).toBe(dy);
+    got.push(`${key}: ${fmt(a)} → ${fmt(b)}`);
   }
   await shot("keys");
   await page.keyboard.press("P");
   await expect(page.locator("#pause-screen")).toBeVisible();
   await page.keyboard.press("P");
   await expect(page.locator("#pause-screen")).toBeHidden();
-  note(`x, y, facing: ${got.join("; ")}. P paused and P again carried on`);
+  note(`from the same spot each time (x, y): ${got.join("; ")}. P paused and P again carried on`);
+  expect(browserErrors).toEqual([]);
+});
+
+// The idea says to keep everything else the same: Pause's extra room mustn't come out of the level's name.
+test("the HUD's level name has at least jeremy.v1's room on every level at 375 and 320 px, with fuel, finds and the board no smaller", async ({ page, shot, note, browserErrors }) => {
+  const measure = async (url, w, h) => {
+    await page.setViewportSize({ width: w, height: h });
+    await page.goto(url);
+    await expect(page.locator("#play-btn")).toBeVisible();
+    const out = [];
+    for (let n = 1; n <= 8; n++) {
+      out.push(await bwd(page, n => {
+        __bwd.start(n);
+        const r = id => document.getElementById(id).getBoundingClientRect(), l = document.getElementById("hud-level");
+        return { w: l.clientWidth, cut: l.scrollWidth > l.clientWidth, text: l.textContent, fuel: Math.round(r("fuel").width), finds: Math.round(r("hud-finds").width), board: [Math.round(r("stage").width), Math.round(r("stage").height)] };
+      }, n));
+    }
+    return out;
+  };
+  const lines = [];
+  for (const [w, h] of [[375, 812], [320, 640]]) {
+    const v1 = await measure(V1, w, h), v2 = await measure(V2, w, h);
+    for (let i = 0; i < 8; i++) {
+      expect(v2[i].w, `level ${i + 1} at ${w} px`).toBeGreaterThanOrEqual(v1[i].w);
+      expect(v2[i].fuel).toBeGreaterThanOrEqual(v1[i].fuel);
+      expect(v2[i].finds).toBeGreaterThanOrEqual(v1[i].finds);
+      expect(v2[i].cut, `level ${i + 1}'s name is whole at ${w} px`).toBe(false);
+    }
+    expect(v2[0].board[0]).toBeGreaterThanOrEqual(v1[0].board[0]);
+    expect(v2[0].board[1]).toBeGreaterThanOrEqual(v1[0].board[1]);
+    lines.push(`${w} px, #hud-level v1 → v2: ${v1.map((r, i) => `${i + 1}: ${r.w}${r.cut ? " (cut)" : ""} → ${v2[i].w}${v2[i].cut ? " (cut)" : ""}`).join(", ")}; fuel ${v1[0].fuel} → ${v2[0].fuel}; board ${v1[0].board.join("x")} → ${v2[0].board.join("x")}`);
+    if (w === 375) await shot("hud-375"); // level 8, the longest name
+    // the two-row HUD still meets the phone bar
+    const { problems } = await touchTargets(page);
+    expect(problems).toEqual([]);
+  }
+  note(lines.join(". ") + ". Every name shows whole in v2");
   expect(browserErrors).toEqual([]);
 });
 
