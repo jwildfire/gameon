@@ -391,6 +391,54 @@ html[data-mode="weird"] .wordmark[data-style="18"] .wm-on { color: #4cc9f0; }
 html[data-mode="weird"] .wordmark[data-style="19"] { font-family: "Rubik Moonrocks", var(--display); color: #e0e1dd; -webkit-text-stroke: 2px #0d1b2a; text-shadow: 5px 5px 0 #0d1b2a; }
 html[data-mode="weird"] .wordmark[data-style="19"] .wm-on { color: #ffb703; }
 .home { padding-bottom: max(88px, env(safe-area-inset-bottom, 0px)); } /* room for the corner control (Shuffle, and Next in Weird) */
+/* Game controllers (#130): the focus ring the D-pad moves, and the button hints, which show
+   only while a controller is connected. */
+.gp-focus { outline: 5px solid var(--pop) !important; outline-offset: 4px; }
+.cart.gp-focus { transform: translate(-3px, -3px); box-shadow: 8px 8px 0 var(--ink); }
+.bar .gp-focus { outline-color: var(--wall) !important; outline-offset: 2px; }
+.pad-hints {
+  position: fixed;
+  z-index: 10;
+  left: 50%;
+  bottom: max(14px, env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  max-width: calc(100vw - 24px);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 6px 14px;
+  padding: 8px 14px;
+  background: var(--ink);
+  color: var(--card);
+  border: 3px solid var(--card);
+  border-radius: 22px;
+  box-shadow: 4px 4px 0 rgba(29, 26, 47, 0.5);
+  font: 800 14px/1 var(--body);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.pad-hints > span { display: inline-flex; align-items: center; gap: 6px; }
+.pad-hints .k {
+  display: inline-grid; place-items: center;
+  min-width: 24px; height: 24px; padding: 0 4px;
+  border: 2px solid var(--card); border-radius: 50%;
+  font: 800 13px/1 var(--body); color: var(--ink); background: var(--card);
+}
+.pad-hints .k.a { background: #3ccf4e; }
+.pad-hints .k.b { background: #ff5a4d; }
+.pad-hints .k.y { background: #ffc233; }
+.pad-hints .k.wide { border-radius: 8px; padding: 0 7px; }
+.pad-hints .k.pad { background: none; border: 0; padding: 0; }
+.pad-hints .k.pad svg { width: 22px; height: 22px; fill: var(--card); }
+.pad-hints { transition: opacity 600ms ease; }
+.pad-hints.faded { opacity: 0; }
+/* Scroll a ringed card clear of the hints. */
+html[data-pad] .gp-focus { scroll-margin: 16px 0 72px; }
+@media (max-width: 520px) {
+  .pad-hints { font-size: 13px; gap: 6px 10px; padding: 7px 10px; }
+  .pad-hints .move { display: none; } /* phones: just the buttons */
+}
 </style>
 </head>
 <body>
@@ -450,6 +498,8 @@ html[data-mode="weird"] .wordmark[data-style="19"] .wm-on { color: #ffb703; }
     <ul class="ver-list" id="ver-list"></ul>
   </div>
 </div>
+
+<div class="pad-hints" id="pad-hints" hidden aria-hidden="true"></div>
 
 <script>
 // Taglines: Jeremy's two lines and the Game Night line, then fifty more in the same voice.
@@ -783,6 +833,186 @@ html[data-mode="weird"] .wordmark[data-style="19"] .wm-on { color: #ffb703; }
       frame.requestFullscreen().then(focusGame).catch(function () {});
     });
   }
+
+  // Game controllers (#130), with the Gamepad API's standard mapping. The D-pad or left stick
+  // moves a focus ring, A picks, B goes back, Y opens the game switcher. While a game plays its
+  // input is its own: only Start+Select (or Home) brings up the player bar, where B goes back
+  // to the game. Nothing runs, and no hints show, until a controller is connected.
+  (function () {
+    if (!navigator.getGamepads) return;
+    var A = 0, B = 1, Y = 3, SELECT = 8, START = 9, HOME = 16;
+    var hints = document.getElementById("pad-hints");
+    var homeBtn = document.getElementById("home-btn");
+    var SCOPES = {
+      home: "#shelf .cart, #make-btn, [data-mode-set]",
+      switcher: "#switch-grid .mini, #close-switch",
+      chooser: "#ver-list .ver-item, #close-choose",
+      bar: "#home-btn, #switch-btn, #ver-select"
+    };
+    var PAD = '<svg viewBox="0 0 24 24"><path d="M9 2h6v7h7v6h-7v7H9v-7H2V9h7z"/></svg>';
+    var HINTS = {
+      home: [["pad", "Move"], ["a", "Play"]],
+      switcher: [["pad", "Move"], ["a", "Play"], ["b", "Back"]],
+      chooser: [["pad", "Move"], ["a", "Choose"], ["b", "Back"]],
+      bar: [["pad", "Move"], ["a", "Choose"], ["y", "Games"], ["b", "Back to game"]]
+    };
+    var active = false, prev = null, menu = false, ctx = "", ring = null, lastSlug = null;
+    var heldDir = "", repeatAt = 0, fadeTimer = 0;
+
+    function pads() {
+      return Array.prototype.filter.call(navigator.getGamepads() || [], function (p) { return p && p.connected; });
+    }
+    // Where the controller is: a dialog, the player bar (menu), the game itself, or the shelf.
+    function context() {
+      if (!chooser.hidden) return "chooser";
+      if (!switcher.hidden) return "switcher";
+      if (!player.hidden) return menu ? "bar" : "game";
+      return "home";
+    }
+    function targets() {
+      return SCOPES[ctx] ? Array.prototype.filter.call(document.querySelectorAll(SCOPES[ctx]), function (n) { return n.getClientRects().length > 0; }) : [];
+    }
+    // Where the ring starts: the first game, not the header's buttons.
+    function first(list) {
+      return list.filter(function (n) { return n.matches(".cart, .mini, .ver-item"); })[0] || list[0];
+    }
+    function setRing(n) {
+      if (ring) ring.classList.remove("gp-focus");
+      ring = n || null;
+      if (!ring) return;
+      ring.classList.add("gp-focus");
+      if (ring.matches(".cart")) lastSlug = ring.getAttribute("href").slice(1);
+      ring.focus({ preventScroll: true });
+      ring.scrollIntoView({ block: "nearest", inline: "nearest" });
+    }
+    // The nearest target in that direction, counting sideways distance double, so the ring
+    // goes straight down a column rather than across.
+    function move(dir) {
+      var list = targets();
+      if (!list.length) return;
+      if (!ring && list.indexOf(document.activeElement) >= 0) setRing(document.activeElement);
+      if (!ring || list.indexOf(ring) < 0) { setRing(first(list)); return; }
+      var a = ring.getBoundingClientRect(), ax = a.left + a.width / 2, ay = a.top + a.height / 2;
+      var best = null, bestScore = Infinity;
+      list.forEach(function (n) {
+        if (n === ring) return;
+        var b = n.getBoundingClientRect(), dx = b.left + b.width / 2 - ax, dy = b.top + b.height / 2 - ay;
+        var across = dir === "left" || dir === "right";
+        var ahead = dir === "left" ? -dx : dir === "right" ? dx : dir === "up" ? -dy : dy;
+        if (ahead <= 1) return;
+        var score = ahead + 2 * Math.abs(across ? dy : dx);
+        if (score < bestScore) { bestScore = score; best = n; }
+      });
+      if (best) setRing(best);
+    }
+    function renderHints() {
+      hints.innerHTML = "";
+      hints.setAttribute("data-ctx", ctx);
+      hints.classList.remove("faded");
+      clearTimeout(fadeTimer);
+      if (ctx === "game") {
+        hints.appendChild(el("span", {}, [el("span", { "class": "k wide", text: "Start" }), document.createTextNode("+"),
+          el("span", { "class": "k wide", text: "Select" }), document.createTextNode("Arcade menu")]));
+        // Over a game the hint shows for a few seconds, then gets out of the way.
+        fadeTimer = setTimeout(function () { hints.classList.add("faded"); }, 4000);
+        return;
+      }
+      (HINTS[ctx] || []).forEach(function (h) {
+        var k = el("span", { "class": "k " + h[0], text: h[0] === "pad" ? "" : h[0].toUpperCase() });
+        if (h[0] === "pad") k.innerHTML = PAD;
+        hints.appendChild(el("span", h[0] === "pad" ? { "class": "move" } : {}, [k, document.createTextNode(h[1])]));
+      });
+    }
+    // Follow the arcade into its new state: put the ring somewhere sensible, show its hints.
+    function sync() {
+      var from = ctx, c = context();
+      if (c === from) return;
+      if ((from === "switcher" || from === "chooser") && !player.hidden) { menu = false; c = context(); }
+      if (c === "home") menu = false;
+      ctx = c;
+      if (c === "home") setRing((lastSlug && shelf.querySelector('.cart[href="#' + lastSlug + '"]')) || first(targets()));
+      else if (c === "switcher") setRing(switchGrid.querySelector('.mini[aria-current="true"]') || first(targets()));
+      else if (c === "chooser") setRing(verList.querySelector('[aria-current="true"]') || first(targets()));
+      else if (c === "bar") setRing(homeBtn);
+      else { setRing(null); if (from) focusGame(); }
+      renderHints();
+    }
+    function press(b) {
+      if (b === A) {
+        if (!ring || targets().indexOf(ring) < 0) move("down");
+        else if (ring === verSelect) showChooser(current);
+        else ring.click();
+      } else if (b === B) {
+        if (ctx === "switcher") closeSwitcher();
+        else if (ctx === "chooser") closeChooser();
+        else if (ctx === "bar") menu = false;
+      } else if (b === Y) {
+        if (ctx === "bar") openSwitcher();
+        else if (ctx === "switcher") closeSwitcher();
+      }
+      sync();
+    }
+    // Start+Select (or Home): in a game, open the bar; anywhere in the player, go back to the game.
+    function combo() {
+      if (ctx === "game") menu = true;
+      else if (ctx === "bar") menu = false;
+      else if (ctx === "switcher" && current) closeSwitcher();
+      else if (ctx === "chooser" && current) closeChooser();
+      sync();
+    }
+    function poll() {
+      if (!active) return;
+      var list = pads();
+      if (!list.length) { stop(); return; }
+      var down = [], i, now = performance.now();
+      for (i = 0; i <= HOME; i++) {
+        down[i] = list.some(function (p) { var b = p.buttons[i]; return !!b && (b.pressed || b.value > 0.5); });
+      }
+      var dir = down[12] ? "up" : down[13] ? "down" : down[14] ? "left" : down[15] ? "right" : "";
+      if (!dir) list.some(function (p) {
+        var x = p.axes[0] || 0, y = p.axes[1] || 0;
+        if (Math.max(Math.abs(x), Math.abs(y)) < 0.5) return false;
+        dir = Math.abs(x) > Math.abs(y) ? (x > 0 ? "right" : "left") : (y > 0 ? "down" : "up");
+        return true;
+      });
+      if (current) lastSlug = current.slug;
+      sync();
+      // Buttons held when the controller turned up don't count until they're let go.
+      if (prev) {
+        var hit = function (n) { return down[n] && !prev[n]; };
+        if ((down[SELECT] && down[START] && !(prev[SELECT] && prev[START])) || hit(HOME)) combo();
+        else if (ctx !== "game") {
+          if (hit(A)) press(A); else if (hit(B)) press(B); else if (hit(Y)) press(Y);
+        }
+        if (ctx !== "game") {
+          if (dir && dir !== heldDir) { move(dir); repeatAt = now + 380; }
+          else if (dir && now >= repeatAt) { move(dir); repeatAt = now + 150; }
+        }
+      }
+      heldDir = dir;
+      prev = down;
+      requestAnimationFrame(poll);
+    }
+    function start() {
+      if (active) return;
+      active = true; prev = null; ctx = ""; menu = false;
+      document.documentElement.setAttribute("data-pad", "");
+      hints.hidden = false;
+      requestAnimationFrame(poll);
+    }
+    function stop() {
+      active = false; prev = null; ctx = ""; menu = false;
+      setRing(null);
+      document.documentElement.removeAttribute("data-pad");
+      hints.hidden = true;
+    }
+    window.addEventListener("gamepadconnected", start);
+    // A controller first pressed while a game had focus may only show up by polling.
+    setInterval(function () { if (!active && pads().length) start(); }, 1000);
+    // Touch, mouse and keyboard work as always; they just put the ring away.
+    document.addEventListener("pointerdown", function () { setRing(null); }, true);
+    document.addEventListener("keydown", function () { setRing(null); }, true);
+  })();
 
   window.addEventListener("hashchange", route);
   fetch("games.json")
