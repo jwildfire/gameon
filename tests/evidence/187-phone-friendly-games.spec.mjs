@@ -8,6 +8,8 @@
 // `short` lines and the keys that work) rather than the bar itself. Each row names a frozen
 // version's url, so the results can't change under it; a fixed game is a new version, with
 // its own phone check in its own build.
+// Run: npm run evidence -- tests/evidence/187-phone-friendly-games
+// evidence-scope: game claw-of-cool fidget-factory ant-farm-wars devils-burger-station oops-were-late pet-wash-payback big-weird-dig super-sauce-boy fancy-food-fight mazeathon trampoline-battle princess-lady-drive stretcher-bearer angry-dudes magic-friends timedout
 import { test, expect, games, touchTargets } from "./evidence.mjs";
 
 const all = (keys, v) => Object.fromEntries(keys.map(k => [k, v]));
