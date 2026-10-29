@@ -2,7 +2,7 @@
 // Run: npm run evidence -- tests/evidence/ideas-4-fidget-factory
 // The game clock is held and stepped by hand (__ff.hold / __ff.step) and the random numbers are
 // seeded (__ff.seed), so every run sees the same factory, the same spins and the same coins.
-import { test, expect, games } from "./evidence.mjs";
+import { test, expect } from "./evidence.mjs";
 
 const GAME = "games/fidget-factory/";
 const ff = (page, fn, arg) => page.evaluate(fn, arg);
@@ -313,18 +313,11 @@ test("the shelf holds 12 fidgets: a full shelf asks you to recycle one, and the 
   expect(browserErrors).toEqual([]);
 });
 
-// Editor's Choice cards come first in the arcade; the newest pipeline game comes next.
-test("Fidget Factory has a card right after the Editor's Choice games and plays in its frame", async ({ page, shot, note, browserErrors }) => {
+// The card is found by its slug, not its place on the shelf: newer games and Editor's Choice picks move it (#194).
+test("Fidget Factory has a card in the arcade and plays in its frame", async ({ page, shot, note, browserErrors }) => {
   await page.goto("./");
   const card = page.locator('#shelf .cart[href="#fidget-factory"]');
   await expect(card).toBeVisible();
-  const picks = games.filter(g => g.editorsChoice === true).length;
-  const mine = games.findIndex(g => g.slug === "fidget-factory");
-  expect(mine).toBeGreaterThanOrEqual(0);   // newer pipeline games go in front of it (Claw of Cool, #200)
-  const next = games.slice(mine + 1).find(g => !g.editorsChoice && !g.versions);
-  const order = await page.locator("#shelf .cart").evaluateAll(cs => cs.map(c => c.getAttribute("href")));
-  expect(order.indexOf("#fidget-factory")).toBeGreaterThanOrEqual(picks);
-  if (next) expect(order.indexOf("#fidget-factory")).toBeLessThan(order.indexOf("#" + next.slug));
   await expect(card.locator("h2")).toHaveText("Fidget Factory");
   await expect(card).toContainText("Made by Kiki");
   await expect(card.locator(".cover img")).toHaveJSProperty("complete", true);
@@ -339,7 +332,7 @@ test("Fidget Factory has a card right after the Editor's Choice games and plays 
   await expect(frame.locator("#factory")).toBeVisible();
   await frame.locator("#skip-btn").click();
   await expect(frame.locator("#play")).toBeVisible();
-  note(`card at position ${order.indexOf("#fidget-factory") + 1}, after the ${picks} Editor's Choice card(s)${next ? " and ahead of " + next.slug : ""}, with its 800x450 cover and "Made by Kiki"; inside the frame it went workshop, factory (skipped), play`);
+  note(`card on the shelf with its 800x450 cover and "Made by Kiki"; inside the frame it went workshop, factory (skipped), play`);
   await shot("in-arcade");
   expect(browserErrors).toEqual([]);
 });

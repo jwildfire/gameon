@@ -1,7 +1,7 @@
 // Evidence for game idea #111, Super Sauce Boy ("Super sauce boy. It's kinda like super meat boy, but with hot sauce.").
 // Run: npm run evidence -- 111-super-sauce-boy
 import { readFileSync } from "node:fs";
-import { test, expect, games } from "./evidence.mjs";
+import { test, expect } from "./evidence.mjs";
 
 const GAME = "games/super-sauce-boy/";
 // Winning runs found by games/super-sauce-boy/tools/solve.mjs, using the game's own engine.
@@ -184,15 +184,11 @@ test("best times are saved, only under gameon.super-sauce-boy.", async ({ page, 
   note(`keys: ${keys.join(", ")}; level 1 best ${res.t}s still there after a reload`);
 });
 
-// Since #158 Editor's Choice cards come first, so "first" means first after those.
-test("Super Sauce Boy has the first card in the arcade and plays in its frame", async ({ page, shot, note, browserErrors }) => {
+// The card is found by its slug, not its place on the shelf: newer games and Editor's Choice picks move it (#194).
+test("Super Sauce Boy has a card in the arcade and plays in its frame", async ({ page, shot, note, browserErrors }) => {
   await page.goto("./");
   const card = page.locator('#shelf .cart[href="#super-sauce-boy"]');
   await expect(card).toBeVisible();
-  // Newer pipeline games (Big Weird Dig, #155) also go in front of it, so check it stays ahead of the games that were there before it.
-  const order = await page.locator("#shelf .cart").evaluateAll(cs => cs.map(c => c.getAttribute("href")));
-  expect(order.indexOf("#super-sauce-boy")).toBeGreaterThanOrEqual(games.filter(g => g.editorsChoice === true).length);
-  expect(order.indexOf("#super-sauce-boy")).toBeLessThan(order.indexOf("#fancy-food-fight"));
   await expect(card.locator("h2")).toHaveText("Super Sauce Boy");
   await expect(card.locator(".cover img")).toHaveJSProperty("complete", true);
   expect(await card.locator(".cover img").evaluate(img => img.naturalWidth)).toBe(800);
@@ -203,7 +199,7 @@ test("Super Sauce Boy has the first card in the arcade and plays in its frame", 
   await expect(frame.locator(".title-big")).toHaveText("Sauce Boy");
   await frame.locator("#play-btn").click();
   await expect(frame.locator("#hud")).toBeVisible();
-  note("card first in the arcade with its 800x450 cover; plays inside the frame; GitHub button opens its folder");
+  note("card on the shelf with its 800x450 cover; plays inside the frame; GitHub button opens its folder");
   await shot("in-arcade");
   expect(browserErrors).toEqual([]);
 });

@@ -1,0 +1,95 @@
+{
+  "spec": "130-gamepad-arcade",
+  "passed": true,
+  "headline": "PASS: 3 of 3 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-29T15:30:57.220Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "564e50b",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/130-gamepad-arcade.spec.mjs",
+  "checks": [
+    {
+      "check": "the hints and focus ring show only once a controller is connected",
+      "notes": [
+        "desktop: connected: hints show \"Move · A Play\"; right on the D-pad moves the ring from MazeAThon to Trampoline Battle",
+        "desktop: disconnected: hints and ring gone",
+        "phone: connected: hints show \"A Play\" (phones leave out Move); down on the D-pad moves the ring from MazeAThon to Trampoline Battle",
+        "phone: disconnected: hints and ring gone"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "home-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "home-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "with only a controller you can pick a game, pick a version, play, switch games and come back",
+      "notes": [
+        "desktop: A on Trampoline Battle opens Which version?; Down, A plays jeremy.v1",
+        "desktop: in the game, A A B Y reach the game (it counts 2 A presses) and the arcade does nothing",
+        "desktop: Start+Select, Right, Right, A on the version menu, Up, A switches to jeremy.v2",
+        "desktop: Start+Select, Y, Left, A switches to MazeAThon",
+        "desktop: Start+Select, A goes back to the arcade, with the ring on MazeAThon",
+        "phone: A on Trampoline Battle opens Which version?; Down, A plays jeremy.v1",
+        "phone: in the game, A A B Y reach the game (it counts 2 A presses) and the arcade does nothing",
+        "phone: Start+Select, Right, Right, A on the version menu, Up, A switches to jeremy.v2",
+        "phone: Start+Select, Y, Left, A switches to MazeAThon",
+        "phone: Start+Select, A goes back to the arcade, with the ring on MazeAThon"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "chooser-desktop.jpg",
+          "playing-desktop.jpg",
+          "bar-desktop.jpg",
+          "switcher-desktop.jpg",
+          "back-home-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "chooser-phone.jpg",
+          "playing-phone.jpg",
+          "bar-phone.jpg",
+          "switcher-phone.jpg",
+          "back-home-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "B backs out of each menu, and touch still works with a controller connected",
+      "notes": [
+        "desktop: B in the version chooser goes back to the shelf",
+        "desktop: B in the bar goes back to the game, which has focus again",
+        "desktop: B in the switcher goes back to the game",
+        "desktop: tapping Games, a game and Arcade still works with a controller connected",
+        "phone: B in the version chooser goes back to the shelf",
+        "phone: B in the bar goes back to the game, which has focus again",
+        "phone: B in the switcher goes back to the game",
+        "phone: tapping Games, a game and Arcade still works with a controller connected"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    }
+  ]
+}
