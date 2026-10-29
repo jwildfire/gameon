@@ -81,6 +81,9 @@
   // ---- state ----
   var s = null, mode = "title", speed = 1, held = false, acc = 0, botOn = false, nextSeed = null;
   var armed = null, mouse = null, panX = 0, panY = 0, view = { sc: 20, ox: 0, oy: 0 }, keys = {}, endTimer = 0, tipTimer = 0, botPickT = 0;
+  // the keyboard cursor: a cell on the farm, shown once a direction key is pressed in a battle
+  var cur = null, curOn = false, curRep = 0, curHeld = 0, curTold = false;
+  var DIRS = { ArrowLeft: [-1, 0], a: [-1, 0], ArrowRight: [1, 0], d: [1, 0], ArrowUp: [0, -1], w: [0, -1], ArrowDown: [0, 1], s: [0, 1] };
 
   function newSeed() { return nextSeed !== null ? nextSeed : (Date.now() % 100000) + 1; }
 
@@ -93,6 +96,7 @@
     audio();
     s = E.create(newSeed(), { ai: { player: botOn } });
     mode = "draft"; speed = 1; acc = 0; armed = null; panX = 0; panY = 0; endTimer = 0;
+    cur = null; curOn = false;
     $("title-screen").hidden = true; $("pause-screen").hidden = true; $("end-screen").hidden = true;
     $("hud").hidden = false;
     showDraft(); hud(); powersBar();
@@ -199,23 +203,26 @@
   function layout() {
     var dpr = Math.min(2, window.devicePixelRatio || 1), vw = innerWidth, vh = innerHeight;
     if (canvas.width !== Math.round(vw * dpr) || canvas.height !== Math.round(vh * dpr)) { canvas.width = Math.round(vw * dpr); canvas.height = Math.round(vh * dpr); }
-    var top = 52, bottom = 80, aw = vw - 16, ah = vh - top - bottom;
+    var hudEl = $("hud"), top = 64, bottom = 80;
+    if (!hudEl.hidden) top = Math.max(top, Math.ceil(hudEl.getBoundingClientRect().bottom) + 8);
+    var aw = vw - 16, ah = vh - top - bottom;
     var fit = Math.min(aw / (E.W + 1.4), ah / (E.H + 3));
     var sc = Math.max(fit, Math.min(16, ah / (E.H + 3)));
     var cw = (E.W + 1.4) * sc, ch = (E.H + 3) * sc;
     var bx, by;
     if (cw <= aw) { panX = 0; bx = 8 + (aw - cw) / 2; } else { panX = Math.max(aw - cw, Math.min(0, panX)); bx = 8 + panX; }
     if (ch <= ah) { panY = 0; by = top + (ah - ch) / 2; } else { panY = Math.max(ah - ch, Math.min(0, panY)); by = top + panY; }
-    view = { sc: sc, ox: bx + 0.7 * sc, oy: by + 2.3 * sc, dpr: dpr, vw: vw, vh: vh, pannable: cw > aw || ch > ah };
+    view = { sc: sc, ox: bx + 0.7 * sc, oy: by + 2.3 * sc, dpr: dpr, vw: vw, vh: vh, top: top, aw: aw, ah: ah, pannable: cw > aw || ch > ah };
   }
   function toCell(px, py) { return [Math.floor((px - view.ox) / view.sc), Math.floor((py - view.oy) / view.sc)]; }
   function cellCenter(x, y) { return [view.ox + (x + 0.5) * view.sc, view.oy + (y + 0.5) * view.sc]; }
   function onFarm(c) { return c[0] >= 0 && c[1] >= 0 && c[0] < E.W && c[1] < E.H; }
 
-  function tapFarm(px, py) {
+  function tapFarm(px, py) { tapCell(toCell(px, py)); }
+  // a tap on the farm, or Enter on the keyboard cursor
+  function tapCell(c) {
     if (mode !== "battle") return;
     audio();
-    var c = toCell(px, py);
     if (!onFarm(c)) return;
     if (armed) {
       var id = armed;
@@ -240,8 +247,8 @@
     if (!id || mode !== "battle") return;
     var me = s.colonies[0];
     if ((me.cd[id] || 0) > 0) { tip(E.CARD[id].name + " is still recharging."); return; }
-    var at = null;
-    if (mouse) { var c = toCell(mouse[0], mouse[1]); if (onFarm(c)) at = c; }
+    var at = curOn && cur ? cur.slice() : null;
+    if (!at && mouse) { var c = toCell(mouse[0], mouse[1]); if (onFarm(c)) at = c; }
     if (!at) at = E.aimPower(s, 0, id);
     if (!at && me.target >= 0) { var t = s.colonies[me.target].q; at = [t.x + (t.x < E.W / 2 ? 3 : -3), t.y]; }
     if (!at) at = [me.q.x + 4, me.q.y];
@@ -249,10 +256,70 @@
     powersBar();
   }
 
+  // ---- the keyboard cursor ----
+  // The part of the farm on screen, in cells.
+  function seen() {
+    var sc = view.sc;
+    return { x0: Math.ceil((8 - view.ox) / sc), x1: Math.floor((8 + view.aw - view.ox) / sc) - 1,
+      y0: Math.ceil((view.top - view.oy) / sc), y1: Math.floor((view.top + view.ah - view.oy) / sc) - 1 };
+  }
+  function clampCell(c) { return [Math.max(0, Math.min(E.W - 1, c[0])), Math.max(0, Math.min(E.H - 1, c[1]))]; }
+  // The first key shows the cursor where it was, or in the middle of what's on screen.
+  function showCursor() {
+    if (curOn) return false;
+    var v = seen();
+    if (!cur || cur[0] < v.x0 || cur[0] > v.x1 || cur[1] < v.y0 || cur[1] > v.y1) cur = clampCell([Math.round((v.x0 + v.x1) / 2), Math.round((v.y0 + v.y1) / 2)]);
+    curOn = true;
+    if (!curTold) { curTold = true; tip("Press Enter to send your soldiers to the cursor.", 3); }
+    return true;
+  }
+  function stepCursor(d) { cur = clampCell([cur[0] + d[0], cur[1] + d[1]]); }
+  function heldDir() {
+    var dx = 0, dy = 0;
+    for (var k in DIRS) if (keys[k]) { dx += DIRS[k][0]; dy += DIRS[k][1]; }
+    return [Math.sign(dx), Math.sign(dy)];
+  }
+  // What Enter (or a tap) would do on the cursor's cell, for the label under it.
+  function cursorLabel() {
+    if (armed) return E.CARD[armed].name + " here";
+    var me = s.colonies[0], x = cur[0], y = cur[1];
+    if (me.rally && Math.abs(me.rally[0] - x) <= 1 && Math.abs(me.rally[1] - y) <= 1) return "Take the flag away";
+    var hit = s.colonies.find(function (o) { return o.alive && Math.abs(o.q.x - x) <= 3 && Math.abs(o.q.y - y) <= 2; });
+    if (hit && hit.i !== 0) return "Attack " + hit.short + "!";
+    if (s.cells[E.idx(x, y)] === E.ROCK) return "Rock: no flag here";
+    if (hit) return "Guard the queen";
+    return "Flag here";
+  }
+  function drawCursor(now) {
+    var c = cellCenter(cur[0], cur[1]), sc = view.sc, r = Math.max(14, sc * 1.15) * (1 + Math.sin(now / 170) * 0.07), arm = r * 0.55;
+    var col = armed ? "#ffc93c" : "#ffffff";
+    g.lineCap = "round"; g.lineJoin = "round";
+    for (var pass = 0; pass < 2; pass++) {
+      g.strokeStyle = pass ? col : "#2b1d14"; g.lineWidth = pass ? 3.5 : 7.5;
+      g.beginPath();
+      [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(function (q) {
+        var x = c[0] + q[0] * r, y = c[1] + q[1] * r;
+        g.moveTo(x - q[0] * arm, y); g.lineTo(x, y); g.lineTo(x, y - q[1] * arm);
+      });
+      g.stroke();
+    }
+    g.fillStyle = "#2b1d14"; g.beginPath(); g.arc(c[0], c[1], 4.5, 0, 7); g.fill();
+    g.fillStyle = col; g.beginPath(); g.arc(c[0], c[1], 2.5, 0, 7); g.fill();
+    // the label: what Enter does here
+    var text = "Enter: " + cursorLabel();
+    g.font = "900 12px " + getComputedStyle(document.body).fontFamily;
+    var w = g.measureText(text).width + 14, h = 20, lx = Math.max(4, Math.min(view.vw - w - 4, c[0] - w / 2)), ly = c[1] + r + 8;
+    if (ly + h > view.top + view.ah) ly = c[1] - r - 8 - h;
+    g.fillStyle = "rgba(43,29,20,0.88)"; g.strokeStyle = col; g.lineWidth = 2;
+    g.beginPath(); if (g.roundRect) g.roundRect(lx, ly, w, h, 10); else g.rect(lx, ly, w, h); g.fill(); g.stroke();
+    g.fillStyle = "#fff"; g.textBaseline = "middle"; g.fillText(text, lx + 7, ly + h / 2 + 1); g.textBaseline = "alphabetic";
+  }
+
   // ---- pointer: tap or drag to look around ----
   var down = null;
   canvas.addEventListener("pointerdown", function (e) {
     audio();
+    curOn = false; // touch or mouse takes over from the keyboard cursor
     down = { id: e.pointerId, x: e.clientX, y: e.clientY, px: panX, py: panY, moved: false };
     try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* fine */ }
   });
@@ -274,19 +341,33 @@
   // ---- keyboard ----
   addEventListener("keydown", function (e) {
     audio();
-    var k = e.key;
+    var k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
     keys[k] = true;
     if (k === " " || k.indexOf("Arrow") === 0) e.preventDefault();
     if (mode === "title" && (k === "Enter" || k === " ")) { start(); return; }
     if (mode === "over" && k === "Enter") { start(); return; }
+    // in a battle, WASD and the arrows move the cursor (the farm scrolls to follow it), and Enter taps there
+    if (mode === "battle" && DIRS[k]) {
+      e.preventDefault();
+      if (e.repeat) return;
+      if (!showCursor()) stepCursor(DIRS[k]);
+      curRep = 0.22;
+      return;
+    }
+    if (mode === "battle" && k === "Enter") {
+      e.preventDefault();
+      if (!showCursor()) tapCell(cur.slice());
+      return;
+    }
     if (mode === "draft" && k >= "1" && k <= "3") { choose(Number(k) - 1); return; }
     if (mode === "battle" && k >= "1" && k <= "4") { usePowerKey(Number(k) - 1); return; }
     if (k === "Escape" && armed) { armed = null; powersBar(); return; }
-    if ((k === "p" || k === "P" || k === "Escape") && (mode === "battle" || mode === "draft" || mode === "paused")) { togglePause(); return; }
+    if ((k === "p" || k === "Escape") && (mode === "battle" || mode === "draft" || mode === "paused")) { togglePause(); return; }
     if (k === " " && mode === "battle") { setSpeed(speed === 1 ? 2 : speed === 2 ? 3 : 1); return; }
-    if (k === "m" || k === "M") toggleSound();
+    if (k === "m") toggleSound();
   });
-  addEventListener("keyup", function (e) { keys[e.key] = false; });
+  addEventListener("keyup", function (e) { keys[e.key.length === 1 ? e.key.toLowerCase() : e.key] = false; });
+  addEventListener("blur", function () { keys = {}; });
 
   function setSpeed(v) { speed = v; hud(); }
   var pausedFrom = "battle";
@@ -370,9 +451,24 @@
   var last = performance.now(), marchT = 0;
   function frame(now) {
     var dt = Math.min(0.1, (now - last) / 1000); last = now;
-    // keyboard panning
-    var pan = 600 * dt;
-    if (keys.ArrowLeft) panX += pan; if (keys.ArrowRight) panX -= pan; if (keys.ArrowUp) panY += pan; if (keys.ArrowDown) panY -= pan;
+    // keys: in a battle they move the cursor and the farm scrolls to keep it in the middle;
+    // otherwise (picking a card, paused, the title) WASD and the arrows scroll the farm straight
+    if (mode === "battle" && curOn) {
+      var d = heldDir();
+      if (d[0] || d[1]) {
+        curHeld += dt; curRep -= dt;
+        while (curRep <= 0) { stepCursor(d); curRep += 1 / Math.min(22, 9 + 14 * curHeld); }
+      } else curHeld = 0;
+      if (!down) {
+        var ease = 1 - Math.exp(-dt * 12);
+        panX += (view.aw / 2 - (cur[0] + 1.2) * view.sc - panX) * ease;
+        panY += (view.ah / 2 - (cur[1] + 2.8) * view.sc - panY) * ease;
+      }
+    } else if (mode !== "battle") {
+      var pan = 600 * dt;
+      if (keys.ArrowLeft || keys.a) panX += pan; if (keys.ArrowRight || keys.d) panX -= pan;
+      if (keys.ArrowUp || keys.w) panY += pan; if (keys.ArrowDown || keys.s) panY -= pan;
+    }
     layout();
     if (mode === "title") {
       E.step(s); E.step(s);
@@ -411,14 +507,17 @@
     for (var y = 0; y < view.vh; y += 46) for (var x = (y / 46) % 2 ? 23 : 0; x < view.vw; x += 46) { g.beginPath(); g.arc(x, y, 3, 0, 7); g.fill(); }
     if (!s) return;
     var aim = null;
-    if (armed && mouse) { var c = toCell(mouse[0], mouse[1]); if (onFarm(c)) aim = cellCenter(c[0], c[1]); }
+    if (armed && curOn && cur) aim = cellCenter(cur[0], cur[1]);
+    else if (armed && mouse) { var c = toCell(mouse[0], mouse[1]); if (onFarm(c)) aim = cellCenter(c[0], c[1]); }
     A.farm(g, s, view, now, mode === "title" ? null : { aim: aim });
+    if (curOn && cur && (mode === "battle" || (mode === "paused" && pausedFrom === "battle"))) drawCursor(now);
   }
 
   // ---- a small window for the evidence tests ----
   window.__afw = {
     get state() { return s; }, get mode() { return mode; }, get speed() { return speed; }, get view() { return view; },
     get record() { return record; }, E: E,
+    get cursor() { return curOn && cur ? cur.slice() : null; }, get panX() { return panX; },
     seed: function (n) { nextSeed = n; }, start: start, pick: choose,
     hold: function (b) { held = !!b; },
     step: function (secs) { var n = Math.round(secs / E.DT); for (var i = 0; i < n; i++) { E.step(s); if (s.phase !== "battle") break; } after(); },

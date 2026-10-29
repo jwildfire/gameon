@@ -26,7 +26,7 @@ body { font-family: var(--round); color: var(--ink); background: #2b1d14;
 button { font-family: var(--round); color: var(--ink); cursor: pointer; }
 #game { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
 
-#hud { position: fixed; top: 0; left: 0; right: 0; z-index: 3; display: flex; align-items: center; gap: 6px; padding: 8px 10px; padding-top: max(8px, env(safe-area-inset-top)); font-weight: 900; font-size: 14px; pointer-events: none; }
+#hud { position: fixed; top: 0; left: 0; right: 0; z-index: 3; display: flex; align-items: center; gap: 6px; padding: 8px; padding-top: max(8px, env(safe-area-inset-top)); padding-left: max(8px, env(safe-area-inset-left)); padding-right: max(8px, env(safe-area-inset-right)); font-weight: 900; font-size: 14px; pointer-events: none; }
 #hud > * { pointer-events: auto; }
 .pill { background: var(--cream); border: 2.5px solid var(--ink); border-radius: 999px; padding: 2px 10px; white-space: nowrap; line-height: 1.5; }
 #hud-round { position: relative; overflow: hidden; flex: none; }
@@ -37,8 +37,9 @@ button { font-family: var(--round); color: var(--ink); cursor: pointer; }
 .qchip i { width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--ink); display: inline-block; }
 .qchip.out { opacity: 0.45; text-decoration: line-through; }
 #hud .spacer { flex: 1; }
-.hud-btn { width: 34px; height: 34px; border-radius: 50%; border: 2.5px solid var(--ink); background: var(--cream); display: grid; place-items: center; padding: 0; flex: none; font: 900 13px var(--round); }
-.hud-btn svg { width: 55%; height: 55%; fill: var(--ink); }
+#hud-btns { display: flex; gap: 8px; flex: none; }
+.hud-btn { width: 48px; height: 48px; border-radius: 50%; border: 2.5px solid var(--ink); background: var(--cream); display: grid; place-items: center; padding: 0; flex: none; font: 900 13px var(--round); }
+.hud-btn svg { width: 50%; height: 50%; fill: var(--ink); }
 .hud-btn.on { background: var(--gold); }
 
 #powers { position: fixed; left: 50%; transform: translateX(-50%); bottom: max(10px, env(safe-area-inset-bottom)); z-index: 3; display: flex; gap: 8px; }
@@ -50,7 +51,7 @@ button { font-family: var(--round); color: var(--ink); cursor: pointer; }
 .pw.armed { background: var(--gold); transform: translateY(-4px); box-shadow: 0 8px 0 var(--ink); }
 .pw.ready::after { content: ""; position: absolute; inset: 0; border-radius: 12px; box-shadow: inset 0 0 0 3px #fff; }
 
-#tip { position: fixed; z-index: 4; left: 50%; top: 64px; transform: translateX(-50%); width: max-content; max-width: 90%; text-align: center; font-weight: 900; font-size: 15px; line-height: 1.3; color: #fff; background: rgba(43,29,20,0.85); border: 2.5px solid var(--gold); border-radius: 14px; padding: 6px 12px; pointer-events: none; transition: opacity 500ms; }
+#tip { position: fixed; z-index: 4; left: 50%; top: calc(max(8px, env(safe-area-inset-top)) + 60px); transform: translateX(-50%); width: max-content; max-width: 90%; text-align: center; font-weight: 900; font-size: 15px; line-height: 1.3; color: #fff; background: rgba(43,29,20,0.85); border: 2.5px solid var(--gold); border-radius: 14px; padding: 6px 12px; pointer-events: none; transition: opacity 500ms; }
 #tip.fade { opacity: 0; }
 
 .screen { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 14px; background: rgba(20,12,8,0.5); overflow: auto; }
@@ -66,10 +67,10 @@ button { font-family: var(--round); color: var(--ink); cursor: pointer; }
 .how { font-size: 14px; line-height: 1.45; text-align: left; background: #fff; border: 2.5px solid var(--ink); border-radius: 14px; padding: 8px 12px; }
 .how b { color: #c0392b; }
 .row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-.btn { font: 900 20px var(--round); background: var(--gold); border: 3.5px solid var(--ink); border-radius: 999px; padding: 9px 26px; box-shadow: 0 5px 0 var(--ink); }
+.btn { font: 900 20px var(--round); background: var(--gold); border: 3.5px solid var(--ink); border-radius: 999px; padding: 9px 26px; min-height: 48px; min-width: 48px; box-shadow: 0 5px 0 var(--ink); }
 .btn:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--ink); }
 .btn.alt { background: #fff; }
-.btn.small { font-size: 15px; padding: 6px 16px; box-shadow: 0 4px 0 var(--ink); }
+.btn.small { font-size: 15px; padding: 6px 16px; min-height: 48px; box-shadow: 0 4px 0 var(--ink); }
 .colors { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; font-size: 13px; font-weight: 800; }
 .colors span { border: 2px solid var(--ink); border-radius: 999px; padding: 1px 8px; }
 
@@ -95,14 +96,13 @@ button { font-family: var(--round); color: var(--ink); cursor: pointer; }
 #places i { width: 13px; height: 13px; border-radius: 50%; border: 2px solid var(--ink); display: inline-block; }
 
 @media (max-width: 520px) {
-  #hud { font-size: 12px; gap: 4px; padding-left: 6px; padding-right: 6px; }
+  #hud { font-size: 12px; gap: 4px; }
   .qchip { font-size: 10px; padding: 1px 5px 1px 3px; }
   .qchip b { display: none; }
   #hud-round .rw { display: none; }
   #hud-round .rs { display: inline; }
-  #queens { gap: 3px; }
+  #queens { display: grid; grid-template-columns: auto auto; gap: 2px 3px; }
   .pill { padding: 2px 8px; }
-  .hud-btn { width: 30px; height: 30px; font-size: 11px; }
   .pw { width: 54px; height: 54px; }
   .pick { padding: 6px 4px 8px; }
   .pick canvas { width: 40px; height: 40px; }
@@ -119,9 +119,11 @@ button { font-family: var(--round); color: var(--ink); cursor: pointer; }
   <div class="pill" id="hud-round"><span class="rw">Round </span><span class="rs">R</span><span id="hud-rn">1</span><div id="hud-time"></div></div>
   <div id="queens"></div>
   <div class="spacer"></div>
+  <div id="hud-btns">
   <button class="hud-btn" id="speed-btn" aria-label="Speed (Space)">1×</button>
   <button class="hud-btn" id="sound-btn" aria-label="Sound on or off" aria-pressed="true"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4z"/></svg></button>
   <button class="hud-btn" id="pause-btn" aria-label="Pause (P)"><svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg></button>
+  </div>
 </div>
 <div id="powers" hidden></div>
 <div id="tip" class="fade"></div>
@@ -143,7 +145,7 @@ button { font-family: var(--round); color: var(--ink); cursor: pointer; }
     <div class="how">
       Your ants <b>dig, gather food and fight all by themselves</b>. Before each round, <b>pick 1 of 3 cards</b>: an upgrade or a special power. Break into a rival's <b>queen chamber</b> to knock them out. Last colony standing wins!<br>
       <b>Tap</b> the farm to send your soldiers there (tap a rival's nest to attack it). <b>Tap a power</b>, then the farm, to use it. <b>Drag</b> to look around.<br>
-      Keys: <b>1-3</b> pick a card, <b>1-4</b> use a power, <b>arrows</b> look around, <b>Space</b> speed up, <b>P</b> pause.
+      Keys: <b>WASD</b> or <b>arrows</b> move the cursor, <b>Enter</b> sends your soldiers there, <b>1-3</b> pick a card, <b>1-4</b> use a power, <b>Space</b> speed up, <b>P</b> pause.
     </div>
     <p class="muted" id="title-best">No battles yet.</p>
     <div class="row"><button class="btn" id="play-btn">Play</button></div>

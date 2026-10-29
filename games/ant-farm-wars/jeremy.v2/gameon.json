@@ -11,5 +11,18 @@
   "needs_internet": false,
   "idea_issue": 2,
   "idea_repo": "jwildfire/gameon-ideas",
-  "path": "games/ant-farm-wars/"
+  "path": "games/ant-farm-wars/jeremy.v2/",
+  "version": "jeremy.v2",
+  "from": "jeremy.v1",
+  "updates": [
+    {
+      "version": "jeremy.v2",
+      "from": "jeremy.v1",
+      "idea": "Make Ant Farm Wars comfortable on a phone and with a keyboard, so it meets the phone bar from the phone-friendly games task (jwildfire/gameon#187): every button at least 48 x 48 px at 375 px wide, 8 px clear of each other and the screen edges, and both WASD and the arrow keys working. Measured on jeremy.v1 on 2026-10-29:\n\n- The Speed, Sound and Pause buttons are 30 x 30, 4 px apart, and Pause is 6 px from the right edge.\n- WASD does nothing. The arrows only pan the farm: left and right on a phone, and nothing on a laptop, where the whole farm fits.\n- Placing the rally flag or sending the ants to attack works only by tapping. There's no key for it.\n- The Play, Keep fighting, Start over and Play again buttons are 47 px tall.\n\nMake the top buttons 48 x 48 with 8 px gaps and 8 px from the edge, and let WASD pan like the arrows. Add a keyboard cursor that moves with WASD or the arrows, where Enter places the rally flag. Make the menu buttons 48 px tall. Keep everything else the same.",
+      "by": "Jeremy",
+      "made": "2026-10-29",
+      "built_with": "Claude Opus 5.5",
+      "idea_issue": 213
+    }
+  ]
 }
