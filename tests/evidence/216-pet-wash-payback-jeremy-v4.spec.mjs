@@ -8,7 +8,7 @@
 //
 // Runs in play are deterministic: the game's clock is frozen and stepped 1/60 s at a time
 // (__pwp.freeze / __pwp.tick), and its dice get a fixed seed (__pwp.seed) before a round starts.
-import { test, expect, games } from "./evidence.mjs";
+import { test, expect, games, touchTargets } from "./evidence.mjs";
 
 const SLUG = "pet-wash-payback";
 const V1 = `games/${SLUG}/`;
@@ -19,57 +19,6 @@ const KIKI = `games/${SLUG}/kiki.v1/`;
 const SEED = 216;
 
 test.describe.configure({ timeout: 240_000 });
-
-// ---- The phone bar (#187): every control a finger can reach is at least 48 x 48 px, at least 8 px from
-// every other one, and at least 8 px from the screen edges (a list that scrolls isn't held to the top
-// and bottom edges). Finds buttons, links, inputs and anything with a pointer cursor that a tap at its
-// centre actually reaches; a play field (a third of the screen or more) isn't a button. The same
-// measurement as the phone-friendly games audit's touchTargets(), kept here so this spec stands alone.
-const BAR = { min: 48, gap: 8, edge: 8 };
-async function touchTargets(page) {
-  const found = await page.evaluate(() => {
-    const sel = 'button,a[href],input:not([type=hidden]),select,textarea,[role=button],[onclick],[tabindex]:not([tabindex="-1"]),summary,label';
-    const els = new Set(document.querySelectorAll(sel));
-    for (const el of document.querySelectorAll("body *")) if (getComputedStyle(el).cursor === "pointer") els.add(el);
-    const out = [];
-    for (const el of els) {
-      if (el instanceof SVGElement && !(el instanceof SVGSVGElement)) continue;
-      let up = el.parentElement, nested = false;
-      while (up) { if (els.has(up)) { nested = true; break; } up = up.parentElement; }
-      if (nested) continue;
-      const r = el.getBoundingClientRect(), cs = getComputedStyle(el);
-      if (r.width < 1 || r.height < 1 || cs.visibility === "hidden" || +cs.opacity === 0) continue;
-      const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-      if (cx < 0 || cy < 0 || cx >= innerWidth || cy >= innerHeight) continue;
-      const hit = document.elementFromPoint(cx, cy);
-      if (!hit || !(el === hit || el.contains(hit))) continue;
-      if (r.width * r.height >= innerWidth * innerHeight / 3) continue;
-      let scrolls = document.scrollingElement.scrollHeight > innerHeight + 1;
-      for (let p = el.parentElement; p && !scrolls; p = p.parentElement) {
-        const oy = getComputedStyle(p).overflowY;
-        scrolls = (oy === "auto" || oy === "scroll") && p.scrollHeight > p.clientHeight + 1;
-      }
-      const name = (el.getAttribute("aria-label") || el.innerText || el.value || el.id || el.tagName).trim().replace(/\s+/g, " ").slice(0, 24);
-      out.push({ name, x: r.left, y: r.top, w: r.width, h: r.height, scrolls });
-    }
-    return { out, vw: innerWidth, vh: innerHeight };
-  });
-  const targets = found.out.map(t => ({ ...t, x: Math.round(t.x), y: Math.round(t.y), w: Math.round(t.w), h: Math.round(t.h) }));
-  const problems = [];
-  for (const t of targets) {
-    if (t.w < BAR.min || t.h < BAR.min) problems.push(`"${t.name}" is ${t.w}x${t.h} (needs ${BAR.min}x${BAR.min})`);
-    const sides = [t.x, found.vw - (t.x + t.w)];
-    if (!t.scrolls) sides.push(t.y, found.vh - (t.y + t.h));
-    if (Math.min(...sides) < BAR.edge) problems.push(`"${t.name}" is ${Math.max(0, Math.min(...sides))} px from the edge (needs ${BAR.edge})`);
-  }
-  for (let i = 0; i < targets.length; i++) for (let j = i + 1; j < targets.length; j++) {
-    const a = targets[i], b = targets[j];
-    const dx = Math.max(0, Math.max(a.x, b.x) - Math.min(a.x + a.w, b.x + b.w));
-    const dy = Math.max(0, Math.max(a.y, b.y) - Math.min(a.y + a.h, b.y + b.h));
-    if (Math.max(dx, dy) < BAR.gap) problems.push(`"${a.name}" and "${b.name}" are ${Math.max(dx, dy)} px apart (need ${BAR.gap})`);
-  }
-  return { targets, problems };
-}
 
 // ---- Players the checks use. They run inside the page through the game's own update loop.
 // keyWashBot presses only keys, as real KeyboardEvents on the page: the arrows (or WASD, taking turns
@@ -255,34 +204,61 @@ test("jeremy.v4 opens to its title screen, starts a wash round, and loads nothin
   expect(browserErrors).toEqual([]);
 });
 
-test("every button meets the phone bar: at least 48 x 48 px, 8 px from the others and from the screen edges", async ({ page, isMobile, shot, note, browserErrors }) => {
+test("every button meets the phone bar: at least 48 x 48 px, 8 px from the others and from the screen edges, and real taps work them", async ({ page, isMobile, shot, note, browserErrors }) => {
   await open(page);
   const screens = [];
   const measure = async name => { const m = await touchTargets(page); screens.push({ name, ...m }); return m; };
   const size = t => `${t.w}x${t.h}`;
+  // a finger on the phone (page.touchscreen.tap at the button's centre), the mouse on the desktop
+  const tap = async sel => {
+    const el = page.locator(sel);
+    if (!isMobile) return el.click();
+    const b = await el.boundingBox();
+    await page.touchscreen.tap(b.x + b.width / 2, b.y + b.height / 2);
+  };
+  const tapped = [];
   await measure("title");
-  await page.locator("#pets-btn").click();
+  await tap("#pets-btn");
+  await expect(page.locator("#pets-screen")).toBeVisible();
   await measure("Pick a pet");
-  await page.locator("#pets-back").click();
-  await page.locator("#play-btn").click();
+  await tap("#pets-back");
+  await expect(page.locator("#title-screen")).toBeVisible();
+  await tap("#play-btn");
+  await expect(page.locator("#intro-title")).toHaveText("Wash Biscuit the Dog!");
   await measure("round intro");
   await freezeAndSeed(page);
-  await page.locator("#go-btn").click();
+  await tap("#go-btn");
+  await expect(page.locator("#hud-pet")).toHaveText("Biscuit · Wash!");
+  tapped.push("Pick a pet", "Back", "Play!", "Go!");
   const wash = await measure("wash round");
+  // the in-play controls: a tool, Sound, and Pause
+  await tap("#tool-1");
+  expect(await pwp(page, () => __pwp.round.tool)).toBe(1);
+  await tap("#tool-0");
+  expect(await pwp(page, () => __pwp.round.tool)).toBe(0);
+  await tap("#mute-btn");
+  await expect(page.locator("#mute-btn")).toHaveClass(/off/);
+  await tap("#mute-btn");
+  await expect(page.locator("#mute-btn")).not.toHaveClass(/off/);
+  tapped.push("Rinse", "Soap", "Sound (twice)");
   const mute = await page.locator("#mute-btn").boundingBox(), pauseB = await page.locator("#pause-btn").boundingBox();
   const hudGap = Math.round((pauseB.x - (mute.x + mute.width)) * 10) / 10;
   expect(Math.round(mute.width)).toBeGreaterThanOrEqual(48); expect(Math.round(mute.height)).toBeGreaterThanOrEqual(48);
   expect(Math.round(pauseB.width)).toBeGreaterThanOrEqual(48); expect(Math.round(pauseB.height)).toBeGreaterThanOrEqual(48);
   expect(hudGap).toBeGreaterThanOrEqual(8);
   await shot("buttons-wash");
-  await page.locator("#pause-btn").click();
+  await tap("#pause-btn");
   await expect(page.locator("#pause-screen")).toBeVisible();
+  expect(await pwp(page, () => __pwp.paused)).toBe(true);
+  tapped.push("Pause");
   await measure("pause");
   const small = {};
   for (const id of ["pause-title-btn", "pause-sound-btn", "resume-btn", "restart-btn"]) small[id] = await page.locator("#" + id).boundingBox();
   for (const b of Object.values(small)) expect(Math.round(b.height)).toBeGreaterThanOrEqual(48);
   await shot("buttons-pause");
-  await page.locator("#resume-btn").click();
+  await tap("#resume-btn");
+  expect(await pwp(page, () => __pwp.paused)).toBe(false);
+  tapped.push("Keep going");
   await bots(page);
   await page.evaluate(() => washBot());
   await expect(page.locator("#result-screen")).toBeVisible();
@@ -309,7 +285,7 @@ test("every button meets the phone bar: at least 48 x 48 px, 8 px from the other
   expect(problems).toEqual([]);
   const count = screens.reduce((n, s) => n + s.targets.length, 0);
   const smallest = screens.flatMap(s => s.targets).reduce((a, t) => Math.min(a, t.w, t.h), 1e9);
-  note(`${isMobile ? "375 px wide (phone)" : "1280 px wide"}: ${count} buttons on ${screens.length} screens (${screens.map(s => `${s.name} ${s.targets.length}`).join(", ")}), none smaller than ${smallest} px, none closer than 8 px to another or to an edge. Sound ${size(wash.targets.find(t => t.name === "Sound on or off"))} and Pause ${size(wash.targets.find(t => t.name === "Pause"))}, ${hudGap} px apart; Back ${size(back)}; Title screen ${Math.round(small["pause-title-btn"].width)}x${Math.round(small["pause-title-btn"].height)} and Sound: on ${Math.round(small["pause-sound-btn"].width)}x${Math.round(small["pause-sound-btn"].height)} on the pause screen; Keep going ${Math.round(small["resume-btn"].height)} px tall`);
+  note(`${isMobile ? "375 px wide (phone), with real taps" : "1280 px wide, with clicks"} (${tapped.join(", ")}, each doing its job): ${count} buttons on ${screens.length} screens (${screens.map(s => `${s.name} ${s.targets.length}`).join(", ")}), none smaller than ${smallest} px, none closer than 8 px to another or to an edge. Sound ${size(wash.targets.find(t => t.name === "Sound on or off"))} and Pause ${size(wash.targets.find(t => t.name === "Pause"))}, ${hudGap} px apart; Back ${size(back)}; Title screen ${Math.round(small["pause-title-btn"].width)}x${Math.round(small["pause-title-btn"].height)} and Sound: on ${Math.round(small["pause-sound-btn"].width)}x${Math.round(small["pause-sound-btn"].height)} on the pause screen; Keep going ${Math.round(small["resume-btn"].height)} px tall`);
   expect(browserErrors).toEqual([]);
 });
 
@@ -345,8 +321,17 @@ test("in the wash round, the arrows and WASD move a visible scrub brush, and it 
   expect(ride.petMoved).toBeGreaterThan(10);
   expect(ride.drift).toBeLessThan(12);
   await shot("keyboard-brush");
+  // P and Escape pause and unpause
+  await page.keyboard.press("p");
+  await expect(page.locator("#pause-screen")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.locator("#pause-screen")).toBeHidden();
+  await page.keyboard.press("Escape");
+  await expect(page.locator("#pause-screen")).toBeVisible();
+  await page.keyboard.press("p");
+  await expect(page.locator("#pause-screen")).toBeHidden();
   await pwp(page, () => __pwp.freeze(false));
-  note(`Enter on the title and Enter on Go! started Biscuit's wash with the brush already on him. Held for a quarter second each, the brush moved (px): ${Object.entries(moves).map(([k, d]) => `${k} ${d}`).join(", ")}; moving alone scrubbed nothing. Over 1.5 s Biscuit swayed ${ride.petMoved} px and the brush, with no key down, stayed within ${ride.drift} px of the same spot on him`);
+  note(`Enter on the title and Enter on Go! started Biscuit's wash with the brush already on him. Held for a quarter second each, the brush moved (px): ${Object.entries(moves).map(([k, d]) => `${k} ${d}`).join(", ")}; moving alone scrubbed nothing. Over 1.5 s Biscuit swayed ${ride.petMoved} px and the brush, with no key down, stayed within ${ride.drift} px of the same spot on him. P and Escape each pause and unpause`);
   expect(browserErrors).toEqual([]);
 });
 
