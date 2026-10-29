@@ -1,10 +1,10 @@
 {
   "spec": "222-princess-lady-drive-jeremy-v3",
   "passed": true,
-  "headline": "PASS: 10 of 10 checks pass at desktop and phone widths.",
-  "generatedAt": "2026-10-29T20:16:40.951Z",
+  "headline": "PASS: 11 of 11 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-29T21:25:04.290Z",
   "target": "local server (python3 -m http.server) on this branch",
-  "commit": "859893f",
+  "commit": "02c5c22",
   "playwright": "1.61.1",
   "specFile": "tests/evidence/222-princess-lady-drive-jeremy-v3.spec.mjs",
   "checks": [
@@ -110,9 +110,9 @@
     {
       "check": "the HUD isn't squeezed: everything jeremy.v2 showed whole is still whole in jeremy.v3, and no smaller",
       "notes": [
-        "desktop: 275 boxes jeremy.v2 showed whole (title, driving, walking, map, help; the cards at the top and scrolled down) are all still whole in jeremy.v3 and none is smaller",
-        "desktop: bigger in jeremy.v3: #map .spot (31 of them, up to 0 px wider and 2 px taller); #help .card (1, up to 0 px wider and 23 px taller); #help li (1, up to 0 px wider and 23 px taller); #resetBtn (1, up to 0 px wider and 5 px taller)",
-        "phone: 275 boxes jeremy.v2 showed whole (title, driving, walking, map, help; the cards at the top and scrolled down) are all still whole in jeremy.v3 and none is smaller",
+        "desktop: 347 boxes jeremy.v2 showed whole (title, driving, walking, map, help, help with Start over armed; the cards at the top and scrolled down) are all still whole in jeremy.v3 and none is smaller",
+        "desktop: bigger in jeremy.v3: #map .spot (31 of them, up to 0 px wider and 2 px taller); #help .card (1, up to 60 px wider and 0 px taller); #help h2 (1, up to 60 px wider and 0 px taller); #help li (8 of them, up to 60 px wider and 0 px taller); #resetBtn (1, up to 0 px wider and 5 px taller)",
+        "phone: 347 boxes jeremy.v2 showed whole (title, driving, walking, map, help, help with Start over armed; the cards at the top and scrolled down) are all still whole in jeremy.v3 and none is smaller",
         "phone: bigger in jeremy.v3: #map .spot (31 of them, up to 0 px wider and 1 px taller); #help li (1, up to 0 px wider and 46 px taller); #resetBtn (1, up to 0 px wider and 5 px taller)"
       ],
       "desktop": {
@@ -126,6 +126,33 @@
         "status": "pass",
         "screenshots": [
           "hud-help-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Help, opened and with Start over armed, shows everything jeremy.v2 showed as the player lands in it, at six screen sizes",
+      "notes": [
+        "desktop: 428 boxes jeremy.v2 showed whole on screen (Help opened, and armed), with the fallback fonts and the real ones, are whole in jeremy.v3 too, and none is smaller",
+        "desktop: 1024x768: Help scrolls 0 px opened and 28 px armed in jeremy.v2, 0 and 0 px in jeremy.v3; armed, Back to the game shows 48/54 px in jeremy.v2 and 54/54 px in jeremy.v3",
+        "desktop: 1280x800: Help scrolls 0 px opened and 0 px armed in jeremy.v2, 0 and 0 px in jeremy.v3; armed, Back to the game shows 54/54 px in jeremy.v2 and 54/54 px in jeremy.v3",
+        "desktop: 1366x768: Help scrolls 0 px opened and 28 px armed in jeremy.v2, 0 and 0 px in jeremy.v3; armed, Back to the game shows 48/54 px in jeremy.v2 and 54/54 px in jeremy.v3",
+        "phone: 368 boxes jeremy.v2 showed whole on screen (Help opened, and armed), with the fallback fonts and the real ones, are whole in jeremy.v3 too, and none is smaller",
+        "phone: 375x812: Help scrolls 239 px opened and 239 px armed in jeremy.v2, 291 and 291 px in jeremy.v3; armed, Back to the game shows 54/54 px in jeremy.v2 and 54/54 px in jeremy.v3",
+        "phone: 667x375: Help scrolls 366 px opened and 421 px armed in jeremy.v2, 320 and 320 px in jeremy.v3; armed, Back to the game shows 21/54 px in jeremy.v2 and 54/54 px in jeremy.v3",
+        "phone: 812x375: Help scrolls 366 px opened and 421 px armed in jeremy.v2, 320 and 320 px in jeremy.v3; armed, Back to the game shows 21/54 px in jeremy.v2 and 54/54 px in jeremy.v3"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "help-armed-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "help-armed-phone.jpg"
         ],
         "error": null
       }
