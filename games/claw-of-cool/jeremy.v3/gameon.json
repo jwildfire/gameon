@@ -10,9 +10,9 @@
   "sideways": false,
   "needs_internet": false,
   "idea_issue": 200,
-  "path": "games/claw-of-cool/jeremy.v2/",
-  "version": "jeremy.v2",
-  "from": "jeremy.v1",
+  "path": "games/claw-of-cool/jeremy.v3/",
+  "version": "jeremy.v3",
+  "from": "jeremy.v2",
   "updates": [
     {
       "version": "jeremy.v2",
@@ -22,6 +22,15 @@
       "made": "2026-10-26",
       "built_with": "Claude Opus 5.5",
       "idea_issue": 203
+    },
+    {
+      "version": "jeremy.v3",
+      "from": "jeremy.v2",
+      "idea": "Make Claw of Cool comfortable on a phone and with a keyboard, so it meets the phone bar from the phone-friendly games task (jwildfire/gameon#187): every button at least 48 x 48 px at 375 px wide, 8 px clear of each other and the screen edges, and both WASD and the arrow keys working. Measured on jeremy.v2 on 2026-10-29:\n\n- The top buttons (Insert coin, View, Pause, Sound, See-through, Labels) are 27 px tall, and only 6-7 px apart.\n- The pad keys are 46 x 42 and DROP is 88 x 42. The zoom buttons (−, 100%, +) are 22 px with 2 px gaps.\n- The pause screen's Start over and Pick a machine buttons are 30 px tall.\n- The five machine buttons on the title screen are 60 x 62 but only 2-3 px apart.\n\nMake all of those at least 48 px tall (and 48 wide), with 8 px gaps. The keypad has room at 375 px. Keys already pass: WASD and arrows both steer the claw. Keep everything else the same.",
+      "by": "Jeremy",
+      "made": "2026-10-29",
+      "built_with": "Claude Opus 5.5",
+      "idea_issue": 211
     }
   ]
 }

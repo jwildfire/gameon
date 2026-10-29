@@ -2850,5 +2850,33 @@ html body .kpad .go small{display:none}html body .kpad .go.down{transform:transl
     lg.innerHTML = a.map(([n, [t, on]]) => `<button data-n="${n}" class="${on ? "on" : ""}"><b>${n}</b><span>${t}</span></button>`).join(""); mark(); };
   lg.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; sel = sel === +b.dataset.n ? 0 : +b.dataset.n; mark(); });
   new MutationObserver(() => { renum(); if (!q) q = requestAnimationFrame(upd); }).observe(fig, { childList: true, subtree: true }); renum();
-  addEventListener("resize", () => { if (!q) q = requestAnimationFrame(upd); }); upd(); })();</script></body>
+  addEventListener("resize", () => { if (!q) q = requestAnimationFrame(upd); }); upd(); })();</script><!-- jeremy.v3 (game idea #211): the phone bar from #187. At phone width (560 px and under) every button is at least
+     48 x 48 px and 8 px clear of the next button and of the screen edges. Wider screens are unchanged. -->
+<style>@media (max-width:560px){
+  html body .actions{gap:8px}
+  html body .act{min-height:48px;min-width:48px;padding:4px 14px}
+  html body .vrow{gap:8px}
+  html body .kpad{gap:10px}
+  html body .kpad .dp{gap:8px}
+  html body .kpad .k{width:52px;height:52px;font-size:15px}
+  html body .kpad .go{height:52px;min-width:96px;padding:0 22px;font-size:14px}
+  html body .zchip.below{position:static;display:flex;justify-content:flex-end;gap:8px;margin:12px 0 0;padding:0;background:none;border:0;border-radius:0;font-size:13px}
+  html body .zchip.below button{box-sizing:border-box;min-width:48px;height:48px;line-height:45px;background:#fbf7ea;border:1.5px solid var(--ink);border-radius:9px;box-shadow:0 3px 0 var(--ink)}
+  html body .zchip.below .zp{min-width:64px}
+  html body .vchip{min-height:48px;padding:0 14px;font-size:11px}
+  html body .mpick{gap:8px}
+  html body .card .alt{min-height:48px;margin:8px 4px 0}
+  html body .lgd{gap:8px;margin-top:8px}
+  html body .lgd button{box-sizing:border-box;min-height:48px;padding:4px 8px}
+  html body .controls .sw{width:48px;height:48px}
+  html body .controls button{min-height:48px}
+}
+@media (max-width:359px){html body .kpad .k{width:48px;height:48px}html body .kpad .go{min-width:0;padding:0 14px}html body .ovl{padding:8px}html body .card{padding-left:8px;padding-right:8px}}</style>
+<script>(() => { // at phone width the zoom buttons sit in their own row under the keypad, not on the machine, so they have room
+  const chip = document.querySelector(".zchip"), wrap = document.querySelector(".zwrap"); if (!chip || !wrap) return;
+  const place = () => { const kp = document.querySelector(".kpad"), phone = innerWidth <= 560 && kp && kp.parentNode !== wrap;
+    chip.classList.toggle("below", !!phone);
+    if (phone){ if (chip.previousElementSibling !== kp) kp.after(chip); } else if (chip.parentNode !== wrap) wrap.appendChild(chip); };
+  requestAnimationFrame(() => requestAnimationFrame(place)); addEventListener("resize", place); })();</script>
+</body>
 </html>

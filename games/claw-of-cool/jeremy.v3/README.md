@@ -98,3 +98,22 @@ Win 5 prizes on a machine (reach round 2) to unlock the next one. Pick an unlock
 - As in jeremy.v1, `index.html` is one page made by the Colorfigures skill's `build.py`; the game's own script is the second `<script>`, readable as is. Nothing is loaded from the internet and the engine's footer link is off (`credit:false`). The claw machine is still drawn with [Colorfigures](https://april-zhu.com/colorfigures) by April Zhu (MIT), built on ISO-GLOW by April Zhu (MIT) and iso-figure by Tolga Cohce (MIT); see Credits above for the licence notice.
 - The zoom moves the engine's camera (yaw and pitch) and shrinks the SVG viewBox onto the pit, eased over game time. The claw-cam looks straight down (pitch 90), past the engine's usual 78-degree limit, by setting the camera directly.
 - `window.__claw` gained `clock()`, `machines()`, `machine()`, `unlockAll()` (for the checks only, not saved), `cam()` and `views` next to jeremy.v1's `hold`, `seed`, `step`, `aim`, `prizes` and `under`.
+
+## jeremy.v3: Bigger buttons, easier on a phone
+
+Update idea from Jeremy (game idea #211), word for word:
+
+> Make Claw of Cool comfortable on a phone and with a keyboard, so it meets the phone bar from the phone-friendly games task (jwildfire/gameon#187): every button at least 48 x 48 px at 375 px wide, 8 px clear of each other and the screen edges, and both WASD and the arrow keys working. Measured on jeremy.v2 on 2026-10-29:
+>
+> - The top buttons (Insert coin, View, Pause, Sound, See-through, Labels) are 27 px tall, and only 6-7 px apart.
+> - The pad keys are 46 x 42 and DROP is 88 x 42. The zoom buttons (−, 100%, +) are 22 px with 2 px gaps.
+> - The pause screen's Start over and Pick a machine buttons are 30 px tall.
+> - The five machine buttons on the title screen are 60 x 62 but only 2-3 px apart.
+>
+> Make all of those at least 48 px tall (and 48 wide), with 8 px gaps. The keypad has room at 375 px. Keys already pass: WASD and arrows both steer the claw. Keep everything else the same.
+
+Started from jeremy.v2. At phone width (560 px and under) every button is now at least 48 x 48 px and at least 8 px from the next button and from the screen edges: the top buttons, See-through and Labels, the pad keys (52 x 52) and DROP (96 x 52), the zoom buttons (48 x 48, now in their own row under the keypad instead of on the machine, where there was no room for them at that size), the pause and game-over buttons, the five machine buttons, the view chip on the machine, the label list, and the colour and view buttons under the shelf. Wider screens look exactly as in jeremy.v2. The machines, prizes, claw, scoring, keys (WASD and the arrows), look, sound and saves are unchanged.
+
+- The change is one `<style>` block and a short script at the end of `index.html` (marked `jeremy.v3`); nothing else in the file changed.
+- Nothing new is saved: jeremy.v3 reads and writes the same keys as jeremy.v2 (`gameon.claw-of-cool.jeremy.v2.…` and jeremy.v1's `gameon.claw-of-cool.best`, `.collection` and `.sound`), so progress carries over between the two.
+
