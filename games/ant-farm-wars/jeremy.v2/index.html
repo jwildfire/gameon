@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Ant Farm Wars</title>
+<meta name="description" content="Grow your ant colony, choose its powers, and take on three rival farms.">
+<meta name="theme-color" content="#2b1d14">
+<link rel="icon" href="data:,">
+<style>
+:root {
+  --ink: #2b1d14;
+  --cream: #fff6e2;
+  --sand: #efcf8d;
+  --gold: #ffc93c;
+  --red: #ff5a5f;
+  --blue: #4da3ff;
+  --green: #5fd068;
+  --round: ui-rounded, "Arial Rounded MT Bold", "Trebuchet MS", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; touch-action: none; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+body { font-family: var(--round); color: var(--ink); background: #2b1d14;
+  background-image: radial-gradient(circle at 18px 18px, rgba(255,201,60,0.08) 3px, transparent 4px); background-size: 46px 46px; }
+[hidden] { display: none !important; }
+button { font-family: var(--round); color: var(--ink); cursor: pointer; }
+#game { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+
+#hud { position: fixed; top: 0; left: 0; right: 0; z-index: 3; display: flex; align-items: center; gap: 6px; padding: 8px; padding-top: max(8px, env(safe-area-inset-top)); padding-left: max(8px, env(safe-area-inset-left)); padding-right: max(8px, env(safe-area-inset-right)); font-weight: 900; font-size: 14px; pointer-events: none; }
+#hud > * { pointer-events: auto; }
+.pill { background: var(--cream); border: 2.5px solid var(--ink); border-radius: 999px; padding: 2px 10px; white-space: nowrap; line-height: 1.5; }
+#hud-round { position: relative; overflow: hidden; flex: none; }
+#hud-round .rs { display: none; }
+#hud-time { position: absolute; left: 0; bottom: 0; height: 3px; background: var(--gold); width: 0; }
+#queens { display: flex; gap: 4px; }
+.qchip { display: flex; align-items: center; gap: 3px; background: var(--cream); border: 2.5px solid var(--ink); border-radius: 999px; padding: 1px 7px 1px 4px; font-size: 12px; line-height: 1.5; }
+.qchip i { width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--ink); display: inline-block; }
+.qchip.out { opacity: 0.45; text-decoration: line-through; }
+#hud .spacer { flex: 1; }
+#hud-btns { display: flex; gap: 8px; flex: none; }
+.hud-btn { width: 48px; height: 48px; border-radius: 50%; border: 2.5px solid var(--ink); background: var(--cream); display: grid; place-items: center; padding: 0; flex: none; font: 900 13px var(--round); }
+.hud-btn svg { width: 50%; height: 50%; fill: var(--ink); }
+.hud-btn.on { background: var(--gold); }
+
+#powers { position: fixed; left: 50%; transform: translateX(-50%); bottom: max(10px, env(safe-area-inset-bottom)); z-index: 3; display: flex; gap: 8px; }
+.pw { position: relative; width: 60px; height: 60px; border-radius: 16px; border: 3px solid var(--ink); background: var(--cream); padding: 0; overflow: hidden; box-shadow: 0 4px 0 var(--ink); }
+.pw canvas { width: 40px; height: 40px; display: block; margin: 2px auto 0; }
+.pw .k { position: absolute; left: 4px; top: 1px; font-size: 11px; font-weight: 900; }
+.pw .cd { position: absolute; left: 0; right: 0; bottom: 0; background: rgba(43,29,20,0.6); }
+.pw .lv { position: absolute; right: 4px; top: 1px; font-size: 10px; font-weight: 900; color: #8a6400; }
+.pw.armed { background: var(--gold); transform: translateY(-4px); box-shadow: 0 8px 0 var(--ink); }
+.pw.ready::after { content: ""; position: absolute; inset: 0; border-radius: 12px; box-shadow: inset 0 0 0 3px #fff; }
+
+#tip { position: fixed; z-index: 4; left: 50%; top: calc(max(8px, env(safe-area-inset-top)) + 60px); transform: translateX(-50%); width: max-content; max-width: 90%; text-align: center; font-weight: 900; font-size: 15px; line-height: 1.3; color: #fff; background: rgba(43,29,20,0.85); border: 2.5px solid var(--gold); border-radius: 14px; padding: 6px 12px; pointer-events: none; transition: opacity 500ms; }
+#tip.fade { opacity: 0; }
+
+.screen { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 14px; background: rgba(20,12,8,0.5); overflow: auto; }
+#title-screen { background: rgba(20,12,8,0.35); }
+.card { background: var(--cream); border: 4px solid var(--ink); border-radius: 24px; box-shadow: 7px 7px 0 var(--ink); padding: 18px 20px; text-align: center; width: min(520px, 100%); display: grid; gap: 12px; font-size: 16px; }
+.card p { margin: 0; }
+.card h2 { margin: 0; font-size: 30px; }
+.logo { display: grid; justify-items: center; line-height: 0.92; }
+.logo .ant { font: 900 clamp(40px, 13vw, 66px) var(--round); color: var(--gold); -webkit-text-stroke: 3px var(--ink); paint-order: stroke fill; text-shadow: 4px 5px 0 var(--ink); letter-spacing: 0.01em; }
+.logo .wars { font: 900 clamp(48px, 16vw, 84px) var(--round); color: var(--red); -webkit-text-stroke: 3px var(--ink); paint-order: stroke fill; text-shadow: 4px 5px 0 var(--ink); transform: rotate(-3deg); }
+.tag { font-weight: 800; font-size: 17px; }
+.muted { color: #7a6650; font-size: 14px; }
+.how { font-size: 14px; line-height: 1.45; text-align: left; background: #fff; border: 2.5px solid var(--ink); border-radius: 14px; padding: 8px 12px; }
+.how b { color: #c0392b; }
+.row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.btn { font: 900 20px var(--round); background: var(--gold); border: 3.5px solid var(--ink); border-radius: 999px; padding: 9px 26px; min-height: 48px; min-width: 48px; box-shadow: 0 5px 0 var(--ink); }
+.btn:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--ink); }
+.btn.alt { background: #fff; }
+.btn.small { font-size: 15px; padding: 6px 16px; min-height: 48px; box-shadow: 0 4px 0 var(--ink); }
+.colors { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; font-size: 13px; font-weight: 800; }
+.colors span { border: 2px solid var(--ink); border-radius: 999px; padding: 1px 8px; }
+
+#draft { position: fixed; left: 0; right: 0; bottom: 0; z-index: 8; display: grid; justify-items: center; gap: 8px; padding: 10px 10px max(12px, env(safe-area-inset-bottom)); background: linear-gradient(to top, rgba(20,12,8,0.92) 70%, rgba(20,12,8,0)); }
+#draft h3 { margin: 0; color: #fff; font-size: 22px; -webkit-text-stroke: 1px var(--ink); text-shadow: 2px 3px 0 var(--ink); }
+#draft-line { color: #ffe9b8; font-size: 13px; font-weight: 800; text-align: center; max-width: 640px; }
+#cards { display: flex; gap: 10px; justify-content: center; width: min(720px, 100%); }
+.pick { flex: 1 1 0; min-width: 0; max-width: 220px; display: grid; justify-items: center; align-content: start; gap: 4px; background: var(--cream); border: 3.5px solid var(--ink); border-radius: 18px; box-shadow: 0 6px 0 var(--ink); padding: 8px 8px 10px; text-align: center; }
+.pick:active, .pick.chosen { transform: translateY(4px); box-shadow: 0 2px 0 var(--ink); }
+.pick.power { background: #fff0d0; border-color: #8a3a00; }
+.pick canvas { width: 48px; height: 48px; }
+.pick b { font-size: 15px; line-height: 1.1; }
+.pick span { font-size: 12px; line-height: 1.25; color: #5a4632; }
+.pick .key { font-size: 11px; font-weight: 900; color: #8a6400; }
+.pick .kind { font-size: 10px; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; color: #8a6400; }
+.pick.power .kind { color: #c0392b; }
+#draft-hint { color: #fff; font-size: 12px; opacity: 0.85; }
+
+.big { font: 900 clamp(38px, 11vw, 56px) var(--round); color: var(--gold); -webkit-text-stroke: 2.5px var(--ink); paint-order: stroke fill; text-shadow: 3px 4px 0 var(--ink); line-height: 1; }
+.big.lose { color: var(--red); }
+#places { display: grid; gap: 4px; font-size: 15px; font-weight: 800; }
+#places div { display: flex; gap: 8px; justify-content: center; align-items: center; }
+#places i { width: 13px; height: 13px; border-radius: 50%; border: 2px solid var(--ink); display: inline-block; }
+
+@media (max-width: 520px) {
+  #hud { font-size: 12px; gap: 4px; }
+  .qchip { font-size: 10px; padding: 1px 5px 1px 3px; }
+  .qchip b { display: none; }
+  #hud-round .rw { display: none; }
+  #hud-round .rs { display: inline; }
+  #queens { display: grid; grid-template-columns: auto auto; gap: 2px 3px; }
+  .pill { padding: 2px 8px; }
+  .pw { width: 54px; height: 54px; }
+  .pick { padding: 6px 4px 8px; }
+  .pick canvas { width: 40px; height: 40px; }
+  .pick b { font-size: 13px; }
+  .pick span { font-size: 11px; }
+  .card { padding: 14px 14px; font-size: 15px; }
+}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<div id="hud" hidden>
+  <div class="pill" id="hud-round"><span class="rw">Round </span><span class="rs">R</span><span id="hud-rn">1</span><div id="hud-time"></div></div>
+  <div id="queens"></div>
+  <div class="spacer"></div>
+  <div id="hud-btns">
+  <button class="hud-btn" id="speed-btn" aria-label="Speed (Space)">1×</button>
+  <button class="hud-btn" id="sound-btn" aria-label="Sound on or off" aria-pressed="true"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4z"/></svg></button>
+  <button class="hud-btn" id="pause-btn" aria-label="Pause (P)"><svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg></button>
+  </div>
+</div>
+<div id="powers" hidden></div>
+<div id="tip" class="fade"></div>
+
+<!-- Picking an upgrade between rounds -->
+<div id="draft" hidden>
+  <h3 id="draft-title">Round 1: pick one</h3>
+  <div id="draft-line"></div>
+  <div id="cards"></div>
+  <div id="draft-hint">Tap a card, or press 1, 2 or 3.</div>
+</div>
+
+<!-- Title -->
+<div class="screen" id="title-screen">
+  <div class="card">
+    <div class="logo"><div class="ant">Ant Farm</div><div class="wars">Wars!</div></div>
+    <p class="tag">Grow your ant colony, choose its powers, and take on three rival farms.</p>
+    <div class="colors"><span style="background:var(--gold)">You: Gold</span><span style="background:var(--red)">Red Biters</span><span style="background:var(--blue)">Blue Diggers</span><span style="background:var(--green)">Green Munchers</span></div>
+    <div class="how">
+      Your ants <b>dig, gather food and fight all by themselves</b>. Before each round, <b>pick 1 of 3 cards</b>: an upgrade or a special power. Break into a rival's <b>queen chamber</b> to knock them out. Last colony standing wins!<br>
+      <b>Tap</b> the farm to send your soldiers there (tap a rival's nest to attack it). <b>Tap a power</b>, then the farm, to use it. <b>Drag</b> to look around.<br>
+      Keys: <b>WASD</b> or <b>arrows</b> move the cursor, <b>Enter</b> sends your soldiers there, <b>1-3</b> pick a card, <b>1-4</b> use a power, <b>Space</b> speed up, <b>P</b> pause.
+    </div>
+    <p class="muted" id="title-best">No battles yet.</p>
+    <div class="row"><button class="btn" id="play-btn">Play</button></div>
+    <p class="muted">Designed by Jeremy</p>
+  </div>
+</div>
+
+<!-- Paused -->
+<div class="screen" id="pause-screen" hidden>
+  <div class="card">
+    <h2>Paused</h2>
+    <p class="muted">The ants are taking a snack break.</p>
+    <div class="row">
+      <button class="btn" id="resume-btn">Keep fighting</button>
+      <button class="btn alt" id="restart-btn">Start over</button>
+    </div>
+    <div class="row"><button class="btn alt small" id="pause-title-btn">Title screen</button></div>
+  </div>
+</div>
+
+<!-- Game over -->
+<div class="screen" id="end-screen" hidden>
+  <div class="card">
+    <div class="big" id="end-big">You win!</div>
+    <p class="tag" id="end-line"></p>
+    <div id="places"></div>
+    <p class="muted" id="end-best"></p>
+    <div class="row">
+      <button class="btn" id="again-btn">Play again</button>
+      <button class="btn alt" id="end-title-btn">Title screen</button>
+    </div>
+  </div>
+</div>
+
+<script src="engine.js"></script>
+<script src="bot.js"></script>
+<script src="art.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

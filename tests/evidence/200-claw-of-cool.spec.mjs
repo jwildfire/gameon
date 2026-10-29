@@ -2,7 +2,7 @@
 // Run: npm run evidence -- tests/evidence/200-claw-of-cool
 // The game clock is held and stepped by hand (__claw.hold / __claw.step) and the random numbers are
 // seeded (__claw.seed), so every run fills the machine the same way and every grab ends the same way.
-import { test, expect, games } from "./evidence.mjs";
+import { test, expect } from "./evidence.mjs";
 
 const GAME = "games/claw-of-cool/";
 const cw = (page, fn, arg) => page.evaluate(fn, arg);
@@ -225,25 +225,24 @@ test("running out of coins ends the game, the best score and found prizes surviv
   expect(browserErrors).toEqual([]);
 });
 
+// The card is found by its slug, not its place on the shelf: newer games and Editor's Choice picks move it (#194).
 test("Claw of Cool has a card in the arcade and plays in its frame", async ({ page, isMobile, shot, note, browserErrors }) => {
   await page.goto("./");
   const card = page.locator('#shelf .cart[href="#claw-of-cool"]');
   await expect(card).toBeVisible();
-  expect(games.findIndex(g => g.slug === "claw-of-cool")).toBe(0);
-  const picks = games.filter(g => g.editorsChoice === true).length;
-  const order = await page.locator("#shelf .cart").evaluateAll(cs => cs.map(c => c.getAttribute("href")));
-  expect(order.indexOf("#claw-of-cool")).toBeGreaterThanOrEqual(picks);
   await expect(card.locator("h2")).toHaveText("Claw of Cool");
   await expect(card).toContainText("Made by Jeremy");
   await expect(card.locator(".cover img")).toHaveJSProperty("complete", true);
   expect(await card.locator(".cover img").evaluate(img => img.naturalWidth)).toBe(800);
   await card.click();
+  // since jeremy.v2 (game idea #203) the card has two versions and opens the version picker first; this checks jeremy.v1
+  await page.locator('#ver-list .ver-item[data-version="jeremy.v1"]').click();
   await expect(page.locator("#bar-title")).toHaveText("Claw of Cool");
   const frame = page.frameLocator("#frame");
   if (isMobile) await frame.locator("#play-btn").tap(); else await frame.locator("#play-btn").click();
   await expect(frame.locator("#title")).toBeHidden();
   await expect(frame.locator(".kpad .go")).toBeVisible();
-  note(`card at position ${order.indexOf("#claw-of-cool") + 1}, after the ${picks} Editor's Choice card(s), with its 800x450 cover and "Made by Jeremy"; PLAY in the frame starts the game`);
+  note(`card on the shelf with its 800x450 cover and "Made by Jeremy"; PLAY in the frame starts the game`);
   await shot("in-arcade");
   expect(browserErrors).toEqual([]);
 });

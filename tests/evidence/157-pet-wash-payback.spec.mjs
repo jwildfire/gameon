@@ -2,7 +2,7 @@
 // as fast as possible in round 1 and then the pet is trying to wash you with a hose in round 2 and
 // you're trying to escape and stay dry.").
 // Run: npm run evidence -- tests/evidence/157-pet-wash-payback
-import { test, expect, games } from "./evidence.mjs";
+import { test, expect } from "./evidence.mjs";
 
 const GAME = "games/pet-wash-payback/";
 const PETS = ["Biscuit", "Mittens", "Clover", "Truffle", "Sir Quackers"];
@@ -375,17 +375,11 @@ test("best stars are saved only under gameon.pet-wash-payback., and Pick a pet s
   expect(browserErrors).toEqual([]);
 });
 
-test("Pet Wash Payback has a card near the front of the arcade and plays in its frame", async ({ page, shot, note, browserErrors }) => {
+// The card is found by its slug, not its place on the shelf: newer games and Editor's Choice picks move it (#194).
+test("Pet Wash Payback has a card in the arcade and plays in its frame", async ({ page, shot, note, browserErrors }) => {
   await page.goto("./");
   const card = page.locator('#shelf .cart[href="#pet-wash-payback"]');
   await expect(card).toBeVisible();
-  // newest pipeline game: after the Editor's Choice games, ahead of the games that were there before it
-  const order = await page.locator("#shelf .cart").evaluateAll(cs => cs.map(c => c.getAttribute("href")));
-  expect(order.indexOf("#pet-wash-payback")).toBeGreaterThanOrEqual(games.filter(g => g.editorsChoice === true).length);
-  expect(order.indexOf("#pet-wash-payback")).toBeLessThan(order.indexOf("#big-weird-dig"));
-  expect(order.indexOf("#pet-wash-payback")).toBeLessThan(order.indexOf("#super-sauce-boy"));
-  // newer pipeline games (Oops! We're Late!, #167) go in front of it in games.json
-  expect(games.findIndex(g => g.slug === "pet-wash-payback")).toBeLessThan(games.findIndex(g => g.slug === "big-weird-dig"));
   await expect(card.locator("h2")).toHaveText("Pet Wash Payback");
   await expect(card.locator(".cover img")).toHaveJSProperty("complete", true);
   expect(await card.locator(".cover img").evaluate(img => img.naturalWidth)).toBe(800);
@@ -400,7 +394,7 @@ test("Pet Wash Payback has a card near the front of the arcade and plays in its 
   await frame.locator("#go-btn").click();
   await expect(frame.locator("#hud")).toBeVisible();
   await expect(frame.locator("#hud-pet")).toHaveText("Biscuit · Wash!");
-  note(`card at position ${order.indexOf("#pet-wash-payback") + 1} on the shelf with its 800x450 cover; plays inside the frame; GitHub button opens its folder`);
+  note(`card on the shelf with its 800x450 cover; plays inside the frame; GitHub button opens its folder`);
   await shot("in-arcade");
   expect(browserErrors).toEqual([]);
 });

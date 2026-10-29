@@ -2,7 +2,7 @@
 // Run: npm run evidence -- tests/evidence/ideas-2-ant-farm-wars
 // The farm runs on its own seeded random numbers, and most checks hold the game clock and
 // step it by hand (__afw.hold / __afw.step), so every run sees the same farm.
-import { test, expect, games } from "./evidence.mjs";
+import { test, expect } from "./evidence.mjs";
 
 const GAME = "games/ant-farm-wars/";
 const afw = (page, expr, arg) => page.evaluate(expr, arg);
@@ -247,21 +247,17 @@ test("pause stops the farm, Start over starts a new game, speed-up works, and it
   expect(browserErrors).toEqual([]);
 });
 
-// Editor's Choice cards come first in the arcade; the newest pipeline game comes next, ahead of the games that were there before it.
-test("Ant Farm Wars has a card right after the Editor's Choice games and plays in its frame", async ({ page, shot, note, browserErrors }) => {
+// The card is found by its slug, not its place on the shelf: newer games and Editor's Choice picks move it (#194).
+test("Ant Farm Wars has a card in the arcade and plays in its frame", async ({ page, shot, note, browserErrors }) => {
   await page.goto("./");
   const card = page.locator('#shelf .cart[href="#ant-farm-wars"]');
   await expect(card).toBeVisible();
-  const picks = games.filter(g => g.editorsChoice === true).length;
-  const mine = games.findIndex(g => g.slug === "ant-farm-wars");
-  const next = games.slice(mine + 1).find(g => !g.editorsChoice && !g.versions);
-  const order = await page.locator("#shelf .cart").evaluateAll(cs => cs.map(c => c.getAttribute("href")));
-  expect(order.indexOf("#ant-farm-wars")).toBeGreaterThanOrEqual(picks);
-  if (next) expect(order.indexOf("#ant-farm-wars")).toBeLessThan(order.indexOf("#" + next.slug));
   await expect(card.locator("h2")).toHaveText("Ant Farm Wars");
   await expect(card.locator(".cover img")).toHaveJSProperty("complete", true);
   expect(await card.locator(".cover img").evaluate(img => img.naturalWidth)).toBe(800);
   await card.click();
+  // since jeremy.v2 (game idea #213) the card has two versions and opens the version picker first; this checks jeremy.v1
+  await page.locator('#ver-list .ver-item[data-version="jeremy.v1"]').click();
   await expect(page.locator("#bar-title")).toHaveText("Ant Farm Wars");
   await expect(page.locator("#gh-btn")).toHaveAttribute("href", "https://github.com/jwildfire/gameon/tree/main/games/ant-farm-wars");
   const frame = page.frameLocator("#frame");
@@ -270,7 +266,7 @@ test("Ant Farm Wars has a card right after the Editor's Choice games and plays i
   await expect(frame.locator("#draft")).toBeVisible();
   await frame.locator("#cards .pick").nth(0).click();
   await expect(frame.locator("#hud")).toBeVisible();
-  note(`card at position ${order.indexOf("#ant-farm-wars") + 1}, after the ${picks} Editor's Choice card(s)${next ? " and ahead of " + next.slug : ""}, with its 800x450 cover; plays inside the frame; GitHub button opens its folder`);
+  note(`card on the shelf with its 800x450 cover; plays inside the frame; GitHub button opens its folder`);
   await shot("in-arcade");
   expect(browserErrors).toEqual([]);
 });

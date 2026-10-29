@@ -2,7 +2,7 @@
 // to make sure the food you're preparing has hot sauce on it or the devils that ordered the food
 // will be pissed off.", approved to be goofy cartoon devils who get "steaming mad" in the game).
 // Run: npm run evidence -- tests/evidence/168-devils-burger-station
-import { test, expect, games } from "./evidence.mjs";
+import { test, expect } from "./evidence.mjs";
 
 const GAME = "games/devils-burger-station/";
 const SLUG = "devils-burger-station";
@@ -248,18 +248,11 @@ test("the game still plays when the browser blocks saving", async ({ page, note,
   expect(browserErrors).toEqual([]);
 });
 
-// Editor's Choice cards come first in the arcade (#158), then the newest pipeline games.
-test("Devil's Burger Station has a card at the front of the arcade and plays in its frame", async ({ page, shot, note, browserErrors }) => {
+// The card is found by its slug, not its place on the shelf: newer games and Editor's Choice picks move it (#194).
+test("Devil's Burger Station has a card in the arcade and plays in its frame", async ({ page, shot, note, browserErrors }) => {
   await page.goto("./");
   const card = page.locator(`#shelf .cart[href="#${SLUG}"]`);
   await expect(card).toBeVisible();
-  const picks = games.filter(g => g.editorsChoice === true).length;
-  const order = await page.locator("#shelf .cart").evaluateAll(cs => cs.map(c => c.getAttribute("href")));
-  const mine = games.findIndex(g => g.slug === SLUG);
-  // the next game after it in games.json that isn't an Editor's Choice or a game with several versions
-  const next = games.slice(mine + 1).find(g => g.editorsChoice !== true && !(g.versions && g.versions.length > 1));
-  expect(order.indexOf(`#${SLUG}`)).toBeGreaterThanOrEqual(picks);
-  expect(order.indexOf(`#${SLUG}`)).toBeLessThan(order.indexOf(`#${next.slug}`));
   await expect(card.locator("h2")).toHaveText("Devil's Burger Station");
   await expect(card.locator(".cover img")).toHaveJSProperty("complete", true);
   expect(await card.locator(".cover img").evaluate(img => img.naturalWidth)).toBe(800);
@@ -271,7 +264,7 @@ test("Devil's Burger Station has a card at the front of the arcade and plays in 
   await frame.locator("#play-btn").click();
   await frame.locator("#go-btn").click();
   await expect(frame.locator("#hud")).toBeVisible();
-  note(`card at position ${order.indexOf(`#${SLUG}`) + 1}, after the ${picks} Editor's Choice card(s) and ahead of ${next.title}, with its 800x450 cover; plays inside the frame; GitHub button opens its folder`);
+  note(`card on the shelf with its 800x450 cover; plays inside the frame; GitHub button opens its folder`);
   await page.waitForTimeout(600);
   await shot("in-arcade");
   expect(browserErrors).toEqual([]);

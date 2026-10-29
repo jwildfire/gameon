@@ -3,6 +3,7 @@
 // plays its frozen copy in the arcade, saves carry over (same site, same keys), and every
 // version in games.json is served from this repo. Spec: docs/game-versions.md.
 // Run: npm run evidence -- tests/evidence/124-freeze-repo-games
+// evidence-scope: game trampoline-battle princess-lady-drive stretcher-bearer angry-dudes magic-friends timedout
 import { test, expect, games } from "./evidence.mjs";
 
 const REPO = "https://github.com/jwildfire/gameon";
