@@ -1,10 +1,10 @@
 {
   "spec": "219-fancy-food-fight-jeremy-v2",
   "passed": true,
-  "headline": "PASS: 10 of 10 checks pass at desktop and phone widths.",
-  "generatedAt": "2026-10-29T19:44:09.669Z",
+  "headline": "PASS: 11 of 11 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-29T20:41:56.694Z",
   "target": "local server (python3 -m http.server) on this branch",
-  "commit": "bc63dbc",
+  "commit": "2b38c33",
   "playwright": "1.61.1",
   "specFile": "tests/evidence/219-fancy-food-fight-jeremy-v2.spec.mjs",
   "checks": [
@@ -34,8 +34,8 @@
     {
       "check": "upright at 375 px wide, every button is at least 48 x 48, 8 px apart and 8 px from the edges, and each does its job when tapped",
       "notes": [
-        "desktop: 1280 x 800, clicked: Sound 48x48 and Pause 48x48, 13 px apart, Pause 8 px from the right edge and 8 px from the top; foods 83x83, 11 px apart, 8 px from the left edge; Duck! 128x83, 8 px from the right and 8 px from the bottom. Buttons per screen: title 2 (smallest 69 px), how to play 1 (smallest 69 px), playing 7 (smallest 48 px), paused 2 (smallest 69 px), between rounds 1 (smallest 69 px). A food, Sound (off and on), Duck! (held), Pause, Keep splatting and Next round each did their job",
-        "phone: 375 x 812, tapped: Sound 48x48 and Pause 48x48, 8 px apart, Pause 8 px from the right edge and 245 px from the top; foods 48x48, 8 px apart, 8 px from the left edge; Duck! 74x48, 8 px from the right and 245 px from the bottom. Buttons per screen: title 2 (smallest 48 px), how to play 1 (smallest 48 px), playing 7 (smallest 48 px), paused 2 (smallest 48 px), between rounds 1 (smallest 48 px). A food, Sound (off and on), Duck! (held), Pause, Keep splatting and Next round each did their job"
+        "desktop: 1280 x 800, clicked: Sound 48x48 and Pause 48x48, 13 px apart (side by side), Pause 8 px from the right edge and 8 px from the top; foods 83x83, 11 px apart, 8 px from the left edge; Duck! 128x83, 8 px from the right and 8 px from the bottom. Buttons per screen: title 2 (smallest 69 px), how to play 1 (smallest 69 px), playing 7 (smallest 48 px), paused 2 (smallest 69 px), between rounds 1 (smallest 69 px). A food, Sound (off and on), Duck! (held), Pause, Keep splatting and Next round each did their job",
+        "phone: 375 x 812, tapped: Sound 48x48 and Pause 48x48, 8 px apart (side by side), Pause 8 px from the right edge and 245 px from the top; foods 48x48, 8 px apart, 8 px from the left edge; Duck! 74x48, 8 px from the right and 245 px from the bottom. Buttons per screen: title 2 (smallest 48 px), how to play 1 (smallest 48 px), playing 7 (smallest 48 px), paused 2 (smallest 48 px), between rounds 1 (smallest 48 px). A food, Sound (off and on), Duck! (held), Pause, Keep splatting and Next round each did their job"
       ],
       "desktop": {
         "status": "pass",
@@ -55,8 +55,8 @@
     {
       "check": "held sideways at 812 x 375, every button is at least 48 x 48, 8 px apart and 8 px from the edges, and each does its job when tapped",
       "notes": [
-        "desktop: 812 x 375, clicked: Sound 48x48 and Pause 48x48, 8 px apart, Pause 8 px from the right edge and 8 px from the top; foods 48x48, 8 px apart, 8 px from the left edge; Duck! 74x48, 8 px from the right and 8 px from the bottom. Buttons per screen: title 2 (smallest 48 px), how to play 1 (smallest 48 px), playing 7 (smallest 48 px), paused 2 (smallest 48 px), between rounds 1 (smallest 48 px)",
-        "phone: 812 x 375, tapped: Sound 48x48 and Pause 48x48, 8 px apart, Pause 8 px from the right edge and 8 px from the top; foods 48x48, 8 px apart, 8 px from the left edge; Duck! 74x48, 8 px from the right and 8 px from the bottom. Buttons per screen: title 2 (smallest 48 px), how to play 1 (smallest 48 px), playing 7 (smallest 48 px), paused 2 (smallest 48 px), between rounds 1 (smallest 48 px)"
+        "desktop: 812 x 375, clicked: Sound 48x48 and Pause 48x48, 8 px apart (Sound above Pause), Pause 8 px from the right edge and 64 px from the top; foods 48x48, 8 px apart, 8 px from the left edge; Duck! 74x48, 8 px from the right and 8 px from the bottom. Buttons per screen: title 2 (smallest 48 px), how to play 1 (smallest 48 px), playing 7 (smallest 48 px), paused 2 (smallest 48 px), between rounds 1 (smallest 48 px)",
+        "phone: 812 x 375, tapped: Sound 48x48 and Pause 48x48, 8 px apart (Sound above Pause), Pause 8 px from the right edge and 64 px from the top; foods 48x48, 8 px apart, 8 px from the left edge; Duck! 74x48, 8 px from the right and 8 px from the bottom. Buttons per screen: title 2 (smallest 48 px), how to play 1 (smallest 48 px), playing 7 (smallest 48 px), paused 2 (smallest 48 px), between rounds 1 (smallest 48 px)"
       ],
       "desktop": {
         "status": "pass",
@@ -76,8 +76,8 @@
     {
       "check": "the HUD isn't squeezed: every pill and the Mess meter are as big as in jeremy.v1 or bigger, nothing jeremy.v1 showed whole is cut off, and no button covers them",
       "notes": [
-        "desktop: 1280 x 800: 6 of 6 whole in v1, all still whole in v2; Mess meter 557→568 px wide; the rest the same size. 812 x 375: 6 of 6 whole in v1, all still whole in v2; Mess meter 296→319 px wide; the rest the same size",
-        "phone: 375 x 812: 6 of 6 whole in v1, all still whole in v2; Mess meter 162→198 px wide; the rest the same size. 812 x 375: 6 of 6 whole in v1, all still whole in v2; Mess meter 296→319 px wide; the rest the same size. 667 x 375: 6 of 6 whole in v1, all still whole in v2; Mess meter 296→360 px wide; the rest the same size"
+        "desktop: 1280 x 800: 6 of 6 whole in v1, all still whole in v2; Mess meter 557→568 px wide; the rest the same size. 812 x 375: 6 of 6 whole in v1, all still whole in v2; Mess meter 296→360 px wide; the rest the same size",
+        "phone: 375 x 812: 6 of 6 whole in v1, all still whole in v2; Mess meter 162→198 px wide; the rest the same size. 568 x 320: 6 of 6 whole in v1, all still whole in v2; Mess meter 251→305 px wide; the rest the same size. 640 x 360: 6 of 6 whole in v1, all still whole in v2; Mess meter 284→345 px wide; the rest the same size. 667 x 375: 6 of 6 whole in v1, all still whole in v2; Mess meter 296→360 px wide; the rest the same size. 740 x 360: 6 of 6 whole in v1, all still whole in v2; Mess meter 284→345 px wide; the rest the same size. 812 x 375: 6 of 6 whole in v1, all still whole in v2; Mess meter 296→360 px wide; the rest the same size. 844 x 390: 6 of 6 whole in v1, all still whole in v2; Mess meter 308→375 px wide; the rest the same size"
       ],
       "desktop": {
         "status": "pass",
@@ -90,6 +90,27 @@
         "status": "pass",
         "screenshots": [
           "hud-sideways-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Sound, Pause, the tray and Duck! cover no more of the throw zone or the portraits than in jeremy.v1, at every phone size, and still pass the phone bar",
+      "notes": [
+        "desktop: v1 → v2 button area over the throw zone and the portraits (screen px²): 375 x 812: throw zone 38 → 0 px², portraits 0 → 0 px² (Sound 263,245 Pause 319,245); 568 x 320: throw zone 86 → 0 px², portraits 0 → 0 px² (Sound 374,264 Pause 430,264); 640 x 360: throw zone 110 → 0 px², portraits 0 → 0 px² (Sound 446,304 Pause 502,304); 667 x 375: throw zone 119 → 0 px², portraits 0 → 0 px² (Sound 473,319 Pause 529,319); 740 x 360: throw zone 110 → 0 px², portraits 0 → 0 px² (Sound 546,304 Pause 602,304); 812 x 375: throw zone 119 → 0 px², portraits 0 → 0 px² (Sound 756,8 Pause 756,64); 844 x 390: throw zone 129 → 0 px², portraits 0 → 0 px² (Sound 788,8 Pause 788,64); 1280 x 800: throw zone 440 → 0 px², portraits 0 → 0 px² (Sound 1163,8 Pause 1224,8). At 667 x 375 a click on the right-hand portrait (587,76) threw and scored Art! with the sound still on",
+        "phone: v1 → v2 button area over the throw zone and the portraits (screen px²): 375 x 812: throw zone 38 → 0 px², portraits 0 → 0 px² (Sound 263,245 Pause 319,245); 568 x 320: throw zone 86 → 0 px², portraits 0 → 0 px² (Sound 374,264 Pause 430,264); 640 x 360: throw zone 110 → 0 px², portraits 0 → 0 px² (Sound 446,304 Pause 502,304); 667 x 375: throw zone 119 → 0 px², portraits 0 → 0 px² (Sound 473,319 Pause 529,319); 740 x 360: throw zone 110 → 0 px², portraits 0 → 0 px² (Sound 546,304 Pause 602,304); 812 x 375: throw zone 119 → 0 px², portraits 0 → 0 px² (Sound 756,8 Pause 756,64); 844 x 390: throw zone 129 → 0 px², portraits 0 → 0 px² (Sound 788,8 Pause 788,64); 1280 x 800: throw zone 440 → 0 px², portraits 0 → 0 px² (Sound 1163,8 Pause 1224,8). At 667 x 375 a tap on the right-hand portrait (587,76) threw and scored Art! with the sound still on"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "clear-of-the-wall-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "clear-of-the-wall-phone.jpg"
         ],
         "error": null
       }
@@ -118,8 +139,8 @@
     {
       "check": "the keyboard still plays: WASD and the arrows each move the aim, Space throws, P pauses and Escape plays on",
       "notes": [
-        "desktop: aim moved (world px): d +83, a -109, ArrowRight +137, ArrowLeft -99, w -97, s +64, ArrowUp -53, ArrowDown +48; Space threw and scored; P paused, Escape played on, Escape paused again",
-        "phone: aim moved (world px): d +58, a -53, ArrowRight +53, ArrowLeft -52, w -40, s +42, ArrowUp -39, ArrowDown +43; Space threw and scored; P paused, Escape played on, Escape paused again"
+        "desktop: aim moved (world px): d +259, a -200, ArrowRight +138, ArrowLeft -192, w -176, s +77, ArrowUp -111, ArrowDown +59; Space threw and scored; P paused, Escape played on, Escape paused again",
+        "phone: aim moved (world px): d +56, a -67, ArrowRight +58, ArrowLeft -55, w -43, s +43, ArrowUp -43, ArrowDown +48; Space threw and scored; P paused, Escape played on, Escape paused again"
       ],
       "desktop": {
         "status": "pass",
