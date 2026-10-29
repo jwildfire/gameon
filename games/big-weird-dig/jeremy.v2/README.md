@@ -27,3 +27,17 @@ That's the whole idea, word for word, from Jeremy on the GameOn New Game page (g
 - Saves live under `gameon.big-weird-dig.` in the browser: `museum` (what you've found), `progress` (levels unlocked and stars) and `sound`.
 - It's inspired by that kind of digging game, with its own bulldozer, finds and look: no names, characters or art from anything else, and no pump.
 - `window.__bwd` is a small window used only by the evidence tests.
+
+## jeremy.v2: Bigger buttons, Enter to go
+
+Update idea from Jeremy (game idea #217), word for word:
+
+> Make Big Weird Dig comfortable on a phone and with a keyboard, so it meets the phone bar from the phone-friendly games task (jwildfire/gameon#187): every button at least 48 x 48 px at 375 px wide, 8 px clear of each other and the screen edges, and both WASD and the arrow keys working. Measured on jeremy.v1 on 2026-10-29:
+>
+> - Pause is 28 x 28, 6 px from the right edge and 7 px from the top.
+> - Enter and Space do nothing on the title, level-done and pause screens. A keyboard player has to press Tab to reach Dig! first.
+> - Sound and Back, and the pause screen's Levels and Title screen buttons, are 40 px tall. The main buttons are 46 px.
+>
+> Make Pause 48 x 48 and 8 px from the edges (plus the safe-area insets), make every button at least 48 px tall, and make Enter or Space press the main button on each screen. The d-pad and PUSH already pass. Keep everything else the same.
+
+Started from jeremy.v1. Pause is now 48 x 48 and sits 8 px from the top and right edges (plus the notch's safe area); every menu button is at least 48 px tall, and the Weird Museum's shelf slots are 48 px hit boxes 8 px apart. Enter or Space presses the main button on the title (Dig!), pause (Keep digging), level-done (Dig deeper) and out-of-fuel (Try again) screens, unless you've tabbed to another button. Everything else, saves included, is the same as jeremy.v1.

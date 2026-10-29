@@ -43,6 +43,11 @@ button { font-family: var(--round); color: var(--ink); }
 #hud-finds canvas { width: var(--find-icon, 26px); height: var(--find-icon, 26px); display: block; }
 .hud-btn { width: 2.1em; height: 2.1em; border-radius: 50%; border: 2.5px solid var(--ink); background: var(--cream); display: grid; place-items: center; cursor: pointer; padding: 0; flex: none; }
 .hud-btn svg { width: 55%; height: 55%; fill: var(--ink); }
+/* jeremy.v2: Pause is a full fingertip, 48 x 48 (the phone bar, #187) */
+#pause-btn { width: 48px; height: 48px; }
+#pause-btn svg { width: 42%; height: 42%; }
+/* the safe-area insets, read by layout() so the HUD stays clear of the notch */
+#safe-probe { position: fixed; left: 0; top: 0; width: 0; height: 0; visibility: hidden; pointer-events: none; padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px); }
 
 #tip { position: absolute; z-index: 3; text-align: center; font-weight: 900; font-size: var(--tip-font, 19px); color: var(--cream); text-shadow: 0 2px 0 var(--ink), 0 -2px 0 var(--ink), 2px 0 0 var(--ink), -2px 0 0 var(--ink), 0 4px 6px rgba(0,0,0,0.4); pointer-events: none; transition: opacity 500ms; padding: 0 12px; }
 #tip.fade { opacity: 0; }
@@ -76,7 +81,7 @@ body.landscape #dpad .arm, body.landscape #btn-blade { opacity: 0.75; }
 .tag { font-weight: 800; font-size: 18px; }
 .muted { color: #7a5038; font-size: 14px; }
 .row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-.btn { font: 900 22px var(--round); padding: 10px 22px; border-radius: 16px; border: 3px solid var(--ink); background: var(--dozer); color: var(--ink); cursor: pointer; box-shadow: 0 5px 0 var(--ink); }
+.btn { font: 900 22px var(--round); min-height: 48px; padding: 10px 22px; border-radius: 16px; border: 3px solid var(--ink); background: var(--dozer); color: var(--ink); cursor: pointer; box-shadow: 0 5px 0 var(--ink); }
 .btn.alt { background: #fff; }
 .btn.weird { background: var(--weird); color: #fff; -webkit-text-stroke: 1px var(--ink); paint-order: stroke fill; }
 .btn.small { font-size: 17px; padding: 7px 14px; }
@@ -109,7 +114,8 @@ h2 { margin: 0; font: 900 30px var(--round); color: var(--dozer); -webkit-text-s
 .lvl.done { background: #ffeaa0; }
 .lvl:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
 #museum-shelf { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; background: repeating-linear-gradient(to bottom, #f0d7a8 0, #f0d7a8 calc(var(--slot, 64px) - 8px), #a86a35 calc(var(--slot, 64px) - 8px), #a86a35 var(--slot, 64px)); border: 3px solid var(--ink); border-radius: 12px; padding: 4px 4px 0; }
-.slot { height: var(--slot, 64px); padding: 2px 2px 10px; border: none; background: none; cursor: pointer; }
+/* each slot's hit box is 8 px clear of the next (the phone bar); the shelf's planks still line up every --slot */
+.slot { height: calc(var(--slot, 64px) - 8px); margin: 4px; padding: 0 0 6px; border: none; background: none; cursor: pointer; }
 .slot canvas { width: 100%; height: 100%; display: block; }
 .slot.sel { outline: 3px solid var(--weird); outline-offset: -3px; border-radius: 10px; }
 #museum-caption { min-height: 3em; font-weight: 700; }
@@ -155,6 +161,7 @@ h2 { margin: 0; font: 900 30px var(--round); color: var(--dozer); -webkit-text-s
   <button class="hud-btn" id="pause-btn" aria-label="Pause"><svg viewBox="0 0 10 10"><rect x="1.5" y="1" width="2.6" height="8" rx="0.6"/><rect x="5.9" y="1" width="2.6" height="8" rx="0.6"/></svg></button>
 </div>
 <div id="tip" class="fade"></div>
+<div id="safe-probe" aria-hidden="true"></div>
 
 <div id="pad" hidden>
   <div id="dpad" aria-label="Drive">

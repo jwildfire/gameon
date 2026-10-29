@@ -90,10 +90,18 @@
   var touchMode = !!(window.matchMedia && matchMedia("(hover: none) and (pointer: coarse)").matches);
   var view = { tile: 30, dpr: 1, left: 0, top: 0 };
 
+  // jeremy.v2: the safe-area insets (notch, home bar), so the HUD's Pause stays 8 px clear of them
+  function safeInsets() {
+    var cs = getComputedStyle($("safe-probe")), px = function (v) { return parseFloat(v) || 0; };
+    return { t: px(cs.paddingTop), r: px(cs.paddingRight), b: px(cs.paddingBottom), l: px(cs.paddingLeft) };
+  }
+
   function layout() {
     var vw = innerWidth, vh = innerHeight, landscape = vw > vh;
     document.body.classList.toggle("landscape", landscape);
-    var hudH = vw < 480 ? 46 : 52, gap = 8;
+    // The HUD is a 48 px row (Pause is 48 x 48) 8 px below the top edge and the safe area, with 8 px under it.
+    var safe = safeInsets(), edge = 8 + Math.max(safe.l, safe.r);
+    var hudH = 64 + safe.t, gap = 8;
     var padH = touchMode && !landscape ? Math.max(150, Math.min(220, vh * 0.25)) : 0;
     var sidePad = touchMode && landscape ? 160 : 0;
     var tile = Math.floor(Math.min((vw - 12 - sidePad * 2) / COLS, (vh - hudH - gap - padH - 8) / ROWS) * 4) / 4;
@@ -106,9 +114,9 @@
     stage.style.width = bw + "px"; stage.style.height = bh + "px";
     view.dpr = Math.min(2, window.devicePixelRatio || 1);
     cv.width = Math.round(bw * view.dpr); cv.height = Math.round(bh * view.dpr);
-    var hw = Math.min(vw - 12, Math.max(bw, Math.min(vw - 12, 640)));
-    hud.style.left = Math.round((vw - hw) / 2) + "px"; hud.style.width = hw + "px";
-    hud.style.top = Math.round((hudH - 36) / 2 + 2) + "px";
+    var hw = Math.min(vw - edge * 2, Math.max(bw, Math.min(vw - edge * 2, 640)));
+    hud.style.left = Math.round((vw - hw) / 2) + "px"; hud.style.width = Math.floor(hw) + "px";
+    hud.style.top = Math.round(8 + safe.t) + "px";
     hud.style.setProperty("--hud-font", (vw < 400 ? 13 : 15) + "px");
     hud.style.setProperty("--fuel-w", (vw < 400 ? 84 : 130) + "px");
     hud.style.setProperty("--find-icon", (vw < 400 ? 22 : 26) + "px");
@@ -252,7 +260,8 @@
     showTip(S.L.tip, 3800);
     updateHud();
   }
-  function setMode(m) { mode = m; layout(); if (m !== "play") Sound.engine(0, 1); }
+  var modeAt = 0; // jeremy.v2: when the mode last changed, so a blade press as a level ends doesn't skip its screen
+  function setMode(m) { mode = m; modeAt = performance.now(); layout(); if (m !== "play") Sound.engine(0, 1); }
 
   var tipTimer = 0;
   function showTip(text, ms) {
@@ -289,6 +298,8 @@
 
   // ---------- input ----------
   var keyDirs = [], padDir = null, swipeDir = null, bladeQueued = false;
+  // the main button on each menu screen, by mode: [screen, button]
+  var MAIN = { title: ["title-screen", "play-btn"], paused: ["pause-screen", "resume-btn"], done: ["done-screen", "next-btn"], empty: ["empty-screen", "empty-retry-btn"] };
   var KEYMAP = { ArrowLeft: "l", ArrowRight: "r", ArrowUp: "u", ArrowDown: "d", a: "l", d: "r", w: "u", s: "d", A: "l", D: "r", W: "u", S: "d" };
   addEventListener("keydown", function (e) {
     Sound.init();
@@ -296,6 +307,15 @@
     if (mode === "reveal") {
       if ((e.key === " " || e.key === "Enter") && revealReady()) { e.preventDefault(); closeReveal(); }
       return;
+    }
+    // jeremy.v2: Enter or Space presses the screen's main button, unless the player has tabbed to another one
+    if ((e.key === " " || e.key === "Enter") && MAIN[mode]) {
+      var screen = $(MAIN[mode][0]), on = document.activeElement;
+      if (!screen.hidden && !(on && on.tagName === "BUTTON" && screen.contains(on))) {
+        e.preventDefault();
+        if (!e.repeat && performance.now() - modeAt > 450) { if (on && on.blur) on.blur(); $(MAIN[mode][1]).click(); }
+        return;
+      }
     }
     if (k) {
       e.preventDefault();
@@ -507,7 +527,10 @@
     var shelf = $("museum-shelf"); shelf.innerHTML = "";
     var narrow = innerWidth <= 420, cols = narrow ? 5 : 6;
     var cardW = Math.min(540, innerWidth - 28) - (narrow ? 24 : 44) - 14;
-    shelf.style.setProperty("--slot", Math.max(44, Math.min(72, Math.floor(cardW / cols))) + "px");
+    // jeremy.v2: slots are 8 px apart, so each must be 56 px for a 48 px hit box; fewer per row if the card is narrow
+    while (cols > 3 && Math.floor(cardW / cols) < 56) cols--;
+    shelf.style.gridTemplateColumns = "repeat(" + cols + ", 1fr)";
+    shelf.style.setProperty("--slot", Math.max(56, Math.min(72, Math.floor(cardW / cols))) + "px");
     E.ITEMS.forEach(function (it) {
       var b = document.createElement("button"), c = document.createElement("canvas"), have = museum.indexOf(it.id) >= 0;
       b.className = "slot"; b.setAttribute("aria-label", have ? it.name : "Not found yet");
