@@ -1,6 +1,6 @@
 // Evidence for game idea #155, Big Weird Dig ("you excavate weird stuff with a bulldozer. kind of like dig dug?").
 // Run: npm run evidence -- tests/evidence/155-big-weird-dig
-import { test, expect, games } from "./evidence.mjs";
+import { test, expect } from "./evidence.mjs";
 
 const GAME = "games/big-weird-dig/";
 const bwd = (page, expr, arg) => page.evaluate(expr, arg);
@@ -219,16 +219,11 @@ test("the game still plays when the browser blocks saving", async ({ page, note,
   expect(browserErrors).toEqual([]);
 });
 
-// Editor's Choice cards come first in the arcade (#161), so "first" means first after those.
-test("Big Weird Dig has the first card after the Editor's Choice games and plays in its frame", async ({ page, shot, note, browserErrors }) => {
+// The card is found by its slug, not its place on the shelf: newer games and Editor's Choice picks move it (#194).
+test("Big Weird Dig has a card in the arcade and plays in its frame", async ({ page, shot, note, browserErrors }) => {
   await page.goto("./");
   const card = page.locator('#shelf .cart[href="#big-weird-dig"]');
   await expect(card).toBeVisible();
-  const picks = games.filter(g => g.editorsChoice === true).length;
-  // Newer pipeline games (Pet Wash Payback, #157) also go in front of it, so check it stays ahead of the games that were there before it.
-  const order = await page.locator("#shelf .cart").evaluateAll(cs => cs.map(c => c.getAttribute("href")));
-  expect(order.indexOf("#big-weird-dig")).toBeGreaterThanOrEqual(picks);
-  expect(order.indexOf("#big-weird-dig")).toBeLessThan(order.indexOf("#super-sauce-boy"));
   await expect(card.locator("h2")).toHaveText("Big Weird Dig");
   await expect(card.locator(".cover img")).toHaveJSProperty("complete", true);
   expect(await card.locator(".cover img").evaluate(img => img.naturalWidth)).toBe(800);
@@ -239,7 +234,7 @@ test("Big Weird Dig has the first card after the Editor's Choice games and plays
   await expect(frame.locator(".title-big")).toHaveText("WEIRD");
   await frame.locator("#play-btn").click();
   await expect(frame.locator("#hud")).toBeVisible();
-  note(`card first after the ${picks} Editor's Choice card(s), with its 800x450 cover; plays inside the frame; GitHub button opens its folder`);
+  note(`card on the shelf with its 800x450 cover; plays inside the frame; GitHub button opens its folder`);
   await shot("in-arcade");
   expect(browserErrors).toEqual([]);
 });
