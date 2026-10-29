@@ -1935,7 +1935,7 @@
   // Testing aid: inspect state, or fast-forward the simulation when a browser throttles frames.
   window.ANGRY_DEBUG = {
     get state() { return { pack: pack.id, level: level && level.id, mode: mode, phase: phase, selected: selected, arsenal: arsenal, score: score, defenders: defendersLeft(), ents: ents.length, wind: wind, topSpeed: topSpeed, gravity: gravK,
-      paused: paused, aim: { keys: !!(aim && aim.kb), ang: Math.round(kb.ang * 10) / 10, pow: Math.round(kb.pow * 100) / 100, target: kb.x == null ? null : Math.round(kb.x) }, camX: Math.round(camX), camMax: Math.round(camMax), lookingAtFort: camHoldX != null && camHoldX > camMax / 2, sound: soundOn }; },
+      time: Math.round(simT), paused: paused, aim: { keys: !!(aim && aim.kb), ang: Math.round(kb.ang * 10) / 10, pow: Math.round(kb.pow * 100) / 100, target: kb.x == null ? null : Math.round(kb.x) }, camX: Math.round(camX), camMax: Math.round(camMax), lookingAtFort: camHoldX != null && camHoldX > camMax / 2, sound: soundOn }; },
     advance: function (ms) { for (var i = 0; i < Math.round(ms / STEP); i++) step(); draw(); updateHud(); return this.state; },
     open: function (packId, levelNo) { var i = PACKS.findIndex(function (p) { return p.id === packId; }); campaign = null; usePack(i); openIntro(levelNo || 0); startBattle(); this.advance(1500); return this.state; },
     mission: function (packId, k) { var i = PACKS.findIndex(function (p) { return p.id === packId; }); usePack(i); startMission(k); startBattle(); this.advance(1500); return this.state; },
