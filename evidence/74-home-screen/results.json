@@ -1,0 +1,142 @@
+{
+  "spec": "74-home-screen",
+  "passed": true,
+  "headline": "PASS: 7 of 7 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-29T15:07:48.715Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "4693091",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/74-home-screen.spec.mjs",
+  "checks": [
+    {
+      "check": "the manifest names GameOn, opens standalone and lists the icon sizes",
+      "notes": [
+        "desktop: /manifest.webmanifest: GameOn, standalone, start_url and scope \"./\", theme #ffd23f",
+        "desktop: icons: 192x192 any, 512x512 any, 512x512 maskable, 180x180 any",
+        "phone: /manifest.webmanifest: GameOn, standalone, start_url and scope \"./\", theme #ffd23f",
+        "phone: icons: 192x192 any, 512x512 any, 512x512 maskable, 180x180 any"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "Safari gets the tags to open full screen with the Apple touch icon",
+      "notes": [
+        "desktop: viewport-fit=cover, apple-mobile-web-app-capable yes, title GameOn, black-translucent status bar, apple-touch-icon 180x180",
+        "phone: viewport-fit=cover, apple-mobile-web-app-capable yes, title GameOn, black-translucent status bar, apple-touch-icon 180x180"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "every icon loads at the size it claims, and reads at home-screen size",
+      "notes": [
+        "desktop: 192x192 any 192x192, 512x512 any 512x512, 512x512 maskable 512x512, 180x180 any 180x180, apple-touch-icon 180x180, favicon 32x32",
+        "phone: 192x192 any 192x192, 512x512 any 512x512, 512x512 maskable 512x512, 180x180 any 180x180, apple-touch-icon 180x180, favicon 32x32"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "icons-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "icons-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Chrome finds nothing stopping the arcade from installing",
+      "notes": [
+        "desktop: Page.getInstallabilityErrors: none (manifest /manifest.webmanifest)",
+        "phone: Page.getInstallabilityErrors: none (manifest /manifest.webmanifest)"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "held upright with a notch, the player bar, game and switcher stay in the safe area",
+      "notes": [
+        "phone: 375x812, insets {\"top\":47,\"right\":0,\"bottom\":34,\"left\":0}: game frame 0,84 375x694",
+        "phone: Claw of Cool's version chooser clears the insets too"
+      ],
+      "desktop": {
+        "status": "skipped",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "player-upright-phone.jpg",
+          "switcher-upright-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "held sideways with a notch, the player bar, game and switcher stay in the safe area",
+      "notes": [
+        "phone: 812x375, insets {\"top\":0,\"right\":47,\"bottom\":21,\"left\":47}: game frame 47,44 718x310",
+        "phone: Claw of Cool's version chooser clears the insets too"
+      ],
+      "desktop": {
+        "status": "skipped",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "player-sideways-phone.jpg",
+          "switcher-sideways-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "held upright with a notch, the arcade home stays in the safe area",
+      "notes": [],
+      "desktop": {
+        "status": "skipped",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "home-upright-phone.jpg"
+        ],
+        "error": null
+      }
+    }
+  ]
+}
