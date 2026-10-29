@@ -450,20 +450,20 @@ test("jeremy.v2 and jeremy.v1 still play", async ({ page, shot, note, browserErr
 test("in the arcade, Pet Wash Payback plays jeremy.v3 by default, Survival starts there, and the picker still offers jeremy.v2 and jeremy.v1", async ({ page, shot, note, browserErrors }) => {
   await page.goto("./");
   const entry = games.find(g => g.slug === SLUG);
-  expect(entry).toMatchObject({ default: "jeremy.v3", url: V3 });
+  // Since jeremy.v4 (#216) jeremy.v4 is the default, listed first; jeremy.v3 comes next.
+  expect(entry.versions.find(v => v.id === "jeremy.v3")).toMatchObject({ url: V3 });
   const card = page.locator(`#shelf .cart[href="#${SLUG}"]`);
-  // 4 since Kiki's fork kiki.v1 (jwildfire/gameon-ideas#6), which lists last, after the creator's versions
-  await expect(card).toContainText("4 versions");
+  // 4 since Kiki's fork kiki.v1 (jwildfire/gameon-ideas#6), which lists last, after the creator's versions; 5 since jeremy.v4
+  await expect(card).toContainText("5 versions");
   await card.click();
   await expect(page.locator("#chooser")).toBeVisible();
   const items = page.locator("#ver-list .ver-item");
-  await expect(items).toHaveCount(4);
-  await expect(items.nth(0)).toContainText("jeremy.v3");
-  await expect(items.nth(0)).toContainText("Latest");
-  await expect(items.nth(0)).toContainText("Survival mode");
-  await expect(items.nth(1)).toContainText("jeremy.v2");
-  await expect(items.nth(2)).toContainText("jeremy.v1");
-  await items.nth(0).click();
+  await expect(items).toHaveCount(5);
+  await expect(items.nth(1)).toContainText("jeremy.v3");
+  await expect(items.nth(1)).toContainText("Survival mode");
+  await expect(items.nth(2)).toContainText("jeremy.v2");
+  await expect(items.nth(3)).toContainText("jeremy.v1");
+  await items.nth(1).click();
   await expect(page).toHaveURL(new RegExp(`#${SLUG}@jeremy\\.v3$`));
   const frame = page.frameLocator("#frame");
   await frame.locator("#surv-btn").click();
