@@ -183,13 +183,14 @@
     "title": "Stretcher Bearer",
     "tagline": "Carry the wounded in from the trenches as a WWI medic, from 1914 to 1918.",
     "credit": "Made by Jeremy and the kids",
-    "url": "games/stretcher-bearer/jeremy.v1/",
+    "url": "games/stretcher-bearer/jeremy.v2/",
     "repo": "https://github.com/jwildfire/stretcher-bearer",
     "color": "#8a7a4a",
     "tags": ["New", "History"],
-    "default": "jeremy.v1",
+    "default": "jeremy.v2",
     "versions": [
-      { "id": "jeremy.v1", "url": "games/stretcher-bearer/jeremy.v1/", "made": "2026-10-22", "note": "The first version", "source": {"repo": "jwildfire/stretcher-bearer", "commit": "6c2401c74c582fd87abda832cd6eab4680b2b4ab"} }
+      { "id": "jeremy.v1", "url": "games/stretcher-bearer/jeremy.v1/", "made": "2026-10-22", "note": "The first version", "source": {"repo": "jwildfire/stretcher-bearer", "commit": "6c2401c74c582fd87abda832cd6eab4680b2b4ab"} },
+      { "id": "jeremy.v2", "url": "games/stretcher-bearer/jeremy.v2/", "made": "2026-10-29", "note": "Roomier buttons on a phone", "from": "jeremy.v1", "idea": 223 }
     ]
   },
   {
