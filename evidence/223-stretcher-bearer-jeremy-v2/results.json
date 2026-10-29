@@ -1,18 +1,18 @@
 {
   "spec": "223-stretcher-bearer-jeremy-v2",
   "passed": true,
-  "headline": "PASS: 9 of 9 checks pass at desktop and phone widths.",
-  "generatedAt": "2026-10-29T21:48:30.216Z",
+  "headline": "PASS: 10 of 10 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-29T22:22:53.160Z",
   "target": "local server (python3 -m http.server) on this branch",
-  "commit": "95ede1a",
+  "commit": "db52d87",
   "playwright": "1.61.1",
   "specFile": "tests/evidence/223-stretcher-bearer-jeremy-v2.spec.mjs",
   "checks": [
     {
       "check": "jeremy.v2 opens to its title and starts a day, with nothing from the internet but jeremy.v1's fonts",
       "notes": [
-        "desktop: clicked Report for duty and Move out: day 1 started and its clock ran (06:01 → 06:11); outside requests: fonts.googleapis.com, fonts.gstatic.com (Google Fonts, as jeremy.v1); no sideways scrolling",
-        "phone: tapped Report for duty and Move out: day 1 started and its clock ran (06:00 → 06:02); outside requests: fonts.googleapis.com, fonts.gstatic.com (Google Fonts, as jeremy.v1); no sideways scrolling"
+        "desktop: clicked Report for duty and Move out: day 1 started and its clock ran (06:06 → 06:40); outside requests: fonts.googleapis.com, fonts.gstatic.com (Google Fonts, as jeremy.v1); no sideways scrolling",
+        "phone: tapped Report for duty and Move out: day 1 started and its clock ran (06:05 → 06:14); outside requests: fonts.googleapis.com, fonts.gstatic.com (Google Fonts, as jeremy.v1); no sideways scrolling"
       ],
       "desktop": {
         "status": "pass",
@@ -32,10 +32,10 @@
       }
     },
     {
-      "check": "Report for duty is on screen without scrolling (jeremy.v1's was below the bottom), and so are each screen's buttons",
+      "check": "Report for duty is on screen without scrolling (jeremy.v1's was below the bottom), and the rest of the title scrolls into view above it",
       "notes": [
-        "desktop: 1280x800: Report for duty at y 618–666 (jeremy.v1: y 621–663, on screen); Move out ends at 724, Back to the front at 623",
-        "phone: 375x812: Report for duty at y 754–802 (jeremy.v1: y 965–1007, below the screen); Move out ends at 802, Back to the front at 689. 812x375: Report for duty at y 317–365 (jeremy.v1: y 575–617, below the screen); Move out ends at 365, Back to the front at 365. 667x375: Report for duty at y 317–365 (jeremy.v1: y 644–686, below the screen); Move out ends at 365, Back to the front at 365"
+        "desktop: 1280x800: Report for duty at y 618–666 (jeremy.v1: y 621–663, on screen); scrolled down, the last line of keys ends at 600, above the button at 618; Move out stays in the slip as in jeremy.v1 and started the day",
+        "phone: 375x812: Report for duty at y 756–804 (jeremy.v1: y 965–1007, below the screen); scrolled down, the last line of keys ends at 628, above the button at 738; Move out stays in the slip as in jeremy.v1 and started the day. 812x375: Report for duty at y 319–367 (jeremy.v1: y 575–617, below the screen); scrolled down, the last line of keys ends at 232, above the button at 297; Move out stays in the slip as in jeremy.v1 and started the day. 667x375: Report for duty at y 319–367 (jeremy.v1: y 644–686, below the screen); scrolled down, the last line of keys ends at 232, above the button at 297; Move out stays in the slip as in jeremy.v1 and started the day"
       ],
       "desktop": {
         "status": "pass",
@@ -77,7 +77,7 @@
     {
       "check": "WASD and the arrow keys both move the medic, Enter and Space press the screen's button, and P or Escape pauses",
       "notes": [
-        "desktop: Enter pressed Report for duty and Space pressed Move out. Moves from the same spot (dx,dy): d 62,0; ArrowRight 73,0; a -93,0; ArrowLeft -120,0; w 0,-81; ArrowUp 0,-76; s 0,64; ArrowDown 0,63. P paused and Escape went back; Escape paused and P went back"
+        "desktop: Enter pressed Report for duty and Space pressed Move out. Moves from the same spot (dx,dy): d 343,7; ArrowRight 293,0; a -209,0; ArrowLeft -209,6; w 0,-76; ArrowUp 0,-308; s 0,117; ArrowDown 0,189. P paused and Escape went back; Escape paused and P went back"
       ],
       "desktop": {
         "status": "pass",
@@ -110,6 +110,27 @@
         "screenshots": [
           "hud-375-phone.jpg",
           "hud-812-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "every screen as the player lands on it keeps whole what jeremy.v1 showed whole: title, orders, pause, night report, casualty notice, armistice",
+      "notes": [
+        "desktop: 1024x768: whole in jeremy.v1 → jeremy.v2: title 16→16 of 16, orders 11→11 of 13, pause 15→15 of 15, night report 11→11 of 11, casualty notice 9→9 of 9, armistice 8→8 of 10. 1280x800: whole in jeremy.v1 → jeremy.v2: title 16→16 of 16, orders 11→11 of 13, pause 15→15 of 15, night report 11→11 of 11, casualty notice 9→9 of 9, armistice 8→8 of 10. 1366x768: whole in jeremy.v1 → jeremy.v2: title 16→16 of 16, orders 11→11 of 13, pause 15→15 of 15, night report 11→11 of 11, casualty notice 9→9 of 9, armistice 8→8 of 10. Every line jeremy.v1 showed whole is whole in jeremy.v2, and none is cut off",
+        "phone: 375x812: whole in jeremy.v1 → jeremy.v2: title 12→13 of 17, orders 9→9 of 13, pause 15→15 of 15, night report 11→11 of 11, casualty notice 9→9 of 9, armistice 8→8 of 10. 812x375: whole in jeremy.v1 → jeremy.v2: title 5→6 of 17, orders 6→6 of 13, pause 12→12 of 15, night report 10→10 of 11, casualty notice 9→9 of 9, armistice 7→7 of 10. 667x375: whole in jeremy.v1 → jeremy.v2: title 4→5 of 17, orders 6→6 of 13, pause 12→12 of 15, night report 10→10 of 11, casualty notice 9→9 of 9, armistice 7→7 of 10. Every line jeremy.v1 showed whole is whole in jeremy.v2, and none is cut off"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "screens-1024-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "screens-812-phone.jpg"
         ],
         "error": null
       }

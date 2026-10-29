@@ -66,7 +66,7 @@ test("jeremy.v2 opens to its title and starts a day, with nothing from the inter
   expect(browserErrors).toEqual([]);
 });
 
-test("Report for duty is on screen without scrolling (jeremy.v1's was below the bottom), and so are each screen's buttons", async ({ page, isMobile, shot, note, browserErrors }) => {
+test("Report for duty is on screen without scrolling (jeremy.v1's was below the bottom), and the rest of the title scrolls into view above it", async ({ page, isMobile, shot, note, browserErrors }) => {
   const lines = [];
   for (const [w, h] of isMobile ? PHONES : DESKTOP) {
     await page.setViewportSize({ width: w, height: h });
@@ -82,21 +82,19 @@ test("Report for duty is on screen without scrolling (jeremy.v1's was below the 
     expect(v2.y + v2.h, `Report for duty's bottom at ${w}x${h}`).toBeLessThanOrEqual(h - 8);
     if (isMobile) expect(v1.y, `jeremy.v1's Report for duty starts below the screen at ${w}x${h}`).toBeGreaterThan(h);
     if (w === 375) await shot("title-start");
-    // the brief's Move out and the pause screen's buttons are in view too, and the slip still scrolls to its end
+    // scrolled to the end, the title's last line of keys sits above the pinned button, uncovered
+    await page.locator("#screen").evaluate(s => { s.scrollTop = s.scrollHeight; });
+    const last = await page.locator("#screen .keys > div").last().evaluate(e => { const r = e.getBoundingClientRect(), b = document.querySelector("[data-a=start]").getBoundingClientRect(); return { bottom: r.bottom, button: b.top, hit: e.contains(document.elementFromPoint(r.left + 4, r.bottom - 3)) }; });
+    expect(last.bottom).toBeLessThanOrEqual(last.button);
+    expect(last.hit).toBe(true);
+    // the other screens' buttons stay in the slip, where jeremy.v1 has them: Move out still starts the day
     await press(page, isMobile, "[data-a=start]");
-    const go = await box(page, "[data-a=go]");
-    expect(go.y + go.h).toBeLessThanOrEqual(h - 8);
+    await expect(page.locator("[data-a=go]")).toBeAttached();
+    const inFlow = await page.locator("#screen [data-a=go]").evaluate(b => getComputedStyle(b.parentElement).position);
+    expect(inFlow).toBe("static");
     await press(page, isMobile, "[data-a=go]");
     await expect(page.locator("#status")).toBeVisible();
-    await press(page, isMobile, "#pauseBtn");
-    await expect(page.locator("[data-a=resume]")).toBeVisible();
-    const res = await box(page, "[data-a=resume]");
-    expect(res.y + res.h).toBeLessThanOrEqual(h - 8);
-    await page.locator("#screen").evaluate(s => { s.scrollTop = s.scrollHeight; });
-    await expect(page.locator("#screen .olist li").last()).toBeInViewport();
-    lines.push(`${w}x${h}: Report for duty at y ${Math.round(v2.y)}–${Math.round(v2.y + v2.h)} (jeremy.v1: y ${Math.round(v1.y)}–${Math.round(v1.y + v1.h)}, ${v1.y > h ? "below the screen" : "on screen"}); Move out ends at ${Math.round(go.y + go.h)}, Back to the front at ${Math.round(res.y + res.h)}`);
-    await press(page, isMobile, "[data-a=resume]");
-    await expect(page.locator("#screen")).toBeHidden();
+    lines.push(`${w}x${h}: Report for duty at y ${Math.round(v2.y)}–${Math.round(v2.y + v2.h)} (jeremy.v1: y ${Math.round(v1.y)}–${Math.round(v1.y + v1.h)}, ${v1.y > h ? "below the screen" : "on screen"}); scrolled down, the last line of keys ends at ${Math.round(last.bottom)}, above the button at ${Math.round(last.button)}; Move out stays in the slip as in jeremy.v1 and started the day`);
   }
   note(lines.join(". "));
   expect(browserErrors).toEqual([]);
@@ -105,6 +103,8 @@ test("Report for duty is on screen without scrolling (jeremy.v1's was below the 
 test("every screen meets the phone bar: Orders, Sound and Pause 48 px tall and 8 px apart, the action buttons 8 px apart, the screen buttons 48 px tall", async ({ page, isMobile, shot, note, browserErrors }) => {
   const lines = [];
   const measure = async (screen, drawn = []) => {
+    // a screen's buttons sit at the end of its slip, as in jeremy.v1: scroll to them first
+    if (await page.locator("#screen").isVisible()) await page.locator("#screen .actions").last().scrollIntoViewIfNeeded();
     const { targets, problems } = await touchTargets(page, { drawn });
     expect(problems, `${screen}: ${problems.join("; ")}`).toEqual([]);
     expect(targets.length).toBeGreaterThan(0);
@@ -288,6 +288,99 @@ test("the HUD keeps everything jeremy.v1 showed whole: nothing is cut off, small
     }
   }
   note(lines.join(". "));
+  expect(browserErrors).toEqual([]);
+});
+
+// Every screen as the player lands on it, side by side with jeremy.v1. Both versions get the same random numbers
+// (the same orders) and the same saved game, which the game's own hot-reload hook (window.claude.hot) loads.
+const SCREEN_SIZES = { phone: PHONES, desktop: [[1024, 768], [1280, 800], [1366, 768]] };
+const TEXT = "#screen :is(h1,h2,h3,p,li,.fields>div,.stats>div,.keys>div,.best,.credit,.form-head,.stamp,.btn)";
+const SEEDED = () => {
+  let a = 223;
+  const rnd = () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  Math.random = rnd;
+  window.__b223reseed = () => { a = 223; };
+  const data = sessionStorage.getItem("b223-data");
+  window.claude = { hot: { snapshot: fn => { window.__b223snap = fn; }, ready: cb => cb(data ? JSON.parse(data) : {}) } };
+};
+async function landed(page) {
+  await page.locator("#screen").evaluate(s => { s.scrollTop = 0; });
+  await page.waitForTimeout(150);
+  return page.evaluate(TEXT => {
+    const VW = innerWidth, VH = innerHeight;
+    return [...document.querySelectorAll(TEXT)].map(el => {
+      const r = el.getBoundingClientRect();
+      const inside = r.left >= -0.5 && r.top >= -0.5 && r.right <= VW + 0.5 && r.bottom <= VH + 0.5;
+      let hit = 0, n = 0;
+      const e = Math.min(3, r.width / 4, r.height / 4);
+      for (let i = 0; i < 7; i++) for (let j = 0; j < 3; j++) {
+        const x = r.left + e + (r.width - 2 * e) * i / 6, y = r.top + e + (r.height - 2 * e) * j / 2; n++;
+        if (x < 0 || y < 0 || x >= VW || y >= VH) continue;
+        const h = document.elementFromPoint(x, y);
+        if (h && (h === el || el.contains(h))) hit++;
+      }
+      return { tag: el.tagName, text: el.textContent.replace(/\s+/g, " ").trim().slice(0, 60), whole: inside && hit === n, cut: el.scrollWidth > el.clientWidth + 1, top: r.top, bottom: r.bottom };
+    });
+  }, TEXT);
+}
+async function screens(page, url, save) {
+  const out = {};
+  // the same best score in both, so the title shows its "Best so far" line in each
+  await page.evaluate(() => { sessionStorage.removeItem("b223-data"); localStorage.clear(); localStorage.setItem("sb-best", JSON.stringify({ score: 4321, day: 7 })); });
+  await page.goto(url);
+  await expect(page.locator("[data-a=start]")).toBeVisible();
+  await page.evaluate(() => document.fonts.ready);
+  out.title = await landed(page);
+  await page.evaluate(() => { __b223reseed(); document.querySelector("[data-a=start]").click(); });
+  await expect(page.locator("[data-a=go]")).toBeAttached();
+  out.orders = await landed(page);
+  const state = save || await page.evaluate(() => window.__b223snap());
+  const variants = {
+    pause: s => s,
+    "night report": s => { s.phase = "night"; s.t = 1e9; return s; },
+    "casualty notice": s => { s.player.hp = -1e6; return s; },
+    armistice: s => { s.day = 15; s.phase = "day"; s.t = 1e9; return s; }
+  };
+  const want = { pause: "[data-a=resume]", "night report": "[data-a=next]", "casualty notice": "[data-a=retry]", armistice: "#screen [data-a=new]" };
+  for (const [name, change] of Object.entries(variants)) {
+    const s = change(JSON.parse(state.S));
+    await page.evaluate(d => sessionStorage.setItem("b223-data", d), JSON.stringify({ S: JSON.stringify(s), DAWN: state.DAWN }));
+    await page.goto(url);
+    await expect(page.locator("[data-a=resume]")).toBeAttached();
+    await page.evaluate(() => document.fonts.ready);
+    if (name !== "pause") {
+      await page.evaluate(() => { __b223reseed(); document.querySelector("[data-a=resume]").click(); });
+      await expect(page.locator(want[name])).toBeAttached();
+    }
+    out[name] = await landed(page);
+  }
+  return { out, state };
+}
+
+test("every screen as the player lands on it keeps whole what jeremy.v1 showed whole: title, orders, pause, night report, casualty notice, armistice", async ({ page, isMobile, shot, note, browserErrors }) => {
+  await page.addInitScript(SEEDED);
+  await page.goto(V2); // an origin for sessionStorage
+  const lines = [];
+  for (const [w, h] of SCREEN_SIZES[isMobile ? "phone" : "desktop"]) {
+    await page.setViewportSize({ width: w, height: h });
+    const a = await screens(page, V1);
+    const b = await screens(page, V2, a.state);
+    const per = [];
+    for (const name of Object.keys(a.out)) {
+      const v1 = a.out[name], v2 = b.out[name];
+      expect(v2.map(e => e.text), `${name} at ${w}x${h} shows the same text in both versions`).toEqual(v1.map(e => e.text));
+      let w1 = 0, w2 = 0;
+      v1.forEach((e, i) => {
+        if (e.whole) { w1++; expect(v2[i].whole, `${name} at ${w}x${h}: "${e.text}" was whole in jeremy.v1`).toBe(true); }
+        if (!e.cut) expect(v2[i].cut, `${name} at ${w}x${h}: "${e.text}" is cut off`).toBe(false);
+        if (v2[i].whole) w2++;
+      });
+      per.push(`${name} ${w1}→${w2} of ${v1.length}`);
+    }
+    if (w === 812 || w === 1024) await shot(`screens-${w}`); // the armistice, as the player lands on it
+    lines.push(`${w}x${h}: whole in jeremy.v1 → jeremy.v2: ${per.join(", ")}`);
+  }
+  note(lines.join(". ") + ". Every line jeremy.v1 showed whole is whole in jeremy.v2, and none is cut off");
   expect(browserErrors).toEqual([]);
 });
 
