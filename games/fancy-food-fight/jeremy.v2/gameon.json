@@ -1,0 +1,14 @@
+{
+  "name": "fancy-food-fight",
+  "title": "Fancy Food Fight",
+  "tagline": "Splat the fanciest party in town with pies and spaghetti. Messiest wins!",
+  "credit": "Designed by Jeremy",
+  "idea": "Fancy people foodfight! Messiest wins",
+  "made": "2026-10-23",
+  "built_with": "Claude Opus 5.5",
+  "players": "1",
+  "sideways": true,
+  "needs_internet": false,
+  "idea_issue": 103,
+  "path": "games/fancy-food-fight/"
+}
