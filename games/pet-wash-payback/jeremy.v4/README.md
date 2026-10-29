@@ -128,6 +128,8 @@ Started from jeremy.v3. The wash round now plays with the keyboard, and every bu
 
 At 375 px wide every button is at least 48 x 48 px and at least 8 px from the others and from the screen edges: Pause and Sound are 48 x 48 with 8 px between them (they were 32 x 32 and 4 px apart), and every other button (Back, the pause screen's Title screen and Sound, and the big buttons) is at least 48 px tall.
 
+So the bigger Sound and Pause buttons don't squeeze the Clean/Wet meter, on a phone or any window up to 560 px wide the top bar has two slim rows beside them: the pet's name and the clock, then the meter on a row of its own. The meter is wider there than in jeremy.v3 and no name is cut short. Wider windows keep jeremy.v3's one-row bar. Either way the bar stays inside the strip at the top that the game has always kept for it, so the bathroom and the backyard are laid out exactly as before.
+
 ### Saves
 
 Nothing new is saved. jeremy.v4 uses jeremy.v3's keys in the same format (`gameon.pet-wash-payback.jeremy.v3.best`, `.jeremy.v3.reached` and `.jeremy.v3.survival`), so your progress, stars and best times carry straight over, and it reads jeremy.v1's and jeremy.v2's saves the same way jeremy.v3 does. The sound setting (`muted`) is shared with every version.
