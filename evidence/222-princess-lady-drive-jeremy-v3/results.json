@@ -2,9 +2,9 @@
   "spec": "222-princess-lady-drive-jeremy-v3",
   "passed": true,
   "headline": "PASS: 11 of 11 checks pass at desktop and phone widths.",
-  "generatedAt": "2026-10-29T21:25:04.290Z",
+  "generatedAt": "2026-10-29T21:25:51.378Z",
   "target": "local server (python3 -m http.server) on this branch",
-  "commit": "02c5c22",
+  "commit": "162b627",
   "playwright": "1.61.1",
   "specFile": "tests/evidence/222-princess-lady-drive-jeremy-v3.spec.mjs",
   "checks": [
@@ -112,7 +112,7 @@
       "notes": [
         "desktop: 347 boxes jeremy.v2 showed whole (title, driving, walking, map, help, help with Start over armed; the cards at the top and scrolled down) are all still whole in jeremy.v3 and none is smaller",
         "desktop: bigger in jeremy.v3: #map .spot (31 of them, up to 0 px wider and 2 px taller); #help .card (1, up to 60 px wider and 0 px taller); #help h2 (1, up to 60 px wider and 0 px taller); #help li (8 of them, up to 60 px wider and 0 px taller); #resetBtn (1, up to 0 px wider and 5 px taller)",
-        "phone: 347 boxes jeremy.v2 showed whole (title, driving, walking, map, help, help with Start over armed; the cards at the top and scrolled down) are all still whole in jeremy.v3 and none is smaller",
+        "phone: 345 boxes jeremy.v2 showed whole (title, driving, walking, map, help, help with Start over armed; the cards at the top and scrolled down) are all still whole in jeremy.v3 and none is smaller",
         "phone: bigger in jeremy.v3: #map .spot (31 of them, up to 0 px wider and 1 px taller); #help li (1, up to 0 px wider and 46 px taller); #resetBtn (1, up to 0 px wider and 5 px taller)"
       ],
       "desktop": {
