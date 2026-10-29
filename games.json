@@ -100,10 +100,15 @@
     "title": "Big Weird Dig",
     "tagline": "Drive a bulldozer underground and dig up the weirdest stuff ever buried.",
     "credit": "Made by Jeremy",
-    "url": "games/big-weird-dig/",
+    "url": "games/big-weird-dig/jeremy.v2/",
     "repo": "https://github.com/jwildfire/gameon",
     "color": "#9b4dff",
-    "tags": ["New", "Digging adventure", "1 player"]
+    "tags": ["New", "Digging adventure", "1 player"],
+    "default": "jeremy.v2",
+    "versions": [
+      { "id": "jeremy.v1", "url": "games/big-weird-dig/", "made": "2026-10-24", "note": "The first version" },
+      { "id": "jeremy.v2", "url": "games/big-weird-dig/jeremy.v2/", "made": "2026-10-29", "note": "Bigger buttons, Enter to go", "from": "jeremy.v1", "idea": 217 }
+    ]
   },
   {
     "slug": "super-sauce-boy",
