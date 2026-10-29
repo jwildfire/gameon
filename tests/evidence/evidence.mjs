@@ -97,8 +97,10 @@ export const test = base.extend({
 //   expect(problems).toEqual([]);
 //
 // It finds buttons, links, inputs and anything with a pointer cursor that a tap at its
-// centre actually reaches. Controls drawn on a canvas aren't in the page, so pass their
-// hit boxes (in CSS px from the top-left of the viewport) as `drawn`.
+// centre actually reaches. A play field (anything covering a third of the screen or more)
+// isn't a button, so it's left out; a list that scrolls isn't held to the top and bottom
+// edges. Controls drawn on a canvas aren't in the page, so pass their hit boxes (in CSS px
+// from the top-left of the viewport) as `drawn`.
 export const FINGER = { min: 48, gap: 8, edge: 8 };
 
 export async function touchTargets(page, { drawn = [], ...bar } = {}) {
@@ -119,18 +121,23 @@ export async function touchTargets(page, { drawn = [], ...bar } = {}) {
       if (cx < 0 || cy < 0 || cx >= innerWidth || cy >= innerHeight) continue;
       const hit = document.elementFromPoint(cx, cy);
       if (!hit || !(el === hit || el.contains(hit))) continue;
+      if (r.width * r.height >= innerWidth * innerHeight / 3) continue;
+      let scrolls = document.scrollingElement.scrollHeight > innerHeight + 1;
+      for (let p = el.parentElement; p && !scrolls; p = p.parentElement) {
+        const oy = getComputedStyle(p).overflowY;
+        scrolls = (oy === "auto" || oy === "scroll") && p.scrollHeight > p.clientHeight + 1;
+      }
       const name = (el.getAttribute("aria-label") || el.innerText || el.value || el.id || el.tagName).trim().replace(/\s+/g, " ").slice(0, 24);
-      out.push({ name, x: r.left, y: r.top, w: r.width, h: r.height });
+      out.push({ name, x: r.left, y: r.top, w: r.width, h: r.height, scrolls });
     }
-    const scrolls = document.scrollingElement.scrollHeight > innerHeight + 1;
-    return { out, vw: innerWidth, vh: innerHeight, scrolls };
+    return { out, vw: innerWidth, vh: innerHeight };
   });
-  const targets = [...found.out, ...drawn].map(t => ({ ...t, x: Math.round(t.x), y: Math.round(t.y), w: Math.round(t.w), h: Math.round(t.h) }));
+  const targets = [...found.out, ...drawn].map(t => ({ name: t.name, x: Math.round(t.x), y: Math.round(t.y), w: Math.round(t.w), h: Math.round(t.h), scrolls: !!t.scrolls }));
   const problems = [];
   for (const t of targets) {
     if (t.w < min || t.h < min) problems.push(`"${t.name}" is ${t.w}x${t.h} (needs ${min}x${min})`);
     const sides = [t.x, found.vw - (t.x + t.w)];
-    if (!found.scrolls) sides.push(t.y, found.vh - (t.y + t.h));
+    if (!t.scrolls) sides.push(t.y, found.vh - (t.y + t.h));
     if (Math.min(...sides) < edge) problems.push(`"${t.name}" is ${Math.max(0, Math.min(...sides))} px from the edge (needs ${edge})`);
   }
   for (let i = 0; i < targets.length; i++) for (let j = i + 1; j < targets.length; j++) {
