@@ -11,7 +11,10 @@ const V1 = `games/${SLUG}/`;
 const V2 = `games/${SLUG}/jeremy.v2/`;
 const UPRIGHT = { width: 375, height: 812 };
 const SIDEWAYS = { width: 812, height: 375 };
+const SMALL_SIDEWAYS = [{ width: 568, height: 320 }, { width: 640, height: 360 }, { width: 667, height: 375 }, { width: 740, height: 360 }];
 const fff = (page, expr, arg) => page.evaluate(expr, arg);
+// the clear space between two boxes, side by side or one above the other
+const apart = (a, b) => Math.round(Math.max(Math.max(a.x, b.x) - Math.min(a.x + a.w, b.x + b.w), Math.max(a.y, b.y) - Math.min(a.y + a.h, b.y + b.h)));
 const box = (page, sel) => page.locator(sel).first().evaluate(e => { const r = e.getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height, right: innerWidth - r.right, bottom: innerHeight - r.bottom }; });
 async function press(page, isMobile, sel) {
   if (isMobile) { const b = await box(page, sel); await page.touchscreen.tap(b.x + b.w / 2, b.y + b.h / 2); } else await page.locator(sel).first().click();
@@ -80,7 +83,8 @@ async function everyScreen(page, isMobile, label, shot) {
   const foods = [];
   for (let i = 0; i < 4; i++) foods.push(await box(page, `#tray .food >> nth=${i}`));
   for (const b of [so, pa, du, ...foods]) { expect(b.w).toBeGreaterThanOrEqual(48); expect(b.h).toBeGreaterThanOrEqual(48); }
-  expect(pa.x - (so.x + so.w)).toBeGreaterThanOrEqual(8);
+  expect(apart(so, pa)).toBeGreaterThanOrEqual(8);
+  for (const b of [so, pa]) expect(apart(b, du)).toBeGreaterThanOrEqual(8);
   expect(Math.round(pa.right)).toBeGreaterThanOrEqual(8);
   expect(Math.round(du.right)).toBeGreaterThanOrEqual(8);
   expect(Math.round(du.bottom)).toBeGreaterThanOrEqual(8);
@@ -122,7 +126,7 @@ async function everyScreen(page, isMobile, label, shot) {
   await press(page, isMobile, "#next-btn");
   await expect(page.locator("#hud-round")).toHaveText("Round 2 of 3");
   const wh = b => `${Math.round(b.w)}x${Math.round(b.h)}`;
-  return `Sound ${wh(so)} and Pause ${wh(pa)}, ${Math.round(pa.x - (so.x + so.w))} px apart, Pause ${Math.round(pa.right)} px from the right edge and ${Math.round(pa.y)} px from the top; foods ${wh(foods[0])}, ${Math.round(foods[1].x - (foods[0].x + foods[0].w))} px apart, ${Math.round(foods[0].x)} px from the left edge; Duck! ${wh(du)}, ${Math.round(du.right)} px from the right and ${Math.round(du.bottom)} px from the bottom. Buttons per screen: ${lines.join(", ")}`;
+  return `Sound ${wh(so)} and Pause ${wh(pa)}, ${apart(so, pa)} px apart (${so.y + so.h <= pa.y ? "Sound above Pause" : "side by side"}), Pause ${Math.round(pa.right)} px from the right edge and ${Math.round(pa.y)} px from the top; foods ${wh(foods[0])}, ${Math.round(foods[1].x - (foods[0].x + foods[0].w))} px apart, ${Math.round(foods[0].x)} px from the left edge; Duck! ${wh(du)}, ${Math.round(du.right)} px from the right and ${Math.round(du.bottom)} px from the bottom. Buttons per screen: ${lines.join(", ")}`;
 }
 
 test("upright at 375 px wide, every button is at least 48 x 48, 8 px apart and 8 px from the edges, and each does its job when tapped", async ({ page, isMobile, shot, note, browserErrors }) => {
@@ -168,7 +172,9 @@ async function hud(page, url, size) {
 
 test("the HUD isn't squeezed: every pill and the Mess meter are as big as in jeremy.v1 or bigger, nothing jeremy.v1 showed whole is cut off, and no button covers them", async ({ page, isMobile, shot, note, browserErrors }) => {
   // upright and sideways phones, plus a sideways phone with no room beside the stage (667 x 375), where Sound and Pause drop below the HUD
-  const sizes = isMobile ? [UPRIGHT, SIDEWAYS, { width: 667, height: 375 }] : [{ width: 1280, height: 800 }, SIDEWAYS];
+  // upright and every sideways phone size, plus desktop: wide sideways phones (812, 844) stack Sound and Pause beside the
+  // stage, small ones (568 to 740) put them below the table next to Duck!
+  const sizes = isMobile ? [UPRIGHT, ...SMALL_SIDEWAYS, SIDEWAYS, { width: 844, height: 390 }] : [{ width: 1280, height: 800 }, SIDEWAYS];
   const lines = [];
   for (const size of sizes) {
     const v1 = await hud(page, V1, size);
@@ -187,6 +193,57 @@ test("the HUD isn't squeezed: every pill and the Mess meter are as big as in jer
     if (size === SIDEWAYS) await shot("hud-sideways");
   }
   note(lines.join(". "));
+  expect(browserErrors).toEqual([]);
+});
+
+// The throw zone is where the aim can reach (stage x 20-940, y 40-430, in jeremy.v1's own units); the portraits are
+// targets on the wall that score "Art!". A button over them catches a tap that would have thrown, so no button may cover
+// more of them than in jeremy.v1 (where Sound and Pause sat in the HUD row and just touched the zone's top edge).
+const ZONES = { "throw zone": [20, 40, 920, 390], "left portrait": [60, 70, 110, 130], "right portrait": [790, 70, 110, 130] };
+async function cover(page, url, size) {
+  await page.setViewportSize(size);
+  await page.goto(url);
+  await expect(page.locator("#play-btn")).toBeVisible();
+  await fff(page, () => document.getElementById("play-btn").click());
+  await expect(page.locator("#hud")).toBeVisible();
+  await fff(page, () => __fff.calm());
+  await page.waitForTimeout(150);
+  return page.evaluate(zones => {
+    const st = document.getElementById("stage").getBoundingClientRect(), u = st.width / 960;
+    const buttons = ["#sound-btn", "#pause-btn", "#duck-btn", "#tray .food"].flatMap(sel => [...document.querySelectorAll(sel)]).map(b => b.getBoundingClientRect());
+    const out = {};
+    for (const [name, [x, y, w, h]] of Object.entries(zones)) {
+      const z = { l: st.left + x * u, t: st.top + y * u, r: st.left + (x + w) * u, b: st.top + (y + h) * u };
+      out[name] = Math.round(buttons.reduce((sum, b) => sum + Math.max(0, Math.min(b.right, z.r) - Math.max(b.left, z.l)) * Math.max(0, Math.min(b.bottom, z.b) - Math.max(b.top, z.t)), 0));
+    }
+    const s = document.getElementById("sound-btn").getBoundingClientRect(), p = document.getElementById("pause-btn").getBoundingClientRect();
+    out.where = `Sound ${Math.round(s.left)},${Math.round(s.top)} Pause ${Math.round(p.left)},${Math.round(p.top)}`;
+    return out;
+  }, ZONES);
+}
+
+test("Sound, Pause, the tray and Duck! cover no more of the throw zone or the portraits than in jeremy.v1, at every phone size, and still pass the phone bar", async ({ page, isMobile, shot, note, browserErrors }) => {
+  const sizes = [UPRIGHT, ...SMALL_SIDEWAYS, SIDEWAYS, { width: 844, height: 390 }, { width: 1280, height: 800 }];
+  const lines = [];
+  for (const size of sizes) {
+    const v1 = await cover(page, V1, size);
+    const v2 = await cover(page, V2, size);
+    for (const zone of Object.keys(ZONES)) expect(v2[zone], `${size.width}x${size.height} ${zone}: v1 ${v1[zone]} px², v2 ${v2[zone]} px²`).toBeLessThanOrEqual(v1[zone]);
+    const { problems } = await touchTargets(page);
+    expect(problems, `${size.width}x${size.height}: ${problems.join("; ")}`).toEqual([]);
+    lines.push(`${size.width} x ${size.height}: throw zone ${v1["throw zone"]} → ${v2["throw zone"]} px², portraits ${v1["left portrait"] + v1["right portrait"]} → ${v2["left portrait"] + v2["right portrait"]} px² (${v2.where})`);
+    if (size.width === 667) await shot("clear-of-the-wall");
+  }
+  // a tap on the right-hand portrait at 667 x 375 throws food at it (Art! +20) and leaves the sound alone
+  await page.setViewportSize({ width: 667, height: 375 });
+  await start(page, isMobile);
+  const st = await box(page, "#stage"), u = st.w / 960;
+  const at = [st.x + 845 * u, st.y + 110 * u];
+  const s0 = await fff(page, () => __fff.score);
+  if (isMobile) await page.touchscreen.tap(at[0], at[1]); else await page.mouse.click(at[0], at[1]);
+  await expect.poll(() => fff(page, () => __fff.score), { timeout: 3000 }).toBeGreaterThanOrEqual(s0 + 20);
+  expect(await fff(page, () => __fff.muted)).toBe(false);
+  note(`v1 → v2 button area over the throw zone and the portraits (screen px²): ${lines.join("; ")}. At 667 x 375 a ${isMobile ? "tap" : "click"} on the right-hand portrait (${at.map(Math.round).join(",")}) threw and scored Art! with the sound still on`);
   expect(browserErrors).toEqual([]);
 });
 
