@@ -1,0 +1,27 @@
+{
+  "name": "big-weird-dig",
+  "title": "Big Weird Dig",
+  "tagline": "Drive a bulldozer underground and dig up the weirdest stuff ever buried.",
+  "credit": "Designed by Jeremy",
+  "idea": "you excavate weird stuff with a bulldozer. kind of like dig dug?",
+  "made": "2026-10-24",
+  "built_with": "Claude Opus 5.5",
+  "players": "1",
+  "sideways": false,
+  "needs_internet": false,
+  "idea_issue": 155,
+  "path": "games/big-weird-dig/jeremy.v2/",
+  "version": "jeremy.v2",
+  "from": "jeremy.v1",
+  "updates": [
+    {
+      "version": "jeremy.v2",
+      "from": "jeremy.v1",
+      "idea": "Make Big Weird Dig comfortable on a phone and with a keyboard, so it meets the phone bar from the phone-friendly games task (jwildfire/gameon#187): every button at least 48 x 48 px at 375 px wide, 8 px clear of each other and the screen edges, and both WASD and the arrow keys working. Measured on jeremy.v1 on 2026-10-29:\n\n- Pause is 28 x 28, 6 px from the right edge and 7 px from the top.\n- Enter and Space do nothing on the title, level-done and pause screens. A keyboard player has to press Tab to reach Dig! first.\n- Sound and Back, and the pause screen's Levels and Title screen buttons, are 40 px tall. The main buttons are 46 px.\n\nMake Pause 48 x 48 and 8 px from the edges (plus the safe-area insets), make every button at least 48 px tall, and make Enter or Space press the main button on each screen. The d-pad and PUSH already pass. Keep everything else the same.",
+      "by": "Jeremy",
+      "made": "2026-10-29",
+      "built_with": "Claude Opus 5.5",
+      "idea_issue": 217
+    }
+  ]
+}
