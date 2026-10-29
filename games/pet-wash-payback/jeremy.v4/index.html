@@ -27,7 +27,7 @@ button { font-family: var(--round); color: var(--ink); }
 #game { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
 
 /* HUD */
-#hud { position: fixed; top: 0; left: 0; right: 0; display: flex; align-items: center; gap: 6px; padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) 0 max(8px, env(safe-area-inset-left)); pointer-events: none; font-weight: 900; font-size: 15px; z-index: 3; }
+#hud { --gap: 6px; position: fixed; top: 0; left: 0; right: 0; display: flex; align-items: center; gap: var(--gap); padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) 0 max(8px, env(safe-area-inset-left)); pointer-events: none; font-weight: 900; font-size: 15px; z-index: 3; }
 .pill { background: rgba(255, 250, 240, 0.95); border: 2.5px solid var(--ink); border-radius: 999px; padding: 3px 10px; white-space: nowrap; line-height: 1.3; }
 #hud-pet { overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 0 1 auto; }
 #hud-time { font-variant-numeric: tabular-nums; min-width: 3.4em; text-align: center; flex: none; }
@@ -42,13 +42,17 @@ button { font-family: var(--round); color: var(--ink); }
 #meter-fill { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, #7be0ff, #2f8cff); border-radius: 99px; transition: width 120ms linear; }
 #hud-meter.wet #meter-fill { background: linear-gradient(90deg, #8fd8ff, #1b5cff); }
 #hud-meter.wet.danger { background: #ffd8e6; }
-.hud-btn { pointer-events: auto; width: 36px; height: 36px; border-radius: 50%; border: 2.5px solid var(--ink); background: var(--cream); display: grid; place-items: center; cursor: pointer; padding: 0; flex: none; }
-.hud-btn svg { width: 56%; height: 56%; fill: var(--ink); }
+/* jeremy.v4: 48 x 48 and 8 px apart, big enough for a finger */
+.hud-btn { pointer-events: auto; width: 48px; height: 48px; border-radius: 50%; border: 2.5px solid var(--ink); background: var(--cream); display: grid; place-items: center; cursor: pointer; padding: 0; flex: none; }
+.hud-btn svg { width: 50%; height: 50%; fill: var(--ink); }
+.hud-btn + .hud-btn { margin-left: calc(8px - var(--gap)); }
 .hud-btn.off svg .wave { display: none; }
 .spacer { flex: 1 1 0; }
 
 /* Tool bar */
-#tools { position: fixed; left: 0; right: 0; bottom: 0; display: flex; justify-content: center; gap: 10px; padding: 0 10px max(10px, env(safe-area-inset-bottom)); z-index: 3; pointer-events: none; }
+/* jeremy.v4: 2 px higher, so a pressed-in tool stays 8 px clear of the bottom edge (the bar's own size, which
+   sets the size of the tub, is jeremy.v3's) */
+#tools { position: fixed; left: 0; right: 0; bottom: 2px; display: flex; justify-content: center; gap: 10px; padding: 0 10px max(10px, env(safe-area-inset-bottom)); z-index: 3; pointer-events: none; }
 .tool { pointer-events: auto; width: 96px; height: 78px; border-radius: 20px; border: 3px solid var(--ink); background: var(--cream); box-shadow: 0 5px 0 var(--ink); display: grid; place-items: center; align-content: center; gap: 0; cursor: pointer; padding: 2px 0 0; font: 900 14px var(--round); touch-action: none; position: relative; }
 .tool svg { width: 42px; height: 38px; pointer-events: none; }
 .tool .k { position: absolute; top: 4px; left: 7px; font-size: 11px; opacity: 0.55; }
@@ -74,7 +78,7 @@ button { font-family: var(--round); color: var(--ink); }
 .tag { font-weight: 800; font-size: 17px; }
 .muted { color: #6a5a80; font-size: 14px; }
 .row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-.btn { font: 900 22px var(--round); padding: 10px 22px; border-radius: 16px; border: 3px solid var(--ink); background: var(--blue); color: #fff; cursor: pointer; box-shadow: 0 5px 0 var(--ink); -webkit-text-stroke: 1px var(--ink); paint-order: stroke fill; }
+.btn { min-height: 48px; min-width: 48px; font: 900 22px var(--round); padding: 10px 22px; border-radius: 16px; border: 3px solid var(--ink); background: var(--blue); color: #fff; cursor: pointer; box-shadow: 0 5px 0 var(--ink); -webkit-text-stroke: 1px var(--ink); paint-order: stroke fill; }
 .btn.pink { background: var(--pink); }
 .btn.alt { background: #fff; color: var(--ink); -webkit-text-stroke: 0; }
 .btn.small { font-size: 16px; padding: 7px 14px; }
@@ -107,9 +111,8 @@ table.sum td.n { text-align: right; font-variant-numeric: tabular-nums; }
   .card { padding: 14px 12px; gap: 9px; font-size: 15px; }
   .btn { font-size: 19px; padding: 9px 16px; }
   #pet-grid { grid-template-columns: repeat(3, 1fr); }
-  #hud { font-size: 13px; gap: 4px; }
+  #hud { font-size: 13px; --gap: 4px; }
   .pill { padding: 3px 7px; }
-  .hud-btn { width: 32px; height: 32px; }
   #hud-time.big { font-size: 19px; padding: 1px 8px; }
   .tool { width: 88px; height: 72px; }
   .stars { font-size: 38px; }
@@ -160,7 +163,7 @@ table.sum td.n { text-align: right; font-variant-numeric: tabular-nums; }
     </div>
     <p class="muted" id="title-best"></p>
     <p class="muted" id="title-surv"></p>
-    <p class="keys">Round 1: drag over the mud to scrub. Soap <kbd>1</kbd>, rinse <kbd>2</kbd>, towel <kbd>3</kbd>. Tap the parrot to catch him.<br>Round 2: everyone you washed wants payback! Run with <kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd> or <kbd>WASD</kbd>, or drag anywhere. <kbd>P</kbd> pause · <kbd>R</kbd> restart · <kbd>M</kbd> sound</p>
+    <p class="keys">Round 1: drag over the mud to scrub, or move the brush with <kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd> or <kbd>WASD</kbd> and hold <kbd>Space</kbd>. Soap <kbd>1</kbd>, rinse <kbd>2</kbd>, towel <kbd>3</kbd>. Tap the parrot, or press <kbd>Space</kbd> or <kbd>Enter</kbd> when the brush is on him, to catch him.<br>Round 2: everyone you washed wants payback! Run with <kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd> or <kbd>WASD</kbd>, or drag anywhere. <kbd>P</kbd> pause · <kbd>R</kbd> restart · <kbd>M</kbd> sound</p>
     <p class="muted">Designed by Jeremy · GameOn</p>
   </div>
 </div>

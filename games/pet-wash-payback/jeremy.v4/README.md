@@ -102,3 +102,34 @@ Started from jeremy.v2. A new **Survival!** button on the title screen starts a 
 jeremy.v3 reads every earlier save and changes none of them: jeremy.v1's `best`, `reached` and `muted`, and jeremy.v2's `jeremy.v2.best` and `jeremy.v2.reached`. The pets you reached and the stars and best score you set in either version show here. Its own progress is under `gameon.pet-wash-payback.jeremy.v3.best` and `.jeremy.v3.reached`, the best survival time is under `gameon.pet-wash-payback.jeremy.v3.survival` (`{ "best": seconds, "animals": n, "runs": n }`), and the sound setting (`muted`) is shared with the other versions.
 
 Evidence: `tests/evidence/ideas-3-pet-wash-payback-jeremy-v3.spec.mjs`. `window.__pwp` adds `survival()`, `survivalIntro()` and `seed(n)`, which gives the game's dice a fixed seed so a run plays the same way every time (the sound keeps its own randomness).
+
+## jeremy.v4: Wash pets with the keyboard
+
+Update idea from Jeremy (game idea #216), word for word:
+
+> Make Pet Wash Payback comfortable on a phone and with a keyboard, so it meets the phone bar from the phone-friendly games task (jwildfire/gameon#187): every button at least 48 x 48 px at 375 px wide, 8 px clear of each other and the screen edges, and both WASD and the arrow keys working. Measured on jeremy.v3 on 2026-10-29:
+>
+> - In the wash round (the first round Play! starts), no key scrubs, rinses or dries the pet or catches the parrot. WASD, the arrows, Space and Enter all do nothing there, so only touch or a mouse works.
+> - Pause and Mute are 32 x 32 and only 4 px apart.
+> - Back and the pause screen's Title screen and Sound buttons are 38 px tall. The main buttons are 46 px.
+>
+> In the wash round, let WASD or the arrows move a scrub brush, with Space held to scrub and Enter or Space to catch the parrot. Make Pause and Mute 48 x 48 with 8 px between them, and make every button at least 48 px tall. The running round and Survival already pass. Keep everything else the same.
+
+Started from jeremy.v3. The wash round now plays with the keyboard, and every button is big enough for a finger on a phone. Everything else (the pets, both rounds, Survival, scoring and saves) is jeremy.v3's.
+
+### Washing with the keyboard
+
+- **A scrub brush you can see.** In the wash round, the arrow keys or WASD move a brush: the tool in your hand (soap, shower or towel) with a dashed ring around it that shows where it cleans. It shows up as soon as you press a key, and right away if you started the round from the keyboard.
+- **Hold Space to scrub.** Space held scrubs with the tool in your hand: soap the mud, rinse the bubbles, towel it dry, the same as dragging a finger. <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> pick the tool, as before. The brush scrubs in little circles on its own, so you don't have to wiggle the keys, and it moves a bit slower while you scrub so you can stay on a spot.
+- **It keeps up with wriggly pets.** The brush rides along with the pet when Biscuit sways, Clover hops or Sir Quackers paddles, and holding Space near a spot your tool can clean slides the brush onto it.
+- **Catch Pickles with Enter or Space.** While Pickles flies, the ring is the catching range: it turns yellow and says "Space!" when he's in reach. Press Enter or Space (or just hold Space as you reach him) to catch him; the brush carries him back to the tub so you can scrub straight away. Too far away and he dodges ("Missed!").
+
+### Buttons
+
+At 375 px wide every button is at least 48 x 48 px and at least 8 px from the others and from the screen edges: Pause and Sound are 48 x 48 with 8 px between them (they were 32 x 32 and 4 px apart), and every other button (Back, the pause screen's Title screen and Sound, and the big buttons) is at least 48 px tall.
+
+### Saves
+
+Nothing new is saved. jeremy.v4 uses jeremy.v3's keys in the same format (`gameon.pet-wash-payback.jeremy.v3.best`, `.jeremy.v3.reached` and `.jeremy.v3.survival`), so your progress, stars and best times carry straight over, and it reads jeremy.v1's and jeremy.v2's saves the same way jeremy.v3 does. The sound setting (`muted`) is shared with every version.
+
+Evidence: `tests/evidence/216-pet-wash-payback-jeremy-v4.spec.mjs`. `window.__pwp` adds `kb` (the brush), `brushScreen()` and `parrotScreen()`.

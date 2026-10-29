@@ -1,6 +1,7 @@
-// Pet Wash Payback, jeremy.v3. Designed by Jeremy (GameOn game idea #157; update ideas #163 and
-// jwildfire/gameon-ideas#3). New in jeremy.v3: Survival mode (see "survival" below). The normal game
-// is jeremy.v2's, unchanged.
+// Pet Wash Payback, jeremy.v4. Designed by Jeremy (GameOn game idea #157; update ideas #163,
+// jwildfire/gameon-ideas#3 and #216). New in jeremy.v4: the wash round plays with the keyboard (a scrub
+// brush you move with the arrows or WASD, Space held to scrub, Enter or Space to catch Pickles; see
+// "keyboard scrub brush" below), and every button is big enough for a finger. Survival came in jeremy.v3.
 // Round 1: scrub, rinse and towel a muddy pet before the timer runs out. Now there are nine pets,
 // including a gang of 10 squirrels, a parrot you have to catch first, a hippo and an octopus.
 // Round 2: payback! Every animal you've washed so far chases you around the backyard at once, each
@@ -312,6 +313,11 @@ let round = null;
 let run = null;         // { start, index, scores: [] }
 let ptr = { x: -999, y: -999, down: false, over: false, id: null };
 const keys = { left: false, right: false, up: false, down: false };
+// the keyboard scrub brush (jeremy.v4): arrows or WASD move it, Space held scrubs with the tool in hand,
+// Enter or Space catches Pickles. It rides along with the pet and slides onto the nearest spot you can
+// clean, so you can keep up with a wriggly pet without a mouse.
+const kb = { x: 0, y: 0, vx: 0, vy: 0, on: false, scrub: false, carry: false, prevT: null, wig: 0, near: false, missT: 0 };
+let lastInput = "pointer";     // "key" when the last thing you pressed was a key, so the brush shows up at once
 let joy = null;         // { sx, sy, x, y, id }
 const particles = [];
 let tipTimer = 0, now = 0;
@@ -717,7 +723,9 @@ function startWash(i) {
   setTool(0); markSnatched(-1);
   mode = "wash"; paused = false;
   showHud(true); $("tools").hidden = false;
-  showTip(pet.flyer ? "Tap Pickles to catch him!" : pet.gang ? "Scrub ALL the squirrels!" : "Scrub off the mud!", 1.8);
+  try { if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur(); } catch (e) {}
+  resetBrush(lastInput === "key");
+  showTip(pet.flyer ? (kb.on ? "Brush over Pickles and press Space!" : "Tap Pickles to catch him!") : pet.gang ? "Scrub ALL the squirrels!" : "Scrub off the mud!", 1.8);
   Sound.startMusic("wash");
   updateHud();
 }
@@ -865,9 +873,7 @@ const WASH_MOVES = {
       b.talkT -= dt;
       if (b.talkT <= 0) { b.talkT = rnd(3, 4.5); sfx("squawk"); showTip(["SQUAWK! No baths!", "Pretty bird! Dirty bird!", "Catch me if you can!", "Polly wants a cracker, not a BATH!"][Math.floor(rnd(0, 4))], 1.3); }
       const T = petTransform(r, L);
-      if (ptr.down && !r.over && Math.hypot(ptr.x - T.x, ptr.y - (T.y - 10 * T.k)) < Math.max(70, 120 * T.k)) {
-        b.state = "return"; b.rt = 0; b.catches++; sfx("squawk"); showTip("Gotcha! Scrub quick!", 1.1);
-      }
+      if (ptr.down && !r.over && Math.hypot(ptr.x - T.x, ptr.y - (T.y - 10 * T.k)) < Math.max(70, 120 * T.k)) catchParrot(r);
     } else if (b.state === "return") {
       b.rt += dt;
       if (b.rt >= 0.35) { b.state = "sit"; b.sitT = b.catches === 1 ? 6 : 4.8; }
@@ -919,6 +925,77 @@ const WASH_MOVES = {
   }
 };
 
+function catchParrot(r) {
+  const b = r.b;
+  b.state = "return"; b.rt = 0; b.catches++; sfx("squawk"); showTip("Gotcha! Scrub quick!", 1.1);
+}
+
+// ---------------------------------------------------------------- keyboard scrub brush (jeremy.v4)
+// Speeds are in the game's logical units (480 = the short side of the screen).
+const KB_SPEED = 330;                 // brush speed, scaled by the size of the pet
+const KB_WORK = [330, 90, 300];       // extra scrubbing a held Space does each second (touch gets this by rubbing)
+function brushTarget(r, L) {          // where the brush starts: on the pet, or under Pickles' flight path
+  if (flying(r)) return { x: W / 2, y: H - Math.max(70 / U, toolBottom()) - 40 };
+  const T = petTransform(r, L);
+  return { x: T.x, y: T.y + 10 * T.k };
+}
+function resetBrush(on) {
+  kb.on = !!on; kb.scrub = false; kb.carry = false; kb.prevT = null; kb.vx = kb.vy = 0; kb.wig = 0; kb.missT = 0;
+  if (round && round.kind === "wash") { const p = brushTarget(round, washLayout()); kb.x = p.x; kb.y = p.y; }
+}
+function brushOn() {
+  lastInput = "key";
+  if (!kb.on && round && round.kind === "wash") resetBrush(true);
+}
+const catchReach = T => Math.max(90, 150 * T.k);
+function parrotSpot(T) { return { x: T.x, y: T.y - 10 * T.k }; }
+// Enter or Space: catch Pickles if the brush is close enough
+function keyCatch(r) {
+  if (!r.pet.flyer || r.over || r.b.state !== "fly") return false;
+  const T = petTransform(r, washLayout()), P = parrotSpot(T);
+  if (Math.hypot(kb.x - P.x, kb.y - P.y) < catchReach(T)) { catchParrot(r); kb.carry = true; return true; }
+  kb.missT = 0.35; sfx("whoosh"); showTip("Missed! Get the brush closer to Pickles.", 1);
+  return false;
+}
+function moveBrush(r, L, T, dt) {
+  if (!kb.on) return;
+  // ride along with the pet, so a wriggling pet doesn't slide out from under the brush
+  if (kb.carry) {
+    const P = parrotSpot(T); kb.x = lerp(kb.x, P.x, 1 - Math.exp(-dt * 18)); kb.y = lerp(kb.y, P.y + 20 * T.k, 1 - Math.exp(-dt * 18));
+    if (r.b.state === "sit") kb.carry = false;
+  } else if (kb.prevT && !flying(r)) {
+    const lp = toLocal(T, kb.x, kb.y);
+    if (Math.abs(lp.x) < 175 && lp.y > -200 && lp.y < 125) { kb.x += T.x - kb.prevT.x; kb.y += T.y - kb.prevT.y; }
+  }
+  kb.prevT = { x: T.x, y: T.y };
+  // arrows / WASD, with a little easing so it glides
+  const ix = (keys.right ? 1 : 0) - (keys.left ? 1 : 0), iy = (keys.down ? 1 : 0) - (keys.up ? 1 : 0);
+  const n = Math.hypot(ix, iy) || 1;
+  const sp = KB_SPEED * clamp(L.k, 0.75, 1.3) * (kb.scrub && !flying(r) ? 0.65 : 1);
+  const a = 1 - Math.exp(-dt * 16);
+  kb.vx = lerp(kb.vx, ix / n * sp, a); kb.vy = lerp(kb.vy, iy / n * sp, a);
+  if (!kb.carry) { kb.x += kb.vx * dt; kb.y += kb.vy * dt; }
+  // holding Space near a spot your tool can clean slides the brush onto it
+  if (kb.scrub && !flying(r) && !r.over) {
+    let best = null, bd = 95;
+    for (const s of r.spots) {
+      if (s.stage !== r.tool || (r.b.depth > 0.5 && s.y > -40)) continue;
+      const lp = toLocal(T, kb.x, kb.y), d = Math.hypot(lp.x - s.x, lp.y - s.y);
+      if (d < bd) { bd = d; best = s; }
+    }
+    if (best && bd > 4) {
+      const w = toWorld(T, best.x, best.y), pull = 1 - Math.exp(-dt * (ix || iy ? 1.5 : 6));
+      kb.x = lerp(kb.x, w.x, pull); kb.y = lerp(kb.y, w.y, pull);
+    }
+  }
+  kb.x = clamp(kb.x, 16, W - 16);
+  kb.y = clamp(kb.y, hudTop() + 8, H - Math.max(40 / U, toolBottom() - 20));
+  if (kb.scrub) kb.wig += dt;
+  if (kb.missT > 0) kb.missT -= dt;
+  kb.near = flying(r) && r.b.state === "fly" && (P => Math.hypot(kb.x - P.x, kb.y - P.y) < catchReach(T))(parrotSpot(T));
+  if (kb.near && kb.scrub && !r.over) { catchParrot(r); kb.carry = true; }   // Space held as you reach him counts too
+}
+
 function updateWash(dt) {
   const r = round;
   r.t += dt;
@@ -926,15 +1003,18 @@ function updateWash(dt) {
   r.rinseHit = false;
   const L = washLayout();
   let T = petTransform(r, L);
-  // scrubbing
+  moveBrush(r, L, T, dt);
+  // scrubbing: a finger or mouse held down, or the keyboard brush with Space held
+  const src = ptr.down ? ptr : kb.on && kb.scrub && !kb.carry ? kb : null;
+  const byKey = src === kb;
   let scrubbing = false, wrong = -1;
-  if (ptr.down && !r.over) {
-    const lp = toLocal(T, ptr.x, ptr.y);
+  if (src && !r.over) {
+    const lp = toLocal(T, src.x, src.y);
     let moved = 0;
     if (r.prevLocal) moved = Math.min(70, Math.hypot(lp.x - r.prevLocal.x, lp.y - r.prevLocal.y));
     r.prevLocal = lp;
     const tool = r.tool;
-    const hold = [50, 230, 80][tool];
+    const hold = [50, 230, 80][tool] + (byKey ? KB_WORK[tool] : 0);
     let eff = 1;
     if (r.pet.id === "duck" && tool === 1) eff = 2;
     if (r.pet.id === "cat" && tool === 1) eff = 0.85;
@@ -952,14 +1032,15 @@ function updateWash(dt) {
         if (s.hp <= 0) advanceSpot(r, s, T);
       } else wrong = s.stage;
     }
-    if (tool === 0 && moved > 1 && rand() < 0.6) puff(ptr.x, ptr.y, "bubble", 1, { min: 10, max: 60, rmin: 3, rmax: 9, life: 1.4 });
-    if (tool === 2 && moved > 2 && rand() < 0.3) puff(ptr.x, ptr.y, "fluff", 1, { min: 10, max: 50 });
+    const fx = byKey ? 3 : moved;              // the brush scrubs in little circles on its own
+    if (tool === 0 && fx > 1 && rand() < 0.6) puff(src.x, src.y, "bubble", 1, { min: 10, max: 60, rmin: 3, rmax: 9, life: 1.4 });
+    if (tool === 2 && fx > 2 && rand() < 0.3) puff(src.x, src.y, "fluff", 1, { min: 10, max: 50 });
     if (tool === 0 && scrubbing && r.pet.id === "duck") r.b.flap = 0.3;
-    if (scrubbing && moved > 1.5) { r.scrubSound -= dt; if (r.scrubSound <= 0) { r.scrubSound = 0.09; if (tool !== 1) sfx("scrub"); } }
+    if (scrubbing && fx > 1.5) { r.scrubSound -= dt; if (r.scrubSound <= 0) { r.scrubSound = 0.09; if (tool !== 1) sfx("scrub"); } }
   } else r.prevLocal = null;
   // the rinse shower sprays whether or not it hits
-  Sound.loop("rinse", ptr.down && !r.over && r.tool === 1 && !paused, 2200, 0.1);
-  if (ptr.down && r.tool === 1 && !r.over && rand() < 0.8) puff(ptr.x + rnd(-8, 8), ptr.y + rnd(-6, 6), "drop", 1, { angle: Math.PI / 2, spread: 0.9, min: 40, max: 120, rmin: 3, rmax: 6, life: 0.6 });
+  Sound.loop("rinse", !!src && !r.over && r.tool === 1 && !paused, 2200, 0.1);
+  if (src && r.tool === 1 && !r.over && rand() < 0.8) puff(src.x + rnd(-8, 8), src.y + rnd(-6, 6), "drop", 1, { angle: Math.PI / 2, spread: 0.9, min: 40, max: 120, rmin: 3, rmax: 6, life: 0.6 });
   // a hint when you're using the wrong tool
   if (wrong >= 0 && !scrubbing) { r.wrongT += dt; if (r.wrongT > 0.35 && r.hintT <= 0) { showTip(`That spot needs ${TOOL_NAMES[wrong]}! (${wrong + 1})`, 1.4); r.hintT = 2.2; r.wrongT = 0; } }
   else r.wrongT = Math.max(0, r.wrongT - dt);
@@ -1043,22 +1124,49 @@ function drawTubFront(L) {
 }
 function drawTool(r, L) {
   if (!(ptr.over || ptr.down) || r.over) return;
-  const x = ptr.x, y = ptr.y, k = Math.max(0.7, L.k * 0.85);
+  drawToolAt(r, L, ptr.x, ptr.y, ptr.down);
+}
+function drawToolAt(r, L, x, y, down) {
+  const k = Math.max(0.7, L.k * 0.85);
   g.save(); g.translate(x, y); g.scale(k, k);
   if (r.tool === 0) {
-    g.rotate(ptr.down ? Math.sin(now * 25) * 0.25 : -0.2);
+    g.rotate(down ? Math.sin(now * 25) * 0.25 : -0.2);
     rrect(-24, -16, 48, 32, 10, "#ffe36b", INK, 3.5);
     for (const [a, b, c] of [[-10, -4, 4], [6, 4, 5], [14, -7, 3], [-4, 8, 3]]) circ(a, b, c, "#e0b92c", null);
   } else if (r.tool === 1) {
-    if (ptr.down) for (let i = -2; i <= 2; i++) line(i * 7, -48, i * 9 + Math.sin(now * 40 + i) * 2, -4, "rgba(70,160,255,0.75)", 3);
+    if (down) for (let i = -2; i <= 2; i++) line(i * 7, -48, i * 9 + Math.sin(now * 40 + i) * 2, -4, "rgba(70,160,255,0.75)", 3);
     poly([-20, -70, 20, -70, 28, -54, -28, -54], "#c9d3e6", INK, 3.5);
     rrect(-5, -100, 10, 32, 4, "#9aa6c2", INK, 3);
   } else {
-    g.rotate(ptr.down ? Math.sin(now * 18) * 0.3 : 0.15);
+    g.rotate(down ? Math.sin(now * 18) * 0.3 : 0.15);
     rrect(-26, -18, 52, 36, 7, "#ff8fc0", INK, 3.5); line(-26, 8, 26, 8, INK, 2.5);
     for (let i = -18; i < 20; i += 9) line(i, -11, i + 4, -11, "#fff", 2);
   }
   g.restore();
+}
+// the keyboard brush: a ring that shows where it cleans (or, while Pickles flies, how close you need to be
+// to catch him), with the tool in hand scrubbing little circles while Space is held
+function drawBrush(r, L, T) {
+  if (!kb.on || r.over || ptr.down) return;
+  const up = flying(r) && r.b.state === "fly";
+  const rad = up ? catchReach(T) : (r.tool === 1 ? 50 : 44) * T.k;
+  const pulse = 1 + Math.sin(now * 6) * 0.04;
+  g.save();
+  g.setLineDash([10, 8]); g.lineDashOffset = -now * 30;
+  g.beginPath(); g.arc(kb.x, kb.y, rad * pulse, 0, TAU);
+  g.lineWidth = 7; g.strokeStyle = "rgba(42,33,64,0.55)"; g.stroke();
+  g.lineWidth = 4; g.strokeStyle = up ? (kb.near ? "#ffd23f" : "#ffffff") : kb.scrub ? "#ffe36b" : "#ffffff"; g.stroke();
+  g.setLineDash([]);
+  if (up && kb.near) {
+    g.globalAlpha = 0.18 + Math.sin(now * 10) * 0.08; circ(kb.x, kb.y, rad * pulse, "#ffd23f", null); g.globalAlpha = 1;
+    g.font = `900 ${Math.round(22 * Math.max(0.8, L.k))}px ui-rounded, "Arial Rounded MT Bold", "Trebuchet MS", system-ui, sans-serif`;
+    g.textAlign = "center"; g.textBaseline = "bottom"; g.lineJoin = "round";
+    g.lineWidth = 6; g.strokeStyle = INK; g.strokeText("Space!", kb.x, kb.y - rad - 4);
+    g.fillStyle = "#ffd23f"; g.fillText("Space!", kb.x, kb.y - rad - 4);
+  }
+  g.restore();
+  const wig = kb.scrub && !up ? 7 * T.k : 0, miss = kb.missT > 0 ? Math.sin(kb.missT * 40) * 10 : 0;
+  drawToolAt(r, L, kb.x + Math.cos(kb.wig * 14) * wig + miss, kb.y + Math.sin(kb.wig * 14) * wig * 0.7, kb.scrub && !up);
 }
 function renderWash() {
   const r = round, L = washLayout(), T = petTransform(r, L);
@@ -1081,6 +1189,7 @@ function renderWash() {
   else if (!(r.b.depth > 0.3)) drawPet(r.pet.id, pose, r.pet.gang ? r.spots : null, "paws");
   g.restore();
   drawParticles();
+  drawBrush(r, L, petTransform(r, L));
   drawTool(r, L);
 }
 
@@ -1990,7 +2099,7 @@ function showIntro(i, kind) {
     : `Payback! ${pet.name} joins in!`;
   $("intro-tip").textContent = kind === "wash" ? pet.washTip : pet.hoseTip;
   $("intro-how").textContent = kind === "wash"
-    ? `Drag over each spot: SOAP the mud, RINSE the bubbles, TOWEL it dry. ${pet.washTime} seconds!`
+    ? `Drag over each spot: SOAP the mud, RINSE the bubbles, TOWEL it dry. Or move the brush with the arrow keys or WASD and hold Space. ${pet.washTime} seconds!`
     : crew.length === 1 ? `Run with the arrow keys, WASD, or drag anywhere. Hide behind things. Stay dry for ${secs} seconds!`
     : `All ${crew.length} are after you: ${crew.map(p => `${p.name} (${GEAR[p.weapon].label.toLowerCase()})`).join(", ")}. Stay dry for ${secs} seconds!`;
   $("go-btn").dataset.kind = kind; $("go-btn").dataset.i = i;
@@ -2081,7 +2190,7 @@ function pause(on) {
   paused = on;
   $("pause-screen").hidden = !on;
   $("pause-sound-btn").textContent = Sound.muted ? "Sound: off" : "Sound: on";
-  if (on) { Sound.quiet(); Sound.stopMusic(); ptr.down = false; joy = null; for (const k in keys) keys[k] = false; }
+  if (on) { Sound.quiet(); Sound.stopMusic(); ptr.down = false; joy = null; kb.scrub = false; for (const k in keys) keys[k] = false; }
   else Sound.startMusic(mode === "wash" ? "wash" : "hose");
 }
 function restartRound() {
@@ -2100,9 +2209,11 @@ function toggleMute() {
 
 // ---------------------------------------------------------------- input
 function logical(e) { const rc = canvas.getBoundingClientRect(); return { x: (e.clientX - rc.left) / U, y: (e.clientY - rc.top) / U }; }
+window.addEventListener("pointerdown", () => { lastInput = "pointer"; }, true);
 canvas.addEventListener("pointerdown", e => {
   Sound.init();
   if (paused) return;
+  kb.on = false; kb.scrub = false;
   const p = logical(e);
   if (mode === "wash") {
     ptr.down = true; ptr.id = e.pointerId; ptr.x = p.x; ptr.y = p.y; ptr.over = true;
@@ -2133,6 +2244,20 @@ window.addEventListener("keydown", e => {
   Sound.init();
   const k = KEYMAP[e.code];
   if (k && mode === "hose" && !paused) { keys[k] = true; e.preventDefault(); return; }
+  // the wash round: arrows / WASD move the brush, Space held scrubs, Enter or Space catches Pickles
+  if (mode === "wash" && !paused && round && !round.over) {
+    if (k) { keys[k] = true; brushOn(); e.preventDefault(); return; }
+    if (e.code === "Space" || e.code === "Enter" || e.code === "NumpadEnter") {
+      if (e.target && e.target.closest && e.target.closest("#hud")) return;   // a focused Pause or Sound button
+      e.preventDefault();
+      const was = kb.on;
+      brushOn();
+      if (!e.repeat && was) keyCatch(round);
+      if (e.code === "Space") kb.scrub = true;
+      return;
+    }
+  }
+  if (k) lastInput = "key";
   if (e.code === "KeyP" || e.code === "Escape") { if (mode === "wash" || mode === "hose") { pause(!paused); e.preventDefault(); } return; }
   if (e.code === "KeyR" && (mode === "wash" || mode === "hose")) { restartRound(); e.preventDefault(); return; }
   if (e.code === "KeyM") { toggleMute(); return; }
@@ -2145,8 +2270,9 @@ window.addEventListener("keydown", e => {
     else if (mode === "survived") { $("surv-again").click(); e.preventDefault(); }
   }
 });
-window.addEventListener("keyup", e => { const k = KEYMAP[e.code]; if (k) keys[k] = false; });
-window.addEventListener("blur", () => { for (const k in keys) keys[k] = false; if (mode === "wash" || mode === "hose") pause(true); });
+window.addEventListener("keyup", e => { const k = KEYMAP[e.code]; if (k) keys[k] = false; if (e.code === "Space") kb.scrub = false; });
+window.addEventListener("keydown", e => { if (!e.repeat && e.code !== "KeyM") lastInput = "key"; }, true);
+window.addEventListener("blur", () => { for (const k in keys) keys[k] = false; kb.scrub = false; if (mode === "wash" || mode === "hose") pause(true); });
 document.addEventListener("visibilitychange", () => { if (document.hidden && (mode === "wash" || mode === "hose")) pause(true); });
 
 $("play-btn").addEventListener("click", () => { Sound.init(); sfx("click"); newRun(0); });
@@ -2241,6 +2367,8 @@ window.__pwp = {
   spotLogical(j) { const r = round, L = washLayout(); return toWorld(petTransform(r, L), r.spots[j].x, r.spots[j].y); },
   progress() { return round && round.kind === "wash" ? washProgress(round) : null; },
   setPointer(x, y, down) { ptr.x = x; ptr.y = y; ptr.down = down; ptr.over = true; if (!down && round) round.prevLocal = null; },
+  get kb() { return kb; }, brushScreen() { return { x: kb.x * U, y: kb.y * U }; },
+  parrotScreen() { const r = round, T = petTransform(r, washLayout()); return { x: T.x * U, y: (T.y - 10 * T.k) * U, reach: catchReach(T) * U }; },
   setTool, lineOfSight: (ax, ay, bx, by) => lineOfSight(round.Y, ax, ay, bx, by), toScreen: (x, y) => ({ x: x * U, y: y * U })
 };
 })();
