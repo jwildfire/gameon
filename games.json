@@ -122,10 +122,15 @@
     "title": "Fancy Food Fight",
     "tagline": "Splat the fanciest party in town with pies and spaghetti. Messiest wins!",
     "credit": "Made by Jeremy",
-    "url": "games/fancy-food-fight/",
+    "url": "games/fancy-food-fight/jeremy.v2/",
     "repo": "https://github.com/jwildfire/gameon",
     "color": "#ff6f9c",
-    "tags": ["New", "1 player", "Turn sideways"]
+    "tags": ["New", "1 player", "Turn sideways"],
+    "default": "jeremy.v2",
+    "versions": [
+      { "id": "jeremy.v1", "url": "games/fancy-food-fight/", "made": "2026-10-23", "note": "The first version" },
+      { "id": "jeremy.v2", "url": "games/fancy-food-fight/jeremy.v2/", "made": "2026-10-29", "note": "Buttons that stay big on a phone", "from": "jeremy.v1", "idea": 219 }
+    ]
   },
   {
     "slug": "mazeathon",
