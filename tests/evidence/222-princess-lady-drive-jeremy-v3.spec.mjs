@@ -230,7 +230,11 @@ test("M, V and ? open Map, Sound and Help, P pauses, and none of them clashes wi
   await page.keyboard.press("?");
   await expect(page.locator("#help")).toBeVisible();
   expect((await peek(page)).overlay).toBe("help");
-  await expect(page.locator("#help")).toContainText("M map, V sound, ? or P this help (it pauses), Enter to start");
+  // The keys are in each button's tooltip (Help's text stays as short as jeremy.v2's).
+  await expect(page.locator("#mapBtn")).toHaveAttribute("title", "Map (M)");
+  await expect(page.locator("#soundBtn")).toHaveAttribute("title", "Sound on or off (V)");
+  await expect(page.locator("#helpBtn")).toHaveAttribute("title", "Help and pause (? or P)");
+  await expect(page.locator("#playBtn")).toHaveAttribute("title", "Enter or Space");
   await page.keyboard.press("?");
   await expect(page.locator("#help")).toBeHidden();
   expect(where(await peek(page)), "V, M and ? don't move Rosie").toBe(still);
@@ -289,8 +293,9 @@ function hud() {
 }
 
 // What jeremy.v2 showed against what jeremy.v3 shows, screen by screen. A piece v2 showed whole must still be whole
-// (`key` says which kind of whole), and no smaller: no smaller font, no narrower, and no shorter unless it got wider
-// (a line of text in a wider card wraps less, which is room, not a squeeze).
+// (`key` says which kind of whole), and no smaller: no smaller text, and it can't lose width or height without
+// gaining the other. Trading one for the other is its text reflowing, not a squeeze: a Help line in a wider card
+// wraps less, and armed Start over wraps its label inside itself to share the row with Back to the game.
 function compare(v2, v3, key = "whole") {
   const lost = [], grew = {};
   let compared = 0;
@@ -302,9 +307,9 @@ function compare(v2, v3, key = "whole") {
     const passing = /^#(hint|toast) /.test(name);
     if (!b) { if (!passing) lost.push(`${state}: ${name} is gone`); continue; }
     if (!b[key] && !passing) lost.push(`${state}: ${name} is cut off (${b.seen.toFixed(0)} of ${b.h.toFixed(0)} px on screen)`);
-    const wider = b.w > a.w + 0.5;
-    if (b.fs < a.fs - 0.01 || b.w < a.w - 0.5 || (b.h < a.h - 0.5 && !wider)) lost.push(`${state}: ${name} shrank from ${a.w.toFixed(0)}x${a.h.toFixed(0)} (${a.fs}px text) to ${b.w.toFixed(0)}x${b.h.toFixed(0)} (${b.fs}px text)`);
-    else if (wider || b.h > a.h + 0.5) {
+    const wider = b.w > a.w + 0.5, taller = b.h > a.h + 0.5;
+    if (b.fs < a.fs - 0.01 || (b.w < a.w - 0.5 && !taller) || (b.h < a.h - 0.5 && !wider)) lost.push(`${state}: ${name} shrank from ${a.w.toFixed(0)}x${a.h.toFixed(0)} (${a.fs}px text) to ${b.w.toFixed(0)}x${b.h.toFixed(0)} (${b.fs}px text)`);
+    else if (wider || taller) {
       const sel = name.replace(/ \d+$/, ""), g = grew[sel] ||= { names: new Set(), dw: 0, dh: 0 };
       g.names.add(name); g.dw = Math.max(g.dw, b.w - a.w); g.dh = Math.max(g.dh, b.h - a.h);
     }
@@ -369,7 +374,12 @@ test("Help, opened and with Start over armed, shows everything jeremy.v2 showed 
     await page.goto(url);
     await expect(page.locator("#playBtn")).toBeVisible();
     // real fonts: wait for every face to load (a failed download leaves both versions on the same fallback)
-    if (fonts === "real") await page.evaluate(async () => { await Promise.allSettled([...document.fonts].map(f => f.load())); await document.fonts.ready; });
+    const loaded = fonts === "real" ? await page.evaluate(async () => {
+      await Promise.allSettled([...document.fonts].map(f => f.load())); await document.fonts.ready;
+      return document.fonts.check('800 20px "Baloo 2"') && document.fonts.check('16px Nunito');
+    }) : false;
+    // wide: a wider stand-in font in both versions, the way another machine's fallback fonts can be (CI's Linux ones are)
+    if (fonts === "wide") await page.addStyleTag({ content: "* { font-family: Verdana, 'DejaVu Sans', sans-serif !important; letter-spacing: .4px !important; }" });
     await page.locator("#playBtn").dispatchEvent("click");
     await page.locator("#helpBtn").dispatchEvent("click");
     await expect(page.locator("#help")).toBeVisible();
@@ -380,16 +390,25 @@ test("Help, opened and with Start over armed, shows everything jeremy.v2 showed 
     await expect(page.locator("#resetBtn")).toHaveClass(/armed/);
     await page.waitForTimeout(150);
     const armed = await page.evaluate(hud), armedCard = await page.locator("#help .card").evaluate(card);
-    return { boxes: { opened, armed }, over: { opened: openedCard.over, armed: armedCard.over } };
+    return { loaded, boxes: { opened, armed }, over: { opened: openedCard.over, armed: armedCard.over } };
   };
   const lost = [], lines = [];
   let compared = 0;
-  for (const fonts of ["fallback", "real"]) {
+  for (const fonts of ["fallback", "wide", "real"]) {
     if (fonts === "fallback") await page.route(FONTS, route => route.fulfill({ status: 200, contentType: "text/css", body: "" }));
-    else await page.unroute(FONTS);
+    if (fonts === "real") {
+      // The real Google Fonts, or an empty answer if the network fails, so a slow font site can't fail the check.
+      await page.unroute(FONTS);
+      await page.route(/^https:\/\/fonts\.(googleapis|gstatic)\.com\//, async route => {
+        try { await route.fulfill({ response: await route.fetch({ timeout: 10_000 }) }); }
+        catch { await route.fulfill({ status: 200, contentType: route.request().url().includes("gstatic") ? "font/woff2" : "text/css", body: "" }); }
+      });
+    }
     for (const [w, h] of HELP_SIZES[testInfo.project.name]) {
       await page.setViewportSize({ width: w, height: h });
       const v2 = await land(V2, fonts), v3 = await land(V3, fonts);
+      if (v2.loaded !== v3.loaded) { lines.push(`${w}x${h}: the real fonts loaded for one version and not the other, so that pair isn't compared`); continue; }
+      if (fonts === "real" && !v2.loaded) lines.push(`${w}x${h}: the real fonts didn't load (no network?), so the "real" pass used the fallback fonts again`);
       const r = compare(v2.boxes, v3.boxes, "inView");
       compared += r.compared;
       lost.push(...r.lost.map(l => `${w}x${h}, ${fonts} fonts, ${l}`));
@@ -404,7 +423,7 @@ test("Help, opened and with Start over armed, shows everything jeremy.v2 showed 
       if (fonts === "real" && w === 812) await shot("help-armed");
     }
   }
-  note(`${compared} boxes jeremy.v2 showed whole on screen (Help opened, and armed), with the fallback fonts and the real ones, are whole in jeremy.v3 too, and none is smaller`);
+  note(`${compared} boxes jeremy.v2 showed whole on screen (Help opened, and armed), with the fallback fonts, a wider stand-in font and the real ones, are whole in jeremy.v3 too, and none is smaller`);
   for (const l of lines) note(l);
   expect(compared).toBeGreaterThan(20);
   expect(lost).toEqual([]);
