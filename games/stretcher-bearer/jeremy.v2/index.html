@@ -68,8 +68,8 @@ body{font-family:var(--f-ui);-webkit-user-select:none;user-select:none;-webkit-t
 #miniWrap{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:calc(10px + env(safe-area-inset-right,0px));padding:5px}
 #mini{display:block;width:220px;height:162px;border-radius:2px}
 #score{position:absolute;left:8px;bottom:-22px;font-size:13px;color:var(--dim);font-variant-numeric:tabular-nums;letter-spacing:.05em;white-space:nowrap}
-#topBtns{position:fixed;right:calc(10px + env(safe-area-inset-right,0px));top:calc(204px + env(safe-area-inset-top,0px));display:flex;gap:6px}
-.ibtn{font:600 13px var(--f-ui);letter-spacing:.06em;text-transform:uppercase;color:var(--fog);background:var(--panel);border:1px solid var(--rule);border-radius:3px;padding:6px 10px;cursor:pointer}
+#topBtns{position:fixed;right:calc(10px + env(safe-area-inset-right,0px));top:calc(213px + env(safe-area-inset-top,0px));display:flex;gap:8px}
+.ibtn{font:600 13px var(--f-ui);letter-spacing:.06em;text-transform:uppercase;color:var(--fog);background:var(--panel);border:1px solid var(--rule);border-radius:3px;padding:6px 10px;cursor:pointer;min-height:48px;min-width:48px}
 .ibtn:focus-visible,.btn:focus-visible,.tb:focus-visible{outline:2px solid var(--flare);outline-offset:2px}
 #toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(78px + env(safe-area-inset-bottom,0px));display:grid;gap:6px;justify-items:center;align-content:end;pointer-events:none;width:min(460px,calc(100% - 40px))}
 .toast{font-family:var(--f-type);font-size:14px;line-height:1.3;color:var(--fog);background:rgba(21,18,12,.86);border-left:3px solid var(--buff-deep);padding:6px 11px;border-radius:2px;animation:tin .25s ease-out;text-align:left}
@@ -96,8 +96,9 @@ body{font-family:var(--f-ui);-webkit-user-select:none;user-select:none;-webkit-t
 
 /* ---------- screens ---------- */
 .screen{position:fixed;inset:0;display:grid;place-items:center;overflow-y:auto;background:rgba(14,11,7,.66);
-  padding-block:calc(24px + env(safe-area-inset-top,0px)) calc(24px + env(safe-area-inset-bottom,0px));
+  padding-block:env(safe-area-inset-top,0px) env(safe-area-inset-bottom,0px);
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.screen>*{margin-block:24px}
 .form{width:100%;max-width:600px;background:var(--buff);color:var(--ink);font-family:var(--f-type);font-size:15px;line-height:1.5;
   padding:22px 26px 24px;border-radius:2px;box-shadow:0 18px 40px rgba(0,0,0,.55);position:relative;
   background-image:repeating-linear-gradient(0deg,transparent 0 29px,rgba(35,29,19,.09) 29px 30px)}
@@ -115,8 +116,8 @@ body{font-family:var(--f-ui);-webkit-user-select:none;user-select:none;-webkit-t
 .olist .box{width:13px;height:13px;border:1.5px solid var(--ink);margin-top:4px}
 .olist .tag{font-family:var(--f-ui);font-weight:700;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--cross)}
 .olist .side{color:#6c6143}
-.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
-.btn{font-family:var(--f-display);font-size:19px;color:var(--buff);background:var(--ink);border:none;border-radius:2px;padding:9px 20px;cursor:pointer;box-shadow:0 3px 0 rgba(0,0,0,.35)}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;margin-bottom:-10px;padding:10px 0;position:sticky;bottom:0;z-index:1;background:var(--buff)}
+.btn{font-family:var(--f-display);font-size:19px;color:var(--buff);background:var(--ink);border:none;border-radius:2px;padding:9px 20px;cursor:pointer;box-shadow:0 3px 0 rgba(0,0,0,.35);min-height:48px}
 .btn:hover{transform:translateY(-1px)}
 .btn.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
 .stamp{position:absolute;right:22px;top:58px;transform:rotate(-9deg);font-family:var(--f-ui);font-weight:700;letter-spacing:.12em;font-size:14px;text-transform:uppercase;color:var(--cross);border:2.5px solid var(--cross);padding:3px 9px;opacity:.75}
@@ -146,14 +147,23 @@ kbd{font-family:var(--f-ui);font-weight:700;font-size:12px;letter-spacing:.06em;
   #dayLabel{font-size:15px}
   .inv b{font-size:15px}
   #mini{width:132px;height:97px}
-  #topBtns{top:calc(136px + env(safe-area-inset-top,0px));flex-direction:column;align-items:flex-end}
+  #topBtns{top:calc(148px + env(safe-area-inset-top,0px));flex-direction:column;align-items:flex-end}
   #orders.open{top:calc(250px + env(safe-area-inset-top,0px));width:196px}
   .form{padding:18px 18px 20px}
   .form h2{font-size:24px}
   .fields{grid-template-columns:1fr}
-  #tbtns{grid-template-columns:repeat(3,52px);grid-auto-rows:52px;gap:7px}
+  #tbtns{grid-template-columns:repeat(3,52px);grid-auto-rows:52px;gap:8px}
   #stick{width:116px;height:116px}
 }
+/* sideways phone: the action buttons fit under the map, Orders/Sound/Pause sit beside them, the stick sits under the status card */
+@media (max-height:500px){
+  #orders.open{left:calc(254px + env(safe-area-inset-left,0px));right:calc(250px + env(safe-area-inset-right,0px));top:calc(10px + env(safe-area-inset-top,0px));width:auto;max-width:250px;max-height:calc(100vh - 150px);max-height:calc(100dvh - 150px);overflow-y:auto}
+  .touch #tbtns{grid-template-columns:repeat(3,52px);grid-auto-rows:52px;gap:8px;bottom:calc(8px + env(safe-area-inset-bottom,0px))}
+  .touch #stick{width:116px;height:116px;bottom:calc(8px + env(safe-area-inset-bottom,0px))}
+  .touch #topBtns{top:auto;bottom:calc(8px + env(safe-area-inset-bottom,0px));right:calc(196px + env(safe-area-inset-right,0px));flex-direction:row;align-items:flex-end}
+  .touch #score{left:auto;right:185px;bottom:auto;top:calc(100vh - 91px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));top:calc(100dvh - 91px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))}
+}
+@media (max-height:371px){.touch #mini{width:196px;height:144px}}
 @media (prefers-reduced-motion:reduce){.toast{animation:none}.btn:hover{transform:none}}
 </style>
 
@@ -1115,6 +1125,7 @@ holdBtn('tMed',()=>{if(mode==='play')useMeds()});
 holdBtn('tCoop',()=>{if(mode==='play')orderCooper()});
 holdBtn('tReload',()=>K.reload=true);
 if(isTouch)$('touch').hidden=false;
+document.documentElement.classList.toggle('touch',isTouch);
 $('pauseBtn').addEventListener('click',e=>{e.currentTarget.blur();pause()});
 $('ordersBtn').addEventListener('click',e=>{toggleOrders();e.currentTarget.blur()});
 $('muteBtn').addEventListener('click',e=>{e.currentTarget.blur();initAudio();toggleMute()});
