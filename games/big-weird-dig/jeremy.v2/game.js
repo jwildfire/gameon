@@ -99,9 +99,20 @@
   function layout() {
     var vw = innerWidth, vh = innerHeight, landscape = vw > vh;
     document.body.classList.toggle("landscape", landscape);
-    // The HUD is a 48 px row (Pause is 48 x 48) 8 px below the top edge and the safe area, with 8 px under it.
+    // The HUD is a 48 px row (Pause is 48 x 48) 8 px below the top edge and the safe area.
+    // On a narrow screen it's two rows (the level, then fuel and finds) beside Pause, so the level's name keeps its room.
     var safe = safeInsets(), edge = 8 + Math.max(safe.l, safe.r);
-    var hudH = 64 + safe.t, gap = 8;
+    var twoRow = vw < 640;
+    hud.classList.toggle("two-row", twoRow);
+    hud.style.setProperty("--hud-font", (vw < 400 ? 13 : 15) + "px");
+    hud.style.setProperty("--fuel-w", (vw < 400 ? 84 : 130) + "px");
+    hud.style.setProperty("--find-icon", (vw < 400 ? 22 : 26) + "px");
+    var hudRow = 48;
+    if (twoRow) {
+      hud.style.width = Math.floor(vw - edge * 2) + "px";
+      hudRow = Math.max(48, hud.hidden ? (vw < 400 ? 56 : 63) : Math.ceil(hud.offsetHeight));
+    }
+    var hudH = hudRow + 12 + safe.t, gap = 8; // the board starts 8 px under the HUD
     var padH = touchMode && !landscape ? Math.max(150, Math.min(220, vh * 0.25)) : 0;
     var sidePad = touchMode && landscape ? 160 : 0;
     var tile = Math.floor(Math.min((vw - 12 - sidePad * 2) / COLS, (vh - hudH - gap - padH - 8) / ROWS) * 4) / 4;
@@ -117,9 +128,6 @@
     var hw = Math.min(vw - edge * 2, Math.max(bw, Math.min(vw - edge * 2, 640)));
     hud.style.left = Math.round((vw - hw) / 2) + "px"; hud.style.width = Math.floor(hw) + "px";
     hud.style.top = Math.round(8 + safe.t) + "px";
-    hud.style.setProperty("--hud-font", (vw < 400 ? 13 : 15) + "px");
-    hud.style.setProperty("--fuel-w", (vw < 400 ? 84 : 130) + "px");
-    hud.style.setProperty("--find-icon", (vw < 400 ? 22 : 26) + "px");
     tip.style.left = view.left + "px"; tip.style.width = bw + "px"; tip.style.top = (view.top + tile * 1.3) + "px";
     tip.style.setProperty("--tip-font", Math.round(Math.max(12, Math.min(19, tile * 0.68))) + "px");
     var ps = landscape ? Math.min(150, vh * 0.42) : Math.min(180, Math.max(132, padH - 16));
@@ -257,6 +265,7 @@
     setMode("play");
     $("hud-level").textContent = n + ". " + S.L.name + " · " + S.L.depth + " ft";
     buildHudFinds();
+    layout(); // jeremy.v2: the two-row HUD's height, now its pills are filled in
     showTip(S.L.tip, 3800);
     updateHud();
   }
