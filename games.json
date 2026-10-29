@@ -162,14 +162,15 @@
     "title": "Princess Lady Drive",
     "tagline": "Drive Queen Rosie around a town where everything is free.",
     "credit": "Made by Jeremy and the kids",
-    "url": "games/princess-lady-drive/jeremy.v2/",
+    "url": "games/princess-lady-drive/jeremy.v3/",
     "repo": "https://github.com/jwildfire/princess-lady-drive",
     "color": "#ef5da8",
     "tags": ["New", "Little kids"],
-    "default": "jeremy.v2",
+    "default": "jeremy.v3",
     "versions": [
       { "id": "jeremy.v1", "url": "games/princess-lady-drive/jeremy.v1/", "made": "2026-10-22", "note": "The first version", "source": {"repo": "jwildfire/princess-lady-drive", "commit": "43a82925beec0487375c6c0b144ce5a68330bb54"} },
-      { "id": "jeremy.v2", "url": "games/princess-lady-drive/jeremy.v2/", "made": "2026-10-23", "note": "More rooms in the castle!", "from": "jeremy.v1", "idea": 122 }
+      { "id": "jeremy.v2", "url": "games/princess-lady-drive/jeremy.v2/", "made": "2026-10-23", "note": "More rooms in the castle!", "from": "jeremy.v1", "idea": 122 },
+      { "id": "jeremy.v3", "url": "games/princess-lady-drive/jeremy.v3/", "made": "2026-10-29", "note": "Enter to start, keys for Map and Help", "from": "jeremy.v2", "idea": 222 }
     ]
   },
   {
