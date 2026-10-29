@@ -15,8 +15,9 @@ sets in Jeremy's other projects, kept light because this is a for-fun repo.
 3. **The spec, the screenshots and their pass/fail list are committed on the task branch** in
    `evidence/<issue>-<slug>/`, named after the branch. The PR's Evidence section links to its
    `README.md`.
-4. **Every check passes before the PR opens.** The Evidence workflow reruns every spec on the
-   PR and fails if your committed evidence records a failing check.
+4. **Every check passes before the PR opens.** The Evidence workflow reruns the specs that
+   cover your change (see [Which specs run](#which-specs-run)) and fails if your committed
+   evidence records a failing check.
 5. Tasks with nothing to look at (a doc, a rule, a workflow) still name their proof: a link,
    a command and what it prints, a workflow run. They don't need an `evidence/` folder.
 
@@ -65,9 +66,52 @@ test("the arcade home shows one card per game", async ({ page, shot, note, brows
   site elsewhere can't fail your check. Games in `games/` load for real. GitHub API calls get
   an empty list; route `https://api.github.com/**` yourself in the spec if you need data.
 - Keep it to a few screenshots per task. They're small JPEGs, but they add up.
-- Specs from earlier tasks keep running on every PR, so they double as regression checks.
-  If you deliberately change something an old spec checks, update that spec in your PR and
-  say so in Notes. Don't regenerate an old task's evidence folder.
+- Specs from earlier tasks keep running (on the PRs that touch what they cover, nightly, and
+  on release PRs), so they double as regression checks. If you deliberately change something
+  an old spec checks, update that spec in your PR and say so in Notes. Don't regenerate an
+  old task's evidence folder.
+- Find a game's card by its slug (`#shelf .cart[href="#<slug>"]`), never by its place on
+  the shelf: every new game and Editor's Choice pick moves the others along. The shelf's order
+  is the arcade's to check (`158-editors-choice`).
+
+## Which specs run
+
+The Evidence workflow is one check, `evidence`, on every pull request, so the merge gate
+doesn't change. What it runs inside depends on what the pull request changes
+([`tests/evidence/scope.mjs`](../tests/evidence/scope.mjs) decides, and the run's summary
+shows each spec and why):
+
+| The pull request into `dev` changes | Specs that run |
+|---|---|
+| a game: `games/<slug>/`, its `games.json` entry, or `assets/covers/<slug>.jpg` | that game's specs and the smoke specs |
+| the arcade: anything else, such as `index.html`, `new/`, `assets/`, the order of `games.json` | every arcade spec, including smoke, and no game specs |
+| shared test code: `tests/evidence/*.mjs` other than specs, `playwright.evidence.config.mjs`, `package*.json`, `evidence.yml` | every spec |
+| only words and pictures: `docs/`, `artifacts/`, `evidence/`, `.claude/`, top-level `*.md` | the smoke specs |
+| a spec | that spec too, whatever it covers |
+
+Every spec runs on a release PR into `main`, nightly on `dev` (03:17 New York time), and from
+the Actions tab. When the nightly fails it files a task, "Fix the failing nightly Evidence
+run", listing the failing checks, or comments on that task if it's still open.
+
+**Which game a spec covers** comes from its file name, so name it after its branch as rule 3
+says: `<task>-<slug>…spec.mjs`, such as `155-big-weird-dig`, `ideas-2-ant-farm-wars` or
+`163-pet-wash-payback-jeremy-v2`, where `<slug>` is the game's folder in `games/`. A spec
+whose name doesn't start with a game's slug is an arcade spec. To say otherwise, put one
+line near the top of the spec:
+
+```js
+// evidence-scope: smoke                        runs on every pull request; keep these few and quick
+// evidence-scope: arcade                       an arcade spec, whatever its name says
+// evidence-scope: game mazeathon timedout      covers these games (slugs, space-separated)
+```
+
+The smoke specs are `46-evidence-framework` and `95-github-links`: the arcade shows a card
+for every game, a game opens and switches, and every game links to its own code. To see what
+your branch will run before you push:
+
+```sh
+node tests/evidence/scope.mjs              # against origin/dev; --base <ref> for another
+```
 
 ## Running it
 
