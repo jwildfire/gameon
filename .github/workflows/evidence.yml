@@ -44,7 +44,9 @@ concurrency:
 jobs:
   evidence:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30   # the whole suite passed 15 minutes on 2026-10-25 as games and specs grew (#178)
+    # Every spec takes about 29 minutes (2026-10-29), so the nightly and release runs need room;
+    # a scoped pull request run takes a few minutes. (#178 raised it to 30, #194 to 50.)
+    timeout-minutes: 50
     env:
       EVIDENCE_BASE_URL: ${{ inputs.base_url }}
     steps:
