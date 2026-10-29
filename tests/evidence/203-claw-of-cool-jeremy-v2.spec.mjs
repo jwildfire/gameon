@@ -316,19 +316,18 @@ test("jeremy.v1 still plays at games/claw-of-cool/", async ({ page, isMobile, sh
 test("in the arcade, Claw of Cool plays jeremy.v2 by default and the picker still offers jeremy.v1", async ({ page, isMobile, shot, note, browserErrors }) => {
   await page.goto("./");
   const entry = games.find(g => g.slug === SLUG);
-  expect(entry.default).toBe("jeremy.v2");
-  expect(entry.url).toBe(V2);
-  expect(entry.versions.map(v => v.id)).toEqual(["jeremy.v1", "jeremy.v2"]);
+  // since jeremy.v3 (game idea #211) is the default, this checks that jeremy.v2 and jeremy.v1 are still in the picker
+  // and that jeremy.v2 plays from it
+  expect(entry.versions.find(v => v.id === "jeremy.v2").url).toBe(V2);
+  expect(entry.versions.map(v => v.id).slice(0, 2)).toEqual(["jeremy.v1", "jeremy.v2"]);
   const card = page.locator(`#shelf .cart[href="#${SLUG}"]`);
-  await expect(card).toContainText("2 versions");
+  await expect(card).toContainText(`${entry.versions.length} versions`);
   await card.click();
   await expect(page.locator("#chooser")).toBeVisible();
-  const items = page.locator("#ver-list .ver-item");
-  await expect(items).toHaveCount(2);
-  await expect(items.nth(0)).toContainText("jeremy.v2");
-  await expect(items.nth(0)).toContainText("Zoom views and themed machines");
-  await expect(items.nth(1)).toContainText("jeremy.v1");
-  await items.nth(0).click();
+  const v2item = page.locator('#ver-list .ver-item[data-version="jeremy.v2"]');
+  await expect(v2item).toContainText("Zoom views and themed machines");
+  await expect(page.locator('#ver-list .ver-item[data-version="jeremy.v1"]')).toBeVisible();
+  await v2item.click();
   await expect(page).toHaveURL(new RegExp(`#${SLUG}@jeremy\\.v2$`));
   const frame = page.frameLocator("#frame");
   await expect(frame.locator("#mpick .mch")).toHaveCount(5);
