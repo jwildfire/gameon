@@ -1,6 +1,7 @@
 // Evidence for the GitHub links task (#95): one tap from the arcade, the player and the New Game
 // page reaches GitHub, and the player's link follows the game being played.
 // Run: npm run evidence -- 95-github-links
+// evidence-scope: smoke   (runs on every pull request, docs/evidence.md)
 import { test, expect, games } from "./evidence.mjs";
 
 const REPO = "https://github.com/jwildfire/gameon";

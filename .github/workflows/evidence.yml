@@ -1,13 +1,26 @@
-# Runs every evidence spec in tests/evidence/ at desktop and phone widths and uploads the
+# Runs the evidence specs in tests/evidence/ at desktop and phone widths and uploads the
 # screenshots, so a reviewer can see the change working. Rules: docs/evidence.md.
 #
-# On a pull request it serves the branch locally. From the Actions tab you can instead
-# point it at the live site, e.g. https://jwildfire.github.io/gameon/dev/ after a merge.
+# Which specs run (tests/evidence/scope.mjs, "Which specs run" in docs/evidence.md):
+#   - a pull request into dev runs the specs for what it changes: a game's own specs when
+#     games/<slug>/ (or its games.json entry or cover) changes, the arcade specs when the
+#     arcade changes, every spec when shared test code changes, plus the smoke specs always;
+#   - a pull request into main (a release), the nightly run on dev, and a run from the
+#     Actions tab run every spec.
+# Whatever it picks, the check is the same one job, "evidence", so the merge gate is too.
+#
+# The nightly files a task (or comments on the open one) when it fails. Run it by hand from
+# the Actions tab with "nightly" ticked; that run tests the branch you pick.
+#
+# From the Actions tab you can instead point it at the live site, e.g.
+# https://jwildfire.github.io/gameon/dev/ after a merge.
 name: Evidence
 
 on:
   pull_request:
     branches: [dev, main]
+  schedule:
+    - cron: "17 7 * * *"   # 03:17 New York time (EDT), on dev
   workflow_dispatch:
     inputs:
       base_url:
@@ -15,32 +28,63 @@ on:
         required: false
         default: ""
         type: string
+      nightly:
+        description: "Run as the nightly: every spec, and file a task if a check fails"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
 
 concurrency:
-  group: evidence-${{ github.ref }}
+  group: evidence-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   evidence:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30   # the suite passed 15 minutes on 2026-10-25 as games and specs grew (#178)
+    # Every spec takes about 29 minutes (2026-10-29), so the nightly and release runs need room;
+    # a scoped pull request run takes a few minutes. (#178 raised it to 30, #194 to 50.)
+    timeout-minutes: 50
     env:
       EVIDENCE_BASE_URL: ${{ inputs.base_url }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          # The schedule runs from the default branch (main), but the nightly tests dev.
+          ref: ${{ github.event_name == 'schedule' && 'dev' || '' }}
+          fetch-depth: 2   # a pull request's merge commit and the base it merges into
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
           cache: npm
+      - name: Pick the specs to run
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          node --test tests/evidence/scope.test.mjs
+          list="$RUNNER_TEMP/specs.txt"
+          if [ "$EVENT" = pull_request ] && [ "$BASE_REF" = dev ]; then
+            node tests/evidence/scope.mjs --base HEAD^1 --head HEAD --out "$list"
+          else
+            case "$EVENT" in
+              pull_request) why="a release pull request into $BASE_REF" ;;
+              schedule) why="the nightly regression on dev" ;;
+              *) why="a run from the Actions tab" ;;
+            esac
+            node tests/evidence/scope.mjs --full "$why" --out "$list"
+          fi
       - name: Install the pinned Playwright
         run: npm ci --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Run every evidence spec
-        run: npm run evidence:check
+      - name: Run the evidence specs
+        run: |
+          # One spec file per line; an empty list means every spec.
+          mapfile -t specs < "$RUNNER_TEMP/specs.txt"
+          npm run evidence:check -- "${specs[@]}"
       - name: Check the task's committed evidence
         if: github.event_name == 'pull_request'
         env:
@@ -80,3 +124,55 @@ jobs:
           path: node_modules/.cache/gameon-evidence/
           if-no-files-found: ignore
           retention-days: 30
+
+  # A nightly that fails or doesn't finish files one task, then comments on it while it's open.
+  nightly-failed:
+    needs: evidence
+    if: always() && needs.evidence.result != 'success' && (github.event_name == 'schedule' || inputs.nightly)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/download-artifact@v4
+        continue-on-error: true   # a run cut off early may not have uploaded anything
+        with:
+          name: evidence
+          path: evidence-run
+      - name: File a task, or comment on the open one
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RESULT: ${{ needs.evidence.result }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          BRANCH: ${{ github.event_name == 'schedule' && 'dev' || github.ref_name }}
+        run: |
+          title="Fix the failing nightly Evidence run"
+          # Failing checks from the specs' results.json files, one line each.
+          # shellcheck disable=SC2016  # meant literally
+          failing=$(node -e '
+            const fs = require("fs"), path = require("path");
+            const dir = "evidence-run/check", out = [];
+            for (const spec of fs.existsSync(dir) ? fs.readdirSync(dir).sort() : []) {
+              const file = path.join(dir, spec, "results.json");
+              if (!fs.existsSync(file)) continue;
+              for (const c of JSON.parse(fs.readFileSync(file, "utf8")).checks || []) {
+                const bad = ["desktop", "phone"].filter(p => c[p] && c[p].status === "FAIL");
+                if (bad.length) out.push(`- \`${spec}\`: ${c.check} (${bad.join(", ")})`);
+              }
+            }
+            console.log(out.join("\n") || "- No failing check was recorded: the run stopped early (" + process.env.RESULT + "). See the run log.");
+          ')
+          when=$(date -u +%Y-%m-%d)
+          existing=$(gh issue list --state open --label task --search "\"$title\" in:title" --json number,title --jq ".[] | select(.title == \"$title\") | .number" | head -n 1)
+          if [ -n "$existing" ]; then
+            # shellcheck disable=SC2016  # meant literally
+            printf 'The nightly Evidence run on `%s` failed again on %s: %s\n\nFailing checks:\n%s\n\n---\nPosted by the Evidence workflow (nightly).\n' \
+              "$BRANCH" "$when" "$RUN_URL" "$failing" > comment.md
+            gh issue comment "$existing" --body-file comment.md
+          else
+            # shellcheck disable=SC2016  # meant literally
+            printf '### Objective\n\n_None yet. Filed by the nightly Evidence run on %s; the nightly was set up in #194._\n\n### What changes\n\nThe nightly run of every evidence spec on `%s` failed: %s\n\nFailing checks:\n%s\n\nFix the game or arcade change that broke them, or the spec if the change was meant (say so in Notes, as `docs/evidence.md` asks). Later failures are added here as comments while this task is open.\n\n### Definition of done\n\n- End state: the nightly Evidence run on `%s` passes.\n- Proof: a link to a green nightly run (or one run by hand from the Actions tab with "nightly" ticked) after the fix.\n\n---\nFiled by the Evidence workflow (nightly).\n' \
+              "$when" "$BRANCH" "$RUN_URL" "$failing" "$BRANCH" > body.md
+            gh issue create --title "$title" --label task --body-file body.md
+          fi
