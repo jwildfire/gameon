@@ -190,6 +190,7 @@ test("Super Sauce Boy has a card in the arcade and plays in its frame", async ({
   const card = page.locator('#shelf .cart[href="#super-sauce-boy"]');
   await expect(card).toBeVisible();
   await expect(card.locator("h2")).toHaveText("Super Sauce Boy");
+  await card.scrollIntoViewIfNeeded();   // its cover loads lazily, and newer cards push it down the page
   await expect(card.locator(".cover img")).toHaveJSProperty("complete", true);
   expect(await card.locator(".cover img").evaluate(img => img.naturalWidth)).toBe(800);
   await card.click();
