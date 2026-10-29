@@ -6,8 +6,17 @@
 <title>GameOn Arcade</title>
 <meta name="description" content="An arcade of party games anyone can make. Dream up a game, an AI builds it, play it with your friends.">
 <meta name="theme-color" content="#ffd23f">
+<!-- Home screen (#74): the manifest's "./" URLs resolve next to it, so the same file installs
+     /gameon/ and /gameon/dev/ as separate apps. On iPhone the page runs full screen under a
+     see-through status bar, and the safe-area paddings below keep things clear of the notch. -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="GameOn">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <script src="assets/mode.js"></script>
-<link rel="icon" href="data:,">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;800&display=swap">
@@ -218,6 +227,13 @@ a { color: inherit; }
 }
 .btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
 .frame { width: 100%; height: 100%; border: 0; display: block; background: #000; }
+/* Full screen on a phone: the game stops above the home bar and, sideways, beside the notch.
+   Inside the frame the insets read 0, so the arcade keeps the game's own buttons clear. */
+.player { padding-bottom: env(safe-area-inset-bottom, 0px); }
+.frame {
+  width: calc(100% - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
+  margin-left: env(safe-area-inset-left, 0px);
+}
 
 /* Game switcher */
 .switcher {
