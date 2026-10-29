@@ -1465,6 +1465,8 @@ function start(data){
   requestAnimationFrame(frame);
 }
 try{window.claude?.hot?.snapshot?.(()=>S&&mode!=='title'?{S:JSON.stringify({...S,bullets:[]},(k,v)=>k==='tgt'?null:v),DAWN}:{})}catch(e){}
+// for the evidence checks: read the state, and open the end-of-day screens without playing a whole day
+window.__sb={get mode(){return mode},get S(){return S},summary:()=>showSummary(),over:r=>gameOver(r||'You were hit.'),win:()=>victory()};
 window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
 })();
 </script>
