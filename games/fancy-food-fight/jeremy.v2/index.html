@@ -39,7 +39,7 @@ canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block
    screen, not the stage: each is its jeremy.v1 size or 48 px, whichever is bigger, 8 px apart and
    at least 8 px in from the screen's edges (and the notch). fit() sets the sizes and places. */
 .ctl { position: fixed; z-index: 3; }
-.ctl-hud { right: var(--edge-r); top: var(--top-y); display: flex; gap: var(--hud-gap); }
+.ctl-hud { right: var(--hud-r); top: var(--top-y); display: flex; flex-direction: var(--hud-dir, row); gap: var(--hud-gap); }
 .covered .ctl { filter: brightness(0.5); pointer-events: none; }
 .covered .ctl * { pointer-events: none; }
 
@@ -177,11 +177,14 @@ canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block
     placeControls(vw, vh);
   }
   // The buttons are their jeremy.v1 size (which shrinks with the stage) or 48 px, whichever is bigger,
-  // 8 px apart, and 8 px in from the screen's edges. Sound and Pause go at the top right, the tray at the
-  // bottom left and Duck! at the bottom right: just outside the stage when there's room (a phone held
-  // upright), otherwise over its corners as before. Sound and Pause only cover the HUD's right end, where
-  // jeremy.v1 had them (102 stage px); if they need more than that, they drop just below the HUD, so the
-  // HUD's pills and Mess meter are never narrower than in jeremy.v1.
+  // 8 px apart, and 8 px in from the screen's edges. The tray sits at the bottom left and Duck! at the
+  // bottom right: just below the stage on a phone held upright, otherwise in the strip below the table
+  // as before. Sound and Pause never sit on the throw zone (where the aim can reach: stage x 20-940,
+  // y 40-430) or squeeze the HUD. They take the first of these places that fits:
+  //   1. above the stage (a phone held upright);
+  //   2. the HUD's right end, where jeremy.v1 had them (102 stage px), if that's clear of the throw zone;
+  //   3. stacked beside the stage, in the margin at the right (a wide phone held sideways);
+  //   4. in the strip below the table, just left of Duck!
   function placeControls(vw, vh) {
     var E = 8, MIN = 48, root = document.documentElement.style;
     var safe = getComputedStyle(document.getElementById("safe"));
@@ -190,21 +193,21 @@ canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block
     var fs = Math.max(MIN, 62 * scale), trayGap = Math.max(E, 8 * scale);
     var dh = fs, dw = Math.max(Math.round(MIN * 96 / 62), 96 * scale);
     var r = stage.getBoundingClientRect();
-    var top = Math.max(E + sT, r.top - E - hb);
     var bottom = Math.min(vh - E - sB, r.bottom + E + fs);
     var right = E + sR, left = E + sL;
-    var clusterLeft = vw - right - (2 * hb + hudGap);
-    var pad = 10 * scale, hudBottom = r.top + 52 * scale;
-    if (top < hudBottom && top + hb > r.top && clusterLeft < r.right) {
-      var need = r.right - clusterLeft + E;
-      if (need <= 102 * scale) pad = Math.max(pad, need);
-      else top = hudBottom;
-    }
+    var pad = 10 * scale, zoneTop = r.top + 40 * scale;
+    var top = E + sT, hudRight = right, dir = "row";
+    var need = r.right - (vw - right - (2 * hb + hudGap)) + E; // HUD room the pair would take at the top right
+    if (r.top - E - hb >= E + sT) top = r.top - E - hb;                                   // 1. above the stage
+    else if (top + hb <= zoneTop && need <= 102 * scale) pad = Math.max(pad, need);         // 2. the HUD's right end
+    else if (vw - r.right - sR >= hb + E) dir = "column";                                   // 3. beside the stage
+    else { top = bottom - hb; hudRight = right + dw + E; }                                  // 4. below the table, by Duck!
     root.setProperty("--hb", hb + "px"); root.setProperty("--hud-gap", hudGap + "px");
     root.setProperty("--fs", fs + "px"); root.setProperty("--tray-gap", trayGap + "px");
     root.setProperty("--dw", dw + "px"); root.setProperty("--dh", dh + "px");
     root.setProperty("--top-y", top + "px"); root.setProperty("--tray-y", (bottom - fs) + "px"); root.setProperty("--duck-y", (bottom - dh) + "px");
     root.setProperty("--edge-r", right + "px"); root.setProperty("--edge-l", left + "px");
+    root.setProperty("--hud-r", hudRight + "px"); root.setProperty("--hud-dir", dir);
     stage.style.setProperty("--hud-pad-r", pad + "px");
   }
   window.addEventListener("resize", fit);
