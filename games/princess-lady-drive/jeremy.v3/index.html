@@ -132,7 +132,7 @@ button { font-family: var(--display); color: var(--ink); -webkit-tap-highlight-c
 .cta:active { transform: translateY(5px); box-shadow: 0 1px 0 var(--ink); }
 .credit { margin: 16px 0 0; font: 600 14px/1.4 var(--body); opacity: .85; }
 
-.help { text-align: left; max-width: 600px; } /* room for the longer keyboard line, so Help still fits without scrolling on a laptop */
+.help { text-align: left; max-width: 600px; } /* a little wider than jeremy.v2's 540, so the taller Start over costs no room */
 .help h2, .map h2 { margin: 0 0 8px; font: 800 30px/1.1 var(--display); color: var(--rose-deep); }
 .help ul { margin: 0 0 12px; padding-left: 20px; font: 400 16px/1.45 var(--body); }
 .help li + li { margin-top: 6px; }
@@ -149,6 +149,8 @@ button { font-family: var(--display); color: var(--ink); -webkit-tap-highlight-c
   box-sizing: border-box; min-height: 48px; /* fingertip-sized (the phone bar, #187) */
 }
 .ghost.armed { background: var(--sun); border-style: solid; }
+/* Armed, the longer label shares the row with Back to the game (wrapping inside itself) instead of pushing it down. */
+.help .row .ghost.armed { flex: 1 1 160px; }
 
 .map { max-width: 640px; }
 .spots { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; margin: 6px 0 16px; }
@@ -172,9 +174,9 @@ button { font-family: var(--display); color: var(--ink); -webkit-tap-highlight-c
   <div class="hud-top">
     <div id="stuff" aria-live="polite" aria-label="Your free stuff" hidden></div>
     <div class="top-buttons">
-      <button id="mapBtn" class="icon-btn" type="button" aria-label="Map of the town">🗺️</button>
-      <button id="soundBtn" class="icon-btn" type="button" aria-label="Sound on">🔊</button>
-      <button id="helpBtn" class="icon-btn" type="button" aria-label="Help for grown-ups">?</button>
+      <button id="mapBtn" class="icon-btn" type="button" aria-label="Map of the town" title="Map (M)">🗺️</button>
+      <button id="soundBtn" class="icon-btn" type="button" aria-label="Sound on" title="Sound on or off (V)">🔊</button>
+      <button id="helpBtn" class="icon-btn" type="button" aria-label="Help for grown-ups" title="Help and pause (? or P)">?</button>
     </div>
   </div>
 
@@ -197,7 +199,7 @@ button { font-family: var(--display); color: var(--ink); -webkit-tap-highlight-c
         <li><span class="e" aria-hidden="true">🎁</span>“Everything’s free”</li>
         <li><span class="e" aria-hidden="true">👑</span>“A pretty, like, queen”</li>
       </ul>
-      <button id="playBtn" class="cta" type="button">Let’s go!</button>
+      <button id="playBtn" class="cta" type="button" title="Enter or Space">Let’s go!</button>
       <p class="credit">Game design by a 4-year-old. Grown-ups: the <b>?</b> button explains the controls.</p>
     </div>
   </div>
@@ -221,7 +223,7 @@ button { font-family: var(--display); color: var(--ink); -webkit-tap-highlight-c
         <li>Walk or drive into the soccer ball and golf balls to kick them. Drive around the race track to count laps.</li>
         <li>Highways lead to <b>Beach City</b> (east) and <b>Snow City</b> (south). The really big car is parked by the castle.</li>
         <li>In <b>Lava Jump</b> and <b>Lava Castle</b>, press <b>Jump!</b> to hop between stones. Landing in lava starts the course over. <b>Go out</b> always leaves.</li>
-        <li>The 🗺️ button jumps to any place. Keyboard: <kbd>arrows</kbd> or <kbd>WASD</kbd> to move, <kbd>Space</kbd> to get in or out, <kbd>H</kbd> to beep or sparkle, <kbd>M</kbd> map, <kbd>V</kbd> sound, <kbd>?</kbd> or <kbd>P</kbd> this help (it pauses), <kbd>Enter</kbd> to start.</li>
+        <li>The 🗺️ button jumps to any place. Keyboard: <kbd>arrows</kbd> or <kbd>WASD</kbd> to move, <kbd>Space</kbd> to get in or out, <kbd>H</kbd> to beep or sparkle.</li>
       </ul>
       <div class="row">
         <button id="resetBtn" class="ghost" type="button">Start over</button>
