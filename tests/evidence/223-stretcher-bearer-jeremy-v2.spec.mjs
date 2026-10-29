@@ -300,12 +300,14 @@ test("the controls cover no more of the battlefield than jeremy.v1's, beyond the
     const by = (l, id) => l.ctl.find(c => c.id === id);
     // jeremy.v1's own Orders, Sound and Pause, made 48 px tall at the same width, plus 1 px on Fire and Treat, which span the 1 px wider gap
     const tops = ["ordersBtn", "muteBtn", "pauseBtn"].map(id => by(v1, id));
+    // Fonts make the buttons' widths fractional, and the raster rounds each edge to a whole pixel: allow one 48 px column per button for that.
     const allowance = Math.round(tops.reduce((s, c) => s + c.w * (48 - c.h), 0) + (isMobile ? 2 * 52 : 0));
+    const rounding = tops.length * 48;
     for (const id of ["ordersBtn", "muteBtn", "pauseBtn"]) expect(by(v2, id).w, `${id} is no wider than in jeremy.v1`).toBeLessThanOrEqual(by(v1, id).w + 0.5);
     expect(v2.middle, `controls in the middle of the screen at ${w}x${h}`).toBeLessThanOrEqual(v1.middle);
     const sideways = w > h && isMobile;
     if (sideways) expect(v2.cover, `controls' cover at ${w}x${h}`).toBeLessThanOrEqual(v1.cover);
-    else expect(v2.cover - v1.cover, `controls' cover at ${w}x${h}`).toBeLessThanOrEqual(allowance);
+    else expect(v2.cover - v1.cover, `controls' cover at ${w}x${h}`).toBeLessThanOrEqual(allowance + rounding);
     const pc = n => `${(100 * n / v1.screen).toFixed(1)}%`;
     lines.push(`${w}x${h}: controls cover ${v1.cover} px² (${pc(v1.cover)}) in jeremy.v1 and ${v2.cover} px² (${pc(v2.cover)}) in jeremy.v2, ${v2.cover - v1.cover >= 0 ? "+" : ""}${v2.cover - v1.cover}${sideways ? "" : ` (the 48 px heights add up to ${allowance})`}; in the middle quarter of the screen ${v1.middle} → ${v2.middle} px²`);
   }
