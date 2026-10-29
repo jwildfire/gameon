@@ -1,6 +1,7 @@
 // Evidence for the evidence framework task (#46): what the arcade and the New Game page on
 // dev do today.
 // Run: npm run evidence -- 46-evidence-framework
+// evidence-scope: smoke   (runs on every pull request, docs/evidence.md)
 import { test, expect, games } from "./evidence.mjs";
 
 const home = "./";
