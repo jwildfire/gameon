@@ -138,6 +138,7 @@ button { font-family: var(--display); color: var(--ink); -webkit-tap-highlight-c
 .ghost {
   padding: 6px 14px; background: transparent; border: 3px dashed var(--ink); border-radius: 999px;
   font-size: 16px; font-weight: 700; cursor: pointer;
+  box-sizing: border-box; min-height: 48px; /* fingertip-sized (the phone bar, #187) */
 }
 .ghost.armed { background: var(--sun); border-style: solid; }
 
@@ -146,9 +147,9 @@ button { font-family: var(--display); color: var(--ink); -webkit-tap-highlight-c
 .spot {
   display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 4px 7px;
   background: #ffffff; border: 3px solid var(--ink); border-radius: 18px; box-shadow: 0 4px 0 var(--ink);
-  font-size: 15px; font-weight: 700; line-height: 1.1; cursor: pointer;
+  font-size: 15px; font-weight: 700; line-height: 17px; cursor: pointer; /* whole-pixel lines, so the 8 px gaps between places stay 8 px */
 }
-.spot .e { font-size: 32px; line-height: 1.1; }
+.spot .e { font-size: 32px; line-height: 36px; }
 .map .city { margin: 10px 0 6px; font: 800 20px/1.1 var(--display); text-align: left; }
 .spot:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
 
@@ -212,7 +213,7 @@ button { font-family: var(--display); color: var(--ink); -webkit-tap-highlight-c
         <li>Walk or drive into the soccer ball and golf balls to kick them. Drive around the race track to count laps.</li>
         <li>Highways lead to <b>Beach City</b> (east) and <b>Snow City</b> (south). The really big car is parked by the castle.</li>
         <li>In <b>Lava Jump</b> and <b>Lava Castle</b>, press <b>Jump!</b> to hop between stones. Landing in lava starts the course over. <b>Go out</b> always leaves.</li>
-        <li>The 🗺️ button jumps to any place. Keyboard: <kbd>arrows</kbd> or <kbd>WASD</kbd> to move, <kbd>Space</kbd> to get in or out, <kbd>H</kbd> to beep or sparkle.</li>
+        <li>The 🗺️ button jumps to any place. Keyboard: <kbd>arrows</kbd> or <kbd>WASD</kbd> to move, <kbd>Space</kbd> to get in or out, <kbd>H</kbd> to beep or sparkle, <kbd>M</kbd> map, <kbd>V</kbd> sound, <kbd>?</kbd> or <kbd>P</kbd> this help (it pauses), <kbd>Enter</kbd> to start.</li>
       </ul>
       <div class="row">
         <button id="resetBtn" class="ghost" type="button">Start over</button>
@@ -2888,11 +2889,30 @@ cvs.addEventListener('pointerup', endPtr);
 cvs.addEventListener('pointercancel', endPtr);
 cvs.addEventListener('contextmenu', e => e.preventDefault());
 
+// Keys for the corner buttons. S already drives down (WASD), so Sound is V, for volume.
+// P pauses: it opens the help card, which stops the town until Back to the game (or P again).
+const isMapKey = e => e.code === 'KeyM';
+const isPauseKey = e => e.code === 'KeyP';
+const isSoundKey = e => e.code === 'KeyV';
+const isHelpKey = e => e.key === '?' || e.code === 'Slash';
 addEventListener('keydown', e => {
-  if (overlayOpen) { if (e.key === 'Escape') closeOverlays(); return; }
-  if (!started) return;
+  const plain = !e.ctrlKey && !e.metaKey && !e.altKey;
+  if (overlayOpen) {
+    if (e.key === 'Escape' || (plain && !e.repeat && ((isMapKey(e) && !mapEl.hidden) || ((isHelpKey(e) || isPauseKey(e)) && !helpEl.hidden)))) { e.preventDefault(); closeOverlays(); }
+    return;
+  }
+  if (!started) {
+    // Enter or Space on the title card is Let's go!
+    if (!e.repeat && (e.code === 'Enter' || e.code === 'NumpadEnter' || e.code === 'Space')) { e.preventDefault(); begin(); }
+    return;
+  }
   const k = KEYMAP[e.code];
   if (k) { keys.add(k); target = null; e.preventDefault(); Sound.unlock(); hideFirstHint(); return; }
+  if (plain && !e.repeat) {
+    if (isMapKey(e)) { e.preventDefault(); openMap(); return; }
+    if (isSoundKey(e)) { e.preventDefault(); toggleSound(); return; }
+    if (isHelpKey(e) || isPauseKey(e)) { e.preventDefault(); openHelp(); return; }
+  }
   if (e.target.closest && e.target.closest('button')) return;
   if (e.code === 'Space' || e.code === 'Enter' || e.code === 'KeyE') { e.preventDefault(); if (!e.repeat) carAction(); }
   else if (e.code === 'KeyH' || e.code === 'KeyB') { if (!e.repeat) funAction(); }
@@ -2903,7 +2923,8 @@ addEventListener('blur', () => { keys.clear(); ptr = null; });
 
 const soundBtn = $('#soundBtn');
 function paintSound() { soundBtn.textContent = S.muted ? '🔇' : '🔊'; soundBtn.setAttribute('aria-label', S.muted ? 'Sound off' : 'Sound on'); }
-tap(soundBtn, () => { S.muted = !S.muted; Sound.unlock(); Sound.setMuted(S.muted); paintSound(); save(); });
+function toggleSound() { S.muted = !S.muted; Sound.unlock(); Sound.setMuted(S.muted); paintSound(); save(); }
+tap(soundBtn, toggleSound);
 
 const helpEl = $('#help'), mapEl = $('#map'), resetBtn = $('#resetBtn');
 function closeOverlays() {
@@ -2911,7 +2932,8 @@ function closeOverlays() {
   resetBtn.classList.remove('armed'); resetBtn.textContent = 'Start over';
 }
 function openOverlay(el, focus) { overlayOpen = true; el.hidden = false; keys.clear(); ptr = null; target = null; if (focus) focus.focus(); }
-tap($('#helpBtn'), () => openOverlay(helpEl, $('#closeHelp')));
+function openHelp() { openOverlay(helpEl, $('#closeHelp')); }
+tap($('#helpBtn'), openHelp);
 $('#closeHelp').addEventListener('click', closeOverlays);
 $('#closeMap').addEventListener('click', closeOverlays);
 for (const el of [helpEl, mapEl]) el.addEventListener('click', e => { if (e.target === el) closeOverlays(); });
@@ -2943,7 +2965,8 @@ for (const [cityKey, title] of [['home', 'Home Town'], ['beach', 'Beach City'], 
     grid.appendChild(b);
   });
 }
-tap($('#mapBtn'), () => openOverlay(mapEl, spotsEl.querySelector('.spot')));
+function openMap() { openOverlay(mapEl, spotsEl.querySelector('.spot')); }
+tap($('#mapBtn'), openMap);
 function jumpTo(s) {
   closeOverlays(); Sound.unlock();
   if (room) exitRoom();
@@ -2960,11 +2983,13 @@ function jumpTo(s) {
   after(0.05, () => poof(who.x, who.y)); Sound.magic();
 }
 
-$('#playBtn').addEventListener('click', () => {
+function begin() {
+  if (started) return;
   started = true; $('#start').hidden = true;
   Sound.unlock();
   hint(S.mode === 'drive' ? 'Tap anywhere to drive there!' : 'Tap anywhere to walk there!', 8);
-});
+}
+$('#playBtn').addEventListener('click', begin);
 
 // ---------- saving ----------
 const SAVE_KEY = 'princess-lady-drive:v2';
@@ -3026,7 +3051,8 @@ function frame(ts) {
 // Read-only peek for the evidence checks: where Rosie is, which room, and where a spot is on screen.
 window.princessLadyDrive = Object.freeze({
   inspect: () => ({
-    mode: S.mode, room: room ? room.kind : null, sub: !!(room && room.sub), x: P.x, y: P.y, sit: P.sit ? P.sit.t : null,
+    started, muted: S.muted, overlay: !mapEl.hidden ? 'map' : !helpEl.hidden ? 'help' : null,
+    car: { x: CAR.x, y: CAR.y, a: CAR.a, v: CAR.v }, mode: S.mode, room: room ? room.kind : null, sub: !!(room && room.sub), x: P.x, y: P.y, sit: P.sit ? P.sit.t : null,
     party: !!(room && room.party), look: room && room.look ? room.look.name : null, flag: room && room.flag != null ? room.flag : null,
     blocks: room && room.blocks != null ? room.blocks : null, treat: room && room.treat ? room.treat[1] : null, mix: room && room.mix ? room.mix.length : null,
     doll: !!(room && room.dollT > 0), tiles: room && room.lit ? Object.keys(room.lit).length : 0, inv: { ...S.inv }, pets: [...S.pets], balloons: S.balloons.length, deco: [...S.deco], items: room ? room.items.map(it => ({ t: it.t, x: it.x, y: it.y })) : [],

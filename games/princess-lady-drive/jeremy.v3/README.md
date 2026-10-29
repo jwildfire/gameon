@@ -32,3 +32,29 @@ Update idea from Jeremy (game idea #122), word for word:
 > More rooms in the castle!
 
 Started from jeremy.v1. The castle's big room is now the Great Hall, with four doors in its back wall: a Ballroom (a light-up dance floor, a disco ball, a music box and dancing friends), the Tower Top (up the winding stairs, with a telescope that looks out over the town, a flag to raise and a bell), a Royal Kitchen (put strawberries, chocolate, bananas or rainbow sprinkles in the pot and stir it for a surprise treat) and a Toy Room (a rocking horse, a block tower to knock down and a little dollhouse castle). Each room's bottom door goes back to the Great Hall, and **Go out** still leaves the castle from anywhere.
+
+## jeremy.v3: Enter to start, keys for Map and Help
+
+Update idea from Jeremy (game idea #222), word for word:
+
+> Make Princess Lady Drive comfortable on a phone and with a keyboard, so it meets the phone bar from the phone-friendly games task (jwildfire/gameon#187): every button at least 48 x 48 px at 375 px wide, 8 px clear of each other and the screen edges, and both WASD and the arrow keys working. Measured on jeremy.v2 on 2026-10-29:
+>
+> - The Help screen's Start over button is 106 x 43.
+> - Enter and Space don't start the game from the title card. It takes six presses of Tab to reach Let's go!.
+> - Map, Sound and Help have no keys.
+>
+> Make Start over at least 48 px tall, let Enter or Space start from the title card, and add keys for Map, Sound and Help (M, S, ?). Everything else already passes. Keep everything else the same.
+>
+> This game also lives in jwildfire/princess-lady-drive. Making the same fix there too means the next import from that repo won't bring the old controls back.
+
+Started from jeremy.v2. It's the phone and keyboard pass from the phone-friendly games task (#187), and nothing else changes:
+
+- **Start over** in Help is now 48 px tall (it was 43), so it meets the 48 x 48 px bar at 375 px wide.
+- **Enter or Space starts** from the title card, the same as tapping Let's go!. No more tabbing to the button.
+- **Keys for the corner buttons:** **M** opens the map, **V** turns the sound on or off, and **?** opens Help. Pressing M or ? again (or Escape) closes them.
+- **Why V and not S for Sound:** S is already "down" in WASD, for driving and walking. If S also switched the sound, every time a player drove down the sound would flip. V is free (think "volume"), and the help card lists it.
+- **P pauses:** it opens Help, which already stops the town until you press Back to the game (or P again). It's the keyboard twin of the ? button, so a keyboard player has a pause key.
+- The map's place buttons get whole-pixel line heights (each 1 to 2 px taller). Their 8 px gaps were exactly 8 px but sat on half pixels, so a measurement could round them down to 7.
+- The help card's keyboard line lists the new keys.
+
+Driving, the town, the shops, the castle and every other button stay as they were. Saves are the same key and format as jeremy.v2, so the two versions (and jeremy.v1) share them.
