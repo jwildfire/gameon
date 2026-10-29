@@ -177,6 +177,40 @@ body:not(.playing) .hud, body:not(.playing) .dock{display:none}
   .item .kd{display:none}
   .item .nm{font-size:12px}
 }
+
+/* jeremy.v2: fingertip-sized buttons and keys (game idea #224). Every top button is 48 px tall; the HUD packs its
+   buttons into one group so a sideways phone keeps them in one row; the battlefield keeps at least the room it had. */
+.pxbtn{min-height:48px;min-width:48px}
+.hud{gap:8px 10px;border-bottom:0;box-shadow:0 2px 0 var(--edge)}
+.hud .btns{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px 10px;margin-left:auto}
+.hud .grow{display:none}
+.intro .titleline{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 16px;margin:8px 0 14px}
+.intro .titleline h2{margin:0}
+.intro .titleline .date{margin:0}
+.keys{margin:10px 0 0;font-size:14px;color:var(--muted)}
+.keys kbd, .howto kbd{font:600 12px/1 var(--font-pixel);padding:2px 5px;background:var(--ink);border:1px solid #39412e;color:var(--fg)}
+.pause .panel{width:min(620px, 100%)}
+.pause h2{font-family:var(--font-display);font-weight:400;font-size:clamp(18px, 3.4vw, 26px);line-height:1.3;margin:8px 0 12px}
+.pause .actions{margin-top:16px}
+.map-wrap{cursor:pointer}
+.pin{pointer-events:none}
+.dock.more::after{content:"";position:absolute;right:1px;top:var(--more-y, 50%);transform:translateY(-50%);border:7px solid transparent;border-left:9px solid var(--gold);pointer-events:none}
+@media (max-height: 430px){
+  .hud{padding-bottom:0}
+  .dock{border-top:0;box-shadow:0 -3px 0 var(--edge)}
+  .bar{padding-top:2px;padding-bottom:0}
+  .overlay{padding-block:max(8px, env(safe-area-inset-top, 0px)) max(8px, env(safe-area-inset-bottom, 0px))}
+  /* the briefing: the same words at the same size with less space between them, and Start battle kept on screen */
+  .intro .panel, .camp .panel{padding-top:8px}
+  .intro .titleline{margin:4px 0 8px}
+  .intro .history{margin-bottom:8px}
+  .intro .goal{margin:8px 0 6px}
+  .intro .tip{margin-bottom:8px}
+  .intro .lists .lbl{margin-bottom:4px}
+  .intro .ars{margin-bottom:6px}
+  .intro .actions{position:sticky;bottom:0;z-index:1;margin:0 -12px;padding:6px 12px 0;
+    background:var(--panel);box-shadow:0 8px 0 var(--panel)}
+}
 </style>
 </head>
 <body>
@@ -187,11 +221,12 @@ body:not(.playing) .hud, body:not(.playing) .dock{display:none}
   <div class="stat"><small>Score</small><span id="score">0</span></div>
   <div class="stat"><small>Wind</small><span id="wind">Calm</span></div>
   <div class="stat"><span id="foes">4 defenders left</span></div>
-  <span class="grow"></span>
-  <button class="pxbtn" id="btn-look" type="button" hidden>See fort</button>
-  <button class="pxbtn" id="btn-restart" type="button">Restart</button>
-  <button class="pxbtn" id="btn-menu" type="button">Menu</button>
-  <button class="pxbtn" id="btn-sound" type="button" aria-pressed="true">Sound on</button>
+  <div class="btns">
+    <button class="pxbtn" id="btn-look" type="button" hidden>See fort</button>
+    <button class="pxbtn" id="btn-restart" type="button">Restart</button>
+    <button class="pxbtn" id="btn-menu" type="button" aria-label="Menu (pauses the battle)">Menu</button>
+    <button class="pxbtn" id="btn-sound" type="button" aria-pressed="true">Sound on</button>
+  </div>
 </header>
 
 <div class="dock" id="dock">
@@ -207,15 +242,20 @@ body:not(.playing) .hud, body:not(.playing) .dock{display:none}
     <p class="lede" id="pack-blurb"></p>
     <div id="camp-banner-slot"></div>
     <div class="levels" id="levels"></div>
-    <p class="howto"><b>How to play:</b> pick something from your arsenal at the bottom of the screen. Drag back and let go to launch troops and weapons. Tap once to send a vehicle. For planes, tap the spot you want bombed. Tap again while it's moving for its special move.</p>
+    <p class="howto"><b>How to play:</b> pick something from your arsenal at the bottom of the screen. Drag back and let go to launch troops and weapons. Tap once to send a vehicle. For planes, tap the spot you want bombed. Tap again while it's moving for its special move.<br>
+      <b>Keys:</b> <kbd>W</kbd><kbd>S</kbd> or <kbd>↑</kbd><kbd>↓</kbd> aim up and down, <kbd>A</kbd><kbd>D</kbd> or <kbd>←</kbd><kbd>→</kbd> less or more power,
+      <kbd>Space</kbd> or <kbd>Enter</kbd> launches (and does the special move), <kbd>E</kbd> or <kbd>Q</kbd> picks the next or last dude,
+      <kbd>F</kbd> sees the fort, <kbd>M</kbd> sound, <kbd>P</kbd> or <kbd>Esc</kbd> pauses.</p>
   </div>
 </section>
 
 <section class="overlay intro" id="intro" hidden aria-labelledby="intro-name">
   <div class="panel">
     <p class="eyebrow" id="intro-pack">Mission briefing</p>
-    <h2 id="intro-name">Omaha Beach</h2>
-    <p class="date" id="intro-date">June 6, 1944</p>
+    <div class="titleline">
+      <h2 id="intro-name">Omaha Beach</h2>
+      <p class="date" id="intro-date">June 6, 1944</p>
+    </div>
     <p class="history"><b>Real history</b><span id="intro-history"></span></p>
     <p class="goal" id="intro-goal">Knock out all the defenders.</p>
     <p class="tip"><span id="intro-tip"></span></p>
@@ -278,6 +318,20 @@ body:not(.playing) .hud, body:not(.playing) .dock{display:none}
     <div class="actions">
       <button class="big alt" id="btn-camp-back" type="button">Menu</button>
       <button class="big alt" id="btn-camp-reset" type="button">Start over</button>
+    </div>
+  </div>
+</section>
+
+<section class="overlay pause" id="pause" hidden aria-labelledby="pause-title">
+  <div class="panel">
+    <p class="eyebrow" id="pause-where">Paused</p>
+    <h2 id="pause-title">Paused</h2>
+    <p class="keys">Keys: <kbd>W</kbd><kbd>S</kbd> or <kbd>↑</kbd><kbd>↓</kbd> aim, <kbd>A</kbd><kbd>D</kbd> or <kbd>←</kbd><kbd>→</kbd> power,
+      <kbd>Space</kbd> launches, <kbd>E</kbd> next dude, <kbd>P</kbd> plays on.</p>
+    <div class="actions">
+      <button class="big" id="btn-resume" type="button">Play on</button>
+      <button class="big alt" id="btn-pause-restart" type="button">Restart</button>
+      <button class="big alt" id="btn-pause-leave" type="button">Leave battle</button>
     </div>
   </div>
 </section>

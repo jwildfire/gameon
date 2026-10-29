@@ -142,6 +142,8 @@
   var BONUS = 5000, starLine = [0, 0], extraTroop = null, introPan = false;
   var topSpeed = MAX_SPEED;   // launch speed at full pull; wide levels raise it so the far end of the fort is in reach
   var gravK = 1;              // gravity for this level: 1 on Earth, less on the Moon
+  // jeremy.v2: the keyboard's aim (degrees above flat, power 0-1), its plane target, the keys held down, and pause
+  var kb = { ang: 35, pow: 0.7, x: null }, held = {}, paused = false, lastInput = "pointer";
 
   function usePack(i) {
     packIndex = clamp(i, 0, PACKS.length - 1); pack = PACKS[packIndex];
@@ -168,6 +170,7 @@
     Events.on(engine, "collisionStart", onCollide);
     ents = []; planes = []; particles = []; popups = []; tracers = []; pendingBooms = []; scheduled = [];
     trail = []; lastTrail = []; active = null; aim = null; phase = "ready";
+    kb.ang = 35; kb.pow = 0.7; kb.x = null; held = {};
     simT = 0; graceUntil = 1200; score = 0; winAt = 0; shake = 0;
 
     // the ground, with any trenches cut into it as lower floors
@@ -918,7 +921,7 @@
     camX = clamp(camX, 0, camMax);
     placeCamera();
     if (level) buildBackground();
-    updateLookButton();
+    updateLookButton(); fitBar();
   }
 
   /* ------------------------------------------------------------- camera */
@@ -1131,6 +1134,7 @@
   }
   function pullVector() {
     if (!aim) return { x: 0, y: 0 };
+    if (aim.kb) { var r = kb.ang * Math.PI / 180; return { x: -Math.cos(r) * kb.pow * MAX_PULL, y: Math.sin(r) * kb.pow * MAX_PULL }; }
     var k = MAX_PULL / PULL_CSS, x = (aim.cx - aim.sx) * k, y = (aim.cy - aim.sy) * k, len = Math.hypot(x, y);
     if (len > MAX_PULL) { x *= MAX_PULL / len; y *= MAX_PULL / len; }
     return { x: x, y: y };
@@ -1201,8 +1205,10 @@
     }
     if (phase === "aiming" && (pull.x || pull.y)) {
       var u = UNITS[selected], v = { x: -pull.x / MAX_PULL * topSpeed, y: -pull.y / MAX_PULL * topSpeed };
-      if (u.kind === "sling") previewDots(c, SLING.x, SLING.y, v.x, v.y, 0, 45);
-      else {
+      if (u.kind === "sling") {
+        previewDots(c, SLING.x, SLING.y, v.x, v.y, 0, 45);
+        if (aim.kb) pixelText(c, Math.round(kb.ang) + "°  " + Math.round(kb.pow * 100) + "%", SLING.x, GROUND - 62, "#ffffff");
+      } else {
         var k = u.speed || 1;
         previewDots(c, BUNKER.x, BUNKER.y, v.x * k, v.y * k, u.lift || 0, u.lift > 0.9 ? 60 : 36);
         var ang = Math.round(Math.atan2(-v.y, v.x) * 180 / Math.PI), pw = Math.round(Math.hypot(pull.x, pull.y) / MAX_PULL * 100);
@@ -1210,6 +1216,12 @@
       }
     }
 
+    if (mode === "play" && phase === "ready" && kb.x != null && selected && UNITS[selected].kind === "air") {
+      var mx = Math.round(kb.x), my = groundAt(kb.x);
+      for (i = my - 120; i < my - 10; i += 6) dot(c, mx, i, 2, "#ffd23f");
+      pixelLine(c, mx - 7, my - 7, mx + 7, my + 7, "#e0412c"); pixelLine(c, mx - 7, my + 7, mx + 7, my - 7, "#e0412c");
+      pixelText(c, "TARGET", mx, my - 128, "#ffffff");
+    }
     planes.forEach(function (p) {
       var s = sprite(p.unit.sprite);
       c.save(); c.translate(Math.round(p.x + p.w / 2), Math.round(p.y + p.h / 2)); c.rotate(p.angle);
@@ -1272,8 +1284,10 @@
     try { screenC.setPointerCapture(ev.pointerId); } catch (err) { /* older browsers */ }
   }
   screenC.addEventListener("pointerdown", function (ev) {
-    if (mode !== "play") return;
-    ac();
+    if (mode !== "play" || paused) return;
+    ac(); lastInput = "pointer";
+    if (phase === "aiming" && aim && aim.kb) { aim = null; phase = "ready"; }   // a finger takes over from the keys
+    kb.x = null;
     if (introPan) { introPan = false; camHoldUntil = 0; camX = 0; }
     if (phase === "active") { special(); return; }
     if (phase !== "ready" || !selected || !arsenal[selected]) { startGesture(ev); return; }
@@ -1321,6 +1335,134 @@
   }, { passive: false });
   screenC.addEventListener("pointercancel", function () { gesture = null; if (phase === "aiming") { aim = null; phase = "ready"; updateHint(); } });
 
+  /* --------------------------------------------------- keys (jeremy.v2) */
+  // W/S or Up/Down aim up and down, A/D or Left/Right set the power (or move a plane's target), Space or Enter
+  // launches (or does the special move while something's flying), E/Q or 1-9 pick a dude, F sees the fort, M sound,
+  // P or Escape pause. In menus the same direction keys move between the buttons and Space or Enter presses one.
+  var DIR = { w: "up", arrowup: "up", s: "down", arrowdown: "down", a: "left", arrowleft: "left", d: "right", arrowright: "right" };
+  function kindNow() { return mode === "play" && selected && arsenal[selected] ? UNITS[selected].kind : null; }
+  function keyAiming() { return phase === "aiming" && aim && aim.kb; }
+  function defaultTarget() { return clamp((level.fortX || 480) + 40, 160, worldW - 20); }
+  function followTarget() {
+    if (camMax > 0 && kb.x != null) { camHoldX = clamp(kb.x - bufW / 2, 0, camMax); camHoldUntil = Infinity; updateLookButton(); }
+  }
+  function nudge(dir, k) {
+    var kind = kindNow();
+    if (!kind || paused) return;
+    if (kind === "sling" || kind === "fire") {
+      if (phase === "ready") { aim = { kb: true }; phase = "aiming"; camHoldX = null; updateLookButton(); }
+      if (!keyAiming()) return;
+      if (dir === "up" || dir === "down") kb.ang = clamp(kb.ang + (dir === "up" ? 1.5 : -1.5) * k, -20, 85);
+      else kb.pow = clamp(kb.pow + (dir === "right" ? 0.02 : -0.02) * k, 0.15, 1);
+      updateHint();
+    } else if (kind === "air" && phase === "ready") {
+      if (kb.x == null) kb.x = defaultTarget();
+      else if (dir === "left" || dir === "right") kb.x = clamp(kb.x + (dir === "right" ? 4 : -4) * k, 160, worldW - 20);
+      followTarget(); updateHint();
+    }
+  }
+  function heldKeys() { if (paused) return; for (var d in held) if (held[d]) nudge(d, 0.5); }
+  function launchKey() {
+    if (mode !== "play" || paused) return;
+    if (phase === "active") { special(); return; }
+    var kind = kindNow();
+    if (!kind) return;
+    if (keyAiming()) {
+      var pull = pullVector(); aim = null;
+      var vx = -pull.x / MAX_PULL * topSpeed, vy = -pull.y / MAX_PULL * topSpeed;
+      if (kind === "sling") launchSling(selected, vx, vy); else launchFire(selected, vx, vy);
+      return;
+    }
+    if (phase !== "ready") return;
+    if (kind === "sling" || kind === "fire") { aim = { kb: true }; phase = "aiming"; camHoldX = null; updateLookButton(); updateHint(); }
+    else if (kind === "drive") launchDrive(selected);
+    else if (kind === "air") {
+      if (kb.x == null) { kb.x = defaultTarget(); followTarget(); updateHint(); }
+      else { var tx = kb.x; kb.x = null; callIn(selected, tx); }
+    }
+  }
+  // pick a dude by key (from the bar's list) or by tapping its button; the keyboard's aim carries over
+  function pickDude(k) {
+    if (mode !== "play" || !k || !arsenal[k] || (phase === "aiming" && !keyAiming())) return;
+    selected = k; kb.x = null;
+    if (keyAiming() && UNITS[k].kind !== "sling" && UNITS[k].kind !== "fire") { aim = null; phase = "ready"; }
+    buildBar(); updateHint();
+  }
+  function cycleDude(d) {
+    var have = ORDER.filter(function (k) { return arsenal[k] > 0; });
+    if (have.length) pickDude(have[(Math.max(0, have.indexOf(selected)) + d + have.length) % have.length]);
+  }
+  function setPaused(on) {
+    if (on && mode !== "play") return;
+    paused = !!on; held = {};
+    if (paused && phase === "aiming" && aim && !aim.kb) { aim = null; phase = "ready"; updateHint(); }
+    gesture = null;
+    $("pause").hidden = !paused;
+    if (paused) {
+      setText("pause-where", level.name + " · " + level.date);
+      if (lastInput === "key") $("btn-resume").focus();
+    } else if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  }
+  function openOverlay() {
+    if (paused) return $("pause");
+    return ["menu", "intro", "result", "campaign"].map($).filter(function (o) { return !o.hidden; })[0] || null;
+  }
+  function usable(b) { return !b.disabled && b.offsetParent !== null && getComputedStyle(b).visibility !== "hidden"; }
+  function primaryButton(o) {
+    var pick = { pause: ["btn-resume"], intro: ["btn-start"], result: ["btn-next", "btn-retry"], campaign: ["btn-camp-fight", "btn-camp-back"] }[o.id];
+    if (pick) for (var i = 0; i < pick.length; i++) if (usable($(pick[i]))) return $(pick[i]);
+    return o.querySelector("#levels .lvl") || [].filter.call(o.querySelectorAll("button"), usable)[0] || null;
+  }
+  function moveFocus(o, d) {
+    var list = [].filter.call(o.querySelectorAll("button"), usable), at = list.indexOf(document.activeElement);
+    var next = at < 0 ? primaryButton(o) : list[(at + d + list.length) % list.length];
+    if (next) next.focus();
+  }
+  window.addEventListener("keydown", function (e) {
+    if (e.ctrlKey || e.metaKey || e.altKey || !level) return;
+    var key = (e.key || "").toLowerCase(), dir = DIR[key], focus = document.activeElement;
+    lastInput = "key";
+    if (mode === "play" && !paused) {
+      if (dir) { e.preventDefault(); if (!e.repeat) { held[dir] = true; ac(); nudge(dir, 1); } return; }
+      if (key === " " || key === "enter") {
+        if (focus && focus.tagName === "BUTTON" && focus.matches(":focus-visible")) return;   // a button the player tabbed to
+        e.preventDefault(); if (!e.repeat) { ac(); launchKey(); } return;
+      }
+      if (key === "p" || key === "escape") { e.preventDefault(); setPaused(true); return; }
+      if (e.repeat) return;
+      if (key === "e") cycleDude(1);
+      else if (key === "q") cycleDude(-1);
+      else if (/^[1-9]$/.test(key)) pickDude(ORDER.filter(function (k) { return k in arsenal; })[+key - 1]);
+      else if (key === "f" && camMax > 0) lookAtFort(!(camHoldX != null && camHoldX > camMax / 2));
+      else if (key === "m") toggleSound();
+      return;
+    }
+    var o = openOverlay();
+    if (!o) return;
+    if (key === "escape" || (key === "p" && paused)) {
+      e.preventDefault();
+      if (paused) setPaused(false);
+      else if (o.id === "intro") $("btn-back").click();
+      else if (o.id === "campaign") $("btn-camp-back").click();
+      return;
+    }
+    if (dir && o.id === "campaign" && (dir === "left" || dir === "right")) { e.preventDefault(); pickPin(campSel + (dir === "right" ? 1 : -1)); return; }
+    if (dir) { e.preventDefault(); moveFocus(o, dir === "down" || dir === "right" ? 1 : -1); return; }
+    if ((key === " " || key === "enter") && !(focus && focus.tagName === "BUTTON" && o.contains(focus))) {
+      var b = primaryButton(o);
+      if (b) { e.preventDefault(); b.click(); }
+    }
+  });
+  window.addEventListener("keyup", function (e) { var d = DIR[(e.key || "").toLowerCase()]; if (d) held[d] = false; });
+  window.addEventListener("blur", function () { held = {}; });
+  document.addEventListener("pointerdown", function () { lastInput = "pointer"; }, true);
+  // a tapped or clicked button lets go of the focus in battle, so Space launches instead of pressing it again
+  document.addEventListener("click", function (e) {
+    if (mode === "play" && e.detail > 0 && document.activeElement && document.activeElement.tagName === "BUTTON") document.activeElement.blur();
+  });
+  // a menu opened from the keyboard puts the focus on its main button
+  function focusMain() { var o = openOverlay(); if (o && lastInput === "key") { var b = primaryButton(o); if (b) b.focus({ preventScroll: true }); } }
+
   /* ---------------------------------------------------------------- UI */
   function iconCanvas(name, boxW, boxH) {
     var s = sprite(name), dpr = Math.max(1, Math.round(window.devicePixelRatio || 1));
@@ -1345,11 +1487,23 @@
       btn.appendChild(iconCanvas(unitIcon(u), 46, 30));
       btn.insertAdjacentHTML("beforeend", '<span class="nm">' + u.name + '</span><span class="ct">×' + arsenal[k] + '</span><span class="kd">' + KIND_LABEL[u.kind] + '</span>');
       btn.addEventListener("click", function () {
-        if (phase === "aiming" || !arsenal[k]) return;
-        selected = k; buildBar(); updateHint();
+        if ((phase === "aiming" && !(aim && aim.kb)) || !arsenal[k]) return;
+        pickDude(k);
       });
       bar.appendChild(btn);
     });
+    fitBar();
+  }
+  // jeremy.v2: the arsenal shows only whole buttons; the rest are a swipe (or E) away, with a gold arrow saying so
+  function fitBar() {
+    var bar = $("bar"), items = bar.children, dock = $("dock");
+    bar.style.maxWidth = ""; dock.classList.remove("more");
+    if (!items.length || !bar.clientWidth) return;
+    var cs = getComputedStyle(bar), padL = parseFloat(cs.paddingLeft), padR = parseFloat(cs.paddingRight), gap = parseFloat(cs.columnGap) || 8;
+    var pitch = items[0].offsetWidth + gap, n = Math.max(1, Math.floor((bar.clientWidth - padL - padR + gap) / pitch));
+    if (n >= items.length) return;
+    bar.style.maxWidth = (padL + n * pitch - gap + padR) + "px";
+    dock.classList.add("more"); dock.style.setProperty("--more-y", Math.round(bar.offsetTop + bar.offsetHeight / 2) + "px");
   }
   function setText(id, v) { var el = $(id); if (el.textContent !== v) el.textContent = v; }
   function updateHud() {
@@ -1368,6 +1522,8 @@
   function updateHint() {
     var h = $("hint"), a = active && active.lead;
     if (mode !== "play") { h.textContent = ""; return; }
+    if (phase === "aiming" && aim && aim.kb) { h.textContent = "Aim " + Math.round(kb.ang) + "°, power " + Math.round(kb.pow * 100) + "%. Space or Enter to launch!"; return; }
+    if (phase === "ready" && kb.x != null && selected && UNITS[selected].kind === "air") { h.textContent = "←/→ or A/D move the target. Space or Enter calls it in!"; return; }
     if (phase === "active" && a && !a.dead && a.unit && a.unit.tap) {
       var u = a.unit, t = TAP_HINT[u.tap] || "";
       if (u.tap === "chute" && a.chute) t = "Floating down…";
@@ -1384,9 +1540,11 @@
     return '<svg class="star' + (on ? " on" : "") + '" viewBox="0 0 9 9" aria-hidden="true"><path d="M4 0h1v2h1v1h3v1h-1v1h-1v2h1v2h-1v-1h-1v-1h-3v1h-1v1h-1v-2h1v-2h-1v-1h-1v-1h3v-1h1z"/></svg>';
   }
   function show(id) {
+    paused = false; $("pause").hidden = true; held = {};
     ["menu", "intro", "result", "campaign"].forEach(function (o) { $(o).hidden = o !== id; });
     document.body.classList.toggle("playing", id === null);
     resize();
+    if (id) setTimeout(focusMain, 0);
   }
   function buildMenu() {
     var tabs = $("packs"); tabs.innerHTML = "";
@@ -1395,7 +1553,10 @@
       b.type = "button"; b.className = "pack"; b.setAttribute("aria-pressed", String(i === packIndex));
       b.appendChild(iconCanvas(P.icon, 48, 40));
       b.insertAdjacentHTML("beforeend", '<span><b>' + P.name + '</b><small>' + P.years + '</small></span>');
-      b.addEventListener("click", function () { campaign = null; usePack(i); loadLevel(0); mode = "menu"; buildMenu(); resize(); });
+      b.addEventListener("click", function () {
+        campaign = null; usePack(i); loadLevel(0); mode = "menu"; buildMenu(); resize();
+        if (lastInput === "key") $("packs").children[i].focus();   // jeremy.v2: the keyboard stays on the pack it picked
+      });
       tabs.appendChild(b);
     });
     setText("pack-blurb", pack.side + " vs. " + pack.foe + ". " + pack.blurb);
@@ -1451,6 +1612,7 @@
     show("intro");
   }
   function startBattle() {
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
     mode = "play"; show(null); updateHud(); updateHint(); buildBar();
     if (camMax > 0) { camX = camMax; camHoldX = camMax; camHoldUntil = simT + 1500; introPan = true; }
     var named = {};
@@ -1645,13 +1807,14 @@
     drawCampaignMap(C, cs);
     var pins = $("camp-pins"); pins.innerHTML = "";
     C.missions.forEach(function (m, k) {
-      var L = P.levels[levelNumber(P, m.level)], won = cs.done.indexOf(m.level) >= 0, locked = k > next, b = document.createElement("button");
-      b.type = "button"; b.className = "pin " + (won ? "done" : locked ? "locked" : "next");
-      b.textContent = String(k + 1); b.disabled = locked;
+      // jeremy.v2: the pins are drawn markers, and a tap anywhere on the map picks the nearest open mission (pickPin),
+      // because pins 48 px wide wouldn't fit side by side on a phone
+      var L = P.levels[levelNumber(P, m.level)], won = cs.done.indexOf(m.level) >= 0, locked = k > next, b = document.createElement("span");
+      b.className = "pin " + (won ? "done" : locked ? "locked" : "next"); b.setAttribute("role", "img");
+      b.textContent = String(k + 1);
       b.style.left = (m.x / W * 100) + "%"; b.style.top = (m.y / H * 100) + "%";
       b.setAttribute("aria-pressed", String(k === campSel));
       b.setAttribute("aria-label", "Mission " + (k + 1) + ": " + L.name + (won ? ", won" : locked ? ", locked" : ", next up"));
-      b.addEventListener("click", function () { campSel = k; renderCampaign(); });
       pins.appendChild(b);
     });
     var m = C.missions[campSel], L = P.levels[levelNumber(P, m.level)], won = cs.done.indexOf(m.level) >= 0, tough = C.toughness[campSel] || 1;
@@ -1687,6 +1850,17 @@
     reset.hidden = !cs.done.length && !cs.perks.length;
     reset.textContent = campResetArmed > Date.now() ? "Tap again to erase" : "Start over";
   }
+  function pickPin(k) {
+    var C = pack.campaign, next = campNext(C, campState(pack));
+    campSel = clamp(k, 0, Math.min(next, C.missions.length - 1)); renderCampaign();
+  }
+  function tapMap(ev) {
+    if (mode !== "campaign") return;
+    var r = $("camp-map").getBoundingClientRect(), C = pack.campaign, next = campNext(C, campState(pack)), best = -1, bd = Infinity;
+    var mx = (ev.clientX - r.left) / r.width * 384, my = (ev.clientY - r.top) / r.height * 216;
+    C.missions.forEach(function (m, k) { var d = Math.hypot(m.x - mx, m.y - my); if (k <= next && d < bd) { bd = d; best = k; } });
+    if (best >= 0) pickPin(best);
+  }
   function openCampaign() {
     if (campaign && pack !== campaign.P) usePack(PACKS.indexOf(campaign.P));
     var cs = campState(pack), C = pack.campaign;
@@ -1706,11 +1880,15 @@
   $("btn-look").addEventListener("click", function () { lookAtFort(!(camHoldX != null && camHoldX > camMax / 2)); });
   $("btn-back").addEventListener("click", leaveBattle);
   $("btn-restart").addEventListener("click", function () { loadLevel(levelIndex); startBattle(); });
-  $("btn-menu").addEventListener("click", leaveBattle);
+  $("btn-menu").addEventListener("click", function () { setPaused(true); });
+  $("btn-resume").addEventListener("click", function () { setPaused(false); });
+  $("btn-pause-restart").addEventListener("click", function () { loadLevel(levelIndex); startBattle(); });
+  $("btn-pause-leave").addEventListener("click", leaveBattle);
   $("btn-retry").addEventListener("click", function () { loadLevel(levelIndex); startBattle(); });
   $("btn-next").addEventListener("click", function () { if (campaign) openCampaign(); else openIntro(levelIndex + 1); });
   $("btn-result-menu").addEventListener("click", leaveBattle);
   $("btn-camp-fight").addEventListener("click", function () { ac(); startMission(campSel); });
+  document.querySelector(".map-wrap").addEventListener("click", tapMap);
   $("btn-camp-back").addEventListener("click", toMenu);
   $("btn-camp-reset").addEventListener("click", function () {
     if (campResetArmed > Date.now()) { store(campKey(pack), null); campResetArmed = 0; campSel = 0; }
@@ -1718,7 +1896,8 @@
     renderCampaign();
   });
   function syncSound() { $("btn-sound").textContent = soundOn ? "Sound on" : "Sound off"; $("btn-sound").setAttribute("aria-pressed", String(soundOn)); }
-  $("btn-sound").addEventListener("click", function () { soundOn = !soundOn; store("angrydudes.sound", soundOn); syncSound(); });
+  function toggleSound() { soundOn = !soundOn; store("angrydudes.sound", soundOn); syncSound(); }
+  $("btn-sound").addEventListener("click", toggleSound);
   syncSound();
 
   /* ------------------------------------------------------------- loop */
@@ -1731,6 +1910,7 @@
       afterPhysics();
       processBooms(); sweep();
       if (mode === "play") {
+        heldKeys();
         reactions(); updatePlanes(); checkActive(); checkSettle();
         updateCamera();
         if (winAt && simT >= winAt && phase !== "active") win();
@@ -1743,6 +1923,7 @@
     requestAnimationFrame(frame);
     acc += Math.min(100, now - last); last = now;
     var steps = 0;
+    if (paused) acc = 0;
     while (acc >= STEP && steps < 4) { step(); acc -= STEP; steps++; }
     if (steps === 4) acc = 0;
     if (mode === "play" && steps) updateHud();
@@ -1753,7 +1934,8 @@
 
   // Testing aid: inspect state, or fast-forward the simulation when a browser throttles frames.
   window.ANGRY_DEBUG = {
-    get state() { return { pack: pack.id, level: level && level.id, mode: mode, phase: phase, selected: selected, arsenal: arsenal, score: score, defenders: defendersLeft(), ents: ents.length, wind: wind, topSpeed: topSpeed, gravity: gravK }; },
+    get state() { return { pack: pack.id, level: level && level.id, mode: mode, phase: phase, selected: selected, arsenal: arsenal, score: score, defenders: defendersLeft(), ents: ents.length, wind: wind, topSpeed: topSpeed, gravity: gravK,
+      paused: paused, aim: { keys: !!(aim && aim.kb), ang: Math.round(kb.ang * 10) / 10, pow: Math.round(kb.pow * 100) / 100, target: kb.x == null ? null : Math.round(kb.x) }, camX: Math.round(camX), camMax: Math.round(camMax), lookingAtFort: camHoldX != null && camHoldX > camMax / 2, sound: soundOn }; },
     advance: function (ms) { for (var i = 0; i < Math.round(ms / STEP); i++) step(); draw(); updateHud(); return this.state; },
     open: function (packId, levelNo) { var i = PACKS.findIndex(function (p) { return p.id === packId; }); campaign = null; usePack(i); openIntro(levelNo || 0); startBattle(); this.advance(1500); return this.state; },
     mission: function (packId, k) { var i = PACKS.findIndex(function (p) { return p.id === packId; }); usePack(i); startMission(k); startBattle(); this.advance(1500); return this.state; },

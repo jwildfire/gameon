@@ -167,3 +167,19 @@ each other rather than as the real difficulty.
 - Campaigns for the other armies (the map and rewards are just data in the pack file)
 - A campaign map that links the battles in order
 - The iPhone app: SpriteKit can read `assets/sprites.json` and the pack data directly
+
+## jeremy.v2: Launch with the keyboard
+
+Update idea from Jeremy (game idea #224), word for word:
+
+> Make Angry Dudes comfortable on a phone and with a keyboard, so it meets the phone bar from the phone-friendly games task (jwildfire/gameon#187): every button at least 48 x 48 px at 375 px wide, 8 px clear of each other and the screen edges, and both WASD and the arrow keys working. Measured on jeremy.v1 on 2026-10-29:
+>
+> - No keys at all. WASD, the arrows, Space, Enter, P and Escape do nothing, and aiming and launching work only by dragging.
+> - Sideways (812 x 375), the Restart, Menu, Sound and See fort buttons are 32 px tall.
+> - Start battle is below the fold sideways, so you have to scroll the panel to find it.
+>
+> Add keys: WASD or the arrows set the aim and power, Space or Enter launches, a key picks the next dude, and P or Escape opens the menu. Make the top buttons 48 px tall, and keep Start battle on screen. Keep everything else the same.
+>
+> This game also lives in jwildfire/angry-dudes. Making the same fix there too means the next import from that repo won't bring the old controls back.
+
+Started from jeremy.v1. W/S or ↑/↓ tilt the aim and A/D or ←/→ set the power (or move a plane's target), Space or Enter launches and does the special move, E/Q or 1-9 pick a dude, F looks at the fort, M turns the sound off and on, and P or Escape pause. The top buttons are 48 px tall, the Menu button pauses the battle (Play on, Restart, Leave battle), and Start battle stays on screen on a sideways phone. In menus the same keys move between the buttons.
