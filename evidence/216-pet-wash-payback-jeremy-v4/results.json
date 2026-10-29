@@ -1,0 +1,195 @@
+{
+  "spec": "216-pet-wash-payback-jeremy-v4",
+  "passed": true,
+  "headline": "PASS: 9 of 9 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-29T17:39:30.414Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "72cd5c1",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/216-pet-wash-payback-jeremy-v4.spec.mjs",
+  "checks": [
+    {
+      "check": "jeremy.v4 opens to its title screen, starts a wash round, and loads nothing from outside the site",
+      "notes": [
+        "desktop: title (Play!, Survival!, Pick a pet; the keys line now covers the brush) → \"Wash Biscuit the Dog!\", whose how-to adds the keys → Go! → Biscuit's wash with the tool bar; no requests outside the site (jeremy.v3 made none either); no sideways scrolling",
+        "phone: title (Play!, Survival!, Pick a pet; the keys line now covers the brush) → \"Wash Biscuit the Dog!\", whose how-to adds the keys → Go! → Biscuit's wash with the tool bar; no requests outside the site (jeremy.v3 made none either); no sideways scrolling"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "title-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "title-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "every button meets the phone bar: at least 48 x 48 px, 8 px from the others and from the screen edges, and real taps work them",
+      "notes": [
+        "desktop: 1280 px wide, with clicks (Pick a pet, Back, Play!, Go!, Rinse, Soap, Sound (twice), Pause, Keep going, each doing its job): 32 buttons on 10 screens (title 3, Pick a pet 10, round intro 1, wash round 5, pause 4, round result 2, final score 2, Survival intro 1, Survival run 2, Survival end 2), none smaller than 48 px, none closer than 8 px to another or to an edge. Sound 48x48 and Pause 48x48, 8 px apart; Back 73x48; Title screen 125x48 and Sound: on 112x48 on the pause screen; Keep going 52 px tall",
+        "phone: 375 px wide (phone), with real taps (Pick a pet, Back, Play!, Go!, Rinse, Soap, Sound (twice), Pause, Keep going, each doing its job): 32 buttons on 10 screens (title 3, Pick a pet 10, round intro 1, wash round 5, pause 4, round result 2, final score 2, Survival intro 1, Survival run 2, Survival end 2), none smaller than 48 px, none closer than 8 px to another or to an edge. Sound 48x48 and Pause 48x48, 8 px apart; Back 73x48; Title screen 125x48 and Sound: on 112x48 on the pause screen; Keep going 48 px tall"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "buttons-wash-desktop.jpg",
+          "buttons-pause-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "buttons-wash-phone.jpg",
+          "buttons-pause-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "in the wash round, the arrows and WASD move a visible scrub brush, and it rides along with the pet",
+      "notes": [
+        "desktop: Enter on the title and Enter on Go! started Biscuit's wash with the brush already on him. Held for a quarter second each, the brush moved (px): ArrowLeft 129, a 138, ArrowRight 161, d 150, ArrowUp 155, w 138, ArrowDown 160, s 157; moving alone scrubbed nothing. Over 1.5 s Biscuit swayed 54 px and the brush, with no key down, stayed within 7 px of the same spot on him. P and Escape each pause and unpause",
+        "phone: Enter on the title and Enter on Go! started Biscuit's wash with the brush already on him. Held for a quarter second each, the brush moved (px): ArrowLeft 75, a 78, ArrowRight 83, d 81, ArrowUp 82, w 79, ArrowDown 85, s 83; moving alone scrubbed nothing. Over 1.5 s Biscuit swayed 15 px and the brush, with no key down, stayed within 2 px of the same spot on him. P and Escape each pause and unpause"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "keyboard-brush-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "keyboard-brush-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Space held scrubs, rinses and dries with the brush, and a whole wash plays from the keyboard",
+      "notes": [
+        "desktop: brush steered onto a spot with the arrows, then real key presses: Space held 50 frames soaped it to bubbles (the screenshot, mid-scrub), 2 + Space rinsed it, 3 + Space dried it sparkling. Then a keyboard-only player (arrows and WASD taking turns, Space, 1 2 3) finished Biscuit \"Super speedy scrub!\" with 21.3 s left and 3 stars. From the keyboard every pet but Pickles washed in time: Biscuit 21 s left, Mittens 21 s left, The Nutty Gang 30.1 s left, Clover 22.1 s left, Truffle 16.7 s left, Bubbles 19.1 s left, Inky 26.9 s left, Sir Quackers 21.7 s left",
+        "phone: brush steered onto a spot with the arrows, then real key presses: Space held 50 frames soaped it to bubbles (the screenshot, mid-scrub), 2 + Space rinsed it, 3 + Space dried it sparkling. Then a keyboard-only player (arrows and WASD taking turns, Space, 1 2 3) finished Biscuit \"Super speedy scrub!\" with 20.8 s left and 3 stars. From the keyboard every pet but Pickles washed in time: Biscuit 19.7 s left, Mittens 21.9 s left, The Nutty Gang 26.6 s left, Clover 21.4 s left, Truffle 14 s left, Bubbles 18 s left, Inky 26.3 s left, Sir Quackers 21.1 s left"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "keyboard-scrub-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "keyboard-scrub-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Enter or Space catches Pickles when the brush reaches him, and he can be washed from the keyboard",
+      "notes": [
+        "desktop: Pickles' wash: the brush starts under his flight path; Space from too far away said \"Missed!\" and he kept flying. Chasing him with the arrows put him in the ring after 0.7 s (the screenshot: the ring turns yellow and says \"Space!\"), and Enter caught him (\"Gotcha!\"); the brush carried him back to the tub. Then a keyboard-only player washed him clean with 26 s left, catching him 3 times in all (Enter (above), Enter, Space)",
+        "phone: Pickles' wash: the brush starts under his flight path; Space from too far away said \"Missed!\" and he kept flying. Chasing him with the arrows put him in the ring after 1.6 s (the screenshot: the ring turns yellow and says \"Space!\"), and Enter caught him (\"Gotcha!\"); the brush carried him back to the tub. Then a keyboard-only player washed him clean with 24.4 s left, catching him 3 times in all (Enter (above), Enter, Space)"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "keyboard-catch-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "keyboard-catch-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "what stays: touch and mouse wash, the payback rounds and Survival play exactly as in jeremy.v3",
+      "notes": [
+        "desktop: pets, weapons, speeds, scrub work and Survival's pace are byte for byte jeremy.v3's. With the same seeds, the pointer player and the arrow-key dodger got identical results in jeremy.v3 and jeremy.v4: Biscuit, Pickles and Inky washed with 21.88, 27.75 and 27.35 s left; the nine-pet payback ended at 100% wet from 124 hits; a Survival run reached 38.25 s at 100% wet. Started by tapping, the brush stays hidden and tapping Towel picks the towel",
+        "phone: pets, weapons, speeds, scrub work and Survival's pace are byte for byte jeremy.v3's. With the same seeds, the pointer player and the arrow-key dodger got identical results in jeremy.v3 and jeremy.v4: Biscuit, Pickles and Inky washed with 20.05, 25.23 and 25.95 s left; the nine-pet payback ended at 75% wet from 50 hits; a Survival run reached 80.47 s at 100% wet. Started by tapping, the brush stays hidden and tapping Towel picks the towel"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "saves: what jeremy.v3 saved loads and carries on in jeremy.v4, and the older keys stay as they were",
+      "notes": [
+        "desktop: seeded jeremy.v3's keys (best 12345, reached 7, survival 61.3 s with 13) and jeremy.v1's and jeremy.v2's: jeremy.v4's title shows 12345 and \"1:01 with 13 animals chasing\", Pick a pet shows the best stars and the first 7 pets open, sound off. After washing Bubbles from the keyboard, her payback and a Survival run: no new keys, jeremy.v3.reached is now 8 and survival runs 5 (best kept), Bubbles' stars {\"wash\":3,\"hose\":2}; jeremy.v1's and jeremy.v2's keys byte for byte the same; jeremy.v3 opens Inky from that save too",
+        "phone: seeded jeremy.v3's keys (best 12345, reached 7, survival 61.3 s with 13) and jeremy.v1's and jeremy.v2's: jeremy.v4's title shows 12345 and \"1:01 with 13 animals chasing\", Pick a pet shows the best stars and the first 7 pets open, sound off. After washing Bubbles from the keyboard, her payback and a Survival run: no new keys, jeremy.v3.reached is now 8 and survival runs 5 (best kept), Bubbles' stars {\"wash\":3,\"hose\":2}; jeremy.v1's and jeremy.v2's keys byte for byte the same; jeremy.v3 opens Inky from that save too"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "the older versions still play: jeremy.v3, jeremy.v2, jeremy.v1 and Kiki's kiki.v1",
+      "notes": [
+        "desktop: each opens to its title and Play! → Go! starts a wash round: jeremy.v3 at games/pet-wash-payback/jeremy.v3/: \"Biscuit · Wash!\"; jeremy.v2 at games/pet-wash-payback/jeremy.v2/: \"Biscuit · Wash!\"; jeremy.v1 at games/pet-wash-payback/: \"Biscuit · Wash!\"; kiki.v1 at games/pet-wash-payback/kiki.v1/: \"Biscuit · Wash!\". games.json still points every older version at its own folder",
+        "phone: each opens to its title and Play! → Go! starts a wash round: jeremy.v3 at games/pet-wash-payback/jeremy.v3/: \"Biscuit · Wash!\"; jeremy.v2 at games/pet-wash-payback/jeremy.v2/: \"Biscuit · Wash!\"; jeremy.v1 at games/pet-wash-payback/: \"Biscuit · Wash!\"; kiki.v1 at games/pet-wash-payback/kiki.v1/: \"Biscuit · Wash!\". games.json still points every older version at its own folder"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "v3-plays-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "v3-plays-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "in the arcade, Pet Wash Payback plays jeremy.v4 by default, and its wash round takes the keyboard there",
+      "notes": [
+        "desktop: card (5 versions) → picker: jeremy.v4 Latest first with its note \"Wash pets with the keyboard\", then jeremy.v3 → jeremy.v4 in the frame: Play! → Go! → an arrow key shows the brush; #pet-wash-payback@jeremy.v3 still opens jeremy.v3",
+        "phone: card (5 versions) → picker: jeremy.v4 Latest first with its note \"Wash pets with the keyboard\", then jeremy.v3 → jeremy.v4 in the frame: Play! → Go! → an arrow key shows the brush; #pet-wash-payback@jeremy.v3 still opens jeremy.v3"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "arcade-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "arcade-phone.jpg"
+        ],
+        "error": null
+      }
+    }
+  ]
+}
