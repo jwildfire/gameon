@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Delve Squad</title>
+<meta name="description" content="Torch-lit halls, glowing loot cards, and the Rat King waiting for your heroes.">
+<meta name="theme-color" content="#120d12">
+<link rel="icon" href="data:,">
+<style>
+:root {
+  --bg: #120d12;
+  --panel: #1f1820;
+  --panel2: #2a2029;
+  --edge: #4a3a3f;
+  --ink: #f3e6cf;
+  --dim: #b4a38c;
+  --torch: #ffb347;
+  --ember: #ff7a3c;
+  --blood: #c8443a;
+  --heal: #6ee08a;
+  --common: #cfc7b8;
+  --rare: #4fa8ff;
+  --epic: #c07cff;
+  --legendary: #ffbf2e;
+  --serif: "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --sans: ui-rounded, "Trebuchet MS", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+body { font-family: var(--sans); color: var(--ink); background: var(--bg); }
+[hidden] { display: none !important; }
+button { font-family: var(--sans); color: var(--ink); cursor: pointer; }
+button:focus-visible { outline: 3px solid var(--torch); outline-offset: 2px; }
+.screen { position: fixed; inset: 0; overflow: hidden; display: flex; flex-direction: column; }
+.scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+
+.btn { border: 2px solid #000; background: linear-gradient(#5a4535, #3a2b22); color: var(--ink); border-radius: 12px; padding: 10px 18px; font: 800 17px var(--sans); box-shadow: 0 4px 0 #000, inset 0 1px 0 rgba(255,255,255,0.15); transition: transform 80ms; }
+.btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #000; }
+.btn.go { background: linear-gradient(#ff9d3c, #d9581e); color: #1a0d05; font-size: 20px; padding: 12px 26px; text-shadow: 0 1px 0 rgba(255,255,255,0.35); }
+.btn.go:disabled { background: #3a3030; color: #806f66; text-shadow: none; cursor: default; }
+.btn.small { font-size: 14px; padding: 7px 12px; }
+.icon-btn { width: 42px; height: 42px; border-radius: 10px; border: 2px solid #000; background: linear-gradient(#4a3a30, #2e231d); font: 900 17px var(--sans); display: grid; place-items: center; padding: 0; flex: none; box-shadow: 0 3px 0 #000; }
+.icon-btn.off { opacity: 0.55; }
+
+/* title */
+#title canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+#title .card { position: relative; margin: auto; width: min(480px, calc(100% - 32px)); text-align: center; display: grid; gap: 14px; padding: 18px 8px; }
+.logo { margin: 0; font-family: var(--serif); font-weight: 900; line-height: 0.9; font-size: clamp(54px, 17vw, 92px); letter-spacing: 1px; color: #ffd28a; text-shadow: 0 0 18px rgba(255,140,40,0.75), 0 4px 0 #3a1a08, 0 6px 14px #000; }
+.logo span { display: block; }
+.logo .b { color: #ff9d3c; font-size: 0.82em; }
+.tagline { margin: 0; font-size: 18px; font-weight: 700; text-shadow: 0 2px 6px #000; }
+.credit { margin: 0; font-size: 14px; color: var(--dim); font-weight: 700; }
+.best { display: inline-block; margin: 0 auto; padding: 5px 14px; border-radius: 999px; background: rgba(0,0,0,0.55); border: 1px solid var(--edge); font-weight: 800; color: var(--torch); }
+.title-row { display: flex; gap: 10px; justify-content: center; align-items: center; }
+.howto { margin: 0; font-size: 14px; color: var(--dim); line-height: 1.4; text-shadow: 0 1px 4px #000; }
+
+/* shared headers */
+.top { display: flex; align-items: center; gap: 8px; padding: 10px 12px; padding-top: max(10px, env(safe-area-inset-top)); background: linear-gradient(#000a, #0000); flex: none; }
+.top h2 { margin: 0; font-family: var(--serif); font-size: 22px; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ffd28a; }
+.top .sub { font-size: 13px; color: var(--dim); font-weight: 700; }
+.foot { flex: none; display: flex; gap: 10px; justify-content: center; align-items: center; padding: 10px 12px; padding-bottom: max(12px, env(safe-area-inset-bottom)); background: linear-gradient(#0000, #000c); flex-wrap: wrap; }
+.hint { font-size: 13px; color: var(--dim); text-align: center; margin: 0 12px 6px; }
+.wrap { width: min(980px, 100%); margin: 0 auto; padding: 0 12px 12px; }
+
+/* party pick */
+.slots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 4px 0 12px; }
+.slot { border: 2px dashed var(--edge); border-radius: 14px; min-height: 104px; background: rgba(0,0,0,0.3); display: grid; place-items: center; padding: 6px; text-align: center; font-weight: 800; color: var(--dim); }
+.slot.full { border-style: solid; border-color: #6b5546; background: var(--panel); color: var(--ink); }
+.slot canvas { width: 64px; height: 64px; display: block; margin: 0 auto; }
+.slot .nm { font-size: 14px; }
+.slot .x { font-size: 11px; color: var(--dim); }
+.classes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.cls { text-align: left; border: 2px solid #000; border-radius: 14px; background: linear-gradient(var(--panel2), var(--panel)); padding: 10px; display: grid; gap: 4px; align-content: start; box-shadow: 0 3px 0 #000; }
+.cls:active { transform: translateY(2px); }
+.cls canvas { width: 72px; height: 72px; justify-self: center; }
+.cls h3 { margin: 0; font-family: var(--serif); font-size: 20px; color: #ffd28a; display: flex; justify-content: space-between; align-items: baseline; }
+.cls h3 kbd { font: 700 12px var(--sans); color: var(--dim); border: 1px solid var(--edge); border-radius: 5px; padding: 0 5px; }
+.cls .stats { font-size: 12px; color: var(--dim); font-weight: 700; }
+.cls .ab { font-size: 13px; line-height: 1.3; }
+.cls .ab b { color: var(--torch); }
+
+/* campfire / gear */
+.heroes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 2px 0 10px; }
+.hero { border: 2px solid #000; border-radius: 14px; background: var(--panel); padding: 7px; text-align: left; display: grid; gap: 3px; align-content: start; position: relative; box-shadow: 0 3px 0 #000; }
+.hero.sel { border-color: var(--torch); box-shadow: 0 0 0 2px var(--torch), 0 0 18px rgba(255,160,60,0.5); }
+.hero .head { display: flex; gap: 6px; align-items: center; }
+.hero canvas { width: 46px; height: 46px; flex: none; }
+.hero .nm { font-weight: 900; font-size: 15px; line-height: 1.05; }
+.hero .cl { font-size: 11px; color: var(--dim); font-weight: 700; }
+.hpbar { height: 8px; border-radius: 4px; background: #3a1414; overflow: hidden; border: 1px solid #000; }
+.hpbar i { display: block; height: 100%; background: linear-gradient(#ff6a5a, #c8443a); }
+.hero .st { font-size: 12px; font-weight: 800; display: flex; gap: 8px; flex-wrap: wrap; }
+.up { color: var(--heal); }
+.down-txt { color: #ff8a7a; }
+.hero .gear { font-size: 11px; color: var(--dim); line-height: 1.3; }
+.hero .gear b { font-weight: 700; }
+.hero .new { font-size: 11px; font-weight: 900; color: var(--torch); min-height: 14px; }
+.loot { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
+.item { position: relative; text-align: left; border: 2px solid #000; border-radius: 14px; background: linear-gradient(#2b2225, #1c1518); padding: 9px; display: grid; grid-template-columns: 44px 1fr; gap: 4px 9px; align-items: start; box-shadow: 0 3px 0 #000; }
+.item canvas { width: 44px; height: 44px; grid-row: span 3; border-radius: 10px; background: radial-gradient(circle, rgba(255,255,255,0.08), transparent 70%); }
+.item .nm { font-weight: 900; font-size: 15px; line-height: 1.1; padding-right: 18px; }
+.item .meta { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+.item .lines { font-size: 13px; line-height: 1.3; }
+.item .cmp { grid-column: 1 / -1; font-size: 12px; font-weight: 800; min-height: 15px; }
+.item kbd { position: absolute; right: 7px; top: 6px; font: 700 11px var(--sans); color: var(--dim); border: 1px solid var(--edge); border-radius: 5px; padding: 0 5px; }
+.item.common { border-color: #000; }
+.item.rare { border-color: var(--rare); box-shadow: 0 3px 0 #000, 0 0 12px rgba(79,168,255,0.45); }
+.item.epic { border-color: var(--epic); box-shadow: 0 3px 0 #000, 0 0 16px rgba(192,124,255,0.55); }
+.item.legendary { border-color: var(--legendary); box-shadow: 0 3px 0 #000, 0 0 22px rgba(255,191,46,0.7); animation: shine 1.6s ease-in-out infinite alternate; }
+@keyframes shine { to { box-shadow: 0 3px 0 #000, 0 0 30px rgba(255,191,46,0.95); } }
+.item.common .meta { color: var(--common); } .item.rare .meta { color: var(--rare); } .item.epic .meta { color: var(--epic); } .item.legendary .meta { color: var(--legendary); }
+.item.taken { opacity: 0.45; }
+.item.mine { outline: 3px solid var(--torch); outline-offset: 1px; opacity: 1; }
+.item .who { position: absolute; right: 8px; bottom: 6px; font-size: 11px; font-weight: 900; color: var(--torch); }
+.banner-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 4px 0 8px; }
+.tag { font-size: 12px; font-weight: 900; padding: 3px 10px; border-radius: 999px; background: #000a; border: 1px solid var(--edge); }
+.tag.boss { background: #5a1414; border-color: #ff5a4a; color: #ffd0c8; animation: pulse 1s ease-in-out infinite alternate; }
+@keyframes pulse { to { box-shadow: 0 0 14px rgba(255,90,74,0.8); } }
+.rest { font-size: 13px; color: var(--heal); font-weight: 800; }
+
+/* delve */
+#delve { background: #050306; }
+#delve .top { gap: 6px; }
+#delve .where { flex: 1; min-width: 0; }
+#delve .where b { display: block; font-family: var(--serif); font-size: 19px; color: #ffd28a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#delve .where span { display: block; font-size: 12px; color: var(--dim); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#minimap { width: 112px; height: 52px; flex: none; }
+.stage { flex: 1; min-height: 0; display: grid; place-items: center; position: relative; }
+#arena { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: block; image-rendering: auto; border-radius: 6px; box-shadow: 0 0 0 2px #000, 0 10px 40px #000; touch-action: none; }
+.squad { flex: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 8px 10px; padding-bottom: max(10px, env(safe-area-inset-bottom)); width: min(760px, 100%); margin: 0 auto; }
+.mini { background: var(--panel); border: 2px solid #000; border-radius: 10px; padding: 5px 7px; display: grid; gap: 3px; }
+.mini.out { opacity: 0.45; }
+.mini .nm { font-size: 13px; font-weight: 900; display: flex; justify-content: space-between; gap: 4px; white-space: nowrap; overflow: hidden; }
+.mini .nm span { color: var(--dim); font-weight: 700; font-size: 11px; }
+.abbar { height: 5px; border-radius: 3px; background: #1d2433; overflow: hidden; }
+.abbar i { display: block; height: 100%; background: linear-gradient(90deg, #6fb6ff, #c7e4ff); }
+#speed { width: auto; padding: 0 10px; min-width: 52px; }
+
+/* overlays */
+.overlay { position: fixed; inset: 0; background: rgba(5,3,6,0.78); display: grid; place-items: center; z-index: 10; padding: 16px; }
+.box { width: min(420px, 100%); background: linear-gradient(var(--panel2), var(--panel)); border: 2px solid #000; border-radius: 18px; padding: 20px; text-align: center; display: grid; gap: 12px; box-shadow: 0 0 0 2px var(--edge), 0 20px 60px #000; }
+.box h2 { margin: 0; font-family: var(--serif); font-size: 30px; color: #ffd28a; }
+.box p { margin: 0; color: var(--dim); font-weight: 700; }
+.box .btn { width: 100%; }
+#over .box { width: min(480px, 100%); }
+.fell { font-family: var(--serif); font-size: 64px; font-weight: 900; color: var(--torch); line-height: 1; text-shadow: 0 0 20px rgba(255,140,40,0.7); }
+.newbest { color: var(--legendary) !important; font-size: 18px; animation: pulse2 0.8s ease-in-out infinite alternate; }
+@keyframes pulse2 { to { transform: scale(1.08); } }
+.statgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.statgrid div { background: #0008; border-radius: 10px; padding: 8px 4px; font-size: 12px; color: var(--dim); font-weight: 700; }
+.statgrid b { display: block; font-size: 22px; color: var(--ink); }
+.over-party { display: flex; justify-content: center; gap: 6px; }
+.over-party canvas { width: 56px; height: 56px; }
+
+@media (max-height: 560px) { .howto { display: none; } }
+@media (max-width: 700px) {
+  .classes { grid-template-columns: repeat(2, 1fr); }
+  .loot { grid-template-columns: 1fr 1fr; gap: 7px; }
+  .item { grid-template-columns: 1fr; padding: 7px; gap: 2px; }
+  .item canvas { grid-row: auto; width: 36px; height: 36px; }
+  .item .nm { font-size: 13px; }
+  .item .lines { font-size: 12px; }
+  .hero { padding: 5px; }
+  .hero canvas { width: 36px; height: 36px; }
+  .hero .nm { font-size: 13px; }
+  .hero .st { font-size: 11px; gap: 5px; }
+  .hero .gear { display: none; }
+  .cls .ab { font-size: 12px; }
+  .top h2 { font-size: 19px; }
+}
+</style>
+</head>
+<body>
+
+<section id="title" class="screen">
+  <canvas id="title-bg"></canvas>
+  <div class="card">
+    <h1 class="logo" aria-label="Delve Squad"><span class="a">DELVE</span><span class="b">SQUAD</span></h1>
+    <p class="tagline">Torch-lit halls, glowing loot cards, and the Rat King waiting for your heroes.</p>
+    <span class="best" id="title-best">No delves yet</span>
+    <div class="title-row">
+      <button class="btn go" id="start-btn">Start a delve</button>
+      <button class="icon-btn" id="sound-btn" aria-label="Sound on or off" title="Sound (M)">♪</button>
+    </div>
+    <p class="howto">Below the stairs lie five halls: the Old Cellar, the Mossy Crypt, the Frost Caves, the Ember Deep and the Shadow Halls. The Rat King rules the first.</p>
+    <p class="credit">Designed by Jeremy · Enter to start</p>
+  </div>
+</section>
+
+<section id="party" class="screen" hidden>
+  <div class="top">
+    <h2>Pick your squad</h2>
+    <button class="icon-btn" id="party-back" aria-label="Back to title">✕</button>
+  </div>
+  <div class="scroll" style="flex:1">
+    <div class="wrap">
+      <p class="hint">Tap a class to add a hero (keys 1–4). Tap a hero to send them home (Backspace). Three heroes make a squad.</p>
+      <div class="slots" id="slots"></div>
+      <div class="classes" id="classes"></div>
+    </div>
+  </div>
+  <div class="foot">
+    <button class="btn" id="random-btn">Random squad (R)</button>
+    <button class="btn go" id="party-go" disabled>Delve!</button>
+  </div>
+</section>
+
+<section id="gear" class="screen" hidden>
+  <div class="top">
+    <div style="flex:1;min-width:0">
+      <h2 id="gear-title">Campfire</h2>
+      <div class="sub" id="gear-sub"></div>
+    </div>
+    <button class="icon-btn" id="gear-menu" aria-label="Pause menu" title="Menu (P)">II</button>
+  </div>
+  <div class="scroll" style="flex:1">
+    <div class="wrap">
+      <div class="banner-row" id="gear-tags"></div>
+      <div class="heroes" id="heroes"></div>
+      <p class="hint" id="gear-hint">Each hero can take one item. Tap a hero, then an item (← → and 1–7).</p>
+      <div class="loot" id="loot"></div>
+    </div>
+  </div>
+  <div class="foot">
+    <button class="btn go" id="gear-go">Delve to Floor 1</button>
+  </div>
+</section>
+
+<section id="delve" class="screen" hidden>
+  <div class="top">
+    <div class="where"><b id="d-floor">Floor 1</b><span id="d-room">Room 1 of 3</span></div>
+    <canvas id="minimap" width="224" height="104"></canvas>
+    <button class="icon-btn" id="speed" title="Speed (Space)">1×</button>
+    <button class="icon-btn" id="d-menu" aria-label="Pause menu" title="Pause (P)">II</button>
+  </div>
+  <div class="stage" id="stage"><canvas id="arena" width="1200" height="840"></canvas></div>
+  <div class="squad" id="squad"></div>
+</section>
+
+<section id="over" class="overlay" hidden>
+  <div class="box">
+    <p>The squad fell on</p>
+    <div class="fell" id="over-floor">Floor 1</div>
+    <p id="over-best"></p>
+    <div class="over-party" id="over-party"></div>
+    <div class="statgrid">
+      <div><b id="st-rooms">0</b>rooms cleared</div>
+      <div><b id="st-poofs">0</b>monsters poofed</div>
+      <div><b id="st-bosses">0</b>bosses beaten</div>
+    </div>
+    <button class="btn go" id="again-btn">Same squad, new delve</button>
+    <button class="btn" id="newsquad-btn">Pick a new squad</button>
+    <button class="btn small" id="over-title">Title screen</button>
+  </div>
+</section>
+
+<section id="pause" class="overlay" hidden>
+  <div class="box">
+    <h2>Paused</h2>
+    <p id="pause-where"></p>
+    <button class="btn go" id="resume-btn">Keep going</button>
+    <button class="btn" id="restart-btn">Start over</button>
+    <button class="btn" id="pause-sound">Sound: on</button>
+    <button class="btn small" id="pause-title">Title screen</button>
+  </div>
+</section>
+
+<script src="sim.js"></script>
+<script src="sound.js"></script>
+<script src="art.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

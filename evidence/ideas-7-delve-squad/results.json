@@ -1,0 +1,203 @@
+{
+  "spec": "ideas-7-delve-squad",
+  "passed": true,
+  "headline": "PASS: 9 of 9 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-29T16:20:41.739Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "40f72cf",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/ideas-7-delve-squad.spec.mjs",
+  "checks": [
+    {
+      "check": "the title screen opens in a torch-lit hall, with nothing loaded from the internet",
+      "notes": [
+        "desktop: 5 requests, all to this site",
+        "phone: 5 requests, all to this site"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "title-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "title-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the heroes clear the first Old Cellar room, and its monsters poof into sparks",
+      "notes": [
+        "desktop: room 1 had 3 monsters; the heroes cleared it and 3 poofed; arena 1014x710",
+        "phone: room 1 had 3 monsters; the heroes cleared it and 3 poofed; arena 375x535"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "fight-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "fight-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the Rat King waits in the last room of Floor 5, and beating him puts a Legendary card at the next campfire",
+      "notes": [
+        "desktop: squad levels 6/6/6; next campfire's Legendary: Giant's Mace",
+        "phone: squad levels 6/6/6; next campfire's Legendary: Giant's Mace"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "boss-desktop.jpg",
+          "after-boss-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "boss-phone.jpg",
+          "after-boss-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the game pauses, starts over and goes back to the title",
+      "notes": [
+        "desktop: P paused (the fight stood still for half a second), Keep going resumed, Start over went to the squad screen with the last squad, ✕ went to the title",
+        "phone: P paused (the fight stood still for half a second), Keep going resumed, Start over went to the squad screen with the last squad, ✕ went to the title"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "paused-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "paused-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "at the campfire each hero takes one item, and the card shows what it changes",
+      "notes": [
+        "desktop: loot: Old Helm (common armor), Thunder Dagger (epic weapon), Bright Spiky Ring (rare charm), Chipped Cloak (common armor), Dusty Helm (common armor)",
+        "phone: loot: Old Helm (common armor), Thunder Dagger (epic weapon), Bright Spiky Ring (rare charm), Chipped Cloak (common armor), Dusty Helm (common armor)"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "campfire-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "campfire-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "floors come from the run's seed: the same seed makes the same floor, a new seed a new one",
+      "notes": [
+        "desktop: floor 3 has 3 rooms; seeds 42 and 43 lay it out differently; the Rat King, Bone King and Frost Wyrm rooms are on floors 5, 10 and 15, and floors 1-4 and 6 have none",
+        "phone: floor 3 has 3 rooms; seeds 42 and 43 lay it out differently; the Rat King, Bone King and Frost Wyrm rooms are on floors 5, 10 and 15, and floors 1-4 and 6 have none"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "floor-map-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "floor-map-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "when all three heroes are down the delve is over, and Floor 3 is kept as the deepest",
+      "notes": [
+        "desktop: keys saved: gameon.delve-squad.runs, gameon.delve-squad.best; with storage blocked a new run still cleared its first room",
+        "phone: keys saved: gameon.delve-squad.runs, gameon.delve-squad.best; with storage blocked a new run still cleared its first room"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "game-over-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "game-over-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "a squad of three is picked by tapping classes or with the number keys",
+      "notes": [
+        "desktop: keys 1 and 2 added a Fighter and a Rogue, a tap added a Wizard; tapping the Rogue removed it and key 3 added a Cleric",
+        "phone: keys 1 and 2 added a Fighter and a Rogue, a tap added a Wizard; tapping the Rogue removed it and key 3 added a Cleric"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "squad-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "squad-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Delve Squad has a card right after the Editor's Choice games and plays in its frame",
+      "notes": [
+        "desktop: card at position 2, after the 1 Editor's Choice card(s) and ahead of fidget-factory, with its 800x450 cover and \"Made by Jeremy\"; inside the frame it went title, random squad, campfire, first room",
+        "phone: card at position 2, after the 1 Editor's Choice card(s) and ahead of fidget-factory, with its 800x450 cover and \"Made by Jeremy\"; inside the frame it went title, random squad, campfire, first room"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "in-arcade-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "in-arcade-phone.jpg"
+        ],
+        "error": null
+      }
+    }
+  ]
+}
