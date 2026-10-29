@@ -1,0 +1,835 @@
+{
+ "id": "ww1",
+ "name": "World War I",
+ "years": "1918",
+ "side": "U.S. Army",
+ "foe": "German Army",
+ "icon": "doughboy",
+ "blurb": "Go over the top with Doughboys and Marines, roll Renault tanks across the trenches and bomb the observation balloons.",
+ "props": {
+  "bunker": "sandbag",
+  "pennant": [
+   "#2b4a8c",
+   "#efe9d8"
+  ]
+ },
+ "units": {
+  "doughboy": {
+   "name": "Doughboy",
+   "kind": "sling",
+   "sprite": "doughboy",
+   "w": 12,
+   "h": 16,
+   "density": 0.003,
+   "best": "landser",
+   "tap": "shout",
+   "shout": "OVER THE TOP!",
+   "hint": "Drag back to aim, let go to launch. Tap in the air to shout."
+  },
+  "marine": {
+   "name": "Marine",
+   "kind": "sling",
+   "sprite": "marine",
+   "w": 12,
+   "h": 16,
+   "density": 0.0035,
+   "power": 1.2,
+   "best": "mg08",
+   "tap": "dash",
+   "dash": 15,
+   "shout": "DEVIL DOGS!",
+   "hint": "Launch, then tap for a bayonet charge. Great against machine-gun nests."
+  },
+  "york": {
+   "name": "Sgt. York",
+   "kind": "sling",
+   "sprite": "york",
+   "w": 12,
+   "h": 16,
+   "density": 0.003,
+   "best": "officer",
+   "tap": "sharpshoot",
+   "shots": 3,
+   "reach": 170,
+   "shotDmg": 2.5,
+   "shout": "SHARPSHOOTER!",
+   "hint": "A crack shot. Tap mid-flight and he fires at the three nearest defenders."
+  },
+  "grenade": {
+   "name": "Grenade",
+   "kind": "fire",
+   "sprite": "proj_grenade",
+   "gunner": "bomber",
+   "w": 5,
+   "h": 6,
+   "density": 0.004,
+   "best": "landser",
+   "fuse": 3000,
+   "bounce": 0.45,
+   "spin": 0.2,
+   "faceVel": false,
+   "boom": {
+    "r": 30,
+    "p": 3
+   },
+   "hint": "Lob it into a trench. It bounces, then goes off after 3 seconds."
+  },
+  "mortar": {
+   "name": "Trench mortar",
+   "kind": "fire",
+   "sprite": "proj_shell",
+   "gunner": "mortar",
+   "w": 8,
+   "h": 4,
+   "density": 0.004,
+   "best": "minenwerfer",
+   "wind": true,
+   "impact": true,
+   "boom": {
+    "r": 32,
+    "p": 3.5
+   },
+   "hint": "Aim high. The shell drops straight down into trenches."
+  },
+  "french75": {
+   "name": "French 75",
+   "kind": "fire",
+   "sprite": "proj_shell",
+   "gunner": "french75",
+   "w": 8,
+   "h": 4,
+   "density": 0.005,
+   "best": "concrete",
+   "speed": 1.2,
+   "wind": true,
+   "impact": true,
+   "boom": {
+    "r": 34,
+    "p": 4
+   },
+   "hint": "A fast field gun. The best thing you have against concrete."
+  },
+  "renault": {
+   "name": "Renault tank",
+   "kind": "drive",
+   "sprite": "renault",
+   "w": 36,
+   "h": 14,
+   "ox": 1,
+   "density": 0.006,
+   "best": "sandbag",
+   "speed": 0.8,
+   "push": 0.3,
+   "hp": 9,
+   "tap": "shoot",
+   "shots": 4,
+   "gun": {
+    "x": 16,
+    "y": -12,
+    "vx": 13,
+    "vy": -0.4
+   },
+   "shell": {
+    "sprite": "proj_tankshell",
+    "w": 6,
+    "h": 3,
+    "density": 0.004,
+    "lift": 0.9,
+    "impact": true,
+    "boom": {
+     "r": 22,
+     "p": 3.2
+    },
+    "best": "sandbag"
+   },
+   "hint": "Tap to roll out. It's long enough to cross trenches. Tap again to fire (4 shots)."
+  },
+  "spad": {
+   "name": "SPAD biplane",
+   "kind": "air",
+   "style": "plane",
+   "sprite": "spad",
+   "bombs": 2,
+   "spacing": 14,
+   "speed": 2.4,
+   "alt": 36,
+   "bomb": {
+    "sprite": "proj_bomb",
+    "w": 10,
+    "h": 4,
+    "impact": true,
+    "boom": {
+     "r": 28,
+     "p": 3.2
+    }
+   },
+   "hint": "Tap where the biplane should drop its two bombs. Great for balloons."
+  },
+  "mine": {
+   "name": "Tunnel mine",
+   "kind": "air",
+   "style": "mine",
+   "icon": "tunneler",
+   "boom": {
+    "r": 50,
+    "p": 5.5
+   },
+   "say": "DIGGING…",
+   "blast": "KA-BOOM!",
+   "hint": "Tap a spot. Tunnelers dig under it and blow it up from below."
+  },
+  "barrage": {
+   "name": "Artillery barrage",
+   "kind": "air",
+   "style": "rain",
+   "icon": "french75",
+   "count": 6,
+   "gap": 16,
+   "every": 200,
+   "vx": 2.5,
+   "vy": 0,
+   "say": "FIRE!",
+   "sound": "thump",
+   "proj": {
+    "sprite": "proj_shell",
+    "w": 8,
+    "h": 4,
+    "density": 0.004,
+    "impact": true,
+    "boom": {
+     "r": 26,
+     "p": 3
+    }
+   },
+   "hint": "Tap the target. The big guns drop six shells across it."
+  }
+ },
+ "order": [
+  "doughboy",
+  "marine",
+  "york",
+  "grenade",
+  "mortar",
+  "french75",
+  "renault",
+  "spad",
+  "mine",
+  "barrage"
+ ],
+ "blocks": {
+  "S": {
+   "key": "sandbag",
+   "name": "Sandbags",
+   "hp": 1.5,
+   "density": 0.0025,
+   "pts": 100,
+   "debris": [
+    "#d9bc80",
+    "#a9884f"
+   ]
+  },
+  "W": {
+   "key": "wood",
+   "name": "Crate",
+   "hp": 2.2,
+   "density": 0.0015,
+   "pts": 200,
+   "debris": [
+    "#a8693a",
+    "#5e3a1d"
+   ]
+  },
+  "L": {
+   "key": "log",
+   "name": "Dugout timber",
+   "hp": 2.6,
+   "density": 0.0018,
+   "pts": 200,
+   "debris": [
+    "#a8693a",
+    "#d9bc80"
+   ]
+  },
+  "C": {
+   "key": "concrete",
+   "name": "Concrete",
+   "hp": 5,
+   "density": 0.004,
+   "pts": 500,
+   "debris": [
+    "#9a9ea3",
+    "#74787e"
+   ]
+  },
+  "R": {
+   "key": "rock",
+   "name": "Boulder",
+   "hp": 6,
+   "density": 0.006,
+   "pts": 300,
+   "debris": [
+    "#9a9ea3",
+    "#c4c7cb"
+   ]
+  },
+  "X": {
+   "key": "wire",
+   "name": "Barbed wire",
+   "hp": 1,
+   "density": 0.001,
+   "pts": 100,
+   "debris": [
+    "#646d7b",
+    "#a8693a"
+   ],
+   "w": 16,
+   "h": 10,
+   "fixed": true,
+   "sensor": true
+  },
+  "K": {
+   "key": "shellcrate",
+   "name": "Shell crate",
+   "hp": 0.5,
+   "density": 0.002,
+   "pts": 300,
+   "debris": [
+    "#a8693a",
+    "#c98d3c"
+   ],
+   "explodes": {
+    "r": 36,
+    "p": 4
+   },
+   "fire": true
+  },
+  "=": {
+   "key": "concrete",
+   "sprite": "concrete",
+   "slab": true,
+   "hp": 6,
+   "density": 0.004,
+   "pts": 800,
+   "debris": [
+    "#9a9ea3",
+    "#74787e"
+   ]
+  },
+  "~": {
+   "key": "wood",
+   "sprite": "wood",
+   "slab": true,
+   "hp": 2.5,
+   "density": 0.0015,
+   "pts": 300,
+   "debris": [
+    "#a8693a",
+    "#5e3a1d"
+   ]
+  },
+  "_": {
+   "key": "tin",
+   "sprite": "tin",
+   "slab": true,
+   "hp": 3,
+   "density": 0.003,
+   "pts": 300,
+   "debris": [
+    "#a9b2bf",
+    "#646d7b"
+   ]
+  }
+ },
+ "defenders": {
+  "g": {
+   "key": "landser",
+   "name": "German soldier",
+   "w": 12,
+   "h": 17,
+   "hp": 1.6,
+   "density": 0.002,
+   "pts": 500
+  },
+  "m": {
+   "key": "mg08",
+   "name": "MG 08 nest",
+   "w": 28,
+   "h": 13,
+   "hp": 3,
+   "density": 0.004,
+   "pts": 1500,
+   "cells": 2,
+   "react": {
+    "type": "shooter",
+    "range": 95,
+    "height": 46,
+    "say": "RAT-TAT-TAT!",
+    "sound": "rattle",
+    "muzzle": {
+     "x": -15,
+     "y": -3
+    }
+   }
+  },
+  "b": {
+   "key": "balloon",
+   "name": "Observation balloon",
+   "w": 30,
+   "h": 22,
+   "hp": 2,
+   "density": 0.001,
+   "pts": 3000,
+   "float": true
+  },
+  "w": {
+   "key": "minenwerfer",
+   "name": "Trench mortar",
+   "w": 20,
+   "h": 12,
+   "hp": 3,
+   "density": 0.005,
+   "pts": 2000,
+   "cells": 2,
+   "react": {
+    "type": "antitank",
+    "every": 2200,
+    "range": 320,
+    "muzzle": {
+     "x": -10,
+     "y": -8
+    },
+    "vx": -8.5,
+    "vy": -7,
+    "shell": {
+     "sprite": "proj_mortarshell",
+     "w": 8,
+     "h": 8,
+     "round": true,
+     "density": 0.006,
+     "enemy": true,
+     "impact": true,
+     "boom": {
+      "r": 20,
+      "p": 3
+     }
+    }
+   }
+  },
+  "o": {
+   "key": "officer",
+   "sprite": "kaiser_officer",
+   "name": "German officer",
+   "w": 12,
+   "h": 19,
+   "hp": 3.5,
+   "density": 0.0025,
+   "pts": 5000
+  }
+ },
+ "themes": {
+  "trenches": {
+   "sky": [
+    "#7d8590",
+    "#9aa0a3",
+    "#b9b8ad"
+   ],
+   "clouds": true,
+   "cloud": "#c9c9c2",
+   "hills": [
+    "#7a7a5a",
+    "#636349"
+   ],
+   "trees": "stump",
+   "split": 9999,
+   "left": {
+    "top": "#6f6043",
+    "hi": "#8a7a58",
+    "base": "#5a4630",
+    "lo": "#43341f"
+   },
+   "right": {
+    "top": "#6f6043",
+    "hi": "#8a7a58",
+    "base": "#5a4630",
+    "lo": "#43341f"
+   }
+  },
+  "forest": {
+   "sky": [
+    "#86a9c9",
+    "#a9c3d6",
+    "#cfdbe3"
+   ],
+   "sun": "#fff0b3",
+   "clouds": true,
+   "hills": [
+    "#4f7a45",
+    "#3e6638"
+   ],
+   "trees": "oak",
+   "treeColor": "#2f5a2a",
+   "split": 9999,
+   "left": {
+    "top": "#4f8a3a",
+    "hi": "#6fa852",
+    "base": "#5a4630",
+    "lo": "#43341f"
+   },
+   "right": {
+    "top": "#4f8a3a",
+    "hi": "#6fa852",
+    "base": "#5a4630",
+    "lo": "#43341f"
+   }
+  },
+  "drizzle": {
+   "sky": [
+    "#6f777f",
+    "#868d92",
+    "#a2a59e"
+   ],
+   "clouds": true,
+   "cloud": "#b2b4ad",
+   "hills": [
+    "#6a6a4e",
+    "#56563f"
+   ],
+   "trees": "stump",
+   "weather": "rain",
+   "split": 9999,
+   "left": {
+    "top": "#6f6043",
+    "hi": "#8a7a58",
+    "base": "#5a4630",
+    "lo": "#43341f"
+   },
+   "right": {
+    "top": "#6f6043",
+    "hi": "#8a7a58",
+    "base": "#5a4630",
+    "lo": "#43341f"
+   }
+  },
+  "argonne": {
+   "sky": [
+    "#7f8f99",
+    "#9eabb2",
+    "#c0c6c4"
+   ],
+   "clouds": true,
+   "cloud": "#d4d6d0",
+   "hills": [
+    "#53704a",
+    "#3f5a3a"
+   ],
+   "trees": "oak",
+   "treeColor": "#35502f",
+   "split": 9999,
+   "left": {
+    "top": "#5d6b3c",
+    "hi": "#7a8a52",
+    "base": "#5a4630",
+    "lo": "#43341f"
+   },
+   "right": {
+    "top": "#5d6b3c",
+    "hi": "#7a8a52",
+    "base": "#5a4630",
+    "lo": "#43341f"
+   },
+   "rock": [
+    "#6f6a5a",
+    "#565246",
+    "#8a8470"
+   ]
+  }
+ },
+ "levels": [
+  {
+   "id": "cantigny",
+   "name": "Cantigny",
+   "date": "May 28, 1918",
+   "theme": "trenches",
+   "width": 820,
+   "history": "Cantigny was a German-held village on a hill. Taking it was the first big attack by an American division in the war: the Doughboys captured it in about half an hour, then held it against German counterattacks.",
+   "tip": "Soldiers in trenches are hard to hit straight on. Lob grenades and mortar shells down into the trench.",
+   "fortX": 470,
+   "trenches": [
+    {
+     "x": 470,
+     "w": 32,
+     "d": 20
+    },
+    {
+     "x": 678,
+     "w": 32,
+     "d": 20
+    }
+   ],
+   "craters": [
+    {
+     "x": 290,
+     "r": 12
+    },
+    {
+     "x": 345,
+     "r": 9
+    },
+    {
+     "x": 452,
+     "r": 8
+    }
+   ],
+   "fort": [
+    "......S.g..S...",
+    "......======...",
+    "..S...C....C...",
+    "g.Sm-.CWo.KCSg."
+   ],
+   "extras": [
+    {
+     "type": "wire",
+     "x": 380
+    },
+    {
+     "type": "wire",
+     "x": 404
+    },
+    {
+     "type": "wire",
+     "x": 428
+    }
+   ],
+   "arsenal": {
+    "doughboy": 4,
+    "grenade": 3,
+    "mortar": 2,
+    "french75": 1
+   },
+   "wind": 2,
+   "stars": [
+    16000,
+    24000
+   ]
+  },
+  {
+   "id": "belleau",
+   "name": "Belleau Wood",
+   "date": "June 1918",
+   "theme": "forest",
+   "width": 900,
+   "history": "Belleau Wood was a thick forest full of boulders where German machine gunners hid. U.S. Marines crossed an open wheat field and fought tree by tree for three weeks, until a report announced the woods were “U.S. Marine Corps entirely.”",
+   "tip": "Marines are your machine-gun busters: launch one, then tap to charge. The gunners can't hit troops that fly high.",
+   "fortX": 440,
+   "trenches": [
+    {
+     "x": 696,
+     "w": 32,
+     "d": 20
+    }
+   ],
+   "craters": [
+    {
+     "x": 330,
+     "r": 10
+    }
+   ],
+   "fort": [
+    ".........L.g.L....",
+    "....m-g..~~~~~....",
+    "....RRR..W...W....",
+    "Sm-.RRR..WKo.W.Rg."
+   ],
+   "extras": [
+    {
+     "type": "wire",
+     "x": 392
+    },
+    {
+     "type": "wire",
+     "x": 416
+    }
+   ],
+   "arsenal": {
+    "marine": 4,
+    "doughboy": 2,
+    "grenade": 4,
+    "mortar": 2,
+    "french75": 1,
+    "barrage": 1
+   },
+   "wind": 2,
+   "stars": [
+    20000,
+    30000
+   ]
+  },
+  {
+   "id": "stmihiel",
+   "name": "Saint-Mihiel",
+   "date": "September 12, 1918",
+   "theme": "drizzle",
+   "width": 1000,
+   "history": "Saint-Mihiel was the first battle fought by a whole American army. Little Renault tanks trained by George S. Patton rumbled through the rain and mud while about 1,500 Allied airplanes filled the sky, the biggest air operation of the war.",
+   "tip": "The trench mortar fires at your tank, so take it out first. The biplane can bomb the observation balloon.",
+   "fortX": 470,
+   "trenches": [
+    {
+     "x": 470,
+     "w": 32,
+     "d": 20
+    },
+    {
+     "x": 630,
+     "w": 32,
+     "d": 20
+    }
+   ],
+   "craters": [
+    {
+     "x": 280,
+     "r": 11
+    },
+    {
+     "x": 330,
+     "r": 8
+    },
+    {
+     "x": 445,
+     "r": 10
+    },
+    {
+     "x": 760,
+     "r": 9
+    }
+   ],
+   "fort": [
+    ".............S...S",
+    ".....====...._____",
+    "..S..C..C....L...L",
+    "ggSS.Cm-C.w-.LKogL"
+   ],
+   "extras": [
+    {
+     "type": "wire",
+     "x": 362
+    },
+    {
+     "type": "wire",
+     "x": 386
+    },
+    {
+     "type": "wire",
+     "x": 410
+    },
+    {
+     "type": "wire",
+     "x": 434
+    },
+    {
+     "type": "balloon",
+     "x": 930,
+     "alt": 96
+    }
+   ],
+   "arsenal": {
+    "doughboy": 3,
+    "grenade": 2,
+    "mortar": 2,
+    "french75": 1,
+    "renault": 1,
+    "spad": 2
+   },
+   "wind": 3,
+   "stars": [
+    26000,
+    38000
+   ]
+  },
+  {
+   "id": "argonne",
+   "name": "Meuse-Argonne",
+   "date": "October 1918",
+   "theme": "argonne",
+   "width": 1100,
+   "history": "Alvin York, a Tennessee farmer and expert shot, was part of a small patrol sent to stop German machine guns in the Argonne Forest. He marched 132 prisoners back to the American lines and became famous as Sergeant York. Nearby, a wounded carrier pigeon named Cher Ami still delivered its message and won a French medal.",
+   "tip": "Sergeant York can pick off three defenders in one shot. Save the tunnel mine for the bunker on the hill.",
+   "fortX": 450,
+   "cliff": {
+    "x": 690,
+    "h": 32
+   },
+   "trenches": [
+    {
+     "x": 450,
+     "w": 32,
+     "d": 20
+    },
+    {
+     "x": 610,
+     "w": 32,
+     "d": 20
+    }
+   ],
+   "craters": [
+    {
+     "x": 300,
+     "r": 12
+    },
+    {
+     "x": 352,
+     "r": 8
+    },
+    {
+     "x": 586,
+     "r": 9
+    }
+   ],
+   "fort": [
+    "................S..g..S",
+    "......g......g..=======",
+    "..S..SSS.....CC.C.....C",
+    "g.Sm-SSS..w-.CC.CKm-oKC"
+   ],
+   "extras": [
+    {
+     "type": "wire",
+     "x": 350
+    },
+    {
+     "type": "wire",
+     "x": 374
+    },
+    {
+     "type": "wire",
+     "x": 398
+    },
+    {
+     "type": "wire",
+     "x": 422
+    },
+    {
+     "type": "balloon",
+     "x": 1050,
+     "alt": 100
+    }
+   ],
+   "arsenal": {
+    "doughboy": 3,
+    "york": 1,
+    "marine": 2,
+    "grenade": 2,
+    "mortar": 2,
+    "renault": 1,
+    "spad": 1,
+    "mine": 1,
+    "barrage": 1
+   },
+   "wind": 2,
+   "stars": [
+    32000,
+    46000
+   ]
+  }
+ ]
+}

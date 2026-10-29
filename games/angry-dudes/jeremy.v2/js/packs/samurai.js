@@ -1,0 +1,129 @@
+// Battle pack: Samurai Japan · Tokugawa Ieyasu's sieges of Odawara (1590) and Osaka Castle (1614-1615)
+// (pack format is described at the top of ww2.js; `cliff` raises the ground under the castle keep)
+(window.ANGRY_PACKS = window.ANGRY_PACKS || []).push({
+  id: "samurai",
+  name: "Samurai Japan",
+  years: "1590–1615",
+  side: "Tokugawa army",
+  foe: "Castle defenders",
+  icon: "samurai",
+  blurb: "Charge with samurai, fire matchlock volleys, push the turtle cart up to the walls and bring down Osaka Castle.",
+  props: { bunker: "bamboo", pennant: ["#26282e", "#efe9d8"] },
+
+  units: {
+    ashigaru:  { name: "Ashigaru", kind: "sling", sprite: "ashigaru", w: 12, h: 16, density: 0.003, best: "red_ashigaru",
+                 tap: "shout", shout: "EI! EI! OH!", hint: "Foot soldiers with long spears. Drag back to aim, tap in the air to shout the war cry." },
+    samurai:   { name: "Samurai", kind: "sling", sprite: "samurai", w: 12, h: 16, density: 0.0045, power: 1.4, best: "red_teppo",
+                 tap: "dash", dash: 16, pierce: 1, pierceDmg: 5, shout: "CHARGE!",
+                 hint: "An armored warrior. Tap mid-flight and he charges, slicing through the first thing he hits." },
+    teppo:     { name: "Teppo volley", kind: "fire", sprite: "proj_rifleball", gunner: "teppo", w: 4, h: 2, density: 0.006, best: "red_teppo",
+                 lift: 0.97, soft: true, power: 4, stick: true, speed: 1.2, spread: { n: 3, deg: 3 }, sound: "shot",
+                 hint: "Matchlock guns fire three shots at once. Deadly against soldiers, useless against stone." },
+    firebomb:  { name: "Fire bomb", kind: "fire", sprite: "proj_firebomb", gunner: "bomb_thrower", w: 7, h: 8, density: 0.004, best: "bamboo",
+                 fuse: 2600, bounce: 0.35, spin: 0.2, faceVel: false, boom: { r: 32, p: 3.4 },
+                 hint: "Light the fuse and throw. It bounces, then bursts after a few seconds." },
+    cannon:    { name: "Cannon", kind: "fire", sprite: "proj_cannonball", gunner: "cannon", w: 6, h: 6, round: true, density: 0.03, best: "plaster",
+                 power: 2.4, bounce: 0.25, speed: 1.1,
+                 hint: "Big guns bought from European traders. Solid iron balls smash plaster walls." },
+    turtle:    { name: "Turtle cart", kind: "drive", sprite: "turtle_cart", w: 40, h: 16, density: 0.005, best: "door",
+                 speed: 0.8, push: 0.3, hp: 10, tap: "unload", unload: { unit: "ashigaru", count: 3, vx: 2.4, vy: -9, spread: 0.9 },
+                 shout: "ATTACK!", hint: "A shielded cart, long enough to roll over a dry moat. Tap to push it to the walls, then tap to send three soldiers over." },
+    bombard:   { name: "Bombardment", kind: "air", style: "rain", icon: "cannon", count: 5, gap: 18, every: 240, vx: 3, vy: 0, say: "FIRE!", sound: "thump",
+                 proj: { sprite: "proj_cannonball", w: 6, h: 6, round: true, density: 0.03, power: 2.2, bounce: 0.2 },
+                 hint: "Tap the castle and every cannon in the army fires at it." }
+  },
+  order: ["ashigaru", "samurai", "teppo", "firebomb", "cannon", "turtle", "bombard"],
+
+  blocks: {
+    I: { key: "ishigaki", name: "Stone base", hp: 7, density: 0.005, pts: 500, debris: ["#9a9384", "#c4bdb0"] },
+    P: { key: "plaster", name: "Plaster wall", hp: 3.5, density: 0.003, pts: 400, debris: ["#efe9d8", "#3a3546"] },
+    B: { key: "bamboo", name: "Bamboo fence", hp: 1.6, density: 0.0012, pts: 100, debris: ["#7ab04f", "#c9b46c"] },
+    E: { key: "earth", name: "Earthwork", hp: 4, density: 0.004, pts: 300, debris: ["#7a5634", "#5f6b34"] },
+    W: { key: "wood", name: "Planks", hp: 2.2, density: 0.0015, pts: 200, debris: ["#a8693a", "#5e3a1d"] },
+    D: { key: "door", name: "Gate", hp: 3, density: 0.002, pts: 300, debris: ["#a8693a", "#26282e"] },
+    K: { key: "keg", name: "Powder keg", hp: 0.5, density: 0.002, pts: 300, debris: ["#a8693a", "#26282e"], explodes: { r: 38, p: 4 }, fire: true },
+    "=": { key: "roof", sprite: "roof", slab: true, hp: 3.5, density: 0.003, pts: 400, debris: ["#3a3546", "#646d7b"] },
+    "~": { key: "wood", sprite: "wood", slab: true, hp: 2.5, density: 0.0015, pts: 300, debris: ["#a8693a", "#5e3a1d"] }
+  },
+  defenders: {
+    a: { key: "red_ashigaru", name: "Ashigaru", w: 12, h: 17, hp: 1.6, density: 0.002, pts: 500 },
+    t: { key: "red_teppo", name: "Gunner", w: 12, h: 17, hp: 1.5, density: 0.002, pts: 1000,
+         react: { type: "shooter", range: 110, height: 55, say: "BANG!", sound: "shot", muzzle: { x: -7, y: -8 } } },
+    c: { key: "jp_cannon", name: "Castle cannon", w: 26, h: 13, hp: 3.5, density: 0.006, pts: 3000, cells: 2,
+         react: { type: "antitank", every: 1900, range: 320, muzzle: { x: -15, y: -6 }, vx: -12, vy: -0.5,
+                  shell: { sprite: "proj_cannonball", w: 6, h: 6, round: true, density: 0.01, enemy: true, impact: true, boom: { r: 16, p: 2.5 } } } },
+    h: { key: "hojo_lord", name: "Hōjō lord", w: 12, h: 17, hp: 4, density: 0.0025, pts: 5000 },
+    s: { key: "sanada", name: "Sanada Yukimura", w: 12, h: 17, hp: 4.5, density: 0.0025, pts: 5000 },
+    g: { key: "toyo_general", name: "Toyotomi general", w: 12, h: 17, hp: 4, density: 0.0025, pts: 5000 }
+  },
+
+  themes: {
+    odawara: { sky: ["#6fb4ea", "#98caf0", "#c9e3f6"], sun: "#ffe25a", clouds: true, hills: ["#7fae86", "#5f9468"], trees: "pine", treeColor: "#2f5a3a",
+               water: "#3f6f9a", waterHi: "#9cc4e0", split: 9999,
+               left:  { top: "#5aa548", hi: "#8bd06a", base: "#7a5634", lo: "#5a3c22" },
+               right: { top: "#5aa548", hi: "#8bd06a", base: "#7a5634", lo: "#5a3c22" } },
+    winter:  { sky: ["#8a96a6", "#a6b0bd", "#c5cdd7"], clouds: false, hills: ["#c9d2da", "#aab6bf"], trees: "pine", weather: "snow", split: 9999,
+               left:  { top: "#f4f7fb", hi: "#ffffff", base: "#8a6a45", lo: "#6b5034" },
+               right: { top: "#f4f7fb", hi: "#ffffff", base: "#8a6a45", lo: "#6b5034" } },
+    osaka:   { sky: ["#e9a46b", "#f2c38c", "#f8e0b5"], sun: "#ffd27a", clouds: true, cloud: "#fbe6c8", hills: ["#8c8a5a", "#6f6e48"], trees: "pine", treeColor: "#3e4a32",
+               split: 9999, rock: ["#9a9384", "#7a7468", "#c4bdb0"],
+               left:  { top: "#7a9a3c", hi: "#a4be5c", base: "#7a5634", lo: "#5a3c22" },
+               right: { top: "#7a9a3c", hi: "#a4be5c", base: "#7a5634", lo: "#5a3c22" } }
+  },
+
+  levels: [
+    {
+      id: "odawara", name: "Odawara Castle", date: "1590", theme: "odawara", width: 820,
+      history: "In 1590, Toyotomi Hideyoshi surrounded Odawara Castle, home of the Hōjō clan, with a giant army. Tokugawa Ieyasu commanded part of it. The siege lasted about three months with very little fighting. When the Hōjō finally gave up, all of Japan was united under one ruler for the first time in over 100 years.",
+      tip: "There's a moat in front of the walls, so don't come up short! Teppo volleys knock defenders off the walls.",
+      fortX: 476,
+      trenches: [{ x: 400, w: 64, d: 24, water: true }],
+      fort: [
+        ".....h....",
+        "....===...",
+        "t...P.P...",
+        "==..P.P..a",
+        "II..III.BB",
+        "II.aIII.BB"
+      ],
+      arsenal: { ashigaru: 3, samurai: 1, teppo: 2, firebomb: 2 },
+      wind: 0
+    },
+    {
+      id: "sanadamaru", name: "Sanada-maru", date: "Winter 1614", theme: "winter", width: 900,
+      history: "When Tokugawa Ieyasu besieged Osaka Castle in the winter of 1614, a samurai named Sanada Yukimura built a small earth fort called the Sanada-maru in front of it. His gunners drove back attack after attack, and he became one of the most famous samurai in Japanese history.",
+      tip: "Gunners shoot down troops that fly low. Lob fire bombs over the earth walls, and roll the turtle cart across the dry moat.",
+      fortX: 470,
+      trenches: [{ x: 420, w: 32, d: 22 }],
+      fort: [
+        "...t.......s...",
+        "..BBB....~~~~..",
+        "a........W..W..",
+        "EEEEE.c-.W.aW.t",
+        "EEEEE.EE.EEEEEE"
+      ],
+      arsenal: { ashigaru: 2, samurai: 2, teppo: 2, firebomb: 3, cannon: 1, turtle: 1 },
+      wind: 2
+    },
+    {
+      id: "osaka", name: "Osaka Castle", date: "Summer 1615", theme: "osaka", width: 1000,
+      history: "Ieyasu came back to Osaka in the summer of 1615. As part of the winter peace deal, the castle's outer moats had been filled in, so this time his army could reach the great keep. After Osaka fell, the Tokugawa family ruled a peaceful Japan for more than 250 years.",
+      tip: "The castle cannon on the stone base fires at your turtle cart. Knock it out with your own cannon first.",
+      fortX: 480,
+      cliff: { x: 704, h: 32 },
+      fort: [
+        "...................=====...",
+        "...................P.g.P...",
+        "...................P...P...",
+        "..................=======..",
+        "..................Pt.PaKP..",
+        "....t.............P..P..P..",
+        "...~~~...........=========.",
+        "BB.DD.E..........P...P...P.",
+        "BBaDD.E.......c-.P.t.P.a.P."
+      ],
+      arsenal: { ashigaru: 2, samurai: 2, teppo: 1, firebomb: 1, cannon: 2, turtle: 1, bombard: 1 },
+      wind: 2
+    }
+  ]
+});

@@ -1,0 +1,610 @@
+{
+ "id": "rome",
+ "name": "Roman Legions",
+ "years": "213–51 BC",
+ "side": "Roman legions",
+ "foe": "Greeks and Gauls",
+ "icon": "centurion",
+ "blurb": "Charge with legionaries, lock shields in a testudo, skewer walls with the ballista and outsmart Archimedes' Claw.",
+ "props": {
+  "bunker": "turf",
+  "pennant": [
+   "#b8322a",
+   "#ffd23f"
+  ]
+ },
+ "units": {
+  "legionary": {
+   "name": "Legionary",
+   "kind": "sling",
+   "sprite": "legionary",
+   "w": 12,
+   "h": 16,
+   "density": 0.003,
+   "best": "gaul",
+   "tap": "dash",
+   "dash": 14,
+   "shout": "CHARGE!",
+   "hint": "Launch, then tap to charge forward behind your shield."
+  },
+  "centurion": {
+   "name": "Centurion",
+   "kind": "sling",
+   "sprite": "centurion",
+   "w": 12,
+   "h": 17,
+   "density": 0.004,
+   "best": "slinger",
+   "tap": "split",
+   "splitInto": "legionary",
+   "shout": "FORM UP!",
+   "hint": "Launch, then tap: two legionaries join him in mid-air."
+  },
+  "pilum": {
+   "name": "Pilum",
+   "kind": "fire",
+   "sprite": "proj_pilum",
+   "gunner": "pilum_thrower",
+   "w": 16,
+   "h": 3,
+   "density": 0.004,
+   "best": "druid",
+   "pierce": 2,
+   "pierceDmg": 3,
+   "power": 1.5,
+   "hint": "A Roman javelin. It punches through straw and wood."
+  },
+  "ballista": {
+   "name": "Ballista",
+   "kind": "fire",
+   "sprite": "proj_bolt",
+   "gunner": "ballista",
+   "w": 14,
+   "h": 3,
+   "density": 0.005,
+   "best": "log",
+   "lift": 0.85,
+   "pierce": 3,
+   "pierceDmg": 4,
+   "power": 1.5,
+   "speed": 1.1,
+   "sound": "whoosh",
+   "hint": "A giant crossbow. The bolt flies flat and skewers whatever is in the way."
+  },
+  "onager": {
+   "name": "Onager",
+   "kind": "fire",
+   "sprite": "proj_boulder",
+   "gunner": "onager",
+   "w": 10,
+   "h": 10,
+   "round": true,
+   "density": 0.02,
+   "best": "rampart",
+   "power": 2.2,
+   "bounce": 0.15,
+   "speed": 1.05,
+   "sound": "whoosh",
+   "hint": "Flings a heavy boulder. No explosion, just SMASH!"
+  },
+  "ram": {
+   "name": "Battering ram",
+   "kind": "drive",
+   "sprite": "ram",
+   "w": 36,
+   "h": 12,
+   "ox": -2,
+   "density": 0.006,
+   "best": "palisade",
+   "speed": 0.9,
+   "push": 0.3,
+   "hp": 8,
+   "tap": "ram",
+   "ramSpeed": 2.8,
+   "shout": "HEAVE!",
+   "hint": "Tap to roll it out, then tap to swing the ram."
+  },
+  "testudo": {
+   "name": "Testudo",
+   "kind": "drive",
+   "sprite": "testudo",
+   "w": 38,
+   "h": 18,
+   "density": 0.006,
+   "best": "palisade",
+   "speed": 0.7,
+   "push": 0.3,
+   "hp": 12,
+   "tap": "unload",
+   "unload": {
+    "unit": "legionary",
+    "count": 3,
+    "vx": 2.4,
+    "vy": -9,
+    "spread": 0.9
+   },
+   "shout": "CHARGE!",
+   "hint": "Legionaries lock their shields into a tortoise. Tap to march it to the walls, then tap again and three of them break out."
+  },
+  "archers": {
+   "name": "Archers",
+   "kind": "air",
+   "style": "rain",
+   "icon": "archer",
+   "count": 14,
+   "gap": 6,
+   "every": 60,
+   "vx": 1.8,
+   "vy": 0.5,
+   "say": "LOOSE!",
+   "proj": {
+    "sprite": "proj_arrow",
+    "w": 10,
+    "h": 3,
+    "density": 0.002,
+    "soft": true,
+    "power": 3,
+    "stick": true
+   },
+   "hint": "Tap a spot and a storm of arrows rains down on it."
+  }
+ },
+ "order": [
+  "legionary",
+  "centurion",
+  "pilum",
+  "ballista",
+  "onager",
+  "ram",
+  "testudo",
+  "archers"
+ ],
+ "blocks": {
+  "R": {
+   "key": "rampart",
+   "name": "Stone wall",
+   "hp": 5.5,
+   "density": 0.004,
+   "pts": 500,
+   "debris": [
+    "#a39b8b",
+    "#6f685d"
+   ]
+  },
+  "L": {
+   "key": "log",
+   "name": "Timber",
+   "hp": 2.6,
+   "density": 0.0018,
+   "pts": 200,
+   "debris": [
+    "#a8693a",
+    "#d9bc80"
+   ]
+  },
+  "T": {
+   "key": "thatch",
+   "name": "Thatch",
+   "hp": 1,
+   "density": 0.0008,
+   "pts": 100,
+   "debris": [
+    "#d9b44a",
+    "#9c7a2c"
+   ]
+  },
+  "P": {
+   "key": "palisade",
+   "name": "Palisade",
+   "hp": 3,
+   "density": 0.003,
+   "pts": 300,
+   "debris": [
+    "#a8693a",
+    "#5e3a1d"
+   ]
+  },
+  "J": {
+   "key": "pitchpot",
+   "name": "Pot of pitch",
+   "hp": 0.5,
+   "density": 0.002,
+   "pts": 200,
+   "debris": [
+    "#26282e",
+    "#ff6a00"
+   ],
+   "explodes": {
+    "r": 34,
+    "p": 3.4
+   },
+   "fire": true
+  },
+  "=": {
+   "key": "rampart",
+   "sprite": "rampart",
+   "slab": true,
+   "hp": 6,
+   "density": 0.004,
+   "pts": 800,
+   "debris": [
+    "#a39b8b",
+    "#6f685d"
+   ]
+  },
+  "~": {
+   "key": "log",
+   "sprite": "log",
+   "slab": true,
+   "hp": 2.8,
+   "density": 0.0018,
+   "pts": 300,
+   "debris": [
+    "#a8693a",
+    "#d9bc80"
+   ]
+  }
+ },
+ "defenders": {
+  "g": {
+   "key": "gaul",
+   "name": "Gallic warrior",
+   "w": 12,
+   "h": 17,
+   "hp": 1.6,
+   "density": 0.002,
+   "pts": 500
+  },
+  "s": {
+   "key": "slinger",
+   "name": "Slinger",
+   "w": 12,
+   "h": 17,
+   "hp": 1.5,
+   "density": 0.002,
+   "pts": 1000,
+   "react": {
+    "type": "shooter",
+    "range": 85,
+    "height": 40,
+    "say": "THWACK!",
+    "sound": "thwack",
+    "muzzle": {
+     "x": 5,
+     "y": -16
+    }
+   }
+  },
+  "d": {
+   "key": "druid",
+   "name": "Druid",
+   "w": 12,
+   "h": 17,
+   "hp": 1.5,
+   "density": 0.002,
+   "pts": 2000,
+   "react": {
+    "type": "heal",
+    "amount": 1,
+    "say": "HEALED!"
+   }
+  },
+  "v": {
+   "key": "chief",
+   "name": "Vercingetorix",
+   "w": 12,
+   "h": 17,
+   "hp": 3.5,
+   "density": 0.0025,
+   "pts": 5000
+  },
+  "u": {
+   "key": "lucterius",
+   "sprite": "chief",
+   "name": "Lucterius",
+   "w": 12,
+   "h": 17,
+   "hp": 3.5,
+   "density": 0.0025,
+   "pts": 5000
+  },
+  "h": {
+   "key": "hoplite",
+   "name": "Greek hoplite",
+   "w": 12,
+   "h": 17,
+   "hp": 2,
+   "density": 0.0025,
+   "pts": 500
+  },
+  "k": {
+   "key": "claw",
+   "name": "The Claw",
+   "w": 26,
+   "h": 30,
+   "hp": 4,
+   "density": 0.004,
+   "pts": 3000,
+   "cells": 2,
+   "react": {
+    "type": "claw",
+    "range": 72,
+    "every": 2500,
+    "lift": 13,
+    "damage": 2,
+    "say": "THE CLAW!"
+   }
+  },
+  "m": {
+   "key": "mangonel",
+   "name": "Catapult",
+   "w": 28,
+   "h": 16,
+   "hp": 3,
+   "density": 0.005,
+   "pts": 2000,
+   "cells": 2,
+   "react": {
+    "type": "antitank",
+    "every": 2200,
+    "range": 360,
+    "muzzle": {
+     "x": -12,
+     "y": -18
+    },
+    "vx": -9,
+    "vy": -6,
+    "shell": {
+     "sprite": "proj_boulder",
+     "w": 10,
+     "h": 10,
+     "round": true,
+     "density": 0.02,
+     "enemy": true
+    }
+   }
+  },
+  "A": {
+   "key": "archimedes",
+   "name": "Archimedes",
+   "w": 12,
+   "h": 17,
+   "hp": 3,
+   "density": 0.0025,
+   "pts": 5000
+  }
+ },
+ "themes": {
+  "rain": {
+   "sky": [
+    "#6f7b8a",
+    "#8a95a3",
+    "#a5afbb"
+   ],
+   "clouds": true,
+   "cloud": "#c3cad3",
+   "hills": [
+    "#5d7a52",
+    "#4a6642"
+   ],
+   "trees": "oak",
+   "treeColor": "#3f5f36",
+   "weather": "rain",
+   "split": 9999,
+   "left": {
+    "top": "#5f7a3a",
+    "hi": "#7d9a4c",
+    "base": "#6b4a2b",
+    "lo": "#4f361f"
+   },
+   "right": {
+    "top": "#5f7a3a",
+    "hi": "#7d9a4c",
+    "base": "#6b4a2b",
+    "lo": "#4f361f"
+   }
+  },
+  "sicily": {
+   "sky": [
+    "#5fb0ec",
+    "#8fcaf2",
+    "#c8e6f7"
+   ],
+   "sun": "#ffe25a",
+   "clouds": true,
+   "hills": [
+    "#b5b87a",
+    "#969a5e"
+   ],
+   "trees": "pine",
+   "treeColor": "#4a6a3a",
+   "split": 9999,
+   "left": {
+    "top": "#a9a65a",
+    "hi": "#c9c47a",
+    "base": "#9a7a4a",
+    "lo": "#7a5c34"
+   },
+   "right": {
+    "top": "#a9a65a",
+    "hi": "#c9c47a",
+    "base": "#9a7a4a",
+    "lo": "#7a5c34"
+   }
+  },
+  "hillfort": {
+   "sky": [
+    "#76b6ea",
+    "#a3cff2",
+    "#d4e9f7"
+   ],
+   "sun": "#ffe25a",
+   "clouds": true,
+   "hills": [
+    "#9cc88a",
+    "#7cae6c"
+   ],
+   "trees": "oak",
+   "split": 9999,
+   "left": {
+    "top": "#5aa548",
+    "hi": "#8bd06a",
+    "base": "#7a5634",
+    "lo": "#5a3c22"
+   },
+   "right": {
+    "top": "#5aa548",
+    "hi": "#8bd06a",
+    "base": "#7a5634",
+    "lo": "#5a3c22"
+   },
+   "rock": [
+    "#8a6a45",
+    "#6b5034",
+    "#a3825a"
+   ],
+   "water": "#3f78b5"
+  }
+ },
+ "levels": [
+  {
+   "id": "syracuse",
+   "name": "Syracuse",
+   "date": "213–212 BC",
+   "theme": "sicily",
+   "width": 820,
+   "history": "The Romans attacked the Greek city of Syracuse by land and sea, but the city had a secret weapon: the great inventor Archimedes. His catapults hurled huge stones, and a giant crane called the Claw grabbed Roman ships and tipped them over. After about two years, the Romans finally sneaked over the walls during a festival.",
+   "tip": "The Claw grabs anything with wheels or legs that rolls up to the wall. Knock it out with the onager before you send the testudo.",
+   "fortX": 470,
+   "fort": [
+    "hk-...m-.A...",
+    "RRR...=====..",
+    "RRR...R...L.h",
+    "RRR...R...L.L",
+    "RRR...R.h.L.L"
+   ],
+   "arsenal": {
+    "legionary": 4,
+    "centurion": 1,
+    "pilum": 2,
+    "onager": 2,
+    "testudo": 1
+   },
+   "wind": 1
+  },
+  {
+   "id": "avaricum",
+   "name": "Avaricum",
+   "date": "52 BC",
+   "theme": "rain",
+   "history": "Caesar's legions spent weeks building a huge ramp and siege towers up to the walls of Avaricum. They finally attacked in a pouring rainstorm, when the Gallic guards least expected it.",
+   "tip": "The druid heals his friends after every turn. Knock him out first with a pilum.",
+   "fortX": 470,
+   "fort": [
+    "s..TTT.d.",
+    "R..~~~.L.",
+    "R..L.L.Lg",
+    "RR.LgL.LL"
+   ],
+   "extras": [
+    {
+     "type": "palisade",
+     "x": 412
+    },
+    {
+     "type": "palisade",
+     "x": 428
+    }
+   ],
+   "arsenal": {
+    "legionary": 3,
+    "centurion": 1,
+    "pilum": 2,
+    "onager": 1,
+    "ram": 1
+   },
+   "wind": 2,
+   "stars": [
+    14000,
+    20000
+   ]
+  },
+  {
+   "id": "alesia",
+   "name": "Alesia",
+   "date": "52 BC",
+   "theme": "hillfort",
+   "history": "At Alesia, Caesar trapped Vercingetorix's army on a hilltop by building a ring of walls all the way around it. In the end, Vercingetorix rode out and laid his weapons at Caesar's feet.",
+   "tip": "The slinger knocks low flyers out of the sky. Lob your troops high, or skewer him with the ballista.",
+   "cliff": {
+    "x": 430,
+    "h": 40
+   },
+   "fortX": 470,
+   "fort": [
+    "....v....",
+    "..=====..",
+    "..R...R..",
+    "s.R.d.R.g",
+    "RRRLLLRPL"
+   ],
+   "extras": [
+    {
+     "type": "palisade",
+     "x": 400
+    }
+   ],
+   "arsenal": {
+    "legionary": 3,
+    "centurion": 1,
+    "pilum": 2,
+    "ballista": 2,
+    "onager": 1,
+    "archers": 1
+   },
+   "wind": 3,
+   "stars": [
+    16000,
+    24000
+   ]
+  },
+  {
+   "id": "uxellodunum",
+   "name": "Uxellodunum",
+   "date": "51 BC",
+   "theme": "hillfort",
+   "width": 920,
+   "history": "Uxellodunum, a town perched on a steep hill, was one of the last places still fighting Caesar after the Gallic chiefs Lucterius and Drappes gathered fighters there. Its people fetched their water from a spring at the bottom. Caesar's soldiers built a tall tower to keep them away from it, then secretly dug tunnels underneath and drained the spring, and the town had to surrender.",
+   "tip": "Slingers guard the cliff top. The testudo can't cross the spring, so lob your troops over it.",
+   "fortX": 472,
+   "trenches": [
+    {
+     "x": 536,
+     "w": 48,
+     "d": 18,
+     "water": true
+    }
+   ],
+   "cliff": {
+    "x": 600,
+    "h": 48
+   },
+   "fort": [
+    "........s...T....T.u.s",
+    "........PP.~~~..~~~~~L",
+    "P.P.....PP.L.L..L...LL",
+    "PgP.....PP.L.Lg.L.d.LL"
+   ],
+   "arsenal": {
+    "legionary": 3,
+    "centurion": 1,
+    "pilum": 2,
+    "ballista": 1,
+    "onager": 1,
+    "testudo": 1,
+    "archers": 1
+   },
+   "wind": 2
+  }
+ ]
+}
