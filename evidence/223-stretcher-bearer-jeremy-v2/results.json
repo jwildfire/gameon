@@ -1,0 +1,198 @@
+{
+  "spec": "223-stretcher-bearer-jeremy-v2",
+  "passed": true,
+  "headline": "PASS: 9 of 9 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-29T21:15:50.480Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "5507b4b",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/223-stretcher-bearer-jeremy-v2.spec.mjs",
+  "checks": [
+    {
+      "check": "jeremy.v2 opens to its title and starts a day, with nothing from the internet but jeremy.v1's fonts",
+      "notes": [
+        "desktop: clicked Report for duty and Move out: day 1 started and its clock ran (06:04 → 06:20); outside requests: fonts.googleapis.com, fonts.gstatic.com (Google Fonts, as jeremy.v1); no sideways scrolling",
+        "phone: tapped Report for duty and Move out: day 1 started and its clock ran (06:02 → 06:11); outside requests: fonts.googleapis.com, fonts.gstatic.com (Google Fonts, as jeremy.v1); no sideways scrolling"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "title-desktop.jpg",
+          "playing-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "title-phone.jpg",
+          "playing-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "Report for duty is on screen without scrolling (jeremy.v1's was below the bottom), and so are each screen's buttons",
+      "notes": [
+        "desktop: 1280x800: Report for duty at y 618–666 (jeremy.v1: y 621–663, on screen); Move out ends at 724, Back to the front at 623",
+        "phone: 375x812: Report for duty at y 754–802 (jeremy.v1: y 965–1007, below the screen); Move out ends at 802, Back to the front at 689. 812x375: Report for duty at y 317–365 (jeremy.v1: y 575–617, below the screen); Move out ends at 365, Back to the front at 365. 667x375: Report for duty at y 317–365 (jeremy.v1: y 644–686, below the screen); Move out ends at 365, Back to the front at 365"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "title-start-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "every screen meets the phone bar: Orders, Sound and Pause 48 px tall and 8 px apart, the action buttons 8 px apart, the screen buttons 48 px tall",
+      "notes": [
+        "desktop: 1280x800: #ordersBtn 62x48, #muteBtn 74x48, #pauseBtn 55x48, [data-a=resume] 189x48, #screen [data-a=new] 167x48, [data-a=next] 114x48, [data-a=retry] 158x48, #screen [data-a=new] 167x48, #screen [data-a=new] 122x48, Orders/Sound/Pause 8 and 8 px apart; touchTargets() found no problems on: title 1 (smallest 48 px), orders slip 1 (smallest 48 px), playing 3 (smallest 48 px), orders open 3 (smallest 48 px), paused 2 (smallest 48 px), night report 1 (smallest 48 px), casualty notice 2 (smallest 48 px), armistice 1 (smallest 48 px). Clicked: Report for duty, Move out, Sound (Sound off), Orders (open and shut), Pause, Back to the front, Start a new war",
+        "phone: 375x812: #ordersBtn 62x48, #muteBtn 74x48, #pauseBtn 55x48, action buttons 8 px apart, [data-a=resume] 189x48, #screen [data-a=new] 167x48, [data-a=next] 114x48, [data-a=retry] 158x48, #screen [data-a=new] 167x48, #screen [data-a=new] 122x48, Orders/Sound/Pause 8 and 8 px apart; touchTargets() found no problems on: title 1 (smallest 48 px), orders slip 1 (smallest 48 px), playing 11 (smallest 48 px), orders open 11 (smallest 48 px), paused 2 (smallest 48 px), night report 1 (smallest 48 px), casualty notice 2 (smallest 48 px), armistice 1 (smallest 48 px). 812x375: #ordersBtn 62x48, #muteBtn 74x48, #pauseBtn 55x48, action buttons 8 px apart, [data-a=resume] 189x48, #screen [data-a=new] 167x48, [data-a=next] 114x48, [data-a=retry] 158x48, #screen [data-a=new] 167x48, #screen [data-a=new] 122x48, Orders/Sound/Pause 8 and 8 px apart; touchTargets() found no problems on: title 1 (smallest 48 px), orders slip 1 (smallest 48 px), playing 11 (smallest 48 px), orders open 11 (smallest 48 px), paused 2 (smallest 48 px), night report 1 (smallest 48 px), casualty notice 2 (smallest 48 px), armistice 1 (smallest 48 px). 667x375: #ordersBtn 62x48, #muteBtn 74x48, #pauseBtn 55x48, action buttons 8 px apart, [data-a=resume] 189x48, #screen [data-a=new] 167x48, [data-a=next] 114x48, [data-a=retry] 158x48, #screen [data-a=new] 167x48, #screen [data-a=new] 122x48, Orders/Sound/Pause 8 and 8 px apart; touchTargets() found no problems on: title 1 (smallest 48 px), orders slip 1 (smallest 48 px), playing 11 (smallest 48 px), orders open 11 (smallest 48 px), paused 2 (smallest 48 px), night report 1 (smallest 48 px), casualty notice 2 (smallest 48 px), armistice 1 (smallest 48 px). Tapped: Report for duty, Move out, Mask (mask on), Sound (Sound off), Orders (open and shut), Pause, Back to the front, Start a new war"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "playing-bar-desktop.jpg",
+          "casualty-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "playing-bar-phone.jpg",
+          "casualty-phone.jpg",
+          "sideways-orders-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "WASD and the arrow keys both move the medic, Enter and Space press the screen's button, and P or Escape pauses",
+      "notes": [
+        "desktop: Enter pressed Report for duty and Space pressed Move out. Moves from the same spot (dx,dy): d 62,0; ArrowRight 175,0; a -83,0; ArrowLeft -183,0; w 0,-161; ArrowUp 0,-111; s 0,127; ArrowDown 0,175. P paused and Escape went back; Escape paused and P went back"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "keys-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "skipped",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "the HUD keeps everything jeremy.v1 showed whole: nothing is cut off, smaller or covered, side by side at each size",
+      "notes": [
+        "desktop: 1280x800: 25 HUD parts, 25 shown whole in jeremy.v1 and 25 in jeremy.v2; jeremy.v1's controls overlapped: ordersBtn/score, muteBtn/score. 1280x800 with Orders open: 24 HUD parts, 24 shown whole in jeremy.v1 and 24 in jeremy.v2; jeremy.v1's controls overlapped: ordersBtn/score, muteBtn/score",
+        "phone: 375x812: 24 HUD parts, 23 shown whole in jeremy.v1 and 24 in jeremy.v2 (uncovered now: score 95%→100%); jeremy.v1's controls overlapped: ordersBtn/score. 375x812 with Orders open: 25 HUD parts, 24 shown whole in jeremy.v1 and 25 in jeremy.v2 (uncovered now: score 95%→100%); jeremy.v1's controls overlapped: ordersBtn/score. 812x375: 24 HUD parts, 18 shown whole in jeremy.v1 and 24 in jeremy.v2 (uncovered now: status 94%→100%, .inv > div 87%→100%, .inv > div 63%→100%, miniWrap 89%→100%, mini 87%→100%, score 22%→100%); jeremy.v1's controls overlapped: ordersBtn/tMask, ordersBtn/tCoop, ordersBtn/score, muteBtn/tMed, muteBtn/tReload, muteBtn/tRun, muteBtn/tFire, muteBtn/score, pauseBtn/tReload, pauseBtn/tFire, stick/status, tMask/miniWrap, tMask/score, tMed/miniWrap, tReload/miniWrap. 812x375 with Orders open: 24 HUD parts, 18 shown whole in jeremy.v1 and 24 in jeremy.v2 (uncovered now: status 94%→100%, .inv > div 87%→100%, .inv > div 63%→100%, miniWrap 89%→100%, mini 87%→100%, score 22%→100%); jeremy.v1's controls overlapped: ordersBtn/tMask, ordersBtn/tCoop, ordersBtn/score, muteBtn/tMed, muteBtn/tReload, muteBtn/tRun, muteBtn/tFire, muteBtn/score, pauseBtn/tReload, pauseBtn/tFire, stick/status, tMask/miniWrap, tMask/score, tMed/miniWrap, tReload/miniWrap. 667x375: 24 HUD parts, 18 shown whole in jeremy.v1 and 24 in jeremy.v2 (uncovered now: status 94%→100%, .inv > div 87%→100%, .inv > div 63%→100%, miniWrap 89%→100%, mini 87%→100%, score 22%→100%); jeremy.v1's controls overlapped: ordersBtn/tMask, ordersBtn/tCoop, ordersBtn/score, muteBtn/tMed, muteBtn/tReload, muteBtn/tRun, muteBtn/tFire, muteBtn/score, pauseBtn/tReload, pauseBtn/tFire, stick/status, tMask/miniWrap, tMask/score, tMed/miniWrap, tReload/miniWrap. 667x375 with Orders open: 24 HUD parts, 18 shown whole in jeremy.v1 and 24 in jeremy.v2 (uncovered now: status 94%→100%, .inv > div 87%→100%, .inv > div 63%→100%, miniWrap 89%→100%, mini 87%→100%, score 22%→100%); jeremy.v1's controls overlapped: ordersBtn/tMask, ordersBtn/tCoop, ordersBtn/score, muteBtn/tMed, muteBtn/tReload, muteBtn/tRun, muteBtn/tFire, muteBtn/score, pauseBtn/tReload, pauseBtn/tFire, stick/status, tMask/miniWrap, tMask/score, tMed/miniWrap, tReload/miniWrap"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "hud-1280-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "hud-375-phone.jpg",
+          "hud-812-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the controls cover no more of the battlefield than jeremy.v1's, beyond the 18 px the idea adds to Orders, Sound and Pause, and none moves into the middle",
+      "notes": [
+        "desktop: 1280x800: controls cover 5730 px² (0.6%) in jeremy.v1 and 9168 px² (0.9%) in jeremy.v2, +3438 (the 48 px heights add up to 3439); in the middle quarter of the screen 0 → 0 px²",
+        "phone: 375x812: controls cover 44250 px² (14.5%) in jeremy.v1 and 47792 px² (15.7%) in jeremy.v2, +3542 (the 48 px heights add up to 3543); in the middle quarter of the screen 0 → 0 px². 812x375: controls cover 52686 px² (17.3%) in jeremy.v1 and 47792 px² (15.7%) in jeremy.v2, -4894; in the middle quarter of the screen 1119 → 0 px². 667x375: controls cover 52686 px² (21.1%) in jeremy.v1 and 47792 px² (19.1%) in jeremy.v2, -4894; in the middle quarter of the screen 5596 → 1738 px²"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "jeremy.v1's best score carries over: v2 shows it, keeps it under sb-best, and v1 reads back a new best",
+      "notes": [
+        "desktop: seeded jeremy.v1's sb-best (4321, day 7): jeremy.v2's title showed it; a game over at 0 left it; one at 5000 replaced it as {score: 5000, day: 1}; keys afterwards: sb-best (jeremy.v1's own key, nothing new); jeremy.v1 then showed 5000, day 1",
+        "phone: seeded jeremy.v1's sb-best (4321, day 7): jeremy.v2's title showed it; a game over at 0 left it; one at 5000 replaced it as {score: 5000, day: 1}; keys afterwards: sb-best (jeremy.v1's own key, nothing new); jeremy.v1 then showed 5000, day 1"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "v1-best-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "v1-best-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "jeremy.v1 still plays at games/stretcher-bearer/jeremy.v1/, unchanged",
+      "notes": [
+        "desktop: jeremy.v1 at games/stretcher-bearer/jeremy.v1/: Report for duty, Move out, and its clock ran; its Pause is still 55x30",
+        "phone: jeremy.v1 at games/stretcher-bearer/jeremy.v1/: Report for duty, Move out, and its clock ran; its Pause is still 55x30"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "v1-plays-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "v1-plays-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "in the arcade, Stretcher Bearer plays jeremy.v2 by default and the picker still offers jeremy.v1",
+      "notes": [
+        "desktop: card (2 versions) → picker: jeremy.v2 first with its note, then jeremy.v1 → jeremy.v2 plays in the frame (Report for duty → the day's orders); #stretcher-bearer@jeremy.v1 opens jeremy.v1",
+        "phone: card (2 versions) → picker: jeremy.v2 first with its note, then jeremy.v1 → jeremy.v2 plays in the frame (Report for duty → the day's orders); #stretcher-bearer@jeremy.v1 opens jeremy.v1"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "arcade-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "arcade-phone.jpg"
+        ],
+        "error": null
+      }
+    }
+  ]
+}
