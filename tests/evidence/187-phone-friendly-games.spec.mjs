@@ -10,7 +10,7 @@
 // Each row names a frozen version's url, so the results can't change under it; a fixed game
 // is a new version, with its own phone check in its own build.
 // Run: npm run evidence -- tests/evidence/187-phone-friendly-games
-// evidence-scope: game claw-of-cool fidget-factory ant-farm-wars devils-burger-station oops-were-late pet-wash-payback big-weird-dig super-sauce-boy fancy-food-fight mazeathon trampoline-battle princess-lady-drive stretcher-bearer angry-dudes magic-friends timedout
+// evidence-scope: game delve-squad claw-of-cool fidget-factory ant-farm-wars devils-burger-station oops-were-late pet-wash-payback big-weird-dig super-sauce-boy fancy-food-fight mazeathon trampoline-battle princess-lady-drive stretcher-bearer angry-dudes magic-friends timedout
 import { test, expect, games, touchTargets } from "./evidence.mjs";
 
 const all = (keys, v) => Object.fromEntries(keys.map(k => [k, v]));
@@ -84,6 +84,14 @@ const AUDIT = [
     touchProbe: { name: "the d-pad Right (held)", steps: [{ hold: { in: ".dpad [data-dir=right]" }, wait: 200 }], expr: "JSON.stringify(MazeAThon.inspect().player)" },
     keyStart: [{ click: "#begin", wait: 1200 }],
     keys: [{ expr: "JSON.stringify(MazeAThon.inspect().player)", try: ["d", "a", "ArrowRight", "ArrowLeft", "s", "w", "ArrowDown", "ArrowUp"], expect: all(DIRS, true) }] },
+  { slug: "delve-squad", url: "games/delve-squad/",
+    short: ['"Sound on or off" is \\d+x\\d+', '"Pause menu" is \\d+x\\d+', '"1×" and "Pause menu" are \\d px apart'],
+    touchStart: [{ tap: "#start-btn", wait: 400 }, { tap: "#random-btn" }, { tap: "#party-go", wait: 800 }],
+    touchProbe: { name: "the second hero", steps: [{ tap: "#heroes button >> nth=1" }], expr: "__ds.state.sel" },
+    more: [{ name: "delve", steps: [{ tap: "#gear-go", wait: 1500 }] }],
+    keyStart: [{ click: "#start-btn", wait: 400 }, { click: "#random-btn" }, { click: "#party-go", wait: 800 }],
+    // Picking a hero at the campfire is the one choice with a direction.
+    keys: [{ expr: "__ds.state.sel", try: ["d", "ArrowRight", "a", "ArrowLeft"], hold: 150, expect: { d: false, ArrowRight: true, a: false, ArrowLeft: true } }] },
   { slug: "trampoline-battle", url: "games/trampoline-battle/jeremy.v2/", sideways: true, outside: "jwildfire/trampoline-battle",
     short: ['"Red move left" is \\d+x\\d+', '"Menu" is \\d+x\\d+'],
     touchStart: [{ tap: "#startBtn", wait: 4500 }],
@@ -218,5 +226,5 @@ test("the audit covers every game's default version on dev today", async ({ note
   const defaults = games.filter(g => AUDIT.some(a => a.url === g.url)).length;
   note(`${AUDIT.length} versions audited; ${defaults} of ${games.length} games' defaults`);
   expect(AUDIT.map(a => a.url).filter(url => !versions.includes(url))).toEqual([]);
-  expect(AUDIT.length).toBe(16);
+  expect(AUDIT.length).toBe(17);
 });
