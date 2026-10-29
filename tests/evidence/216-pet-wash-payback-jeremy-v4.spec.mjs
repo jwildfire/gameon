@@ -289,6 +289,50 @@ test("every button meets the phone bar: at least 48 x 48 px, 8 px from the other
   expect(browserErrors).toEqual([]);
 });
 
+// Every round's HUD, measured the same way in jeremy.v3 and jeremy.v4: the width of the Clean/Wet meter's bar, the
+// pet's name and whether it's cut short (and how much of it shows), and the bottom of the HUD.
+function hudRounds() {
+  const out = [];
+  const measure = () => {
+    const e = document.getElementById("hud-pet"), bar = document.querySelector("#hud-meter .bar"), hud = document.getElementById("hud");
+    return { label: e.textContent, cut: e.scrollWidth > e.clientWidth, shown: e.clientWidth, bar: Math.round(bar.getBoundingClientRect().width),
+             bottom: Math.round(Math.max(...[...hud.querySelectorAll(".pill, .hud-btn")].map(x => x.getBoundingClientRect().bottom))) };
+  };
+  const go = (name, f) => { __pwp.freeze(true); f(); __pwp.tick(1 / 60, 2); out.push({ name, ...measure() }); };
+  for (let i = 0; i < __pwp.pets.length; i++) {
+    go(`wash ${i + 1}`, () => { __pwp.newRun(i); __pwp.start(i, "wash"); });
+    go(`payback ${i + 1}, from Play!`, () => { __pwp.newRun(0); __pwp.start(i, "hose"); });
+    go(`payback ${i + 1}, from Pick a pet`, () => { __pwp.newRun(i); __pwp.start(i, "hose"); });
+  }
+  go("Survival", () => __pwp.survival());
+  __pwp.freeze(false);
+  return out;
+}
+
+test("the HUD in every round: the Clean/Wet meter is at least as wide as in jeremy.v3, no name jeremy.v3 showed whole is cut, and it stays in its band", async ({ page, isMobile, shot, note, browserErrors }) => {
+  const run = async url => { await open(page, url); await page.evaluate(() => document.fonts.ready); return page.evaluate(`(${hudRounds})()`); };
+  const v3 = await run(V3), v4 = await run(V4);
+  expect(v4.length).toBe(28);
+  const rows = v4.map((b, k) => ({ a: v3[k], b }));
+  for (const { a, b } of rows) {
+    expect(b.label, a.name).toBe(a.label);
+    expect(b.bar, `${a.name} (${a.label}): meter bar`).toBeGreaterThanOrEqual(a.bar);
+    if (!a.cut) expect(b.cut, `${a.name} (${a.label}): name whole in jeremy.v3`).toBe(false);
+    else expect(b.cut ? b.shown : Infinity, `${a.name} (${a.label}): no shorter than in jeremy.v3`).toBeGreaterThanOrEqual(a.shown);
+    // the game keeps the top 58 px for the HUD (hudTop), in every version
+    expect(b.bottom, `${a.name}: HUD bottom`).toBeLessThanOrEqual(58);
+  }
+  // the screenshot: Bubbles' payback round from Pick a pet, the one the check found cut
+  await pwp(page, () => { __pwp.freeze(true); __pwp.newRun(6); __pwp.start(6, "hose"); __pwp.tick(1 / 60, 30); });
+  await expect(page.locator("#hud-pet")).toHaveText("Bubbles · Payback!");
+  await shot("hud-payback");
+  await pwp(page, () => __pwp.freeze(false));
+  const fmt = r => `${r.bar}${r.cut ? ` (name cut, ${r.shown} px shown)` : ""}`;
+  const cutV3 = rows.filter(r => r.a.cut).map(r => r.a.label), cutV4 = rows.filter(r => r.b.cut).map(r => r.b.label);
+  note(`${isMobile ? "375" : "1280"} px wide, meter bar width in px, jeremy.v3 → jeremy.v4: ${rows.map(({ a, b }) => `${a.label} [${a.name}] ${fmt(a)} → ${fmt(b)}`).join("; ")}. Names cut: jeremy.v3 ${cutV3.length ? cutV3.join(", ") : "none"}; jeremy.v4 ${cutV4.length ? cutV4.join(", ") : "none"}. HUD bottom: jeremy.v3 ${Math.max(...v3.map(r => r.bottom))} px, jeremy.v4 ${Math.max(...v4.map(r => r.bottom))} px (the game keeps 58)`);
+  expect(browserErrors).toEqual([]);
+});
+
 test("in the wash round, the arrows and WASD move a visible scrub brush, and it rides along with the pet", async ({ page, shot, note, browserErrors }) => {
   await open(page);
   // started from the keyboard: Enter on the title screen, Enter on Go!
