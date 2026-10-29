@@ -53,7 +53,8 @@ git fetch -q && git worktree add .claude/worktrees/N-<slug> -b N-<slug> origin/d
 ## 4. The game contract
 
 - `games/<slug>/index.html` runs straight from the folder, with no server and no build step needed to play (a build script is fine if its output is committed).
-- Touch and keyboard controls; works at 375 px wide and at 1280 px; says in its card file if it wants to be played sideways.
+- Works at 375 px wide and at 1280 px; says in its card file if it wants to be played sideways.
+- **Touch and keyboard, both, always** (#187). Kids play on phones, tablets and laptops, so every game meets [the phone bar](#the-phone-bar).
 - A title screen, a way to pause, and a way to start over.
 - `games/<slug>/gameon.json`:
 
@@ -78,9 +79,22 @@ git fetch -q && git worktree add .claude/worktrees/N-<slug> -b N-<slug> origin/d
 - A cover: `assets/covers/<slug>.jpg`, 800 × 450, a screenshot of the title screen.
 - One entry in `games.json`, first in the list, matching the existing entries' fields with `"url": "games/<slug>/"`, `"repo": "https://github.com/jwildfire/gameon"`, `"tags": ["New", ...]` and a `color`.
 
+### The phone bar
+
+The check step fails a build that misses any of these.
+
+1. **Both ways in.** Everything a player does (start, play, pause, start over, menus) works by touch and by keyboard. A touch-only action needs a key; a key-only action needs something to tap.
+2. **WASD and the arrow keys, both.** If the game has directions (move, aim, steer, pick a lane), W/A/S/D and the arrows both do them. If it has none, they move a visible selection. Enter or Space does the main action; P or Escape pauses.
+3. **Fingertip-sized.** Every touch target's hit box is at least 48 × 48 CSS px at 375 px wide, menus and pause buttons included. A hit box can be bigger than what's drawn; it can't be smaller. In a sideways game, measure at 812 × 375.
+4. **Clear of each other and the edges.** At least 8 px between targets and from every edge of the screen. With `viewport-fit=cover`, pad edge controls by `env(safe-area-inset-*)` too, so the notch and home bar never cover them.
+
+Tapping or dragging anywhere on the play field is fine; the bar is about the buttons around it. Canvas-drawn buttons count: their hit test sets their size.
+
 ## 5. Time box and evidence
 
 Aim for a good first version in about 90 minutes of work; ship what plays rather than everything in the brief, and list what you cut. Then prove it, following `docs/evidence.md` if it exists (otherwise: Playwright screenshots at 375 and 1280 wide of the title screen and a moment of play, plus no console errors).
+
+The evidence always includes **a phone check** that proves the phone bar at 375 px with touch: tap the real controls with `page.touchscreen.tap` (title screen into play, an in-play control, pause) and assert each one did something, then in title, play and pause call `touchTargets(page)` from `tests/evidence/evidence.mjs` (pass canvas-drawn hit boxes as `drawn`) and `expect(problems).toEqual([])`. And **a keyboard check** at desktop size: one WASD key and its arrow twin each change the game, and P or Escape pauses.
 
 Run your spec as `npm run evidence -- tests/evidence/<branch>`, with the `tests/evidence/` prefix. In a worktree named after the branch, the bare branch name matches every spec's path and rewrites other tasks' evidence folders (the Super Sauce Boy build, #112). If that happens, restore them with `git checkout -- evidence/` before you commit.
 
@@ -162,6 +176,8 @@ The new version lives in `games/<slug>/<version>/`. That folder must not exist o
 ### U3. Make the change
 
 Build what the update brief says changes, and keep what it says stays. The same time box as step 5: ship what plays and list what you cut.
+
+**The new version meets [the phone bar](#the-phone-bar)**, even if the starting version didn't: bring small buttons, missing WASD or missing touch up to it, and list those fixes under what changed. The one exception is an import, whose code is the repo's: measure it and list its shortfalls in the PR's Notes, don't fix them here.
 
 **The walls for an update** (in place of step 3's file list; the other walls still hold):
 - **Only your files:** the new `games/<slug>/<version>/` folder; that game's entry in `games.json`; `assets/covers/<slug>.jpg`, for a creator's update only; and your evidence spec and folder (`tests/evidence/<branch>.spec.mjs`, `evidence/<branch>/`). Never the starting version, another version, another game's entry, or the arcade.
@@ -288,7 +304,8 @@ Follow `docs/evidence.md`. Write `tests/evidence/<branch>.spec.mjs` and run it a
 5. **The starting version still plays:**
    - In `games/`: load its url, see its title screen and start it, with no console errors.
    - In its own repo: don't load the live site (local runs swap outside games for a stand-in). Assert from `games.json` that its version still points at its original url.
-6. **In the arcade:** if dev's arcade can open a version (`#<slug>@<version>` opens it in the frame), show the new version playing there; for a creator's update, show the game's card plays it by default. If the arcade can't do that yet, say so in Notes; the folder checks above are the proof.
+6. **Phone and keyboard:** the phone check and keyboard check from step 5, on the new version (for an import, record the shortfalls with `note()` instead of failing).
+7. **In the arcade:** if dev's arcade can open a version (`#<slug>@<version>` opens it in the frame), show the new version playing there; for a creator's update, show the game's card plays it by default. If the arcade can't do that yet, say so in Notes; the folder checks above are the proof.
 
 Then run every spec: `npm run evidence:check -- --workers=2`. If an older spec fails only because of this update's intended change (a creator's update moved the game's `url`, and an old check expects the old one), change just those expectations in that spec, don't regenerate its evidence folder, and name the spec and why in the PR's Notes. That's the only other file you may touch.
 

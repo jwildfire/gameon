@@ -256,6 +256,8 @@ test("Ant Farm Wars has a card in the arcade and plays in its frame", async ({ p
   await expect(card.locator(".cover img")).toHaveJSProperty("complete", true);
   expect(await card.locator(".cover img").evaluate(img => img.naturalWidth)).toBe(800);
   await card.click();
+  // since jeremy.v2 (game idea #213) the card has two versions and opens the version picker first; this checks jeremy.v1
+  await page.locator('#ver-list .ver-item[data-version="jeremy.v1"]').click();
   await expect(page.locator("#bar-title")).toHaveText("Ant Farm Wars");
   await expect(page.locator("#gh-btn")).toHaveAttribute("href", "https://github.com/jwildfire/gameon/tree/main/games/ant-farm-wars");
   const frame = page.frameLocator("#frame");
