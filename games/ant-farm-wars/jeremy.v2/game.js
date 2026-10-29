@@ -460,9 +460,9 @@
         while (curRep <= 0) { stepCursor(d); curRep += 1 / Math.min(22, 9 + 14 * curHeld); }
       } else curHeld = 0;
       if (!down) {
-        var ease = 1 - Math.exp(-dt * 12);
-        panX += (view.aw / 2 - (cur[0] + 1.2) * view.sc - panX) * ease;
-        panY += (view.ah / 2 - (cur[1] + 2.8) * view.sc - panY) * ease;
+        var ease = 1 - Math.exp(-dt * 12), tx = view.aw / 2 - (cur[0] + 1.2) * view.sc, ty = view.ah / 2 - (cur[1] + 2.8) * view.sc;
+        panX = Math.abs(tx - panX) < 0.5 ? tx : panX + (tx - panX) * ease;
+        panY = Math.abs(ty - panY) < 0.5 ? ty : panY + (ty - panY) * ease;
       }
     } else if (mode !== "battle") {
       var pan = 600 * dt;
