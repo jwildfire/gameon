@@ -20,3 +20,18 @@ That's the whole idea, word for word, from Jeremy on the GameOn New Game page (g
 - Everything is in `index.html`: canvas drawing, sound made in the browser, no images or fonts to load.
 - Saves (your best night and sound on or off) live under `gameon.fancy-food-fight.` in the browser.
 - `window.__fff` is a small read-only window for the evidence tests.
+
+## jeremy.v2: Buttons that stay big on a phone
+
+Update idea from Jeremy (game idea #219), word for word:
+
+> Make Fancy Food Fight comfortable on a phone and with a keyboard, so it meets the phone bar from the phone-friendly games task (jwildfire/gameon#187): every button at least 48 x 48 px at 375 px wide, 8 px clear of each other and the screen edges, and both WASD and the arrow keys working. Measured on jeremy.v1 on 2026-10-29:
+>
+> - Everything scales with the 16:9 stage, so the buttons shrink on a phone. On a phone held sideways (812 x 375), Pause and Sound are 25 x 25, the food tray buttons are 43 x 43, and Duck! is 67 x 43. Upright they're even smaller (Pause is 14 x 14).
+> - The tray buttons are 5-6 px apart, Sound and Pause are 7 px apart, and they're 6-7 px from the screen edges.
+> - The title and overlay buttons are 35 px tall when sideways.
+> - Sound and How to play have no key.
+>
+> Give the HUD buttons, the tray, Duck! and the overlay buttons a 48 px minimum that doesn't shrink with the stage, with 8 px gaps, placed 8 px in from the screen edge. Add keys for Sound and How to play. Aiming with WASD or the arrows already passes. Keep everything else the same.
+
+Started from jeremy.v1. Sound, Pause, the food tray and Duck! now sit on the screen instead of shrinking with the stage: each is at least 48 x 48 px (its jeremy.v1 size when that is bigger), 8 px apart and at least 8 px in from the screen edges. With the phone held upright they sit just above and below the party. The title, pause, round and help buttons are at least 48 px too. New keys: **M** turns the sound on or off and **H** shows How to play. The HUD pills and Mess meter are never narrower than in jeremy.v1.

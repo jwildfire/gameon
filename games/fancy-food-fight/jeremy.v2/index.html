@@ -27,21 +27,29 @@ body { display: grid; place-items: center; font-family: var(--round); color: var
 canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: crosshair; }
 
 /* HUD */
-.hud { position: absolute; left: 0; right: 0; top: 0; display: flex; align-items: center; gap: calc(10 * var(--u)); padding: calc(8 * var(--u)) calc(10 * var(--u)); pointer-events: none; font-size: calc(16 * var(--u)); font-weight: 800; }
+.hud { position: absolute; left: 0; right: 0; top: 0; display: flex; align-items: center; gap: calc(10 * var(--u)); padding: calc(8 * var(--u)) var(--hud-pad-r, calc(10 * var(--u))) calc(8 * var(--u)) calc(10 * var(--u)); min-height: calc(52 * var(--u)); pointer-events: none; font-size: calc(16 * var(--u)); font-weight: 800; }
 .pill { background: rgba(255, 248, 236, 0.92); border: calc(2.5 * var(--u)) solid var(--ink); border-radius: 999px; padding: calc(4 * var(--u)) calc(12 * var(--u)); white-space: nowrap; }
 .meter { flex: 1; display: flex; align-items: center; gap: calc(8 * var(--u)); }
 .meter-bar { flex: 1; height: calc(14 * var(--u)); border: calc(2.5 * var(--u)) solid var(--ink); border-radius: 999px; background: rgba(255,255,255,0.7); overflow: hidden; }
 .meter-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #ffd166, #ff6f9c, #8b5cf6); transition: width 200ms ease; }
-.hud-btn { pointer-events: auto; width: calc(36 * var(--u)); height: calc(36 * var(--u)); border-radius: 50%; border: calc(2.5 * var(--u)) solid var(--ink); background: var(--cream); display: grid; place-items: center; cursor: pointer; padding: 0; }
+.hud-btn { pointer-events: auto; width: var(--hb); height: var(--hb); border-radius: 50%; border: calc(2.5 * var(--u)) solid var(--ink); background: var(--cream); display: grid; place-items: center; cursor: pointer; padding: 0; }
 .hud-btn svg { width: 55%; height: 55%; fill: var(--ink); }
 
+/* Buttons that stay big on a phone (jeremy.v2). Sound, Pause, the food tray and Duck! sit on the
+   screen, not the stage: each is its jeremy.v1 size or 48 px, whichever is bigger, 8 px apart and
+   at least 8 px in from the screen's edges (and the notch). fit() sets the sizes and places. */
+.ctl { position: fixed; z-index: 3; }
+.ctl-hud { right: var(--edge-r); top: var(--top-y); display: flex; gap: var(--hud-gap); }
+.covered .ctl { filter: brightness(0.5); pointer-events: none; }
+.covered .ctl * { pointer-events: none; }
+
 /* Tray and duck */
-.tray { position: absolute; left: calc(10 * var(--u)); bottom: calc(10 * var(--u)); display: flex; gap: calc(8 * var(--u)); }
-.food { width: calc(62 * var(--u)); height: calc(62 * var(--u)); border-radius: calc(16 * var(--u)); border: calc(3 * var(--u)) solid var(--ink); background: var(--cream); cursor: pointer; padding: calc(4 * var(--u)); display: grid; place-items: center; position: relative; }
+.tray { left: var(--edge-l); top: var(--tray-y); display: flex; gap: var(--tray-gap); }
+.food { width: var(--fs); height: var(--fs); border-radius: calc(16 * var(--u)); border: calc(3 * var(--u)) solid var(--ink); background: var(--cream); cursor: pointer; padding: calc(4 * var(--u)); display: grid; place-items: center; position: relative; }
 .food[aria-pressed="true"] { background: var(--gold); transform: translateY(calc(-4 * var(--u))); box-shadow: 0 calc(4 * var(--u)) 0 var(--ink); }
 .food canvas { position: static; width: 100%; height: 100%; pointer-events: none; }
-.food .key { position: absolute; top: calc(-8 * var(--u)); left: calc(-8 * var(--u)); width: calc(20 * var(--u)); height: calc(20 * var(--u)); border-radius: 50%; background: var(--ink); color: var(--cream); font-size: calc(12 * var(--u)); display: grid; place-items: center; }
-.duck { position: absolute; right: calc(10 * var(--u)); bottom: calc(10 * var(--u)); width: calc(96 * var(--u)); height: calc(62 * var(--u)); border-radius: calc(18 * var(--u)); border: calc(3 * var(--u)) solid var(--ink); background: #7dd3fc; font: 800 calc(20 * var(--u)) var(--round); color: var(--ink); cursor: pointer; }
+.food .key { position: absolute; top: calc(var(--fs) * -8 / 62); left: calc(var(--fs) * -8 / 62); width: calc(var(--fs) * 20 / 62); height: calc(var(--fs) * 20 / 62); border-radius: 50%; background: var(--ink); color: var(--cream); font-size: calc(var(--fs) * 12 / 62); display: grid; place-items: center; }
+.duck { right: var(--edge-r); top: var(--duck-y); width: var(--dw); height: var(--dh); border-radius: calc(18 * var(--u)); border: calc(3 * var(--u)) solid var(--ink); background: #7dd3fc; font: 800 calc(var(--dh) * 20 / 62) var(--round); color: var(--ink); cursor: pointer; }
 .duck.on { background: var(--gold); transform: translateY(calc(3 * var(--u))); }
 
 /* Overlays */
@@ -52,8 +60,8 @@ canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block
 .tag { font-weight: 800; font-size: calc(20 * var(--u)); }
 .card p { margin: 0; }
 .muted { color: #6d5a73; font-size: calc(14 * var(--u)); }
-.row { display: flex; gap: calc(10 * var(--u)); justify-content: center; flex-wrap: wrap; }
-.btn { font: 900 calc(22 * var(--u)) var(--round); padding: calc(10 * var(--u)) calc(22 * var(--u)); border-radius: calc(16 * var(--u)); border: calc(3 * var(--u)) solid var(--ink); background: var(--pink); color: var(--cream); cursor: pointer; box-shadow: 0 calc(5 * var(--u)) 0 var(--ink); -webkit-text-stroke: calc(1 * var(--u)) var(--ink); paint-order: stroke fill; }
+.row { display: flex; gap: max(8px, calc(10 * var(--u))); justify-content: center; flex-wrap: wrap; }
+.btn { min-width: 48px; min-height: 48px; font: 900 calc(22 * var(--u)) var(--round); padding: calc(10 * var(--u)) calc(22 * var(--u)); border-radius: calc(16 * var(--u)); border: calc(3 * var(--u)) solid var(--ink); background: var(--pink); color: var(--cream); cursor: pointer; box-shadow: 0 calc(5 * var(--u)) 0 var(--ink); -webkit-text-stroke: calc(1 * var(--u)) var(--ink); paint-order: stroke fill; }
 .btn.alt { background: var(--cream); color: var(--ink); -webkit-text-stroke: 0; }
 .btn:active { transform: translateY(calc(3 * var(--u))); box-shadow: 0 calc(2 * var(--u)) 0 var(--ink); }
 .how { text-align: left; display: grid; gap: calc(6 * var(--u)); margin: 0; padding-left: calc(22 * var(--u)); }
@@ -69,6 +77,13 @@ canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block
 </head>
 <body>
 <div class="sideways" id="sideways" hidden>Turn sideways for a bigger party</div>
+<div class="ctl ctl-hud" id="hud-btns" hidden>
+  <button class="hud-btn" id="sound-btn" type="button" aria-label="Sound on" title="Sound (M)"><svg viewBox="0 0 24 24"><path id="sound-icon" d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg></button>
+  <button class="hud-btn" id="pause-btn" type="button" aria-label="Pause" title="Pause (P)"><svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg></button>
+</div>
+<div class="ctl tray" id="tray" hidden></div>
+<button class="ctl duck" id="duck-btn" type="button" hidden>Duck!</button>
+<div id="safe" aria-hidden="true" style="position:fixed;left:0;top:0;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px)"></div>
 <div id="stage" aria-label="Fancy Food Fight">
   <canvas id="game"></canvas>
 
@@ -77,12 +92,7 @@ canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block
     <span class="pill" id="hud-time">1:00</span>
     <span class="meter"><span class="pill">Mess</span><span class="meter-bar"><span class="meter-fill" id="meter"></span></span><span class="pill" id="hud-mess">0%</span></span>
     <span class="pill" id="hud-score">You: 0</span>
-    <button class="hud-btn" id="sound-btn" type="button" aria-label="Sound on"><svg viewBox="0 0 24 24"><path id="sound-icon" d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg></button>
-    <button class="hud-btn" id="pause-btn" type="button" aria-label="Pause"><svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg></button>
   </div>
-
-  <div class="tray" id="tray" hidden></div>
-  <button class="duck" id="duck-btn" type="button" hidden>Duck!</button>
 
   <div class="overlay" id="title-screen">
     <div class="card">
@@ -107,7 +117,7 @@ canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block
         <li><b>Duck!</b> When a guest's hand goes up with a <b>!</b>, hold Duck (or Shift or Z) so their food flies over you.</li>
         <li><b>Big splats:</b> hit the chandelier three times, or the waiter's tray, for a huge mess.</li>
         <li><b>Messiest wins:</b> every splat you make scores. After each minute, whoever made the most mess gets the crown. Three rounds, most crowns wins the night.</li>
-        <li><b>Keyboard:</b> arrows or WASD move the aim, Space throws, P pauses.</li>
+        <li><b>Keyboard:</b> arrows or WASD move the aim, Space throws, P pauses, M turns the sound on or off, H shows this help.</li>
       </ul>
       <div class="row"><button class="btn" id="how-back" type="button">Got it</button></div>
     </div>
@@ -159,13 +169,45 @@ canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block
     var w = Math.min(vw, vh * 16 / 9), h = w * 9 / 16;
     stage.style.width = w + "px"; stage.style.height = h + "px";
     scale = w / W;
-    stage.style.setProperty("--u", scale + "px");
+    var root = document.documentElement.style;
+    root.setProperty("--u", scale + "px");
     dpr = Math.min(window.devicePixelRatio || 1, 2);
     cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
     document.getElementById("sideways").hidden = !(vh > vw && vw < 700);
+    placeControls(vw, vh);
+  }
+  // The buttons are their jeremy.v1 size (which shrinks with the stage) or 48 px, whichever is bigger,
+  // 8 px apart, and 8 px in from the screen's edges. Sound and Pause go at the top right, the tray at the
+  // bottom left and Duck! at the bottom right: just outside the stage when there's room (a phone held
+  // upright), otherwise over its corners as before. Sound and Pause only cover the HUD's right end, where
+  // jeremy.v1 had them (102 stage px); if they need more than that, they drop just below the HUD, so the
+  // HUD's pills and Mess meter are never narrower than in jeremy.v1.
+  function placeControls(vw, vh) {
+    var E = 8, MIN = 48, root = document.documentElement.style;
+    var safe = getComputedStyle(document.getElementById("safe"));
+    var sT = parseFloat(safe.paddingTop) || 0, sR = parseFloat(safe.paddingRight) || 0, sB = parseFloat(safe.paddingBottom) || 0, sL = parseFloat(safe.paddingLeft) || 0;
+    var hb = Math.max(MIN, 36 * scale), hudGap = Math.max(E, 10 * scale);
+    var fs = Math.max(MIN, 62 * scale), trayGap = Math.max(E, 8 * scale);
+    var dh = fs, dw = Math.max(Math.round(MIN * 96 / 62), 96 * scale);
+    var r = stage.getBoundingClientRect();
+    var top = Math.max(E + sT, r.top - E - hb);
+    var bottom = Math.min(vh - E - sB, r.bottom + E + fs);
+    var right = E + sR, left = E + sL;
+    var clusterLeft = vw - right - (2 * hb + hudGap);
+    var pad = 10 * scale, hudBottom = r.top + 52 * scale;
+    if (top < hudBottom && top + hb > r.top && clusterLeft < r.right) {
+      var need = r.right - clusterLeft + E;
+      if (need <= 102 * scale) pad = Math.max(pad, need);
+      else top = hudBottom;
+    }
+    root.setProperty("--hb", hb + "px"); root.setProperty("--hud-gap", hudGap + "px");
+    root.setProperty("--fs", fs + "px"); root.setProperty("--tray-gap", trayGap + "px");
+    root.setProperty("--dw", dw + "px"); root.setProperty("--dh", dh + "px");
+    root.setProperty("--top-y", top + "px"); root.setProperty("--tray-y", (bottom - fs) + "px"); root.setProperty("--duck-y", (bottom - dh) + "px");
+    root.setProperty("--edge-r", right + "px"); root.setProperty("--edge-l", left + "px");
+    stage.style.setProperty("--hud-pad-r", pad + "px");
   }
   window.addEventListener("resize", fit);
-  fit();
 
   // ===================== World =====================
   var TABLE_BACK = 335, TABLE_FRONT = 400, SKIRT = 440;
@@ -742,8 +784,9 @@ canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block
     $("meter").style.width = m + "%";
     $("hud-score").textContent = "You: " + S.players[0].score;
   }
-  function show(id) { ["title-screen", "how-screen", "pause-screen", "round-screen"].forEach(function (s) { $(s).hidden = s !== id; }); }
-  function setPlaying(on) { $("hud").hidden = !on; $("tray").hidden = !on; $("duck-btn").hidden = !on; }
+  var shown = "title-screen";
+  function show(id) { shown = id; ["title-screen", "how-screen", "pause-screen", "round-screen"].forEach(function (s) { $(s).hidden = s !== id; }); document.body.classList.toggle("covered", !!id); }
+  function setPlaying(on) { $("hud").hidden = !on; $("hud-btns").hidden = !on; $("tray").hidden = !on; $("duck-btn").hidden = !on; }
 
   function startNight() { newNight(); S.clock = 0; startRound(0); }
   function startRound(r) {
@@ -791,8 +834,12 @@ canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block
   }
   $("next-btn").addEventListener("click", function () { if (S.round >= ROUNDS - 1) startNight(); else startRound(S.round + 1); });
   $("play-btn").addEventListener("click", startNight);
-  $("how-btn").addEventListener("click", function () { show("how-screen"); });
-  $("how-back").addEventListener("click", function () { show(S.mode === "play" ? "pause-screen" : "title-screen"); });
+  // How to play: the button on the title screen, or H from anywhere. Got it (or H again) goes back.
+  var howFrom = "title-screen";
+  function openHow() { if (shown === "how-screen") return closeHow(); if (S.mode === "play" && !S.paused) pause(true); howFrom = S.mode === "play" ? "pause-screen" : shown || "title-screen"; show("how-screen"); }
+  function closeHow() { show(S.mode === "play" ? "pause-screen" : howFrom); }
+  $("how-btn").addEventListener("click", openHow);
+  $("how-back").addEventListener("click", closeHow);
   function pause(on) { if (S.mode !== "play") return; S.paused = on; show(on ? "pause-screen" : null); }
   $("pause-btn").addEventListener("click", function () { pause(true); });
   $("resume-btn").addEventListener("click", function () { pause(false); });
@@ -852,6 +899,8 @@ canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block
     }
     if (/^Digit[1-4]$/.test(e.code)) selectFood(parseInt(e.code.slice(5), 10) - 1);
     if (e.code === "KeyP" || e.code === "Escape") pause(!S.paused);
+    if (e.code === "KeyM" && !e.repeat) setMuted(!muted);
+    if (e.code === "KeyH" && !e.repeat) openHow();
   });
   window.addEventListener("keyup", function (e) {
     if (KEYMAP[e.code]) keys[KEYMAP[e.code]] = false;
@@ -860,6 +909,7 @@ canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block
   window.addEventListener("blur", function () { keys = {}; S.duckKeys = 0; duckOff(); });
 
   // ===================== Start =====================
+  fit();
   newNight(); S.clock = 0;
   var best = parseInt(store("best") || "0", 10);
   $("best-line").textContent = best ? "Your messiest night so far: " + best + " points" : "";
@@ -870,7 +920,7 @@ canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block
     get mode() { return S.mode; }, get round() { return S.round; }, get time() { return S.time; },
     get score() { return S.players[0].score; }, get mess() { return messPct(); }, get splats() { return S.totalSplats; },
     get guests() { return S.guests.map(function (g) { return { x: g.x, state: g.state, splats: g.splats.length, dy: g.dy }; }); },
-    get playerSplatted() { return !!S.playerSplat; },
+    get playerSplatted() { return !!S.playerSplat; }, get muted() { return muted; }, get paused() { return !!S.paused; },
     throwAt: throwAt, endRound: function () { S.time = 0.01; },
     guestThrowsNow: function () { S.sure = true; var g = S.guests[0]; g.state = "up"; g.timer = 9; g.dy = 0; g.windup = 0.05; g.holding = FOODS[0]; },
     calm: function () { S.calm = true; S.guests.forEach(function (g) { g.state = "up"; g.timer = 99; g.next = 99; g.windup = 0; }); },
