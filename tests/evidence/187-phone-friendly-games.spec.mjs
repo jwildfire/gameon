@@ -67,7 +67,9 @@ const AUDIT = [
     touchStart: [{ tap: "#play-btn", wait: 800 }],
     touchProbe: { name: "the run-right button (held)", steps: [{ hold: { in: "#btn-right" }, wait: 200 }], expr: "__ssb.player.x.toFixed(1)" },
     keyStart: [{ key: "Enter", wait: 700 }],
-    keys: [{ expr: "[__ssb.player.x.toFixed(1), __ssb.player.y.toFixed(1)].join()", try: ["d", "ArrowRight", "a", "ArrowLeft", "w", "ArrowUp"], hold: 250, settle: 900, expect: all(["d", "ArrowRight", "a", "ArrowLeft", "w", "ArrowUp"], true) }] },
+    keys: [{ expr: "__ssb.player.x.toFixed(1)", try: ["d", "ArrowRight", "a", "ArrowLeft"], hold: 250, expect: all(["d", "ArrowRight", "a", "ArrowLeft"], true) },
+           // Jumps are read mid-air, then the boy lands before the next one.
+           { expr: "__ssb.player.y.toFixed(1)", during: true, try: ["w", "ArrowUp"], hold: 250, settle: 900, expect: { w: true, ArrowUp: true } }] },
   { slug: "fancy-food-fight", url: "games/fancy-food-fight/", sideways: true,
     short: ['"Pause" is 25x25', '"Cream pie" is 43x43', '"Cream pie" and "Spaghetti" are 5 px apart'],
     touchStart: [{ tap: "#play-btn", wait: 800 }],

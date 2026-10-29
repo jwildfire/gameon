@@ -2,9 +2,9 @@
   "spec": "187-phone-friendly-games",
   "passed": true,
   "headline": "PASS: 17 of 17 checks pass at desktop and phone widths.",
-  "generatedAt": "2026-10-29T15:31:37.196Z",
+  "generatedAt": "2026-10-29T16:24:49.454Z",
   "target": "local server (python3 -m http.server) on this branch",
-  "commit": "ca3e1a5",
+  "commit": "3471820",
   "playwright": "1.61.1",
   "specFile": "tests/evidence/187-phone-friendly-games.spec.mjs",
   "checks": [
@@ -12,7 +12,7 @@
       "check": "Claw of Cool (games/claw-of-cool/jeremy.v2/) measured against the phone bar",
       "notes": [
         "desktop: a works, d works, ArrowLeft works, ArrowRight works, s works, w works, ArrowDown works, ArrowUp works",
-        "phone: 375x812: tapped the Left pad key: 13 -> 19",
+        "phone: 375x812: tapped the Left pad key: 13 -> 19.000000000000004",
         "phone: 6 targets on the title screen, 13 in play; 22 short of the bar: title: \"1 Classic Unlocked\" and \"2 Aquarium LOCKED\" are 3 px apart (need 8); title: \"2 Aquarium LOCKED\" and \"3 Dino Dig LOCKED\" are 3 px apart (need 8); title: \"3 Dino Dig LOCKED\" and \"4 Space Station LOCKED\" are 2 px apart (need 8); title: \"4 Space Station LOCKED\" and \"5 Snack Attack LOCKED\" are 3 px apart (need 8); play: \"Insert coin\" is 103x27 (needs 48x48)"
       ],
       "desktop": {
@@ -57,7 +57,7 @@
       "notes": [
         "desktop: a does nothing, ArrowLeft does nothing, d does nothing, ArrowRight does nothing, w does nothing, ArrowUp does nothing",
         "phone: 375x812: tapped the farm (rally point): \"null\" -> \"[11,13]\"",
-        "phone: 1 targets on the title screen, 3 in play; 7 short of the bar: title: \"Play\" is 99x47 (needs 48x48); play: \"Speed (Space)\" is 30x30 (needs 48x48); play: \"Sound on or off\" is 30x30 (needs 48x48); play: \"Pause (P)\" is 30x30 (needs 48x48); play: \"Pause (P)\" is 6 px from the edge (needs 8)"
+        "phone: 1 targets on the title screen, 4 in play; 7 short of the bar: title: \"Play\" is 99x47 (needs 48x48); play: \"Speed (Space)\" is 30x30 (needs 48x48); play: \"Sound on or off\" is 30x30 (needs 48x48); play: \"Pause (P)\" is 30x30 (needs 48x48); play: \"Pause (P)\" is 6 px from the edge (needs 8)"
       ],
       "desktop": {
         "status": "pass",
@@ -100,7 +100,7 @@
       "check": "Oops! We're Late! (games/oops-were-late/) measured against the phone bar",
       "notes": [
         "desktop: w works, ArrowUp works, a works, ArrowLeft works, s works, ArrowDown works, d works, ArrowRight works",
-        "phone: 375x812: tapped a finger held on the floor: \"440,676\" -> \"422,630\"",
+        "phone: 375x812: tapped a finger held on the floor: \"440,676\" -> \"421,628\"",
         "phone: 3 targets on the title screen, 1 in play; 4 short of the bar: title: \"Sneak in!\" is 132x47 (needs 48x48); title: \"Rooms\" is 109x47 (needs 48x48); title: \"Sound: on\" is 112x38 (needs 48x48); play: \"Pause\" is 28x28 (needs 48x48)"
       ],
       "desktop": {
@@ -144,7 +144,7 @@
       "check": "Big Weird Dig (games/big-weird-dig/) measured against the phone bar",
       "notes": [
         "desktop: s works, w works, ArrowDown works, ArrowUp works, a works, d works, ArrowLeft works, ArrowRight works",
-        "phone: 375x812: tapped the d-pad (down): \"2.00,0.00\" -> \"2.00,1.81\"",
+        "phone: 375x812: tapped the d-pad (down): \"2.00,0.00\" -> \"2.00,1.76\"",
         "phone: 4 targets on the title screen, 2 in play; 6 short of the bar: title: \"Dig!\" is 75x46 (needs 48x48); title: \"Levels\" is 97x46 (needs 48x48); title: \"Weird Museum\" is 173x46 (needs 48x48); title: \"Sound: on\" is 117x40 (needs 48x48); play: \"Pause\" is 28x28 (needs 48x48)"
       ],
       "desktop": {
@@ -165,8 +165,9 @@
     {
       "check": "Super Sauce Boy (games/super-sauce-boy/) measured against the phone bar",
       "notes": [
-        "desktop: d works, ArrowRight works, a works, ArrowLeft works, w works, ArrowUp works",
-        "phone: 812x375: tapped the run-right button (held): \"65.0\" -> \"237.6\"",
+        "desktop: d works, ArrowRight works, a works, ArrowLeft works",
+        "desktop: w works, ArrowUp works",
+        "phone: 812x375: tapped the run-right button (held): \"65.0\" -> \"234.8\"",
         "phone: 3 targets on the title screen, 4 in play; 2 short of the bar: play: \"Pause\" is 28x28 (needs 48x48); play: \"Pause\" is 6 px from the edge (needs 8)"
       ],
       "desktop": {
@@ -210,7 +211,7 @@
       "check": "MazeAThon (games/mazeathon/) measured against the phone bar",
       "notes": [
         "desktop: d works, a works, ArrowRight works, ArrowLeft works, s works, w works, ArrowDown works, ArrowUp works",
-        "phone: 375x812: tapped the d-pad Right (held): \"{\\\"x\\\":1.5,\\\"y\\\":1.5}\" -> \"{\\\"x\\\":3.3547200000000035,\\\"y\\\":1.5}\"",
+        "phone: 375x812: tapped the d-pad Right (held): \"{\\\"x\\\":1.5,\\\"y\\\":1.5}\" -> \"{\\\"x\\\":3.420960000000003,\\\"y\\\":1.5}\"",
         "phone: 11 targets on the title screen, 11 in play; 33 short of the bar: title: \"Back to GameOn\" is 110x37 (needs 48x48); title: \"Turn sound on\" is 33x33 (needs 48x48); title: \"How to play\" is 33x33 (needs 48x48); title: \"Pause game\" is 33x33 (needs 48x48); title: \"Let’s get lost →\" is 165x45 (needs 48x48)"
       ],
       "desktop": {
@@ -254,7 +255,7 @@
       "check": "Princess Lady Drive (games/princess-lady-drive/jeremy.v2/) measured against the phone bar",
       "notes": [
         "desktop: d works, a works, ArrowRight works, ArrowLeft works, s works, w works, ArrowDown works, ArrowUp works",
-        "phone: 375x812: tapped the road (drive there): \"{\\\"x\\\":-386.71875,\\\"y\\\":0}\" -> \"{\\\"x\\\":-317.1142779955079,\\\"y\\\":0}\"",
+        "phone: 375x812: tapped the road (drive there): \"{\\\"x\\\":-386.71875,\\\"y\\\":0}\" -> \"{\\\"x\\\":-317.012743545026,\\\"y\\\":0}\"",
         "phone: 1 targets on the title screen, 5 in play; 1 short of the bar: help: \"Start over\" is 106x43 (needs 48x48)"
       ],
       "desktop": {
