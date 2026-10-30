@@ -21,6 +21,9 @@
   --font-body:"Fredoka","Trebuchet MS",system-ui,sans-serif;
   --font-label:"Silkscreen","Courier New",monospace;
   --u:3px; --pb:clamp(62px,12vmin,96px); --pbj:clamp(76px,15vmin,116px);
+  /* jeremy.v2: the phone bar (#187). Whole-pixel sizes set by resize(): --mini (corner buttons, 48 or more),
+     --tap (a world's level buttons). */
+  --mini:48px; --tap:56px;
   color-scheme:dark;
 }
 html,body{height:100%}
@@ -57,16 +60,34 @@ h2{font-size:max(22px,calc(var(--u)*11));max-width:16em}
 .barplate .sub{font-size:max(14px,calc(var(--u)*4.8))}
 #done{justify-content:flex-start;padding-top:max(14px,calc(var(--u)*12))}
 
-#levels{justify-content:flex-start;overflow-y:auto;background:rgba(11,22,64,.55);padding-top:max(52px,calc(var(--u)*15))}
-.lvgrid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:max(6px,calc(var(--u)*2.5));width:100%;max-width:calc(var(--u)*300)}
-.env{background:var(--foam);color:var(--plum);border:4px solid var(--plum);padding:max(4px,calc(var(--u)*1.6));display:flex;flex-direction:column;gap:max(4px,calc(var(--u)*1.4));min-width:0}
+#levels{justify-content:flex-start;overflow-y:auto;background:rgba(11,22,64,.55);padding-top:max(52px,calc(var(--u)*15));
+  /* jeremy.v2: the world cards are buttons now, so they sit 9 px apart (jeremy.v1: 6; 9 so they're still 8 apart rounded to
+     whole pixels); the grid grows by what the gaps add, so the cards keep their size */
+  --lvgap:max(9px,calc(var(--u)*2.5)); --lvgap1:max(6px,calc(var(--u)*2.5));
+  padding-left:calc(max(12px,calc(var(--u)*8)) - 2.5*(var(--lvgap) - var(--lvgap1))); padding-right:calc(max(12px,calc(var(--u)*8)) - 2.5*(var(--lvgap) - var(--lvgap1)))}
+#levels[inert]{overflow:hidden}
+/* one world's five levels, opened from its card */
+#world{background:rgba(11,22,64,.8);overflow-y:auto}
+.wlv{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;max-width:100%}
+.wlv .lvb{width:var(--tap);height:var(--tap);min-height:0;border-width:4px;font-size:max(20px,calc(var(--u)*8.5))}
+.wlv .lvb[aria-disabled="true"]{cursor:default}
+.wlv .lvb:focus-visible{outline:3px dashed #fff;outline-offset:3px}
+/* the pause card */
+#pause{background:rgba(11,22,64,.62);overflow-y:auto}
+#pause .keys{max-width:30em}
+.nb{white-space:nowrap}
+.lvgrid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:var(--lvgap);width:100%;max-width:calc(var(--u)*300 + 5*(var(--lvgap) - var(--lvgap1)))}
+.env{background:var(--foam);color:var(--plum);border:4px solid var(--plum);padding:max(4px,calc(var(--u)*1.6));display:flex;flex-direction:column;gap:max(4px,calc(var(--u)*1.4));min-width:0;margin:0;font:inherit;text-align:left;cursor:pointer;-webkit-appearance:none;appearance:none}
 .env canvas{width:100%;height:auto;display:block;cursor:pointer}
+.env:focus-visible{outline:3px dashed #fff;outline-offset:3px}
+.env[aria-disabled="true"]{cursor:default}
 .env .nm{font:600 max(12px,calc(var(--u)*4))/1.1 var(--font-body);text-align:left;min-height:2.2em}
 .dots{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:max(3px,calc(var(--u)*1))}
-.lvb{font:700 max(13px,calc(var(--u)*4.6))/1 var(--font-display);color:var(--plum);background:#ffffff;border:3px solid var(--plum);padding:0;min-height:max(30px,calc(var(--u)*10));cursor:pointer;min-width:0}
+.lvb{font:700 max(13px,calc(var(--u)*4.6))/1 var(--font-display);color:var(--plum);background:#ffffff;border:3px solid var(--plum);padding:0;min-height:max(30px,calc(var(--u)*10));cursor:pointer;min-width:0;box-sizing:border-box;display:flex;align-items:center;justify-content:center}
+.dots .lvb{cursor:inherit}
 .lvb.done{background:var(--mint)}
 .lvb.next{background:var(--gold)}
-.lvb[aria-disabled="true"]{background:#d6d0ea;color:#8f88ad;border-color:#9a92b8;cursor:default}
+.lvb[aria-disabled="true"],.lvb.locked{background:#d6d0ea;color:#8f88ad;border-color:#9a92b8;cursor:default}
 .lvb:focus-visible{outline:3px dashed var(--plum);outline-offset:2px}
 .lv{font:inherit;color:var(--plum);background:var(--foam);border:4px solid var(--plum);padding:max(5px,calc(var(--u)*2));display:flex;flex-direction:column;gap:max(4px,calc(var(--u)*1.5));text-align:left;cursor:pointer;min-width:0}
 .lv canvas{width:100%;height:auto;display:block}
@@ -76,8 +97,8 @@ h2{font-size:max(22px,calc(var(--u)*11));max-width:16em}
 .lv[aria-disabled="true"]{cursor:default;background:#cfc8e6}
 .lv[aria-disabled="true"] canvas{filter:grayscale(1) brightness(.75)}
 .lvbar{display:flex;flex-wrap:wrap;gap:max(10px,calc(var(--u)*4));justify-content:center;align-items:center}
-.seg{display:flex;border:4px solid var(--plum);background:var(--plum);gap:4px}
-.seg button{font:700 max(15px,calc(var(--u)*5.4))/1 var(--font-display);border:0;background:var(--foam);color:var(--plum);padding:.55em .9em;min-height:44px;cursor:pointer}
+.seg{display:flex;border:4px solid var(--plum);background:var(--plum);gap:9px}
+.seg button{font:700 max(15px,calc(var(--u)*5.4))/1 var(--font-display);border:0;background:var(--foam);color:var(--plum);padding:.55em .9em;min-height:48px;cursor:pointer}
 .seg button[aria-pressed="true"]{background:var(--gold)}
 .diffnote{margin:0;font:500 max(13px,calc(var(--u)*4.4))/1.3 var(--font-body);color:#fff;text-shadow:0 2px 0 var(--plum);max-width:30em}
 
@@ -86,8 +107,9 @@ h2{font-size:max(22px,calc(var(--u)*11));max-width:16em}
 #caption{position:absolute;left:50%;bottom:9%;transform:translateX(-50%);font:700 max(22px,calc(var(--u)*13))/1 var(--font-display);color:#fff;text-shadow:max(2px,calc(var(--u)*1.2)) max(2px,calc(var(--u)*1.2)) 0 var(--plum);pointer-events:none;white-space:nowrap}
 #skip{position:absolute;right:max(10px,calc(var(--u)*4));bottom:max(10px,calc(var(--u)*4));font-family:var(--font-label);font-size:max(10px,calc(var(--u)*3.4));letter-spacing:.06em;text-transform:uppercase;color:#fff;background:rgba(43,27,69,.7);padding:.6em .8em;pointer-events:none}
 
-#corner{position:absolute;top:max(6px,calc(var(--u)*3));right:max(6px,calc(var(--u)*3));display:flex;gap:6px;z-index:6}
-.mini{width:max(38px,calc(var(--u)*12));height:max(38px,calc(var(--u)*12));display:grid;place-items:center;padding:0;background:rgba(43,27,69,.72);border:3px solid rgba(255,255,255,.8);cursor:pointer}
+#corner{position:absolute;top:8px;right:8px;display:flex;gap:8px;z-index:7}
+#corner.col{flex-direction:column}
+.mini{width:var(--mini);height:var(--mini);box-sizing:border-box;display:grid;place-items:center;padding:0;background:rgba(43,27,69,.72);border:3px solid rgba(255,255,255,.8);cursor:pointer}
 .mini svg{width:60%;height:60%;fill:#fff;shape-rendering:crispEdges}
 .mini .off{display:none}
 .mini[aria-pressed="false"] .on{display:none}
@@ -103,7 +125,8 @@ body.playing.pad-on #pad{display:flex}
 .pb svg{width:42%;height:42%;fill:var(--plum);shape-rendering:crispEdges}
 #bJ{width:var(--pbj);height:var(--pbj)}
 [hidden]{display:none!important}
-@media (max-aspect-ratio: 4/5){ .lvgrid{grid-template-columns:repeat(2,minmax(0,1fr));max-width:none} }
+@media (max-aspect-ratio: 4/5){ .lvgrid{grid-template-columns:repeat(2,minmax(0,1fr));max-width:none} #levels{padding-left:calc(max(12px,calc(var(--u)*8)) - (var(--lvgap) - var(--lvgap1))/2);padding-right:calc(max(12px,calc(var(--u)*8)) - (var(--lvgap) - var(--lvgap1))/2)} }
+body.playing.pad-on.paused #pad{display:none}
 </style>
 </head>
 <body>
@@ -182,18 +205,43 @@ body.playing.pad-on #pad{display:flex}
         </div>
       </div>
 
-      <div id="corner">
-        <button id="btnPad" class="mini notch" type="button" aria-pressed="false" aria-label="Show arrow buttons" hidden>
-          <svg viewBox="0 0 10 10"><path d="M1 3h8v4H1zM2 4.5h1v-1h1v1h1v1H4v1H3v-1H2zM6.5 4h1v1h-1zM7.5 5h1v1h-1z"/></svg>
-        </button>
-        <button id="btnSound" class="mini notch" type="button" aria-pressed="true" aria-label="Sound">
-          <svg class="on" viewBox="0 0 10 10"><path d="M1 3.5h2l2.5-2v7L3 6.5H1zM6.5 3.5h1v3h-1zM8 2h1v6H8z"/></svg>
-          <svg class="off" viewBox="0 0 10 10"><path d="M1 3.5h2l2.5-2v7L3 6.5H1zM6.5 3h1v1h-1zM8.5 3h1v1h-1zM7.5 4h1v2h-1zM6.5 6h1v1h-1zM8.5 6h1v1h-1z"/></svg>
-        </button>
-        <button id="btnHome" class="mini notch" type="button" aria-label="Back to the start screen" hidden>
-          <svg viewBox="0 0 10 10"><path d="M5 1 1 4.5h1V9h2.5V6.5h1V9H8V4.5h1z"/></svg>
-        </button>
+      <div id="world" class="layer" hidden>
+        <div class="plate notch">
+          <h2 id="worldTitle">Deep Blue Sea</h2>
+          <p class="keys">Gold is next · Green is done</p>
+        </div>
+        <div class="wlv" id="wlv" role="group" aria-label="Levels"></div>
+        <div class="btns">
+          <button id="worldBack" class="big ghost notch" type="button">Back</button>
+        </div>
       </div>
+
+      <div id="pause" class="layer" hidden>
+        <div class="plate notch">
+          <h2>Paused</h2>
+          <p class="keys"><span class="nb">P or Esc: keep going</span> · <span class="nb">M: sound</span> · <span class="nb">H: start screen</span> · <span class="nb">B: arrow buttons</span></p>
+        </div>
+        <div class="btns">
+          <button id="pzGo" class="big notch" type="button">Keep going</button>
+        </div>
+        <div class="btns">
+          <button id="pzSound" class="big ghost notch" type="button" aria-pressed="true">Sound: on</button>
+          <button id="btnPad" class="big ghost notch" type="button" aria-pressed="false">Arrow buttons: off</button>
+          <button id="pzHome" class="big ghost notch" type="button">Start screen</button>
+        </div>
+      </div>
+    </div>
+    <div id="corner">
+      <button id="btnPause" class="mini notch" type="button" aria-label="Pause (P)" hidden>
+        <svg viewBox="0 0 10 10"><path d="M2 2h2v6H2zM6 2h2v6H6z"/></svg>
+      </button>
+      <button id="btnSound" class="mini notch" type="button" aria-pressed="true" aria-label="Sound (M)">
+        <svg class="on" viewBox="0 0 10 10"><path d="M1 3.5h2l2.5-2v7L3 6.5H1zM6.5 3.5h1v3h-1zM8 2h1v6H8z"/></svg>
+        <svg class="off" viewBox="0 0 10 10"><path d="M1 3.5h2l2.5-2v7L3 6.5H1zM6.5 3h1v1h-1zM8.5 3h1v1h-1zM7.5 4h1v2h-1zM6.5 6h1v1h-1zM8.5 6h1v1h-1z"/></svg>
+      </button>
+      <button id="btnHome" class="mini notch" type="button" aria-label="Back to the start screen (H)" hidden>
+        <svg viewBox="0 0 10 10"><path d="M5 1 1 4.5h1V9h2.5V6.5h1V9H8V4.5h1z"/></svg>
+      </button>
     </div>
   </div>
   <div id="pad">
@@ -1818,32 +1866,51 @@ function syncDiff(){
 }
 document.querySelectorAll('[data-diff]').forEach(function(b){ b.addEventListener('click',function(){ diff=+b.getAttribute('data-diff'); save.diff=diff; persist(); syncDiff(); audio(); SFX.ding(); }); });
 
-var lvButtons=[];
+var lvButtons=[], envCards=[], worldOpen=-1;
 function firstOpenIn(ei){ for(var t=0;t<5;t++){ var i=ei*5+t; if(!save.done[i]&&i<=save.reached) return i; } return ei*5<=save.reached?ei*5:-1; }
+/* jeremy.v2: a world's card is one big button (the phone bar, #187); it opens that world's five levels as big buttons.
+   The numbered squares on the card still show gold for next and green for done. */
 (function buildLevelGrid(){
   var grid=$('lvgrid');
   ENVS.forEach(function(E,ei){
-    var card=document.createElement('div'); card.className='env notch';
+    var card=document.createElement('button'); card.type='button'; card.className='env notch';
     var c=themeThumb(E.key).canvas(); c.setAttribute('aria-hidden','true');
-    c.addEventListener('click',function(){ var i=TEST?ei*5:firstOpenIn(ei); if(i<0){ SFX.bump(); return; } counts={pearls:0,gems:0,stars:0}; startLevel(i); });
+    card.addEventListener('click',function(){ if(TEST||ei*5<=save.reached) openWorld(ei); else SFX.bump(); });
     var nm=document.createElement('span'); nm.className='nm'; nm.textContent=E.name;
-    var row=document.createElement('div'); row.className='dots';
-    for(var t=0;t<5;t++) (function(i,t){
-      var b=document.createElement('button'); b.type='button'; b.className='lvb'; b.textContent=String(t+1);
-      b.addEventListener('click',function(){ if(b.getAttribute('aria-disabled')==='true'){ SFX.bump(); return; } counts={pearls:0,gems:0,stars:0}; startLevel(i); });
-      row.appendChild(b); lvButtons.push({b:b,i:i});
-    })(ei*5+t,t);
-    card.appendChild(c); card.appendChild(nm); card.appendChild(row); grid.appendChild(card);
+    var row=document.createElement('span'); row.className='dots'; row.setAttribute('aria-hidden','true');
+    for(var t=0;t<5;t++){ var b=document.createElement('span'); b.className='lvb'; b.textContent=String(t+1); row.appendChild(b); lvButtons.push({b:b,i:ei*5+t}); }
+    card.appendChild(c); card.appendChild(nm); card.appendChild(row); grid.appendChild(card); envCards.push(card);
   });
 })();
+function levelState(i){ var open=i<=save.reached||TEST, done=!!save.done[i]; return {open:open,done:done,next:open&&!done&&i===save.reached}; }
 function syncLevels(){
-  lvButtons.forEach(function(o){
-    var open=o.i<=save.reached||TEST, done=!!save.done[o.i];
-    o.b.setAttribute('aria-disabled',open?'false':'true');
-    o.b.classList.toggle('done',done); o.b.classList.toggle('next',open&&!done&&o.i===save.reached);
-    o.b.setAttribute('aria-label','Level '+(o.i+1)+', '+LEVELS[o.i].name+(done?', done':open?'':', locked'));
+  lvButtons.forEach(function(o){ var st=levelState(o.i); o.b.classList.toggle('done',st.done); o.b.classList.toggle('next',st.next); o.b.classList.toggle('locked',!st.open); });
+  envCards.forEach(function(card,ei){
+    var open=TEST||ei*5<=save.reached, n=0; for(var t=0;t<5;t++) if(save.done[ei*5+t]) n++;
+    card.setAttribute('aria-disabled',open?'false':'true');
+    card.setAttribute('aria-label',ENVS[ei].name+', levels '+(ei*5+1)+' to '+(ei*5+5)+(open?', '+n+' of 5 done':', locked'));
   });
 }
+function openWorld(ei){
+  var wl=$('wlv'); wl.textContent=''; worldOpen=ei; audio(); SFX.ding();
+  $('worldTitle').textContent=ENVS[ei].name;
+  var focus=null;
+  for(var t=0;t<5;t++) (function(i,t){
+    var st=levelState(i), b=document.createElement('button'); b.type='button'; b.className='lvb notch'+(st.done?' done':'')+(st.next?' next':''); b.textContent=String(t+1);
+    b.setAttribute('aria-disabled',st.open?'false':'true');
+    b.setAttribute('aria-label','Level '+(i+1)+', '+LEVELS[i].name+(st.done?', done':st.open?'':', locked'));
+    b.addEventListener('click',function(){ if(b.getAttribute('aria-disabled')==='true'){ SFX.bump(); return; } counts={pearls:0,gems:0,stars:0}; startLevel(i); });
+    wl.appendChild(b); if(!focus&&st.open&&(st.next||!st.done)) focus=b;
+  })(ei*5+t,t);
+  $('levels').setAttribute('inert',''); $('world').hidden=false;
+  (focus||wl.firstChild).focus({preventScroll:true});
+}
+function closeWorld(){
+  if(worldOpen<0) return; var ei=worldOpen; worldOpen=-1;
+  $('world').hidden=true; $('levels').removeAttribute('inert');
+  if(mode==='levels'&&envCards[ei]) envCards[ei].focus({preventScroll:true});
+}
+$('worldBack').addEventListener('click',closeWorld);
 
 function setMode(m){
   mode=m;
@@ -1853,8 +1920,11 @@ function setMode(m){
   $('wdone').hidden=true;
   $('win').hidden=true;
   $('caption').hidden=m!=='cutscene'; $('skip').hidden=m!=='cutscene';
-  $('btnHome').hidden=m==='title';
-  $('btnPad').hidden=m!=='play';
+  var playing=m==='play'||m==='intro';
+  if(worldOpen>=0){ worldOpen=-1; $('world').hidden=true; $('levels').removeAttribute('inert'); }
+  setPaused(false);
+  $('btnPause').hidden=!playing; $('btnSound').hidden=playing;
+  $('btnHome').hidden=m==='title'||playing;
   document.body.classList.toggle('playing',m==='play');
   if(m!=='play') $('toast').hidden=true;
   if(m==='title'||m==='levels'){ syncDiff(); syncLevels(); }
@@ -1892,15 +1962,36 @@ $('wdNext').addEventListener('click',function(){ if(world.surface!=null) startSt
 $('wdMap').addEventListener('click',function(){ setMode('levels'); });
 $('winHard').addEventListener('click',function(){ diff=2; save.diff=2; persist(); counts={pearls:0,gems:0,stars:0}; startLevel(0); });
 $('winAgain').addEventListener('click',function(){ counts={pearls:0,gems:0,stars:0}; startLevel(0); });
-$('btnHome').addEventListener('click',function(){ setMode('title'); });
-$('btnSound').setAttribute('aria-pressed',muted?'false':'true');
-$('btnSound').addEventListener('click',function(){ muted=!muted; this.setAttribute('aria-pressed',muted?'false':'true'); try{ localStorage.setItem('mfuwg-muted',muted?'1':'0'); }catch(e){} audio(); if(!muted) SFX.ding(); });
-function syncPad(){ document.body.classList.toggle('pad-on',!!save.pad); $('btnPad').setAttribute('aria-pressed',save.pad?'true':'false'); $('btnPad').setAttribute('aria-label',save.pad?'Hide arrow buttons':'Show arrow buttons'); resize(); }
-$('btnPad').addEventListener('click',function(){ save.pad=!save.pad; persist(); syncPad(); });
+function goHome(){ setMode('title'); }
+$('btnHome').addEventListener('click',goHome);
+$('pzHome').addEventListener('click',goHome);
+function syncSound(){ $('btnSound').setAttribute('aria-pressed',muted?'false':'true'); $('pzSound').setAttribute('aria-pressed',muted?'false':'true'); $('pzSound').textContent=muted?'Sound: off':'Sound: on'; }
+function toggleSound(){ muted=!muted; syncSound(); try{ localStorage.setItem('mfuwg-muted',muted?'1':'0'); }catch(e){} audio(); if(!muted) SFX.ding(); }
+syncSound();
+$('btnSound').addEventListener('click',toggleSound);
+$('pzSound').addEventListener('click',toggleSound);
+function syncPad(){ document.body.classList.toggle('pad-on',!!save.pad); $('btnPad').setAttribute('aria-pressed',save.pad?'true':'false'); $('btnPad').textContent=save.pad?'Arrow buttons: on':'Arrow buttons: off'; resize(); }
+function togglePad(){ save.pad=!save.pad; persist(); syncPad(); }
+$('btnPad').addEventListener('click',togglePad);
+
+/* jeremy.v2: pause (the Pause button, P or Escape). The game stands still and the pause card holds Sound, the arrow buttons and the start screen. */
+var paused=false;
+function setPaused(on){
+  on=!!on&&(mode==='play'||mode==='intro');
+  if(on===paused) return; paused=on;
+  $('pause').hidden=!on; $('btnPause').hidden=on||!(mode==='play'||mode==='intro');
+  document.body.classList.toggle('paused',on);
+  keys.left=keys.right=keys.jump=false; jumpBuf=0; releasePad();
+  if(on){ $('toast').hidden=true; $('pzGo').focus({preventScroll:true}); }
+  else if(document.activeElement&&document.activeElement.blur) document.activeElement.blur();
+}
+$('btnPause').addEventListener('click',function(){ audio(); setPaused(true); });
+$('pzGo').addEventListener('click',function(){ setPaused(false); });
 
 /* taps on the game screen: jump to where you tapped, or skip the cartoon */
 screenEl.addEventListener('pointerdown',function(e){
   audio();
+  if(paused) return;
   if(mode==='cutscene'&&cut>40){ cut=9999; return; }
   if(mode==='intro'&&intro&&intro.t>30){ endIntro(); return; }
   if(e.target!==cv) return;
@@ -1914,9 +2005,37 @@ screenEl.addEventListener('pointerdown',function(e){
 
 /* keyboard */
 var KEYMAP={ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',Space:'jump',ArrowUp:'jump',KeyW:'jump',KeyZ:'jump',KeyX:'jump'};
+/* jeremy.v2: in the menus, WASD and the arrows move between buttons (Enter or Space presses one) */
+var NAV={ArrowLeft:[-1,0],KeyA:[-1,0],ArrowRight:[1,0],KeyD:[1,0],ArrowUp:[0,-1],KeyW:[0,-1],ArrowDown:[0,1],KeyS:[0,1]};
+function navButtons(){
+  var root=paused?$('pause'):worldOpen>=0?$('world'):{title:$('title'),levels:$('levels'),done:$('done'),worldwin:$('wdone'),win:$('win')}[mode];
+  if(!root||root.hidden) return [];
+  var list=[].slice.call(root.querySelectorAll('button'));
+  if(!paused) list=list.concat([].slice.call(document.querySelectorAll('#corner button')));
+  return list.filter(function(b){ var r=b.getBoundingClientRect(); return !b.closest('[hidden]')&&r.width>0&&r.height>0; });
+}
+function navMove(d){
+  var list=navButtons(); if(!list.length) return false;
+  var cur=document.activeElement, i=list.indexOf(cur);
+  if(i<0){ var first=list.filter(function(b){ return b.getAttribute('aria-pressed')!=='true'||b.closest('.seg')===null; })[0]||list[0]; first.focus(); return true; }
+  var a=cur.getBoundingClientRect(), ax=a.left+a.width/2, ay=a.top+a.height/2, best=null, bs=1e9;
+  list.forEach(function(b){ if(b===cur) return; var r=b.getBoundingClientRect(), dx=r.left+r.width/2-ax, dy=r.top+r.height/2-ay, along=dx*d[0]+dy*d[1], across=Math.abs(dx*d[1]+dy*d[0]); if(along<=4) return; var sc=along+across*2.5; if(sc<bs){ bs=sc; best=b; } });
+  if(best){ best.focus(); best.scrollIntoView({block:'nearest'}); }
+  return true;
+}
 window.addEventListener('keydown',function(e){
   audio();
   var k=KEYMAP[e.code];
+  if(e.ctrlKey||e.metaKey||e.altKey) return;
+  /* P or Escape: pause and keep going */
+  if((e.code==='KeyP'||e.code==='Escape')&&(mode==='play'||mode==='intro')){ e.preventDefault(); if(!e.repeat) setPaused(!paused); return; }
+  if(e.code==='Escape'&&worldOpen>=0){ e.preventDefault(); closeWorld(); return; }
+  if(e.code==='Escape'&&mode==='levels'){ e.preventDefault(); setMode('title'); return; }
+  if(e.code==='KeyM'&&!e.repeat){ e.preventDefault(); toggleSound(); return; }
+  if(e.code==='KeyH'&&!e.repeat&&mode!=='title'){ e.preventDefault(); goHome(); return; }
+  if(e.code==='KeyB'&&!e.repeat){ e.preventDefault(); togglePad(); if(!paused&&mode==='play') toast(save.pad?'Arrow buttons on':'Arrow buttons off',null,1200); return; }
+  if(paused){ if(NAV[e.code]){ e.preventDefault(); navMove(NAV[e.code]); } return; }
+  if(mode!=='play'&&NAV[e.code]&&navButtons().length){ e.preventDefault(); navMove(NAV[e.code]); return; }
   if(mode==='title'&&e.code==='Enter'&&document.activeElement===document.body){ e.preventDefault(); $('play').click(); return; }
   if(mode==='cutscene'&&(e.code==='Space'||e.code==='Enter')&&cut>40){ e.preventDefault(); cut=9999; return; }
   if(mode==='intro'&&intro&&intro.t>30&&(e.code==='Space'||e.code==='Enter')){ e.preventDefault(); endIntro(); return; }
@@ -1949,8 +2068,24 @@ function resize(){
   var s=Math.min(fw/W,room/nv), fl=Math.floor(s), sc=(fl>=2&&fl/s>.86)?fl:s;
   if(nv!==VH){ VH=nv; scn={}; if(world){ if(world.horiz&&pl) islandCams(world,true); else world.cam=clamp(world.cam,0,world.H-VH); } }
   cv.width=W; cv.height=VH; g.imageSmoothingEnabled=false; SC=sc;
-  screenEl.style.width=Math.round(W*sc)+'px'; screenEl.style.height=Math.round(VH*sc)+'px'; screenEl.style.setProperty('--u',sc+'px');
+  var sw=Math.round(W*sc), sh=Math.round(VH*sc);
+  screenEl.style.width=sw+'px'; screenEl.style.height=sh+'px'; screenEl.style.setProperty('--u',sc+'px');
   fit.classList.toggle('top',portrait&&!!save.pad);
+  /* jeremy.v2: whole-pixel buttons, and a corner that sits beside the game when there's room, so it covers less of it */
+  var mini=Math.max(48,Math.round(sc*12)), off=Math.max(8,Math.round(sc*3)), gap=8, vmin=Math.min(innerWidth,innerHeight);
+  var pb=Math.ceil(clamp(vmin*.12,62,96)), pbj=Math.ceil(clamp(vmin*.15,76,116)), band=mini+2*gap;
+  var rs=document.documentElement.style;
+  rs.setProperty('--mini',mini+'px'); rs.setProperty('--tap',Math.max(56,Math.round(sc*16))+'px'); rs.setProperty('--pb',pb+'px'); rs.setProperty('--pbj',pbj+'px');
+  // the arrow buttons take the bottom of a tall screen: leave a band above the game for the corner when it fits
+  var lift=portrait&&save.pad&&fh-sh-band>=pbj+14+gap?band:0;
+  // centre on whole pixels
+  var top=fit.classList.contains('top');
+  screenEl.style.margin=lift+'px '+((fw-sw)&1)+'px '+(top?0:(fh-sh)&1)+'px 0';
+  var sx=Math.floor((fw-sw)/2), sy=top?lift:Math.floor((fh-sh)/2);
+  var corner=document.getElementById('corner'), cs=corner.style;
+  if(sy>=band){ corner.classList.remove('col'); cs.top=gap+'px'; cs.right=gap+'px'; }
+  else if(fw-sx-sw>=band){ corner.classList.add('col'); cs.top=gap+'px'; cs.right=gap+'px'; }
+  else { corner.classList.remove('col'); cs.top=(sy+off)+'px'; cs.right=(fw-sx-sw+off)+'px'; }
   render();
 }
 window.addEventListener('resize',resize);
@@ -1958,6 +2093,7 @@ window.addEventListener('resize',resize);
 /* ---------- main loop ---------- */
 var last=0, acc=0, STEP=1000/60;
 function step(){
+  if(paused) return;
   tick++;
   if(mode==='play') updatePlay();
   else if(mode==='winning'||mode==='done'){ updateWorldThings(); winT++; if(winT%6===0) addParts(pl.x+(Math.random()*40-20),pl.y-30-Math.random()*20,6,['#fff3a6','#ff8fb8','#ffffff','#7fe0ff'],1.6,30); if(mode==='winning'&&winT>110) setMode(world.idx===LEVELS.length-1?'win':LEVELS[world.idx].tier===4?'worldwin':'done'); }
@@ -1988,7 +2124,7 @@ var hot=window.claude&&window.claude.hot;
 try{ if(hot&&typeof hot.snapshot==='function') hot.snapshot(function(){ var lv=world?world.idx:null; if(mode==='cutscene'&&world) lv=world.idx+1; if((mode==='done'||mode==='worldwin')&&world) lv=world.idx+1; return {mode:(mode==='winning'&&world&&world.idx===LEVELS.length-1)||mode==='win'?'win':(mode==='play'||mode==='intro'||mode==='cutscene'||mode==='done'||mode==='worldwin'||mode==='winning')?'play':'title',level:lv,cp:mode==='play'&&world&&world.cp?world.cp.idx:null,diff:diff,counts:counts}; }); }catch(e){}
 if(hot&&typeof hot.ready==='function') hot.ready(boot); else boot((hot&&hot.data)||{});
 
-if(TEST) window.__game={get world(){return world;},get pl(){return pl;},get mode(){return mode;},get pending(){return pending;},keys:keys,jump:function(){ jumpBuf=8; },step:function(n){ for(var i=0;i<n;i++) step(); },startLevel:startLevel,setMode:setMode,render:render,tapAt:tapAt,buildWorld:buildWorld,setDiff:function(d){ diff=d; hard=d===2; },skipIntro:function(){ if(mode==='intro') endIntro(); },startStory:startStory,LEVELS:LEVELS,get tick(){return tick;}};
+if(TEST) window.__game={get world(){return world;},get pl(){return pl;},get mode(){return mode;},get pending(){return pending;},keys:keys,jump:function(){ jumpBuf=8; },step:function(n){ for(var i=0;i<n;i++) step(); },startLevel:startLevel,setMode:setMode,render:render,tapAt:tapAt,buildWorld:buildWorld,setDiff:function(d){ diff=d; hard=d===2; },skipIntro:function(){ if(mode==='intro') endIntro(); },pause:function(on){ setPaused(on!==false); },get paused(){ return paused; },openWorld:openWorld,startStory:startStory,LEVELS:LEVELS,get tick(){return tick;}};
 })();
 </script>
 </body>

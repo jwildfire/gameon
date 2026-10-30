@@ -83,3 +83,19 @@ Fonts are [Fredoka](https://fonts.google.com/specimen/Fredoka), [Pixelify Sans](
 ## License
 
 [MIT](LICENSE)
+
+## jeremy.v2: Bigger buttons and a pause
+
+Update idea from Jeremy (game idea #225), word for word:
+
+> Make Magic Friends, Up We Go! comfortable on a phone and with a keyboard, so it meets the phone bar from the phone-friendly games task (jwildfire/gameon#187): every button at least 48 x 48 px at 375 px wide, 8 px clear of each other and the screen edges, and both WASD and the arrow keys working. Measured on jeremy.v1 on 2026-10-29:
+>
+> - The corner buttons (arrow pad, Sound, Home) are 38 x 38, 6 px apart and 6 px from the right edge.
+> - Easy and Normal are 64 x 44 and 79 x 44, only 4 px apart. The level-picker number buttons are 29 x 30 with 3 px gaps.
+> - There's no pause, and P and Escape do nothing. Sound, Home and the arrow-pad toggle have no keys.
+>
+> Make the corner buttons 48 x 48 with 8 px gaps and 8 px from the edge, make Easy, Normal and the level buttons at least 48 px with 8 px gaps (two rows if needed), and add a pause on P or Escape plus keys for Sound and Home. Walking and jumping with WASD or the arrows already passes. Keep everything else the same.
+>
+> This game also lives in jwildfire/magic-friends. Making the same fix there too means the next import from that repo won't bring the old controls back.
+
+Started from jeremy.v1. The corner buttons are 48 x 48 px, 8 px apart and 8 px from the edge, and sit beside the game when there's room (above it on a phone held upright, to its right held sideways), so in play they cover less of it than before. In play the corner is one Pause button; Sound, the arrow buttons and the start screen are in the pause card. Easy, Normal and Harder are 48 px tall and 9 px apart. Each world's card in Pick a level is now one big button that opens that world's five levels as 56 px buttons. P or Escape pauses, M is Sound, H is the start screen, B shows or hides the arrow buttons, and the arrows or WASD move between buttons in the menus. Saves are the same as jeremy.v1's.

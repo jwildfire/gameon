@@ -1,0 +1,17 @@
+{
+  "name": "magic-friends",
+  "title": "Magic Friends, Up We Go!",
+  "version": "jeremy.v2",
+  "from": "jeremy.v1",
+  "updates": [
+    {
+      "version": "jeremy.v2",
+      "from": "jeremy.v1",
+      "idea": "Make Magic Friends, Up We Go! comfortable on a phone and with a keyboard, so it meets the phone bar from the phone-friendly games task (jwildfire/gameon#187): every button at least 48 x 48 px at 375 px wide, 8 px clear of each other and the screen edges, and both WASD and the arrow keys working. Measured on jeremy.v1 on 2026-10-29:\n\n- The corner buttons (arrow pad, Sound, Home) are 38 x 38, 6 px apart and 6 px from the right edge.\n- Easy and Normal are 64 x 44 and 79 x 44, only 4 px apart. The level-picker number buttons are 29 x 30 with 3 px gaps.\n- There's no pause, and P and Escape do nothing. Sound, Home and the arrow-pad toggle have no keys.\n\nMake the corner buttons 48 x 48 with 8 px gaps and 8 px from the edge, make Easy, Normal and the level buttons at least 48 px with 8 px gaps (two rows if needed), and add a pause on P or Escape plus keys for Sound and Home. Walking and jumping with WASD or the arrows already passes. Keep everything else the same.\n\nThis game also lives in jwildfire/magic-friends. Making the same fix there too means the next import from that repo won't bring the old controls back.",
+      "by": "Jeremy",
+      "made": "2026-10-29",
+      "built_with": "Claude Opus 5.5",
+      "idea_issue": 225
+    }
+  ]
+}

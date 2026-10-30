@@ -218,13 +218,14 @@
     "title": "Magic Friends, Up We Go!",
     "tagline": "A mermaid, a fairy and a unicorn climb 60 levels to bring back the sunrise.",
     "credit": "Made by Jeremy and the kids",
-    "url": "games/magic-friends/jeremy.v1/",
+    "url": "games/magic-friends/jeremy.v2/",
     "repo": "https://github.com/jwildfire/magic-friends",
     "color": "#f7a440",
     "tags": ["Little kids"],
-    "default": "jeremy.v1",
+    "default": "jeremy.v2",
     "versions": [
-      { "id": "jeremy.v1", "url": "games/magic-friends/jeremy.v1/", "made": "2026-10-17", "note": "The first version", "source": {"repo": "jwildfire/magic-friends", "commit": "821dc278f04975f49dff999a8de5e4ba8cbd96f3"} }
+      { "id": "jeremy.v1", "url": "games/magic-friends/jeremy.v1/", "made": "2026-10-17", "note": "The first version", "source": {"repo": "jwildfire/magic-friends", "commit": "821dc278f04975f49dff999a8de5e4ba8cbd96f3"} },
+      { "id": "jeremy.v2", "url": "games/magic-friends/jeremy.v2/", "made": "2026-10-29", "note": "Bigger buttons and a pause", "from": "jeremy.v1", "idea": 225 }
     ]
   },
   {
