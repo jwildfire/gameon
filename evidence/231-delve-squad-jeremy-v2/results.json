@@ -1,10 +1,10 @@
 {
   "spec": "231-delve-squad-jeremy-v2",
   "passed": true,
-  "headline": "PASS: 14 of 14 checks pass at desktop and phone widths.",
-  "generatedAt": "2026-10-30T08:00:45.871Z",
+  "headline": "PASS: 16 of 16 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-30T09:47:47.676Z",
   "target": "local server (python3 -m http.server) on this branch",
-  "commit": "d58b013",
+  "commit": "5a03f08",
   "playwright": "1.61.1",
   "specFile": "tests/evidence/231-delve-squad-jeremy-v2.spec.mjs",
   "checks": [
@@ -82,9 +82,9 @@
     {
       "check": "at 375 x 812 every screen shows everything jeremy.v1 showed, with real, fallback and wide fonts",
       "notes": [
-        "phone: real fonts: all 374 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 375x535 -> 375x535, top bar ends at 72 -> 72, squad bar starts at 746 -> 746, uncovered 100% -> 100%",
-        "phone: fallback fonts: all 375 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 375x535 -> 375x535, top bar ends at 72 -> 72, squad bar starts at 746 -> 746, uncovered 100% -> 100%",
-        "phone: wide fonts: all 386 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 375x535 -> 375x535, top bar ends at 72 -> 72, squad bar starts at 745 -> 745, uncovered 100% -> 100%"
+        "phone: real fonts: all 374 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 375x535 -> 375x535, top bar ends at 72 -> 72, squad bar starts at 746 -> 746, uncovered 100% -> 100%; touchTargets on 12 states (0 with the list scrolled to its middle or end): nothing short of the bar, 0 hidden-card pairs excused",
+        "phone: fallback fonts: all 375 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 375x535 -> 375x535, top bar ends at 72 -> 72, squad bar starts at 746 -> 746, uncovered 100% -> 100%; touchTargets on 16 states (4 with the list scrolled to its middle or end): nothing short of the bar, 1 hidden-card pairs excused",
+        "phone: wide fonts: all 386 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 375x535 -> 375x535, top bar ends at 72 -> 72, squad bar starts at 745 -> 745, uncovered 100% -> 100%; touchTargets on 24 states (12 with the list scrolled to its middle or end): nothing short of the bar, 12 hidden-card pairs excused"
       ],
       "desktop": {
         "status": "skipped",
@@ -100,9 +100,9 @@
     {
       "check": "at 812 x 375 every screen shows everything jeremy.v1 showed, with real, fallback and wide fonts",
       "notes": [
-        "phone: real fonts: all 269 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 407x285 -> 407x285, top bar ends at 72 -> 72, squad bar starts at 309 -> 309, uncovered 100% -> 100%",
-        "phone: fallback fonts: all 269 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 407x285 -> 407x285, top bar ends at 72 -> 72, squad bar starts at 309 -> 309, uncovered 100% -> 100%",
-        "phone: wide fonts: all 263 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 407x285 -> 407x285, top bar ends at 72 -> 72, squad bar starts at 308 -> 308, uncovered 100% -> 100%"
+        "phone: real fonts: all 269 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 407x285 -> 407x285, top bar ends at 72 -> 72, squad bar starts at 309 -> 309, uncovered 100% -> 100%; touchTargets on 26 states (14 with the list scrolled to its middle or end): nothing short of the bar, 12 hidden-card pairs excused",
+        "phone: fallback fonts: all 269 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 407x285 -> 407x285, top bar ends at 72 -> 72, squad bar starts at 309 -> 309, uncovered 100% -> 100%; touchTargets on 26 states (14 with the list scrolled to its middle or end): nothing short of the bar, 12 hidden-card pairs excused",
+        "phone: wide fonts: all 263 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 407x285 -> 407x285, top bar ends at 72 -> 72, squad bar starts at 308 -> 308, uncovered 100% -> 100%; touchTargets on 26 states (14 with the list scrolled to its middle or end): nothing short of the bar, 12 hidden-card pairs excused"
       ],
       "desktop": {
         "status": "skipped",
@@ -120,9 +120,9 @@
     {
       "check": "at 667 x 375 every screen shows everything jeremy.v1 showed, with real, fallback and wide fonts",
       "notes": [
-        "phone: real fonts: all 191 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 407x285 -> 407x285, top bar ends at 72 -> 72, squad bar starts at 309 -> 309, uncovered 100% -> 100%",
-        "phone: fallback fonts: all 191 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 407x285 -> 407x285, top bar ends at 72 -> 72, squad bar starts at 309 -> 309, uncovered 100% -> 100%",
-        "phone: wide fonts: all 190 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 407x285 -> 407x285, top bar ends at 72 -> 72, squad bar starts at 308 -> 308, uncovered 100% -> 100%"
+        "phone: real fonts: all 191 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 407x285 -> 407x285, top bar ends at 72 -> 72, squad bar starts at 309 -> 309, uncovered 100% -> 100%; touchTargets on 26 states (14 with the list scrolled to its middle or end): nothing short of the bar, 27 hidden-card pairs excused",
+        "phone: fallback fonts: all 191 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 407x285 -> 407x285, top bar ends at 72 -> 72, squad bar starts at 309 -> 309, uncovered 100% -> 100%; touchTargets on 26 states (14 with the list scrolled to its middle or end): nothing short of the bar, 27 hidden-card pairs excused",
+        "phone: wide fonts: all 190 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 407x285 -> 407x285, top bar ends at 72 -> 72, squad bar starts at 308 -> 308, uncovered 100% -> 100%; touchTargets on 26 states (14 with the list scrolled to its middle or end): nothing short of the bar, 24 hidden-card pairs excused"
       ],
       "desktop": {
         "status": "skipped",
@@ -138,9 +138,9 @@
     {
       "check": "at 740 x 360 every screen shows everything jeremy.v1 showed, with real, fallback and wide fonts",
       "notes": [
-        "phone: real fonts: all 248 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 385x270 -> 385x270, top bar ends at 72 -> 72, squad bar starts at 294 -> 294, uncovered 100% -> 100%",
-        "phone: fallback fonts: all 248 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 385x270 -> 385x270, top bar ends at 72 -> 72, squad bar starts at 294 -> 294, uncovered 100% -> 100%",
-        "phone: wide fonts: all 242 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 385x270 -> 385x270, top bar ends at 72 -> 72, squad bar starts at 293 -> 293, uncovered 100% -> 100%"
+        "phone: real fonts: all 248 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 385x270 -> 385x270, top bar ends at 72 -> 72, squad bar starts at 294 -> 294, uncovered 100% -> 100%; touchTargets on 26 states (14 with the list scrolled to its middle or end): nothing short of the bar, 10 hidden-card pairs excused",
+        "phone: fallback fonts: all 248 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 385x270 -> 385x270, top bar ends at 72 -> 72, squad bar starts at 294 -> 294, uncovered 100% -> 100%; touchTargets on 26 states (14 with the list scrolled to its middle or end): nothing short of the bar, 9 hidden-card pairs excused",
+        "phone: wide fonts: all 242 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 385x270 -> 385x270, top bar ends at 72 -> 72, squad bar starts at 293 -> 293, uncovered 100% -> 100%; touchTargets on 26 states (14 with the list scrolled to its middle or end): nothing short of the bar, 14 hidden-card pairs excused"
       ],
       "desktop": {
         "status": "skipped",
@@ -156,9 +156,9 @@
     {
       "check": "at 1024 x 768 every screen shows everything jeremy.v1 showed, with real, fallback and wide fonts",
       "notes": [
-        "desktop: real fonts: all 414 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 968x678 -> 968x678, top bar ends at 72 -> 72, squad bar starts at 702 -> 702, uncovered 100% -> 100%",
-        "desktop: fallback fonts: all 416 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 968x678 -> 968x678, top bar ends at 72 -> 72, squad bar starts at 702 -> 702, uncovered 100% -> 100%",
-        "desktop: wide fonts: all 459 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 968x678 -> 968x678, top bar ends at 72 -> 72, squad bar starts at 701 -> 701, uncovered 100% -> 100%"
+        "desktop: real fonts: all 414 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 968x678 -> 968x678, top bar ends at 72 -> 72, squad bar starts at 702 -> 702, uncovered 100% -> 100%; touchTargets on 12 states (0 with the list scrolled to its middle or end): nothing short of the bar, 0 hidden-card pairs excused",
+        "desktop: fallback fonts: all 416 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 968x678 -> 968x678, top bar ends at 72 -> 72, squad bar starts at 702 -> 702, uncovered 100% -> 100%; touchTargets on 12 states (0 with the list scrolled to its middle or end): nothing short of the bar, 0 hidden-card pairs excused",
+        "desktop: wide fonts: all 459 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 968x678 -> 968x678, top bar ends at 72 -> 72, squad bar starts at 701 -> 701, uncovered 100% -> 100%; touchTargets on 12 states (0 with the list scrolled to its middle or end): nothing short of the bar, 0 hidden-card pairs excused"
       ],
       "desktop": {
         "status": "pass",
@@ -174,9 +174,9 @@
     {
       "check": "at 1280 x 800 every screen shows everything jeremy.v1 showed, with real, fallback and wide fonts",
       "notes": [
-        "desktop: real fonts: all 414 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 1014x710 -> 1014x710, top bar ends at 72 -> 72, squad bar starts at 734 -> 734, uncovered 100% -> 100%",
-        "desktop: fallback fonts: all 416 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 1014x710 -> 1014x710, top bar ends at 72 -> 72, squad bar starts at 734 -> 734, uncovered 100% -> 100%",
-        "desktop: wide fonts: all 459 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 1014x710 -> 1014x710, top bar ends at 72 -> 72, squad bar starts at 733 -> 733, uncovered 100% -> 100%"
+        "desktop: real fonts: all 414 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 1014x710 -> 1014x710, top bar ends at 72 -> 72, squad bar starts at 734 -> 734, uncovered 100% -> 100%; touchTargets on 12 states (0 with the list scrolled to its middle or end): nothing short of the bar, 0 hidden-card pairs excused",
+        "desktop: fallback fonts: all 416 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 1014x710 -> 1014x710, top bar ends at 72 -> 72, squad bar starts at 734 -> 734, uncovered 100% -> 100%; touchTargets on 12 states (0 with the list scrolled to its middle or end): nothing short of the bar, 0 hidden-card pairs excused",
+        "desktop: wide fonts: all 459 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 1014x710 -> 1014x710, top bar ends at 72 -> 72, squad bar starts at 733 -> 733, uncovered 100% -> 100%; touchTargets on 12 states (0 with the list scrolled to its middle or end): nothing short of the bar, 0 hidden-card pairs excused"
       ],
       "desktop": {
         "status": "pass",
@@ -194,9 +194,9 @@
     {
       "check": "at 1366 x 768 every screen shows everything jeremy.v1 showed, with real, fallback and wide fonts",
       "notes": [
-        "desktop: real fonts: all 414 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 968x678 -> 968x678, top bar ends at 72 -> 72, squad bar starts at 702 -> 702, uncovered 100% -> 100%",
-        "desktop: fallback fonts: all 416 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 968x678 -> 968x678, top bar ends at 72 -> 72, squad bar starts at 702 -> 702, uncovered 100% -> 100%",
-        "desktop: wide fonts: all 460 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 968x678 -> 968x678, top bar ends at 72 -> 72, squad bar starts at 701 -> 701, uncovered 100% -> 100%"
+        "desktop: real fonts: all 414 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 968x678 -> 968x678, top bar ends at 72 -> 72, squad bar starts at 702 -> 702, uncovered 100% -> 100%; touchTargets on 12 states (0 with the list scrolled to its middle or end): nothing short of the bar, 0 hidden-card pairs excused",
+        "desktop: fallback fonts: all 416 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 968x678 -> 968x678, top bar ends at 72 -> 72, squad bar starts at 702 -> 702, uncovered 100% -> 100%; touchTargets on 12 states (0 with the list scrolled to its middle or end): nothing short of the bar, 0 hidden-card pairs excused",
+        "desktop: wide fonts: all 460 lines jeremy.v1 showed whole on its 12 screens (title, squad, squad, three picked, campfire, campfire, a card taken, paused at the campfire, delve, paused in the delve, boss-floor campfire, boss room, campfire after the boss, game over) are whole, uncovered and as big in jeremy.v2; arena 968x678 -> 968x678, top bar ends at 72 -> 72, squad bar starts at 701 -> 701, uncovered 100% -> 100%; touchTargets on 12 states (0 with the list scrolled to its middle or end): nothing short of the bar, 0 hidden-card pairs excused"
       ],
       "desktop": {
         "status": "pass",
@@ -205,6 +205,38 @@
       },
       "phone": {
         "status": "skipped",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "on a notched phone held upright, no button sits inside the safe area and the bars stay jeremy.v1's height",
+      "notes": [
+        "phone: 390x844, insets {\"top\":47,\"bottom\":34,\"left\":0,\"right\":0}: top bars match jeremy.v1 and bottom bars are no taller on all 12 screens; lists squad 650->648, squad, three picked 650->648, campfire 650->648, campfire, a card taken 650->648, paused at the campfire 650->648, boss-floor campfire 650->648, campfire after the boss 650->648; no reachable button in the safe area (jeremy.v1 had 0); touchTargets on 18 states, 6 scrolled"
+      ],
+      "desktop": {
+        "status": "skipped",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "on a notched phone held sideways, no button sits inside the safe area and the bars stay jeremy.v1's height",
+      "notes": [
+        "phone: 844x390, insets {\"top\":0,\"bottom\":21,\"left\":47,\"right\":47}: top bars match jeremy.v1 and bottom bars are no taller on all 12 screens; lists squad 246->246, squad, three picked 246->246, campfire 246->246, campfire, a card taken 246->246, paused at the campfire 246->246, boss-floor campfire 246->246, campfire after the boss 246->246; no reachable button in the safe area (jeremy.v1 had 20); touchTargets on 26 states, 14 scrolled; last card scrolls fully into view on every list"
+      ],
+      "desktop": {
+        "status": "skipped",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
         "screenshots": [],
         "error": null
       }
