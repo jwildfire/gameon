@@ -903,20 +903,37 @@
   var screenC = $("screen"), sctx = screenC.getContext("2d");
   var buf = document.createElement("canvas"), bctx = buf.getContext("2d");
   var bg = document.createElement("canvas");
-  var scaleDev = 1, OX = 0, OY = 0, bufW = 0, bufH = 0, bgPad = 0;
+  var scaleDev = 1, OX = 0, OY = 0, bufW = 0, bufH = 0, bgPad = 0, fitHud = -1, fitDock = -1;
+  // jeremy.v2: fit the battlefield again whenever the HUD or the dock changes height (a new battle's name and arsenal,
+  // See fort showing up), so the world always sits between them as resize() measured
+  function refit() { for (var i = 0; i < 3 && ($("hud").offsetHeight !== fitHud || $("dock").offsetHeight !== fitDock); i++) resize(); }
   var camX = 0, camMax = 0, camHoldX = null, camHoldUntil = 0, gesture = null;
 
   function resize() {
     var dpr = window.devicePixelRatio || 1, W = Math.max(1, window.innerWidth), H = Math.max(1, window.innerHeight);
     screenC.width = Math.round(W * dpr); screenC.height = Math.round(H * dpr);
-    var top = $("hud").offsetHeight, bottom = $("dock").offsetHeight;
-    if (mode !== "play") { top = 0; bottom = 0; }
-    var availH = Math.max(140, H - top - bottom);
-    var s = Math.min(W / VIEW_W, availH / (WORLD_H - FIT_TOP));
+    var play = mode === "play", hud = $("hud"), look = $("btn-look"), bottom = $("dock").offsetHeight;
+    // jeremy.v2: fit two spare rows and sit the world one row up, so the HUD and dock never hide a row jeremy.v1 showed
+    var fit = function (top) { var a = Math.max(140, H - (play ? top + bottom : 0)); return { top: play ? top : 0, availH: a, s: Math.min(W / VIEW_W, a / (WORLD_H - FIT_TOP + 2)) }; };
+    var f;
+    if (play && look) {
+      // See fort only when the battlefield is wider than the screen with See fort in the HUD. Otherwise the HUD
+      // without it may leave room to draw a little bigger, but never so big that the fort goes off the edge, so
+      // the HUD's height and the battlefield's size can't keep changing each other.
+      look.hidden = false;
+      f = fit(hud.offsetHeight);
+      if (worldW - Math.ceil(screenC.width / (f.s * dpr)) <= 0) {
+        look.hidden = true;
+        f = fit(hud.offsetHeight);
+        f.s = Math.min(f.s, screenC.width / dpr / worldW);
+      }
+    } else f = fit(hud.offsetHeight);
+    fitHud = hud.offsetHeight; fitDock = bottom;
+    var top = f.top, availH = f.availH, s = f.s;
     scaleDev = s * dpr;
     bufW = Math.ceil(screenC.width / scaleDev); bufH = Math.ceil(screenC.height / scaleDev);
     buf.width = bufW; buf.height = bufH;
-    OY = Math.floor((top + availH) * dpr / scaleDev - WORLD_H);
+    OY = Math.floor((top + availH) * dpr / scaleDev - WORLD_H) - 1;
     camMax = Math.max(0, worldW - bufW);
     camX = clamp(camX, 0, camMax);
     placeCamera();
@@ -1613,7 +1630,7 @@
   }
   function startBattle() {
     if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
-    mode = "play"; show(null); updateHud(); updateHint(); buildBar();
+    mode = "play"; show(null); updateHud(); updateHint(); buildBar(); refit();
     if (camMax > 0) { camX = camMax; camHoldX = camMax; camHoldUntil = simT + 1500; introPan = true; }
     var named = {};
     defenders().forEach(function (d) {
@@ -1931,11 +1948,13 @@
   }
 
   window.addEventListener("resize", resize);
+  if (window.ResizeObserver) { var ro = new ResizeObserver(function () { if (mode === "play") refit(); }); ro.observe($("hud")); ro.observe($("dock")); }
 
   // Testing aid: inspect state, or fast-forward the simulation when a browser throttles frames.
   window.ANGRY_DEBUG = {
     get state() { return { pack: pack.id, level: level && level.id, mode: mode, phase: phase, selected: selected, arsenal: arsenal, score: score, defenders: defendersLeft(), ents: ents.length, wind: wind, topSpeed: topSpeed, gravity: gravK,
-      time: Math.round(simT), paused: paused, aim: { keys: !!(aim && aim.kb), ang: Math.round(kb.ang * 10) / 10, pow: Math.round(kb.pow * 100) / 100, target: kb.x == null ? null : Math.round(kb.x) }, camX: Math.round(camX), camMax: Math.round(camMax), lookingAtFort: camHoldX != null && camHoldX > camMax / 2, sound: soundOn }; },
+      time: Math.round(simT), paused: paused, aim: { keys: !!(aim && aim.kb), ang: Math.round(kb.ang * 10) / 10, pow: Math.round(kb.pow * 100) / 100, target: kb.x == null ? null : Math.round(kb.x) }, camX: Math.round(camX), camMax: Math.round(camMax), lookingAtFort: camHoldX != null && camHoldX > camMax / 2, sound: soundOn,
+      view: { scale: scaleDev / (window.devicePixelRatio || 1), oy: OY } }; },
     advance: function (ms) { for (var i = 0; i < Math.round(ms / STEP); i++) step(); draw(); updateHud(); return this.state; },
     open: function (packId, levelNo) { var i = PACKS.findIndex(function (p) { return p.id === packId; }); campaign = null; usePack(i); openIntro(levelNo || 0); startBattle(); this.advance(1500); return this.state; },
     mission: function (packId, k) { var i = PACKS.findIndex(function (p) { return p.id === packId; }); usePack(i); startMission(k); startBattle(); this.advance(1500); return this.state; },

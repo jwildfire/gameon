@@ -181,7 +181,20 @@ body:not(.playing) .hud, body:not(.playing) .dock{display:none}
 /* jeremy.v2: fingertip-sized buttons and keys (game idea #224). Every top button is 48 px tall; the HUD packs its
    buttons into one group so a sideways phone keeps them in one row; the battlefield keeps at least the room it had. */
 .pxbtn{min-height:48px;min-width:48px}
-.hud{gap:8px 10px;border-bottom:0;box-shadow:0 2px 0 var(--edge)}
+.hud{gap:8px 10px;padding-bottom:0}
+/* the battlefield keeps every row jeremy.v1 showed: the HUD and dock edges stay real borders, which resize() counts,
+   and the dock gives back the room the taller HUD takes (no gap above the arsenal; the 8 px under it moves into the bar) */
+.dock{padding-bottom:0}
+.bar{padding-top:0;padding-bottom:max(8px, env(safe-area-inset-bottom, 0px))}
+/* a started campaign's banner fits a 375 px phone: on a narrow screen Continue goes under the words instead of
+   pushing the panel off the screen's edge */
+.camp-banner{grid-template-columns:auto minmax(0, 1fr) auto}
+.camp-banner b, .camp-banner small{min-width:0;overflow-wrap:break-word}
+@media (max-width: 560px){
+  .camp-banner{grid-template-columns:auto minmax(0, 1fr)}
+  .camp-banner canvas{grid-row:span 2}
+  .camp-banner .go{grid-row:3;grid-column:1 / -1;justify-self:start;margin-top:6px}
+}
 .hud .btns{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px 10px;margin-left:auto}
 .hud .grow{display:none}
 .intro .titleline{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 16px;margin:8px 0 14px}
@@ -196,9 +209,9 @@ body:not(.playing) .hud, body:not(.playing) .dock{display:none}
 .pin{pointer-events:none}
 .dock.more::after{content:"";position:absolute;right:1px;top:var(--more-y, 50%);transform:translateY(-50%);border:7px solid transparent;border-left:9px solid var(--gold);pointer-events:none}
 @media (max-height: 430px){
-  .hud{padding-bottom:0}
-  .dock{border-top:0;box-shadow:0 -3px 0 var(--edge)}
-  .bar{padding-top:2px;padding-bottom:0}
+  /* sideways: a 1 px line under the HUD, and the hint's dark row is the dock's edge */
+  .hud{border-bottom-width:1px}
+  .dock{border-top:0}
   .overlay{padding-block:max(8px, env(safe-area-inset-top, 0px)) max(8px, env(safe-area-inset-bottom, 0px))}
   /* the briefing: the same words at the same size with less space between them, and Start battle kept on screen */
   .intro .panel, .camp .panel{padding-top:8px}
