@@ -142,17 +142,16 @@ for (const f of FROZEN) {
 
 test("Princess Lady Drive still offers jeremy.v2 (the default) and jeremy.v1", async ({ page, shot, note, browserErrors }) => {
   const g = entry("princess-lady-drive");
-  expect(g.default).toBe("jeremy.v2");
-  expect(g.url).toBe("games/princess-lady-drive/jeremy.v2/");
+  // since jeremy.v3 (game idea #222) is the default, this checks that jeremy.v2 and jeremy.v1 are still in the
+  // picker and that jeremy.v2 plays from it
+  expect(g.versions.find(v => v.id === "jeremy.v2").url).toBe("games/princess-lady-drive/jeremy.v2/");
   await page.goto("./");
   await page.locator('#shelf .cart[href="#princess-lady-drive"]').click();
-  const items = page.locator("#ver-list .ver-item");
-  await expect(items).toHaveCount(2);
-  await expect(items.nth(0)).toContainText("jeremy.v2");
-  await expect(items.nth(0)).toContainText("Latest");
-  await expect(items.nth(1)).toContainText("jeremy.v1");
+  const v2item = page.locator('#ver-list .ver-item[data-version="jeremy.v2"]');
+  await expect(v2item).toContainText("jeremy.v2");
+  await expect(page.locator('#ver-list .ver-item[data-version="jeremy.v1"]')).toContainText("jeremy.v1");
   await shot("princess-chooser");
-  await items.nth(0).click();
+  await v2item.click();
   await expect(page.locator("#frame")).toHaveAttribute("src", "games/princess-lady-drive/jeremy.v2/");
   await page.locator("#ver-select").selectOption("jeremy.v1");
   await expect(page.locator("#frame")).toHaveAttribute("src", v1Url("princess-lady-drive"));
