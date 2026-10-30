@@ -5,10 +5,15 @@
     "title": "Delve Squad",
     "tagline": "Torch-lit halls, glowing loot cards, and the Rat King waiting for your heroes.",
     "credit": "Made by Jeremy",
-    "url": "games/delve-squad/",
+    "url": "games/delve-squad/jeremy.v2/",
     "repo": "https://github.com/jwildfire/gameon",
     "color": "#ff9d3c",
-    "tags": ["New", "Dungeon", "1 player"]
+    "tags": ["New", "Dungeon", "1 player"],
+    "default": "jeremy.v2",
+    "versions": [
+      { "id": "jeremy.v1", "url": "games/delve-squad/", "made": "2026-10-29", "note": "The first version" },
+      { "id": "jeremy.v2", "url": "games/delve-squad/jeremy.v2/", "made": "2026-10-30", "note": "Bigger buttons, and WASD at the campfire", "from": "jeremy.v1", "idea": 231 }
+    ]
   },
   {
     "slug": "claw-of-cool",
