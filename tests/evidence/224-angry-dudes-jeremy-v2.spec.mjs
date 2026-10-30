@@ -36,6 +36,12 @@ async function load(page, url, size) {
   });
   await page.waitForTimeout(100);
 }
+// the same, with the web fonts blocked, so every piece is laid out in the fallback fonts
+async function loadFallback(page, url, size) {
+  await page.route(/fonts\.(googleapis|gstatic)\.com/, r => r.abort());
+  await load(page, url, size);
+}
+const notFontErrors = errors => errors.filter(e => !/Failed to load resource/.test(e));
 async function center(page, sel) {
   await page.locator(sel).first().scrollIntoViewIfNeeded();
   const b = await page.locator(sel).first().boundingBox();
@@ -98,15 +104,35 @@ function snap() {
   }
   let field = null;
   if (document.body.classList.contains("playing")) {
-    // the battlefield: the game fits world rows 70-300 between the HUD and the dock (FIT_TOP and WORLD_H in game.js)
-    const W = innerWidth, H = innerHeight, top = document.getElementById("hud").offsetHeight, bottom = document.getElementById("dock").offsetHeight;
-    const avail = Math.max(140, H - top - bottom), scale = Math.min(W / 720, avail / 230);
+    // the battlefield: jeremy.v1 fits world rows 70-300 between the HUD and the dock (FIT_TOP and WORLD_H in its
+    // game.js) and doesn't report its view, so its scale and offset are worked out the way its resize() does;
+    // jeremy.v2 reports its own (ANGRY_DEBUG.state.view)
+    const hud = document.getElementById("hud"), dock = document.getElementById("dock");
+    const W = innerWidth, H = innerHeight, top = hud.offsetHeight, bottom = dock.offsetHeight;
+    const avail = Math.max(140, H - top - bottom);
+    let { scale, oy } = window.ANGRY_DEBUG.state.view || {};
+    if (scale == null) { scale = Math.min(W / 720, avail / 230); oy = Math.floor((top + avail) / scale - 300); }
     const band = { l: 0, r: W, b: top + avail, t: top + avail - 230 * scale };
     const area = [...document.querySelectorAll("button")].filter(b => b.offsetParent).map(b => b.getBoundingClientRect())
       .reduce((a, r) => a + Math.max(0, Math.min(r.right, band.r) - Math.max(r.left, band.l)) * Math.max(0, Math.min(r.bottom, band.b) - Math.max(r.top, band.t)), 0);
-    field = { scale, top: band.t, bottom: band.b, covered: Math.round(area) };
+    // the world rows a player sees between the HUD's lowest drawn pixel and the dock's highest, shadows included
+    const reach = (el, down) => {
+      let ext = 0;
+      const shadows = getComputedStyle(el).boxShadow.replace(/rgba?\([^)]*\)/g, "");
+      if (shadows === "none") return 0;
+      for (const sh of shadows.split(",")) {
+        if (/inset/.test(sh)) continue;
+        const [, y = 0, blur = 0, spread = 0] = (sh.match(/-?[\d.]+px/g) || []).map(parseFloat);
+        ext = Math.max(ext, (down ? y : -y) + blur + spread);
+      }
+      return ext;
+    };
+    const seenTop = hud.getBoundingClientRect().bottom + reach(hud, true), seenBottom = dock.getBoundingClientRect().top - reach(dock, false);
+    field = { scale, top: band.t, bottom: band.b, covered: Math.round(area), rows: [seenTop / scale - oy, seenBottom / scale - oy] };
   }
-  return { out, field };
+  // does the battlefield run past the screen's edge (so See fort has something to show)?
+  const wide = document.body.classList.contains("playing") ? window.ANGRY_DEBUG.state.camMax > 0 : null;
+  return { out, field, wide };
 }
 // everything jeremy.v1 showed whole is still whole in jeremy.v2, uncovered, with letters as big; HUD pieces also as big
 function compare(where, a, b, hudToo) {
@@ -130,6 +156,8 @@ async function battles(page, url, size) {
   const out = {};
   for (const [id, n] of list) for (let i = 0; i < n; i++) {
     await page.evaluate(([id, i]) => window.ANGRY_DEBUG.open(id, i), [id, i]);
+    // two frames, so the screen has settled as a player would first see it
+    await page.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))));
     out[`${id} ${i + 1}`] = await page.evaluate(snap);
   }
   return out;
@@ -358,9 +386,13 @@ test("the HUD isn't squeezed: in all 37 battles every piece jeremy.v1 showed who
   for (const size of sizesFor(isMobile)) {
     const a = await battles(page, V1, size), b = await battles(page, V2, size);
     const lost = [];
-    let whole = 0, heights = new Set(), v1h = new Set();
+    let whole = 0, heights = new Set(), v1h = new Set(), fits = [];
     for (const lv of Object.keys(a)) {
-      lost.push(...compare(`${tag(size)} ${lv}`, a[lv].out, b[lv].out, true));
+      // See fort is only there when the battlefield runs past the screen; where jeremy.v2 draws the whole of it
+      // (fort and all) it has nothing to show
+      const l = compare(`${tag(size)} ${lv}`, a[lv].out, b[lv].out, true);
+      if (!b[lv].wide && a[lv].out["#btn-look"] && l.some(x => x.includes("#btn-look"))) fits.push(lv);
+      lost.push(...l.filter(x => b[lv].wide || !x.includes("#btn-look")));
       whole += wholeCount(a[lv].out);
       for (const [k, v] of Object.entries(b[lv].out)) if (k.startsWith("#btn-")) heights.add(Math.round(v.h));
       for (const [k, v] of Object.entries(a[lv].out)) if (k.startsWith("#btn-")) v1h.add(Math.round(v.h));
@@ -368,7 +400,8 @@ test("the HUD isn't squeezed: in all 37 battles every piece jeremy.v1 showed who
     expect(lost).toEqual([]);
     if (size.width >= size.height) expect([...heights]).toEqual([48]);
     const ex = b["rome 1"].out;
-    lines.push(`${tag(size)}: ${whole} pieces whole in jeremy.v1 across 37 battles, all still whole and as big in jeremy.v2; top buttons ${[...v1h].join("/") || "hidden"} → ${[...heights].join("/") || "hidden"} px tall` +
+    lines.push(`${tag(size)}: ${whole} pieces whole in jeremy.v1 across 37 battles, all still whole and as big in jeremy.v2` +
+      (fits.length ? ` (except See fort in ${fits.join(", ")}, where jeremy.v2 fits the whole battlefield, fort and all, on the screen)` : "") + `; top buttons ${[...v1h].join("/") || "hidden"} → ${[...heights].join("/") || "hidden"} px tall` +
       (ex["#btn-restart"] ? ` (Syracuse: Restart ${ex["#btn-restart"].w.toFixed(0)}x${ex["#btn-restart"].h.toFixed(0)}, Menu ${ex["#btn-menu"].w.toFixed(0)}x${ex["#btn-menu"].h.toFixed(0)}, Sound ${ex["#btn-sound"].w.toFixed(0)}x${ex["#btn-sound"].h.toFixed(0)})` : ""));
   }
   await page.setViewportSize(isMobile ? SIDEWAYS : DESKS[1]);
@@ -378,25 +411,34 @@ test("the HUD isn't squeezed: in all 37 battles every piece jeremy.v1 showed who
   expect(browserErrors).toEqual([]);
 });
 
-test("no button covers the battlefield in any of the 37 battles, and the battlefield is drawn at least as big as in jeremy.v1", async ({ page, isMobile, note, browserErrors }) => {
-  test.setTimeout(240_000);
+test("no button covers the battlefield in any of the 37 battles, every world row jeremy.v1 showed is still on screen, and the battlefield is drawn at least as big, in the real and the fallback fonts", async ({ page, isMobile, note, browserErrors }) => {
+  test.setTimeout(600_000);
   await page.addInitScript(seedRandom);
   const lines = [];
-  for (const size of sizesFor(isMobile)) {
-    const a = await battles(page, V1, size), b = await battles(page, V2, size);
-    let worst = Infinity, best = 0, covered = 0;
-    for (const lv of Object.keys(a)) {
-      const f1 = a[lv].field, f2 = b[lv].field;
-      expect(f2.covered, `${tag(size)} ${lv}: button area over the battlefield`).toBeLessThanOrEqual(f1.covered);
-      expect(f2.scale, `${tag(size)} ${lv}: battlefield scale`).toBeGreaterThanOrEqual(f1.scale - 1e-6);
-      covered += f2.covered;
-      worst = Math.min(worst, f2.scale / f1.scale); best = Math.max(best, f2.scale / f1.scale);
+  for (const fonts of ["real fonts", "fallback fonts"]) {
+    if (fonts === "fallback fonts") await page.route(/fonts\.(googleapis|gstatic)\.com/, r => r.abort());
+    for (const size of sizesFor(isMobile)) {
+      const a = await battles(page, V1, size), b = await battles(page, V2, size);
+      let worst = Infinity, best = 0, covered = 0, top1 = -Infinity, top2 = -Infinity, bot1 = Infinity, bot2 = Infinity;
+      for (const lv of Object.keys(a)) {
+        const f1 = a[lv].field, f2 = b[lv].field, where = `${fonts} ${tag(size)} ${lv}`;
+        expect(f2.covered, `${where}: button area over the battlefield`).toBeLessThanOrEqual(f1.covered);
+        expect(f2.scale, `${where}: battlefield scale`).toBeGreaterThanOrEqual(f1.scale - 1e-6);
+        // the world is rows 0 (its top) to 300; everything jeremy.v1 showed of it is still between the HUD and the dock
+        expect(Math.max(0, f2.rows[0]), `${where}: first world row on screen (jeremy.v1 ${f1.rows[0].toFixed(2)})`).toBeLessThanOrEqual(Math.max(0, f1.rows[0]) + 1e-6);
+        expect(f2.rows[1], `${where}: last world row on screen`).toBeGreaterThanOrEqual(f1.rows[1] - 1e-6);
+        covered += f2.covered;
+        worst = Math.min(worst, f2.scale / f1.scale); best = Math.max(best, f2.scale / f1.scale);
+        top1 = Math.max(top1, f1.rows[0]); top2 = Math.max(top2, f2.rows[0]); bot1 = Math.min(bot1, f1.rows[1]); bot2 = Math.min(bot2, f2.rows[1]);
+      }
+      const f1 = a["rome 1"].field, f2 = b["rome 1"].field;
+      const row = r => r < 0 ? "above the world" : r.toFixed(1);
+      lines.push(`${fonts}, ${tag(size)}: world rows on screen, worst battle, ${row(top1)} to ${bot1.toFixed(1)} in jeremy.v1 → ${row(top2)} to ${bot2.toFixed(1)} in jeremy.v2; ` +
+        `button area over the battlefield ${covered} px² (37 battles); drawn ${(worst * 100).toFixed(1)}-${(best * 100).toFixed(1)}% of jeremy.v1's size (Syracuse: scale ${f1.scale.toFixed(3)} → ${f2.scale.toFixed(3)})`);
     }
-    const f1 = a["rome 1"].field, f2 = b["rome 1"].field;
-    lines.push(`${tag(size)}: button area over the battlefield ${covered} px² in jeremy.v2 (37 battles); battlefield ${(worst * 100).toFixed(1)}-${(best * 100).toFixed(1)}% of jeremy.v1's size (Syracuse: rows ${f1.top.toFixed(0)}-${f1.bottom.toFixed(0)} → ${f2.top.toFixed(0)}-${f2.bottom.toFixed(0)}, scale ${f1.scale.toFixed(3)} → ${f2.scale.toFixed(3)})`);
   }
   note(lines.join(". "));
-  expect(browserErrors).toEqual([]);
+  expect(notFontErrors(browserErrors)).toEqual([]);
 });
 
 test("the briefing, title, battle report and campaign screens keep everything jeremy.v1 showed whole, and Start battle is on screen sideways in all 37 briefings", async ({ page, isMobile, shot, note, browserErrors }) => {
@@ -478,6 +520,59 @@ test("what stays still works: drag back and let go launches, a win shows the bat
   await shot("victory");
   note(`${isMobile ? "a finger" : "the mouse"} dragged back from the launcher and let go: a legionary flew (${s0.arsenal.legionary}→${s1.arsenal.legionary} left); a win showed "Victory!" with stars and saved angrydudes.best.rome.syracuse = ${best}`);
   expect(browserErrors).toEqual([]);
+});
+
+test("the title fits with a campaign under way: every button is 48 x 48 px, 8 px apart and 8 px from the edges all the way down the list, and nothing scrolls sideways, in every pack, in the real and the fallback fonts", async ({ page, isMobile, shot, note, browserErrors }) => {
+  test.setTimeout(300_000);
+  const lines = [];
+  for (const fonts of ["real fonts", "fallback fonts"]) {
+    if (fonts === "fallback fonts") await page.route(/fonts\.(googleapis|gstatic)\.com/, r => r.abort());
+    for (const size of sizesFor(isMobile)) {
+      await load(page, V2, size);
+      // every campaign two missions in (World War II as the checker set it up: Omaha and Pointe du Hoc won, Bazooka team earned)
+      await page.evaluate(() => {
+        localStorage.clear();
+        for (const P of window.ANGRY_PACKS) if (P.campaign) localStorage.setItem("angrydudes.campaign." + P.id, JSON.stringify(P.id === "ww2"
+          ? { done: ["omaha", "pointe"], perks: ["bazooka"], stars: { omaha: 2, pointe: 3 }, offers: {} }
+          : { done: P.campaign.missions.slice(0, 2).map(m => m.level), perks: [], stars: {}, offers: {} }));
+      });
+      await load(page, V2);
+      const packs = await page.evaluate(() => window.ANGRY_PACKS.map(P => [P.id, !!P.campaign]));
+      let screens = 0, banners = 0;
+      for (let p = 0; p < packs.length; p++) {
+        await page.evaluate(p => document.querySelectorAll("#packs .pack")[p].click(), p);
+        await page.evaluate(() => document.getElementById("menu").scrollTop = 0);
+        if (packs[p][1]) {
+          await expect(page.locator(".camp-banner .go")).toHaveText("Continue");
+          banners++;
+        }
+        // down the whole list, a screen at a time
+        const max = await page.evaluate(() => { const m = document.getElementById("menu"); return m.scrollHeight - m.clientHeight; });
+        for (let y = 0; ; y = Math.min(max, y + Math.round(size.height * 0.6))) {
+          await page.evaluate(y => document.getElementById("menu").scrollTop = y, y);
+          const where = `${fonts} ${tag(size)} ${packs[p][0]} title scrolled to ${y}`;
+          const { problems } = await touchTargets(page);
+          expect(problems, `${where}: ${problems.join("; ")}`).toEqual([]);
+          const wide = await page.evaluate(() => {
+            const m = document.getElementById("menu"), panel = m.querySelector(".panel").getBoundingClientRect();
+            return { menu: m.scrollWidth - m.clientWidth, page: document.documentElement.scrollWidth - innerWidth, panelRight: panel.right, width: innerWidth };
+          });
+          expect(wide.menu, `${where}: the menu scrolls sideways`).toBeLessThanOrEqual(0);
+          expect(wide.page, `${where}: the page scrolls sideways`).toBeLessThanOrEqual(0);
+          expect(wide.panelRight, `${where}: the panel's right edge`).toBeLessThanOrEqual(wide.width);
+          screens++;
+          if (y >= max) break;
+        }
+      }
+      lines.push(`${fonts}, ${tag(size)}: ${packs.length} packs (${banners} with a campaign under way), ${screens} scroll positions, no problems and no sideways scroll`);
+    }
+  }
+  await page.unroute(/fonts\.(googleapis|gstatic)\.com/);
+  await load(page, V2, PHONES[0]);
+  await page.evaluate(() => document.querySelectorAll("#packs .pack")[window.ANGRY_PACKS.findIndex(P => P.id === "ww2")].click());
+  if (isMobile) await shot("title-campaign-upright");
+  note(lines.join(". "));
+  expect(notFontErrors(browserErrors)).toEqual([]);
 });
 
 test("saves carry over: jeremy.v1's pack, sound, best scores and campaign load in jeremy.v2, which saves under the same keys and adds none", async ({ page, note, browserErrors }) => {

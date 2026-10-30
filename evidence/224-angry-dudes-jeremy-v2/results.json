@@ -1,10 +1,10 @@
 {
   "spec": "224-angry-dudes-jeremy-v2",
   "passed": true,
-  "headline": "PASS: 11 of 11 checks pass at desktop and phone widths.",
-  "generatedAt": "2026-10-29T22:30:12.535Z",
+  "headline": "PASS: 12 of 12 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-30T01:33:02.061Z",
   "target": "local server (python3 -m http.server) on this branch",
-  "commit": "a834d2e",
+  "commit": "421b466",
   "playwright": "1.61.1",
   "specFile": "tests/evidence/224-angry-dudes-jeremy-v2.spec.mjs",
   "checks": [
@@ -34,8 +34,8 @@
     {
       "check": "keys: W and ↑ both tilt the aim up, S and ↓ down, D and → add power, A and ← take it away, Space or Enter launches and does the special move, and E, Q and 1-9 pick a dude",
       "notes": [
-        "desktop: from the title ↓, Enter, Enter started Syracuse. w 35→36.5, ArrowUp 36.5→38; s 38→36.5, ArrowDown 36.5→35; d 0.7→0.72, ArrowRight 0.72→0.74; a 0.74→0.72, ArrowLeft 0.72→0.67 (degrees and power). Holding W 35→62.8°. Space launched a legionary, Enter made him charge; E, Q and 3 picked centurion, legionary, pilum; Enter, Enter fired a pilum; 5 then Space sent the testudo; F looked at the fort and back; M turned the sound off and on; at Fort du Roule → and D moved the Mustang's target 516→520 and Space called it in",
-        "phone: 812 x 375: from the title ↓, Enter, Enter started Syracuse. w 35→36.5, ArrowUp 36.5→38; s 38→32.8, ArrowDown 32.8→30.5; d 0.7→0.76, ArrowRight 0.76→0.79; a 0.79→0.76, ArrowLeft 0.76→0.73 (degrees and power). Holding W 30.5→59°. Space launched a legionary, Enter made him charge; E, Q and 3 picked centurion, legionary, pilum; Enter, Enter fired a pilum; 5 then Space sent the testudo; M turned the sound off and on; at Fort du Roule → and D moved the Mustang's target 512→516 and Space called it in"
+        "desktop: from the title ↓, Enter, Enter started Syracuse. w 35→37.3, ArrowUp 37.3→39.5; s 39.5→38, ArrowDown 38→36.5; d 0.7→0.73, ArrowRight 0.73→0.77; a 0.77→0.72, ArrowLeft 0.72→0.62 (degrees and power). Holding W 36.5→59.8°. Space launched a legionary, Enter made him charge; E, Q and 3 picked centurion, legionary, pilum; Enter, Enter fired a pilum; 5 then Space sent the testudo; F looked at the fort and back; M turned the sound off and on; at Fort du Roule → and D moved the Mustang's target 516→524 and Space called it in",
+        "phone: 812 x 375: from the title ↓, Enter, Enter started Syracuse. w 35→37.3, ArrowUp 37.3→38.8; s 38.8→37.3, ArrowDown 37.3→35.8; d 0.7→0.74, ArrowRight 0.74→0.76; a 0.76→0.73, ArrowLeft 0.73→0.64 (degrees and power). Holding W 35.8→58.3°. Space launched a legionary, Enter made him charge; E, Q and 3 picked centurion, legionary, pilum; Enter, Enter fired a pilum; 5 then Space sent the testudo; M turned the sound off and on; at Fort du Roule → and D moved the Mustang's target 512→518 and Space called it in"
       ],
       "desktop": {
         "status": "pass",
@@ -96,7 +96,7 @@
       "check": "the HUD isn't squeezed: in all 37 battles every piece jeremy.v1 showed whole is still whole, uncovered and as big, with the top buttons 48 px tall",
       "notes": [
         "desktop: 1024x768: 582 pieces whole in jeremy.v1 across 37 battles, all still whole and as big in jeremy.v2; top buttons 32 → 48 px tall (Syracuse: Restart 86x48, Menu 60x48, Sound 85x48). 1280x800: 582 pieces whole in jeremy.v1 across 37 battles, all still whole and as big in jeremy.v2; top buttons 32 → 48 px tall (Syracuse: Restart 86x48, Menu 60x48, Sound 85x48). 1366x768: 582 pieces whole in jeremy.v1 across 37 battles, all still whole and as big in jeremy.v2; top buttons 32 → 48 px tall (Syracuse: Restart 86x48, Menu 60x48, Sound 85x48). Upright phones show the Turn sideways card in battle, in both versions",
-        "phone: 375x812: 0 pieces whole in jeremy.v1 across 37 battles, all still whole and as big in jeremy.v2; top buttons 32 → 48 px tall (Syracuse: Restart 86x48, Menu 60x48, Sound 85x48). 812x375: 529 pieces whole in jeremy.v1 across 37 battles, all still whole and as big in jeremy.v2; top buttons 32 → 48 px tall (Syracuse: Restart 86x48, Menu 60x48, Sound 85x48). 667x375: 521 pieces whole in jeremy.v1 across 37 battles, all still whole and as big in jeremy.v2; top buttons 32 → 48 px tall (Syracuse: Restart 86x48, Menu 60x48, Sound 85x48). Upright phones show the Turn sideways card in battle, in both versions"
+        "phone: 375x812: 0 pieces whole in jeremy.v1 across 37 battles, all still whole and as big in jeremy.v2; top buttons 32 → 48 px tall (Syracuse: Restart 86x48, Menu 60x48, Sound 85x48). 812x375: 529 pieces whole in jeremy.v1 across 37 battles, all still whole and as big in jeremy.v2 (except See fort in ww2 5, space 2, where jeremy.v2 fits the whole battlefield, fort and all, on the screen); top buttons 32 → 48 px tall (Syracuse: Restart 86x48, Menu 60x48, Sound 85x48). 667x375: 521 pieces whole in jeremy.v1 across 37 battles, all still whole and as big in jeremy.v2; top buttons 32 → 48 px tall (Syracuse: Restart 86x48, Menu 60x48, Sound 85x48). Upright phones show the Turn sideways card in battle, in both versions"
       ],
       "desktop": {
         "status": "pass",
@@ -114,10 +114,10 @@
       }
     },
     {
-      "check": "no button covers the battlefield in any of the 37 battles, and the battlefield is drawn at least as big as in jeremy.v1",
+      "check": "no button covers the battlefield in any of the 37 battles, every world row jeremy.v1 showed is still on screen, and the battlefield is drawn at least as big, in the real and the fallback fonts",
       "notes": [
-        "desktop: 1024x768: button area over the battlefield 0 px² in jeremy.v2 (37 battles); battlefield 100.0-100.0% of jeremy.v1's size (Syracuse: rows 291-618 → 291-618, scale 1.422 → 1.422). 1280x800: button area over the battlefield 0 px² in jeremy.v2 (37 battles); battlefield 100.0-100.0% of jeremy.v1's size (Syracuse: rows 241-650 → 241-650, scale 1.778 → 1.778). 1366x768: button area over the battlefield 0 px² in jeremy.v2 (37 battles); battlefield 100.0-100.0% of jeremy.v1's size (Syracuse: rows 182-618 → 182-618, scale 1.897 → 1.897)",
-        "phone: 375x812: button area over the battlefield 0 px² in jeremy.v2 (37 battles); battlefield 100.0-100.0% of jeremy.v1's size (Syracuse: rows 542-662 → 542-662, scale 0.521 → 0.521). 812x375: button area over the battlefield 0 px² in jeremy.v2 (37 battles); battlefield 100.5-126.8% of jeremy.v1's size (Syracuse: rows 46-257 → 56-268, scale 0.917 → 0.922). 667x375: button area over the battlefield 0 px² in jeremy.v2 (37 battles); battlefield 100.5-126.8% of jeremy.v1's size (Syracuse: rows 87-257 → 86-268, scale 0.739 → 0.791)"
+        "desktop: real fonts, 1024x768: world rows on screen, worst battle, above the world to 300.4 in jeremy.v1 → above the world to 301.5 in jeremy.v2; button area over the battlefield 0 px² (37 battles); drawn 100.0-100.0% of jeremy.v1's size (Syracuse: scale 1.422 → 1.422). real fonts, 1280x800: world rows on screen, worst battle, above the world to 300.6 in jeremy.v1 → above the world to 301.2 in jeremy.v2; button area over the battlefield 0 px² (37 battles); drawn 100.0-100.0% of jeremy.v1's size (Syracuse: scale 1.778 → 1.778). real fonts, 1366x768: world rows on screen, worst battle, 8.9 to 300.2 in jeremy.v1 → 8.6 to 301.0 in jeremy.v2; button area over the battlefield 0 px² (37 battles); drawn 100.0-100.0% of jeremy.v1's size (Syracuse: scale 1.897 → 1.897). fallback fonts, 1024x768: world rows on screen, worst battle, above the world to 300.4 in jeremy.v1 → above the world to 301.5 in jeremy.v2; button area over the battlefield 0 px² (37 battles); drawn 100.0-100.0% of jeremy.v1's size (Syracuse: scale 1.422 → 1.422). fallback fonts, 1280x800: world rows on screen, worst battle, above the world to 300.6 in jeremy.v1 → above the world to 301.2 in jeremy.v2; button area over the battlefield 0 px² (37 battles); drawn 100.0-100.0% of jeremy.v1's size (Syracuse: scale 1.778 → 1.778). fallback fonts, 1366x768: world rows on screen, worst battle, 8.9 to 300.2 in jeremy.v1 → 8.6 to 301.0 in jeremy.v2; button area over the battlefield 0 px² (37 battles); drawn 100.0-100.0% of jeremy.v1's size (Syracuse: scale 1.897 → 1.897)",
+        "phone: real fonts, 375x812: world rows on screen, worst battle, above the world to 299.5 in jeremy.v1 → above the world to 300.7 in jeremy.v2; button area over the battlefield 0 px² (37 battles); drawn 100.0-100.0% of jeremy.v1's size (Syracuse: scale 0.521 → 0.521). real fonts, 812x375: world rows on screen, worst battle, 70.8 to 300.7 in jeremy.v1 → 69.1 to 301.4 in jeremy.v2; button area over the battlefield 0 px² (37 battles); drawn 100.1-126.3% of jeremy.v1's size (Syracuse: scale 0.917 → 0.918). real fonts, 667x375: world rows on screen, worst battle, 70.5 to 300.7 in jeremy.v1 → 69.4 to 301.4 in jeremy.v2; button area over the battlefield 0 px² (37 battles); drawn 100.1-126.3% of jeremy.v1's size (Syracuse: scale 0.739 → 0.813). fallback fonts, 375x812: world rows on screen, worst battle, above the world to 299.5 in jeremy.v1 → above the world to 300.7 in jeremy.v2; button area over the battlefield 0 px² (37 battles); drawn 100.0-100.0% of jeremy.v1's size (Syracuse: scale 0.521 → 0.521). fallback fonts, 812x375: world rows on screen, worst battle, 70.8 to 300.7 in jeremy.v1 → 69.1 to 301.4 in jeremy.v2; button area over the battlefield 0 px² (37 battles); drawn 100.1-126.3% of jeremy.v1's size (Syracuse: scale 0.917 → 0.918). fallback fonts, 667x375: world rows on screen, worst battle, 70.2 to 300.4 in jeremy.v1 → 69.4 to 301.4 in jeremy.v2; button area over the battlefield 0 px² (37 battles); drawn 100.3-126.3% of jeremy.v1's size (Syracuse: scale 0.739 → 0.789)"
       ],
       "desktop": {
         "status": "pass",
@@ -166,6 +166,25 @@
         "status": "pass",
         "screenshots": [
           "victory-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the title fits with a campaign under way: every button is 48 x 48 px, 8 px apart and 8 px from the edges all the way down the list, and nothing scrolls sideways, in every pack, in the real and the fallback fonts",
+      "notes": [
+        "desktop: real fonts, 1024x768: 10 packs (1 with a campaign under way), 21 scroll positions, no problems and no sideways scroll. real fonts, 1280x800: 10 packs (1 with a campaign under way), 21 scroll positions, no problems and no sideways scroll. real fonts, 1366x768: 10 packs (1 with a campaign under way), 21 scroll positions, no problems and no sideways scroll. fallback fonts, 1024x768: 10 packs (1 with a campaign under way), 21 scroll positions, no problems and no sideways scroll. fallback fonts, 1280x800: 10 packs (1 with a campaign under way), 21 scroll positions, no problems and no sideways scroll. fallback fonts, 1366x768: 10 packs (1 with a campaign under way), 21 scroll positions, no problems and no sideways scroll",
+        "phone: real fonts, 375x812: 10 packs (1 with a campaign under way), 31 scroll positions, no problems and no sideways scroll. real fonts, 812x375: 10 packs (1 with a campaign under way), 46 scroll positions, no problems and no sideways scroll. real fonts, 667x375: 10 packs (1 with a campaign under way), 46 scroll positions, no problems and no sideways scroll. fallback fonts, 375x812: 10 packs (1 with a campaign under way), 31 scroll positions, no problems and no sideways scroll. fallback fonts, 812x375: 10 packs (1 with a campaign under way), 46 scroll positions, no problems and no sideways scroll. fallback fonts, 667x375: 10 packs (1 with a campaign under way), 47 scroll positions, no problems and no sideways scroll"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "title-campaign-upright-phone.jpg"
         ],
         "error": null
       }
