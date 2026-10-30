@@ -12,7 +12,7 @@ var S = {
   screen: "title", held: false, paused: false, nextSeed: null, speed: 1, t: 0,
   best: load("best", 0), runs: load("runs", 0),
   picks: [], party: null, seed: 0, floor: 1, floorData: null, roomIndex: 0, battle: null, roomCanvas: null,
-  phase: "", phaseT: 0, fade: 0, loot: [], choice: [], sel: 0, stats: null, lastClasses: null,
+  phase: "", phaseT: 0, fade: 0, loot: [], choice: [], sel: 0, cur: -1, pcur: -1, stats: null, lastClasses: null,
   fx: [], texts: [], shake: 0, banner: null, campNote: ""
 };
 
@@ -39,6 +39,21 @@ function updateSoundButtons() {
   $("pause-sound").textContent = "Sound: " + (on ? "on" : "off");
 }
 
+// Cards in a grid sit on whole pixels: whole-pixel columns and rows, so the 8 px between them stays 8 px
+// when a phone rounds them, and never comes out 7.
+function snapGrid(el) {
+  if (!el || !el.offsetParent) return;
+  el.style.gridTemplateColumns = ""; el.style.gridAutoRows = "";
+  var cs = getComputedStyle(el), n = cs.gridTemplateColumns.split(" ").filter(Boolean).length;
+  var gap = parseFloat(cs.columnGap) || 0, w = Math.floor((el.clientWidth - gap * (n - 1)) / n);
+  if (!(n > 0 && w > 0)) return;
+  el.style.gridTemplateColumns = "repeat(" + n + ", " + w + "px)";
+  var rows = [];
+  Array.prototype.forEach.call(el.children, function (c, i) { var r = Math.floor(i / n); rows[r] = Math.max(rows[r] || 0, c.getBoundingClientRect().height); });
+  el.style.gridAutoRows = rows.map(function (h) { return Math.ceil(h - 0.01) + "px"; }).join(" ");
+}
+function snapAll() { ["slots", "classes", "heroes", "loot"].forEach(function (id) { snapGrid($(id)); }); }
+
 // ---------- picking the squad ----------
 function renderParty() {
   var slots = $("slots"); slots.innerHTML = "";
@@ -55,6 +70,19 @@ function renderParty() {
     slots.appendChild(b);
   }
   $("party-go").disabled = S.picks.length < 3;
+  markClassCursor();
+  snapGrid(slots);
+}
+// The squad screen's keyboard card: WASD or the arrows move it, Space adds that class.
+function markClassCursor() {
+  Array.prototype.forEach.call($("classes").children, function (b, i) { b.classList.toggle("cur", i === S.pcur); });
+}
+function moveClassCursor(dx, dy) {
+  var n = DS.CLASS_KEYS.length, cols = getComputedStyle($("classes")).gridTemplateColumns.split(" ").filter(Boolean).length || n;
+  if (S.pcur < 0) S.pcur = 0;
+  else S.pcur = dy ? (S.pcur + dy * cols + n) % n : (S.pcur + dx + n) % n;
+  markClassCursor(); SND.play("click");
+  var b = $("classes").children[S.pcur]; if (b && b.scrollIntoView) b.scrollIntoView({ block: "nearest" });
 }
 function buildClasses() {
   var box = $("classes"); box.innerHTML = "";
@@ -66,7 +94,7 @@ function buildClasses() {
     b.insertBefore(cv, b.firstChild);
     b.insertAdjacentHTML("beforeend", '<div class="stats">HP ' + c.hp + ' · ATK ' + c.atk + ' · DEF ' + c.def + ' · ' + (c.range ? "ranged" : "melee") + '</div>' +
       '<div class="ab"><b>' + c.ability + ':</b> ' + c.about + '</div>');
-    b.onclick = function () { addPick(k); };
+    b.onclick = function () { S.pcur = -1; addPick(k); };
     box.appendChild(b);
   });
 }
@@ -96,7 +124,7 @@ function openCampfire() {
   var afterBoss = S.floor > 1 && DS.isBossFloor(S.floor - 1);
   S.loot = DS.makeLoot(S.seed, S.floor, S.party.length + 2, afterBoss);
   S.choice = S.party.map(function () { return -1; });
-  S.sel = 0;
+  S.sel = 0; S.cur = -1;
   if (S.floor > S.best) { S.best = S.floor; save("best", S.best); }
   show("gear"); renderGear();
 }
@@ -127,14 +155,14 @@ function renderGear() {
       '<div class="st"><span>HP ' + h.hp + '/' + cur.maxHp + d(cur.maxHp, nxt.maxHp) + '</span><span>ATK ' + cur.atk + d(cur.atk, nxt.atk) + '</span><span>DEF ' + cur.def + d(cur.def, nxt.def) + '</span></div>' +
       '<div class="gear">' + SLOTS.map(function (s) { return h.items[s] ? '<b>' + h.items[s].name + '</b>' : '<i>no ' + s + '</i>'; }).join(" · ") + '</div>' +
       '<div class="new">' + (S.choice[i] >= 0 ? "＋ " + S.loot[S.choice[i]].name : "Pick an item") + '</div>');
-    b.onclick = function () { S.sel = i; SND.play("click"); renderGear(); };
+    b.onclick = function () { S.sel = i; S.cur = -1; SND.play("click"); renderGear(); };
     hb.appendChild(b);
   });
   var lb = $("loot"); lb.innerHTML = "";
   var sh = S.party[S.sel];
   S.loot.forEach(function (it, j) {
     var owner = S.choice.indexOf(j), b = document.createElement("button");
-    b.className = "item " + it.rarity + (owner >= 0 ? (owner === S.sel ? " mine" : " taken") : "");
+    b.className = "item " + it.rarity + (owner >= 0 ? (owner === S.sel ? " mine" : " taken") : "") + (j === S.cur ? " cur" : "");
     b.dataset.j = j;
     var cv = document.createElement("canvas"); cv.width = 88; cv.height = 88; ART.itemIcon(cv, it);
     b.appendChild(cv);
@@ -147,9 +175,17 @@ function renderGear() {
       '<div class="lines">' + DS.itemLines(it).join("<br>") + '</div>' +
       '<div class="cmp ' + (worse ? "down-txt" : "up") + '">' + (sh.items[it.slot] ? "For " + sh.name + ": " + (parts.join(", ") || "about the same") : "For " + sh.name + ": new " + it.slot + "!") + '</div>' +
       (owner >= 0 && owner !== S.sel ? '<span class="who">' + S.party[owner].name + '</span>' : "") + '<kbd>' + (j + 1) + '</kbd>');
-    b.onclick = function () { chooseItem(j); };
+    b.onclick = function () { S.cur = -1; chooseItem(j); };
     lb.appendChild(b);
   });
+  snapGrid(hb); snapGrid(lb);
+}
+// The campfire's keyboard card: W/S or Up/Down move through the loot, Space gives it to the picked hero.
+function moveLootCursor(d) {
+  var n = S.loot.length;
+  S.cur = S.cur < 0 ? (S.choice[S.sel] >= 0 ? S.choice[S.sel] : 0) : (S.cur + d + n) % n;
+  SND.play("click"); renderGear();
+  var b = $("loot").children[S.cur]; if (b && b.scrollIntoView) b.scrollIntoView({ block: "nearest" });
 }
 function chooseItem(j) {
   var i = S.sel;
@@ -547,7 +583,8 @@ function pause() {
 function resume() { S.paused = false; $("pause").hidden = true; }
 function toParty(keep) {
   S.picks = keep && S.lastClasses ? S.lastClasses.slice() : [];
-  S.battle = null; show("party"); renderParty();
+  S.pcur = -1;
+  S.battle = null; show("party"); renderParty(); snapGrid($("classes"));
 }
 
 // ---------- controls ----------
@@ -568,8 +605,12 @@ $("again-btn").onclick = function () { SND.play("floor"); newRun(S.lastClasses);
 $("newsquad-btn").onclick = function () { toParty(true); };
 $("over-title").onclick = function () { S.battle = null; show("title"); };
 
+// WASD and the arrows, both: [across, down]
+var PICK_DIRS = { ArrowLeft: [-1, 0], a: [-1, 0], A: [-1, 0], ArrowRight: [1, 0], d: [1, 0], D: [1, 0],
+  ArrowUp: [0, -1], w: [0, -1], W: [0, -1], ArrowDown: [0, 1], s: [0, 1], S: [0, 1] };
 document.addEventListener("keydown", function (e) {
   var k = e.key;
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
   if (k === "m" || k === "M") { SND.toggle(); updateSoundButtons(); return; }
   if (!$("pause").hidden) {
     if (k === "Escape" || k === "p" || k === "P") { e.preventDefault(); resume(); }
@@ -578,16 +619,22 @@ document.addEventListener("keydown", function (e) {
   if (S.screen === "title") {
     if (k === "Enter" || k === " ") { e.preventDefault(); toParty(false); }
   } else if (S.screen === "party") {
-    if (/^[1-4]$/.test(k)) addPick(DS.CLASS_KEYS[+k - 1]);
+    var pd = PICK_DIRS[k];
+    if (pd) { e.preventDefault(); moveClassCursor(pd[0], pd[1]); }
+    else if (k === " " && S.pcur >= 0) { e.preventDefault(); addPick(DS.CLASS_KEYS[S.pcur]); }
+    else if (/^[1-4]$/.test(k)) addPick(DS.CLASS_KEYS[+k - 1]);
     else if (k === "Backspace" || k === "Delete") { e.preventDefault(); S.picks.pop(); renderParty(); }
     else if (k === "r" || k === "R") randomParty();
     else if (k === "Enter" && S.picks.length === 3) { e.preventDefault(); newRun(S.picks); }
     else if (k === "Escape") show("title");
   } else if (S.screen === "gear") {
-    if (k === "ArrowLeft" || k === "ArrowRight" || k === "Tab") {
+    var gd = PICK_DIRS[k];
+    if ((gd && gd[0]) || k === "Tab") {
       e.preventDefault();
-      S.sel = (S.sel + (k === "ArrowLeft" || (k === "Tab" && e.shiftKey) ? S.party.length - 1 : 1)) % S.party.length; SND.play("click"); renderGear();
-    } else if (/^[1-9]$/.test(k) && +k <= S.loot.length) chooseItem(+k - 1);
+      S.sel = (S.sel + ((gd && gd[0] < 0) || (k === "Tab" && e.shiftKey) ? S.party.length - 1 : 1)) % S.party.length; SND.play("click"); renderGear();
+    } else if (gd && gd[1]) { e.preventDefault(); moveLootCursor(gd[1]); }
+    else if (k === " " && S.cur >= 0) { e.preventDefault(); chooseItem(S.cur); }
+    else if (/^[1-9]$/.test(k) && +k <= S.loot.length) chooseItem(+k - 1);
     else if (k === "Enter") { e.preventDefault(); delve(); }
     else if (k === "Escape" || k === "p" || k === "P") pause();
   } else if (S.screen === "delve") {
@@ -598,7 +645,8 @@ document.addEventListener("keydown", function (e) {
     else if (k === "Escape") show("title");
   }
 });
-window.addEventListener("resize", function () { if (S.screen === "delve") fitArena(); });
+window.addEventListener("resize", function () { if (S.screen === "delve") fitArena(); snapAll(); });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(snapAll);
 document.addEventListener("visibilitychange", function () { if (document.hidden && S.screen === "delve" && !S.paused) pause(); });
 
 // ---------- a small window for the evidence tests ----------
@@ -628,7 +676,7 @@ window.__ds = {
     return {
       screen: S.screen, phase: S.phase, floor: S.floor, room: S.roomIndex, rooms: S.floorData ? S.floorData.rooms.length : 0,
       boss: !!(S.room && S.room.boss && S.screen === "delve"), best: S.best, paused: S.paused, speed: S.speed, seed: S.seed,
-      picks: S.picks.slice(), choice: S.choice.slice(), sel: S.sel, loot: S.loot.map(function (i) { return { name: i.name, slot: i.slot, rarity: i.rarity }; }),
+      picks: S.picks.slice(), choice: S.choice.slice(), sel: S.sel, cur: S.cur, pcur: S.pcur, loot: S.loot.map(function (i) { return { name: i.name, slot: i.slot, rarity: i.rarity }; }),
       party: (S.party || []).map(function (h) { var s = DS.heroStats(h); return { cls: h.cls, name: h.name, level: h.level, hp: h.hp, maxHp: s.maxHp, atk: s.atk, down: h.down, items: SLOTS.map(function (k) { return h.items[k] && h.items[k].name; }) }; }),
       monsters: b ? b.units.filter(function (u) { return u.alive && u.side === "monster"; }).map(function (u) { return u.name; }) : [],
       heroesUp: b ? b.units.filter(function (u) { return u.alive && u.side === "hero"; }).length : 0,

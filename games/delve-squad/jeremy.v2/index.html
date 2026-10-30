@@ -35,12 +35,12 @@ button:focus-visible { outline: 3px solid var(--torch); outline-offset: 2px; }
 .screen { position: fixed; inset: 0; overflow: hidden; display: flex; flex-direction: column; }
 .scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; }
 
-.btn { border: 2px solid #000; background: linear-gradient(#5a4535, #3a2b22); color: var(--ink); border-radius: 12px; padding: 10px 18px; font: 800 17px var(--sans); box-shadow: 0 4px 0 #000, inset 0 1px 0 rgba(255,255,255,0.15); transition: transform 80ms; }
+.btn { min-height: 48px; border: 2px solid #000; background: linear-gradient(#5a4535, #3a2b22); color: var(--ink); border-radius: 12px; padding: 10px 18px; font: 800 17px var(--sans); box-shadow: 0 4px 0 #000, inset 0 1px 0 rgba(255,255,255,0.15); transition: transform 80ms; }
 .btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #000; }
 .btn.go { background: linear-gradient(#ff9d3c, #d9581e); color: #1a0d05; font-size: 20px; padding: 12px 26px; text-shadow: 0 1px 0 rgba(255,255,255,0.35); }
 .btn.go:disabled { background: #3a3030; color: #806f66; text-shadow: none; cursor: default; }
 .btn.small { font-size: 14px; padding: 7px 12px; }
-.icon-btn { width: 42px; height: 42px; border-radius: 10px; border: 2px solid #000; background: linear-gradient(#4a3a30, #2e231d); font: 900 17px var(--sans); display: grid; place-items: center; padding: 0; flex: none; box-shadow: 0 3px 0 #000; }
+.icon-btn { width: 48px; height: 48px; border-radius: 10px; border: 2px solid #000; background: linear-gradient(#4a3a30, #2e231d); font: 900 17px var(--sans); display: grid; place-items: center; padding: 0; flex: none; box-shadow: 0 3px 0 #000; }
 .icon-btn.off { opacity: 0.55; }
 
 /* title */
@@ -56,10 +56,12 @@ button:focus-visible { outline: 3px solid var(--torch); outline-offset: 2px; }
 .howto { margin: 0; font-size: 14px; color: var(--dim); line-height: 1.4; text-shadow: 0 1px 4px #000; }
 
 /* shared headers */
-.top { display: flex; align-items: center; gap: 8px; padding: 10px 12px; padding-top: max(10px, env(safe-area-inset-top)); background: linear-gradient(#000a, #0000); flex: none; }
+.top { display: flex; align-items: center; gap: 8px; padding: 10px 12px; padding-top: max(10px, env(safe-area-inset-top)); padding-left: max(8px, env(safe-area-inset-left)); padding-right: max(8px, env(safe-area-inset-right)); background: linear-gradient(#000a, #0000); flex: none; }
+/* 48 px to tap, but only 42 px of the bar's height (jeremy.v1's), so the bar doesn't grow: 8 px from the top, 2 px into the padding below */
+.top > .icon-btn { margin: -2px 0 -4px; align-self: flex-start; }
 .top h2 { margin: 0; font-family: var(--serif); font-size: 22px; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ffd28a; }
 .top .sub { font-size: 13px; color: var(--dim); font-weight: 700; }
-.foot { flex: none; display: flex; gap: 10px; justify-content: center; align-items: center; padding: 10px 12px; padding-bottom: max(12px, env(safe-area-inset-bottom)); background: linear-gradient(#0000, #000c); flex-wrap: wrap; }
+.foot { flex: none; display: flex; gap: 10px; justify-content: center; align-items: center; padding: 8px 12px; padding-left: max(8px, env(safe-area-inset-left)); padding-right: max(8px, env(safe-area-inset-right)); padding-bottom: max(8px, env(safe-area-inset-bottom)); background: linear-gradient(#0000, #000c); flex-wrap: wrap; }
 .hint { font-size: 13px; color: var(--dim); text-align: center; margin: 0 12px 6px; }
 .wrap { width: min(980px, 100%); margin: 0 auto; padding: 0 12px 12px; }
 
@@ -97,6 +99,9 @@ button:focus-visible { outline: 3px solid var(--torch); outline-offset: 2px; }
 .hero .gear b { font-weight: 700; }
 .hero .new { font-size: 11px; font-weight: 900; color: var(--torch); min-height: 14px; }
 .loot { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
+/* the keyboard's loot card (W/S or Up/Down) and squad card (WASD or the arrows): a dashed ring that takes no room */
+.item.cur::after, .cls.cur::after { content: ""; position: absolute; inset: -4px; border: 3px dashed #fff1c8; border-radius: 17px; pointer-events: none; }
+.cls { position: relative; }
 .item { position: relative; text-align: left; border: 2px solid #000; border-radius: 14px; background: linear-gradient(#2b2225, #1c1518); padding: 9px; display: grid; grid-template-columns: 44px 1fr; gap: 4px 9px; align-items: start; box-shadow: 0 3px 0 #000; }
 .item canvas { width: 44px; height: 44px; grid-row: span 3; border-radius: 10px; background: radial-gradient(circle, rgba(255,255,255,0.08), transparent 70%); }
 .item .nm { font-weight: 900; font-size: 15px; line-height: 1.1; padding-right: 18px; }
@@ -121,7 +126,8 @@ button:focus-visible { outline: 3px solid var(--torch); outline-offset: 2px; }
 
 /* delve */
 #delve { background: #050306; }
-#delve .top { gap: 6px; }
+#delve .top { gap: 8px; }
+#delve .top > .icon-btn { align-self: center; }
 #delve .where { flex: 1; min-width: 0; }
 #delve .where b { display: block; font-family: var(--serif); font-size: 19px; color: #ffd28a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #delve .where span { display: block; font-size: 12px; color: var(--dim); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -135,7 +141,7 @@ button:focus-visible { outline: 3px solid var(--torch); outline-offset: 2px; }
 .mini .nm span { color: var(--dim); font-weight: 700; font-size: 11px; }
 .abbar { height: 5px; border-radius: 3px; background: #1d2433; overflow: hidden; }
 .abbar i { display: block; height: 100%; background: linear-gradient(90deg, #6fb6ff, #c7e4ff); }
-#speed { width: auto; padding: 0 10px; min-width: 52px; }
+#speed { width: 48px; padding: 0; }
 
 /* overlays */
 .overlay { position: fixed; inset: 0; background: rgba(5,3,6,0.78); display: grid; place-items: center; z-index: 10; padding: 16px; }
@@ -143,6 +149,7 @@ button:focus-visible { outline: 3px solid var(--torch); outline-offset: 2px; }
 .box h2 { margin: 0; font-family: var(--serif); font-size: 30px; color: #ffd28a; }
 .box p { margin: 0; color: var(--dim); font-weight: 700; }
 .box .btn { width: 100%; }
+.btns { display: grid; gap: 12px; }
 #over .box { width: min(480px, 100%); }
 .fell { font-family: var(--serif); font-size: 64px; font-weight: 900; color: var(--torch); line-height: 1; text-shadow: 0 0 20px rgba(255,140,40,0.7); }
 .newbest { color: var(--legendary) !important; font-size: 18px; animation: pulse2 0.8s ease-in-out infinite alternate; }
@@ -156,7 +163,7 @@ button:focus-visible { outline: 3px solid var(--torch); outline-offset: 2px; }
 @media (max-height: 560px) { .howto { display: none; } }
 @media (max-width: 700px) {
   .classes { grid-template-columns: repeat(2, 1fr); }
-  .loot { grid-template-columns: 1fr 1fr; gap: 7px; }
+  .loot { grid-template-columns: 1fr 1fr; gap: 8px; }
   .item { grid-template-columns: 1fr; padding: 7px; gap: 2px; }
   .item canvas { grid-row: auto; width: 36px; height: 36px; }
   .item .nm { font-size: 13px; }
@@ -168,6 +175,23 @@ button:focus-visible { outline: 3px solid var(--torch); outline-offset: 2px; }
   .hero .gear { display: none; }
   .cls .ab { font-size: 12px; }
   .top h2 { font-size: 19px; }
+}
+/* A phone held sideways: the bottom bar's buttons move up beside the title, so the cards scroll in the whole
+   height below it, and the pause and game-over boxes put their buttons in a column beside the words. */
+@media (max-height: 500px) and (min-width: 560px) {
+  #party, #gear { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto minmax(0, 1fr); }
+  #party > .top, #gear > .top { grid-area: 1 / 1; padding-right: 0; }
+  #party > .scroll, #gear > .scroll { grid-area: 2 / 1 / 3 / 3; }
+  #party > .foot, #gear > .foot { grid-area: 1 / 2; align-items: flex-start; flex-wrap: nowrap; gap: 9px; padding: 10px 8px; padding-top: max(10px, env(safe-area-inset-top)); padding-right: max(8px, env(safe-area-inset-right)); background: linear-gradient(#000a, #0000); }
+  .foot .btn { margin: -2px 0 -4px; padding-top: 0; padding-bottom: 0; }
+  .overlay { padding: 8px 16px; }
+  .box { width: min(720px, 100%); grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 20px; align-items: center; }
+  .box > :not(.btns) { grid-column: 1; }
+  .box > .btns { grid-column: 2; grid-row: 1 / -1; }
+  #pause .box { grid-template-rows: auto auto; }
+  #pause .box h2 { align-self: end; }
+  #pause .box p { align-self: start; }
+  #over .box { width: min(720px, 100%); grid-template-rows: repeat(5, auto); }
 }
 </style>
 </head>
@@ -218,7 +242,7 @@ button:focus-visible { outline: 3px solid var(--torch); outline-offset: 2px; }
     <div class="wrap">
       <div class="banner-row" id="gear-tags"></div>
       <div class="heroes" id="heroes"></div>
-      <p class="hint" id="gear-hint">Each hero can take one item. Tap a hero, then an item (← → and 1–7).</p>
+      <p class="hint" id="gear-hint">Each hero can take one item. Tap a hero, then an item (WASD/arrows, 1–7).</p>
       <div class="loot" id="loot"></div>
     </div>
   </div>
@@ -249,9 +273,11 @@ button:focus-visible { outline: 3px solid var(--torch); outline-offset: 2px; }
       <div><b id="st-poofs">0</b>monsters poofed</div>
       <div><b id="st-bosses">0</b>bosses beaten</div>
     </div>
-    <button class="btn go" id="again-btn">Same squad, new delve</button>
-    <button class="btn" id="newsquad-btn">Pick a new squad</button>
-    <button class="btn small" id="over-title">Title screen</button>
+    <div class="btns">
+      <button class="btn go" id="again-btn">Same squad, new delve</button>
+      <button class="btn" id="newsquad-btn">Pick a new squad</button>
+      <button class="btn small" id="over-title">Title screen</button>
+    </div>
   </div>
 </section>
 
@@ -259,10 +285,12 @@ button:focus-visible { outline: 3px solid var(--torch); outline-offset: 2px; }
   <div class="box">
     <h2>Paused</h2>
     <p id="pause-where"></p>
-    <button class="btn go" id="resume-btn">Keep going</button>
-    <button class="btn" id="restart-btn">Start over</button>
-    <button class="btn" id="pause-sound">Sound: on</button>
-    <button class="btn small" id="pause-title">Title screen</button>
+    <div class="btns">
+      <button class="btn go" id="resume-btn">Keep going</button>
+      <button class="btn" id="restart-btn">Start over</button>
+      <button class="btn" id="pause-sound">Sound: on</button>
+      <button class="btn small" id="pause-title">Title screen</button>
+    </div>
   </div>
 </section>
 
