@@ -4,10 +4,12 @@
 // started from jeremy.v1 at games/magic-friends/jeremy.v1/, and the new default. Spec: the build skill's U6 and
 // docs/game-versions.md.
 //
-// Two checks compare jeremy.v2 with jeremy.v1 side by side, as the player lands on each screen with no scrolling, with
-// the same save and the same random numbers: at 375x812, 812x375 and 667x375 (touch, in the phone row) and 1024x768,
-// 1280x800 and 1366x768 (mouse, in the desktop row), each with the real fonts and with the fonts blocked (the fallback
-// fonts CI may get). One checks every screen's words and buttons; the other checks how much of the game the buttons cover.
+// Three checks compare jeremy.v2 with jeremy.v1 side by side, as the player lands on each screen with no scrolling, with
+// the same save and the same random numbers: at 375x812, 812x375, 667x375 and 740x360 (touch, in the phone row) and
+// 1024x768, 1280x800 and 1366x768 (mouse, in the desktop row), each with the real fonts and with the fonts blocked (the
+// fallback fonts CI may get). One checks every screen word by word (how much of each word shows, whether a button sits on
+// it) and its buttons; one checks Pick a level's world cards word by word, with and without the arrow buttons; the other
+// checks how much of the game the buttons cover.
 // The game's test hook (?test, also in jeremy.v1) sets up each screen; the save check loads without it.
 // Run: npm run evidence -- tests/evidence/225-magic-friends-jeremy-v2
 import { test, expect, games, touchTargets } from "./evidence.mjs";
@@ -15,12 +17,12 @@ import { test, expect, games, touchTargets } from "./evidence.mjs";
 const SLUG = "magic-friends";
 const V1 = `games/${SLUG}/jeremy.v1/`;
 const V2 = `games/${SLUG}/jeremy.v2/`;
-const PHONES = [[375, 812], [812, 375], [667, 375]];
+const PHONES = [[375, 812], [812, 375], [667, 375], [740, 360]];
 const DESKTOPS = [[1024, 768], [1280, 800], [1366, 768]];
 const FONTS = ["fonts.googleapis.com", "fonts.gstatic.com"]; // jeremy.v1 loads these too
 const FONT_HOSTS = /fonts\.(googleapis|gstatic)\.com/;
 
-test.describe.configure({ timeout: 300_000 });
+test.describe.configure({ timeout: 900_000 }); // the side-by-side checks open every screen many times; slow on a busy machine
 
 // A save part way up the climb (worlds 1 to 4 done, level 24 next, Harder unlocked, Normal picked), the same in both versions.
 const SAVE = { reached: 23, done: Array.from({ length: 23 }, () => true), hardUnlocked: true, crown: false, diff: 1, pad: false, ver: 4 };
@@ -84,15 +86,19 @@ function measure() {
   const ctrls = [...document.querySelectorAll("button")].filter(shown);
   const dots = [...document.querySelectorAll(".dots .lvb")], thumbs = [...document.querySelectorAll(".env canvas")];
   const items = [];
-  for (const el of document.querySelectorAll("h1, h2, p, .nm, .crown, #toast, #caption, #skip, button, .env canvas, .dots .lvb")) {
-    if (!shown(el)) continue;
-    const r = el.getBoundingClientRect();
+  const clipOf = el => {
     let x0 = 0, y0 = 0, x1 = vw, y1 = vh;
     for (let p = el.parentElement; p; p = p.parentElement) {
       const cs = getComputedStyle(p), pr = p.getBoundingClientRect();
       if (cs.overflowX !== "visible") { x0 = Math.max(x0, pr.left); x1 = Math.min(x1, pr.right); }
       if (cs.overflowY !== "visible") { y0 = Math.max(y0, pr.top); y1 = Math.min(y1, pr.bottom); }
     }
+    return { x0, y0, x1, y1 };
+  };
+  for (const el of document.querySelectorAll("h1, h2, p, .nm, .crown, #toast, #caption, #skip, button, .env canvas, .dots .lvb")) {
+    if (!shown(el)) continue;
+    const r = el.getBoundingClientRect();
+    const { x0, y0, x1, y1 } = clipOf(el);
     const whole = x0 <= r.left + 0.5 && y0 <= r.top + 0.5 && x1 >= r.right - 0.5 && y1 >= r.bottom - 0.5;
     let covered = 0;
     for (let i = 0; i <= 4; i++) for (let j = 0; j <= 2; j++) {
@@ -110,6 +116,31 @@ function measure() {
       : el.id ? `#${el.id}` : `${el.tagName.toLowerCase()} "${label.slice(0, 40)}"`;
     items.push({ name, x: r.left, y: r.top, w: r.width, h: r.height, font: parseFloat(getComputedStyle(el).fontSize), whole, covered: covered > 0 });
   }
+  // Word by word: every word on screen, one box per line it sits on, with how much of the box shows (cut by the window
+  // and by anything that scrolls or clips) and whether a button sits on its middle. Words are named by what they're in
+  // (a world card by its place) and counted in order, so the same word in both versions is compared.
+  const cards = [...document.querySelectorAll(".env")], words = [];
+  const shownAll = el => { for (let e = el; e; e = e.parentElement) { const cs = getComputedStyle(e); if (cs.display === "none" || cs.visibility === "hidden" || +cs.opacity === 0) return false; } return true; };
+  const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+    const el = n.parentElement;
+    if (!el || el.closest("script, style, title, [hidden]") || !shownAll(el)) continue;
+    const env = el.closest(".env"), box = el.closest("h1, h2, p, .crown, #toast, #caption, #skip, button");
+    const label = (box && (box.getAttribute("aria-label") || box.textContent) || "").trim().replace(/\s+/g, " ");
+    const owner = env ? `world card ${cards.indexOf(env) + 1}` : box ? (box.id ? `#${box.id}` : `${box.tagName.toLowerCase()} "${label.slice(0, 40)}"`) : el.tagName.toLowerCase();
+    const c2 = clipOf(n), re = /\S+/g; // a text node: clipped by its own element and everything around it
+    for (let m; (m = re.exec(n.data));) {
+      const rg = document.createRange(); rg.setStart(n, m.index); rg.setEnd(n, m.index + m[0].length);
+      for (const r of rg.getClientRects()) {
+        if (r.width < 0.5 || r.height < 0.5) continue;
+        const ix = Math.max(0, Math.min(r.right, c2.x1) - Math.max(r.left, c2.x0)), iy = Math.max(0, Math.min(r.bottom, c2.y1) - Math.max(r.top, c2.y0));
+        const mx = (r.left + r.right) / 2, my = (r.top + r.bottom) / 2;
+        const hit = mx >= 0 && my >= 0 && mx < vw && my < vh ? document.elementFromPoint(mx, my) : null;
+        const on = hit && ctrls.find(k => k === hit || k.contains(hit));
+        words.push({ owner, t: m[0], y: r.top, y1: r.bottom, shows: ix * iy / (r.width * r.height), bottom: c2.y1, covered: !!on && !on.contains(el) });
+      }
+    }
+  }
   // How much of the game picture the buttons outside the menus cover (corner, pad), in square CSS px, and of its HUD.
   const cv = document.getElementById("game").getBoundingClientRect(), sc = cv.width / 320;
   const over = (a, b) => Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left)) * Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
@@ -119,7 +150,7 @@ function measure() {
   const hud = (x, y, w, h) => ({ left: cv.left + x * sc, top: cv.top + y * sc, right: cv.left + (x + w) * sc, bottom: cv.top + (y + h) * sc });
   const counter = hud(4, 4, 38, 15), meter = hud(304, 32, 10, Math.min(94, cv.height / sc - 32));
   const hudCovered = outside.reduce((s, r) => s + over(r, counter) + over(r, meter), 0);
-  return { vw, vh, items, canvas: { w: cv.width, h: cv.height, area: cv.width * cv.height }, covered: Math.round(area), hudCovered: Math.round(hudCovered) };
+  return { vw, vh, items, words, canvas: { w: cv.width, h: cv.height, area: cv.width * cv.height }, covered: Math.round(area), hudCovered: Math.round(hudCovered) };
 }
 
 // Matched by name. jeremy.v1's level squares were buttons; in jeremy.v2 the world card is the button and the same
@@ -146,6 +177,25 @@ function compare(v1, v2, where, inPlay) {
     if (b.font < a.font - 0.01) problems.push(`${where}: ${name} text got smaller (${a.font} -> ${b.font})`);
     if (b.w < a.w - 0.05 || b.h < a.h - 0.05) problems.push(`${where}: ${name} shrank (${a.w.toFixed(2)}x${a.h.toFixed(2)} -> ${b.w.toFixed(2)}x${b.h.toFixed(2)})`);
   });
+  const w = compareWords(v1, v2, where);
+  problems.push(...w.problems);
+  return { problems, checked, words: w.checked };
+}
+
+// Word by word: every word jeremy.v1 shows any of shows at least as much in jeremy.v2 (to 0.1%), on every line it sits
+// on, and no button sits on one that had none on it in jeremy.v1. `only` limits it to some owners (the world cards).
+function compareWords(v1, v2, where, only = () => true) {
+  const problems = [], pool = new Map();
+  for (const b of v2.words) { const k = b.owner + "|" + b.t; if (!pool.has(k)) pool.set(k, []); pool.get(k).push(b); }
+  let checked = 0;
+  for (const a of v1.words) {
+    if (!only(a.owner) || a.shows <= 0) continue;
+    const b = (pool.get(a.owner + "|" + a.t) || []).shift();
+    if (!b) { problems.push(`${where}: "${a.t}" in ${a.owner} is gone`); continue; }
+    checked++;
+    if (b.shows < a.shows - 0.001) problems.push(`${where}: "${a.t}" in ${a.owner} is cut off: ${(100 * b.shows).toFixed(1)}% shows (jeremy.v1 ${(100 * a.shows).toFixed(1)}%); its line runs ${b.y.toFixed(1)}..${b.y1.toFixed(1)} and the screen shows to ${b.bottom.toFixed(1)} (jeremy.v1 ${a.y.toFixed(1)}..${a.y1.toFixed(1)} of ${a.bottom.toFixed(1)})`);
+    if (b.covered && !a.covered) problems.push(`${where}: "${a.t}" in ${a.owner} is covered by a button`);
+  }
   return { problems, checked };
 }
 
@@ -189,7 +239,7 @@ test("every screen, side by side with jeremy.v1 as the player lands on it: nothi
         expect(errors, `${url} at ${w}x${h}`).toEqual([]);
         await ctx.close();
       }
-      let checked = 0;
+      let checked = 0, words = 0;
       // the real-fonts pass compares like with like: if Google Fonts didn't load on this machine, the fallback pass covers it
       const unloaded = fallback ? [] : SCREENS.filter(s => Object.keys(results).some(k => k.endsWith(s.name) && !results[k].loaded)).map(s => s.name);
       if (unloaded.length) { lines.push(`${w}x${h}: Google Fonts didn't load (${unloaded.length} screens), so only the fallback pass counts there`); continue; }
@@ -207,8 +257,9 @@ test("every screen, side by side with jeremy.v1 as the player lands on it: nothi
         const r = compare(results[V1 + s.name], v2, where, s.play || s.name === "the witch's intro");
         problems.push(...r.problems);
         checked += r.checked;
+        words += r.words;
       }
-      lines.push(`${w}x${h}${fallback ? " fallback fonts" : ""}: ${checked} words, pictures and buttons checked`);
+      lines.push(`${w}x${h}${fallback ? " fallback fonts" : ""}: ${checked} pictures, buttons and blocks of words, and ${words} words one by one`);
     }
   }
   expect(problems).toEqual([]);
@@ -222,6 +273,43 @@ test("every screen, side by side with jeremy.v1 as the player lands on it: nothi
   await open(page, V2, "g.startLevel(0); g.skipIntro(); g.step(5); g.pause(true)");
   await expect(page.locator("#pzGo")).toBeVisible();
   await shot("paused");
+});
+
+test("Pick a level, word by word: every world card's words show as much as in jeremy.v1, with real fonts and with fallback fonts, with and without the arrow buttons", async ({ browser, page, isMobile, shot, note }) => {
+  const lines = [], problems = [];
+  const card = o => o.startsWith("world card ");
+  for (const [w, h] of isMobile ? PHONES : DESKTOPS) {
+    for (const fallback of [false, true]) {
+      for (const pad of [false, true]) {
+        const got = {};
+        let loaded = true;
+        for (const url of [V1, V2]) {
+          const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: isMobile ? 2 : 1, isMobile, hasTouch: isMobile });
+          await seed(ctx, { pad, fallback });
+          const p = await ctx.newPage();
+          loaded = (await open(p, url, "g.setMode('levels')", { fonts: !fallback })) && loaded;
+          await expect(p.locator("#lvgrid .env")).toHaveCount(12);
+          got[url] = await p.evaluate(measure);
+          await ctx.close();
+        }
+        const where = `${w}x${h}${fallback ? " fallback fonts" : ""}${pad ? " with arrow buttons" : ""}`;
+        if (!fallback && !loaded) { lines.push(`${where}: Google Fonts didn't load, so only the fallback pass counts`); continue; }
+        const r = compareWords(got[V1], got[V2], `Pick a level ${where}`, card);
+        problems.push(...r.problems);
+        expect(r.checked, where).toBeGreaterThan(20);
+        // the lowest line of card names that shows, in each version: where it runs and where the screen stops
+        const low = m => { const ws = m.words.filter(x => card(x.owner) && x.shows > 0 && /[a-z]/i.test(x.t)); const y = Math.max(...ws.map(x => x.y)); const l = ws.filter(x => x.y === y); return `${l.map(x => x.t).join(" ")} ${y.toFixed(1)}..${l[0].y1.toFixed(1)} of ${l[0].bottom.toFixed(1)}, ${(100 * Math.min(...l.map(x => x.shows))).toFixed(0)}% showing`; };
+        lines.push(`${where}: ${r.checked} words; lowest names jeremy.v1 ${low(got[V1])}, jeremy.v2 ${low(got[V2])}`);
+      }
+    }
+  }
+  expect(problems).toEqual([]);
+  note(lines.join("; "));
+  await page.setViewportSize(isMobile ? { width: 375, height: 812 } : { width: 1024, height: 768 });
+  await seed(page.context(), { fallback: true });
+  await open(page, V2, "g.setMode('levels')");
+  await expect(page.locator("#lvgrid .env")).toHaveCount(12);
+  await shot("levels-fallback-fonts");
 });
 
 test("the buttons cover less of the game in play than jeremy.v1's did, and none of its counter or climb meter", async ({ browser, page, isMobile, shot, note }) => {

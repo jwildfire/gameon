@@ -60,9 +60,10 @@ h2{font-size:max(22px,calc(var(--u)*11));max-width:16em}
 .barplate .sub{font-size:max(14px,calc(var(--u)*4.8))}
 #done{justify-content:flex-start;padding-top:max(14px,calc(var(--u)*12))}
 
-#levels{justify-content:flex-start;overflow-y:auto;background:rgba(11,22,64,.55);padding-top:max(52px,calc(var(--u)*15));
+#levels{justify-content:flex-start;overflow-y:auto;background:rgba(11,22,64,.55);padding-top:calc(max(52px,calc(var(--u)*15)) - (var(--lvgap) - var(--lvgap1)));
   /* jeremy.v2: the world cards are buttons now, so they sit 9 px apart (jeremy.v1: 6; 9 so they're still 8 apart rounded to
-     whole pixels); the grid grows by what the gaps add, so the cards keep their size */
+     whole pixels); the grid grows by what the gaps add, so the cards keep their size, and starts higher by what the
+     extra row gaps add (one row gap with 6 across, two with 2 across), so the rows on screen sit where they did */
   --lvgap:max(9px,calc(var(--u)*2.5)); --lvgap1:max(6px,calc(var(--u)*2.5));
   padding-left:calc(max(12px,calc(var(--u)*8)) - 2.5*(var(--lvgap) - var(--lvgap1))); padding-right:calc(max(12px,calc(var(--u)*8)) - 2.5*(var(--lvgap) - var(--lvgap1)))}
 #levels[inert]{overflow:hidden}
@@ -125,7 +126,7 @@ body.playing.pad-on #pad{display:flex}
 .pb svg{width:42%;height:42%;fill:var(--plum);shape-rendering:crispEdges}
 #bJ{width:var(--pbj);height:var(--pbj)}
 [hidden]{display:none!important}
-@media (max-aspect-ratio: 4/5){ .lvgrid{grid-template-columns:repeat(2,minmax(0,1fr));max-width:none} #levels{padding-left:calc(max(12px,calc(var(--u)*8)) - (var(--lvgap) - var(--lvgap1))/2);padding-right:calc(max(12px,calc(var(--u)*8)) - (var(--lvgap) - var(--lvgap1))/2)} }
+@media (max-aspect-ratio: 4/5){ .lvgrid{grid-template-columns:repeat(2,minmax(0,1fr));max-width:none} #levels{padding-top:calc(max(52px,calc(var(--u)*15)) - 2*(var(--lvgap) - var(--lvgap1)));padding-left:calc(max(12px,calc(var(--u)*8)) - (var(--lvgap) - var(--lvgap1))/2);padding-right:calc(max(12px,calc(var(--u)*8)) - (var(--lvgap) - var(--lvgap1))/2)} }
 body.playing.pad-on.paused #pad{display:none}
 </style>
 </head>
