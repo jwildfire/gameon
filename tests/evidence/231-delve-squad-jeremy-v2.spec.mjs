@@ -471,22 +471,26 @@ for (const size of [...PHONE_SIZES, ...DESKTOP_SIZES]) {
 for (const [size, insets, how, strict] of [[[390, 844], { top: 47, bottom: 34, left: 0, right: 0 }, "upright", true], [[844, 390], { top: 0, bottom: 21, left: 47, right: 47 }, "sideways", false]]) {
   test.describe(() => {
     test.skip(({ isMobile }) => !isMobile, "a phone check");
-    test(`on a notched phone held ${how}, no button sits inside the safe area and the bars stay jeremy.v1's height`, async ({ browser, note }, testInfo) => {
-      test.setTimeout(300_000);
+    test(`on a notched phone held ${how}, no button sits inside the safe area and the bars stay jeremy.v1's height, with real, fallback and wide fonts`, async ({ browser, note }, testInfo) => {
+      test.setTimeout(420_000);
       const baseURL = testInfo.project.use.baseURL;
-      const a = await walk(browser, baseURL, V1, size, "real", true, null, { insets });
-      const b = await walk(browser, baseURL, V2, size, "real", true, null, { bars: true, insets });
-      expect(b.errors).toEqual([]);
-      if (!strict) expect(a.bar.fails.length, "jeremy.v1's cards sit under the side notch, so this check can fail").toBeGreaterThan(0);
-      const fails = [...b.bar.fails], lists = [];
-      for (const name of Object.keys(a.screens)) {
-        const m1 = a.screens[name], m2 = b.screens[name];
-        for (const bar of m1.bars) { const t = m2.bars.find(x => x.key === bar.key); if (!t || (/foot/.test(bar.key) ? t.h > bar.h : t.h !== bar.h)) fails.push(`${name}: ${bar.key} bar ${bar.h} -> ${t ? t.h : "gone"}`); }
-        const h1 = a.bar.lists[name], h2 = b.bar.lists[name];
-        if (h1 !== null) { lists.push(`${name} ${h1}->${h2}`); if (h2 === null || h2 < h1 - 2) fails.push(`${name}: list ${h1} -> ${h2}`); }
-        if (strict) fails.push(...compare(m1, m2, name).fails);
+      const fails = [];
+      for (const font of Object.keys(FONTS)) {
+        const a = await walk(browser, baseURL, V1, size, font, true, null, { insets });
+        const b = await walk(browser, baseURL, V2, size, font, true, null, { bars: true, insets });
+        expect(b.errors).toEqual([]);
+        if (!strict) expect(a.bar.fails.length, "jeremy.v1's cards sit under the side notch, so this check can fail").toBeGreaterThan(0);
+        fails.push(...b.bar.fails.map(f => `${font}: ${f}`));
+        const lists = [];
+        for (const name of Object.keys(a.screens)) {
+          const m1 = a.screens[name], m2 = b.screens[name];
+          for (const bar of m1.bars) { const t = m2.bars.find(x => x.key === bar.key); if (!t || (/foot/.test(bar.key) ? t.h > bar.h : t.h !== bar.h)) fails.push(`${font}: ${name}: ${bar.key} bar ${bar.h} -> ${t ? t.h : "gone"}`); }
+          const h1 = a.bar.lists[name], h2 = b.bar.lists[name];
+          if (h1 !== null) { lists.push(`${h1}->${h2}`); if (h2 === null || h2 < h1 - 2) fails.push(`${font}: ${name}: list ${h1} -> ${h2}`); }
+          if (strict) fails.push(...compare(m1, m2, `${font}: ${name}`).fails);
+        }
+        note(`${font} fonts, ${size.join("x")}, insets ${JSON.stringify(insets)}: top bars match jeremy.v1 and bottom bars are no taller on all ${Object.keys(b.screens).length} screens; lists ${[...new Set(lists)].join(", ")}; no reachable button in the safe area (jeremy.v1 had ${a.bar.fails.length}); touchTargets on ${b.bar.states} states, ${b.bar.scrolled} scrolled${strict ? "" : "; last card scrolls fully into view on every list"}`);
       }
-      note(`${size.join("x")}, insets ${JSON.stringify(insets)}: top bars match jeremy.v1 and bottom bars are no taller on all ${Object.keys(b.screens).length} screens; lists ${lists.join(", ")}; no reachable button in the safe area (jeremy.v1 had ${a.bar.fails.length}); touchTargets on ${b.bar.states} states, ${b.bar.scrolled} scrolled${strict ? "" : "; last card scrolls fully into view on every list"}`);
       expect(fails).toEqual([]);
     });
   });

@@ -27,6 +27,7 @@
   --sans: ui-rounded, "Trebuchet MS", system-ui, sans-serif;
   /* how far a bar's 48 px button reaches above the bar's padding: 2 px on a plain screen, none under a notch, so it stays out of the notch */
   --reach: calc(max(8px, env(safe-area-inset-top)) - max(10px, env(safe-area-inset-top)));
+  --tuck: min(3px, env(safe-area-inset-top, 0px));
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; overflow: hidden; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
@@ -63,6 +64,8 @@ button:focus-visible { outline: 3px solid var(--torch); outline-offset: 2px; }
 .top > .icon-btn { margin: var(--reach) 0 calc(-6px - var(--reach)); align-self: flex-start; }
 /* the scrolling lists start 8 px below those buttons, so a card scrolled up to the edge never gets closer */
 #party > .scroll, #gear > .scroll { margin-top: calc(4px + var(--reach)); }
+#gear .heroes { margin-bottom: calc(10px - 2 * var(--tuck)); }
+#gear .hint { margin-bottom: calc(6px - var(--tuck)); }
 .top h2 { margin: 0; font-family: var(--serif); font-size: 22px; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ffd28a; }
 .top .sub { font-size: 13px; color: var(--dim); font-weight: 700; }
 .foot { flex: none; display: flex; gap: 10px; justify-content: center; align-items: center; padding: 8px 12px; padding-left: max(8px, env(safe-area-inset-left)); padding-right: max(8px, env(safe-area-inset-right)); padding-bottom: max(8px, env(safe-area-inset-bottom)); background: linear-gradient(#0000, #000c); flex-wrap: wrap; }
