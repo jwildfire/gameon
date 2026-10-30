@@ -1,0 +1,17 @@
+{
+  "name": "timedout",
+  "title": "Timed Out",
+  "version": "jeremy.v2",
+  "from": "jeremy.v1",
+  "updates": [
+    {
+      "version": "jeremy.v2",
+      "from": "jeremy.v1",
+      "idea": "Make Timed Out comfortable on a phone and with a keyboard, so it meets the phone bar from the phone-friendly games task (jwildfire/gameon#187): every button at least 48 x 48 px at 375 px wide, 8 px clear of each other and the screen edges, and both WASD and the arrow keys working. Measured on jeremy.v1 on 2026-10-29:\n\n- No keys. WASD, the arrows, Space, Enter, P and Escape do nothing. A keyboard player can only press Tab through the buttons.\n- The menu X is 28 x 28, Read clue is 30 x 23, the drop zones are 44 px wide, and the topic buttons are 44 px tall.\n- The number-of-events slider is a 6 px track.\n\nAdd keys: A/D or Left/Right move a highlighted drop zone, Enter or Space places the card, and Escape opens the menu. Make the X, Read clue, the topic buttons and the drop zones at least 48 px, and give the slider a bigger thumb. Keep everything else the same.\n\nThis game also lives in jwildfire/timedout. Making the same fix there too means the next import from that repo won't bring the old controls back.",
+      "by": "Jeremy",
+      "made": "2026-10-29",
+      "built_with": "Claude Code (Opus 5.5)",
+      "idea_issue": 226
+    }
+  ]
+}
