@@ -1,0 +1,587 @@
+{
+ "id": "pirates",
+ "name": "Pirates vs. Navy",
+ "years": "1668–1718",
+ "side": "Pirates",
+ "foe": "Spanish and Royal Navy",
+ "icon": "captain",
+ "blurb": "Sling pirates onto enemy decks, lob grenadoes, row longboats ashore, fire a broadside and send a fire ship into the Spanish fleet.",
+ "props": {
+  "bunker": "barrel",
+  "pennant": [
+   "#26282e",
+   "#ffffff"
+  ]
+ },
+ "units": {
+  "pirate": {
+   "name": "Pirate",
+   "kind": "sling",
+   "sprite": "pirate",
+   "w": 12,
+   "h": 16,
+   "density": 0.003,
+   "best": "sailor",
+   "tap": "shout",
+   "shout": "YO HO!",
+   "hint": "Drag back to aim, let go to launch. Land them right on the enemy's deck!"
+  },
+  "captain": {
+   "name": "Pirate captain",
+   "kind": "sling",
+   "sprite": "captain",
+   "w": 12,
+   "h": 16,
+   "density": 0.008,
+   "power": 1.8,
+   "best": "maynard",
+   "tap": "pound",
+   "shout": "SHIVER ME TIMBERS!",
+   "hint": "Heavy, so pull back hard. Tap in the air to crash straight down. Stories say Blackbeard tucked burning fuses under his hat to look scary."
+  },
+  "musket": {
+   "name": "Buccaneer musket",
+   "kind": "fire",
+   "sprite": "proj_rifleball",
+   "gunner": "buccaneer",
+   "w": 4,
+   "h": 2,
+   "density": 0.006,
+   "best": "spanish_musketeer",
+   "lift": 0.97,
+   "soft": true,
+   "power": 5,
+   "stick": true,
+   "speed": 1.2,
+   "sound": "shot",
+   "hint": "Buccaneers were famous sharpshooters. The shot flies almost flat. Great against crews, useless against wood."
+  },
+  "grenado": {
+   "name": "Grenado",
+   "kind": "fire",
+   "sprite": "proj_grenado",
+   "gunner": "grenado_thrower",
+   "w": 6,
+   "h": 6,
+   "density": 0.004,
+   "best": "sailor",
+   "fuse": 2600,
+   "bounce": 0.4,
+   "spin": 0.2,
+   "faceVel": false,
+   "boom": {
+    "r": 30,
+    "p": 3.2
+   },
+   "hint": "A bottle bomb with a burning fuse. Bounce it onto a deck and it goes off a few seconds later."
+  },
+  "cannon": {
+   "name": "Ship's cannon",
+   "kind": "fire",
+   "sprite": "proj_cannonball",
+   "gunner": "cannon",
+   "w": 6,
+   "h": 6,
+   "round": true,
+   "density": 0.03,
+   "best": "hull",
+   "power": 2.4,
+   "bounce": 0.25,
+   "speed": 1.1,
+   "hint": "A heavy iron cannonball. The best way to smash a ship's hull."
+  },
+  "longboat": {
+   "name": "Longboat",
+   "kind": "drive",
+   "sprite": "longboat",
+   "w": 40,
+   "h": 10,
+   "density": 0.004,
+   "best": "door",
+   "boat": true,
+   "speed": 1.1,
+   "push": 0.4,
+   "hp": 6,
+   "tap": "unload",
+   "unload": {
+    "unit": "pirate",
+    "count": 3,
+    "vx": 2.6,
+    "vy": -8.5,
+    "spread": 1
+   },
+   "shout": "BOARD 'EM!",
+   "hint": "Tap to row across the water, then tap again and three pirates leap aboard."
+  },
+  "fireship": {
+   "name": "Fire ship",
+   "kind": "drive",
+   "sprite": "pirate_fireship",
+   "w": 42,
+   "h": 12,
+   "density": 0.004,
+   "best": "hull",
+   "boat": true,
+   "speed": 1,
+   "push": 0.4,
+   "hp": 5,
+   "tap": "blowup",
+   "boom": {
+    "r": 56,
+    "p": 5.5
+   },
+   "hint": "Tap to send the burning ship sailing at the enemy, then tap again to make it explode right beside them."
+  },
+  "broadside": {
+   "name": "Broadside",
+   "kind": "air",
+   "style": "rain",
+   "icon": "pirate_ship",
+   "count": 4,
+   "gap": 18,
+   "every": 180,
+   "vx": 3.2,
+   "vy": 0,
+   "say": "BROADSIDE!",
+   "sound": "thump",
+   "proj": {
+    "sprite": "proj_cannonball",
+    "w": 6,
+    "h": 6,
+    "round": true,
+    "density": 0.03,
+    "power": 2.2,
+    "bounce": 0.2
+   },
+   "hint": "Tap a target and your ship fires four cannonballs at it."
+  }
+ },
+ "order": [
+  "pirate",
+  "captain",
+  "musket",
+  "grenado",
+  "cannon",
+  "longboat",
+  "fireship",
+  "broadside"
+ ],
+ "blocks": {
+  "H": {
+   "key": "hull",
+   "name": "Ship's hull",
+   "slab": true,
+   "h": 16,
+   "boat": true,
+   "caps": [
+    "hull_bow",
+    "hull_stern"
+   ],
+   "hp": 7,
+   "density": 0.002,
+   "pts": 800,
+   "debris": [
+    "#a8693a",
+    "#5e3a1d"
+   ]
+  },
+  "S": {
+   "key": "sail",
+   "name": "Mast and sail",
+   "hp": 1.6,
+   "density": 0.0008,
+   "pts": 200,
+   "debris": [
+    "#efe9d8",
+    "#a8693a"
+   ]
+  },
+  "W": {
+   "key": "wood",
+   "name": "Cabin wall",
+   "hp": 2.2,
+   "density": 0.0015,
+   "pts": 200,
+   "debris": [
+    "#a8693a",
+    "#5e3a1d"
+   ]
+  },
+  "K": {
+   "key": "keg",
+   "name": "Powder keg",
+   "hp": 0.5,
+   "density": 0.002,
+   "pts": 300,
+   "debris": [
+    "#a8693a",
+    "#26282e"
+   ],
+   "explodes": {
+    "r": 38,
+    "p": 4
+   },
+   "fire": true
+  },
+  "C": {
+   "key": "stone",
+   "name": "Fort wall",
+   "hp": 6,
+   "density": 0.0045,
+   "pts": 500,
+   "debris": [
+    "#a39b8b",
+    "#cbc4b4"
+   ]
+  },
+  "B": {
+   "key": "merlon",
+   "name": "Battlement",
+   "hp": 5,
+   "density": 0.004,
+   "pts": 400,
+   "debris": [
+    "#a39b8b",
+    "#cbc4b4"
+   ]
+  },
+  "=": {
+   "key": "stone",
+   "sprite": "stone",
+   "slab": true,
+   "hp": 7,
+   "density": 0.0045,
+   "pts": 800,
+   "debris": [
+    "#a39b8b",
+    "#cbc4b4"
+   ]
+  },
+  "~": {
+   "key": "wood",
+   "sprite": "wood",
+   "slab": true,
+   "hp": 2.5,
+   "density": 0.0015,
+   "pts": 300,
+   "debris": [
+    "#a8693a",
+    "#5e3a1d"
+   ]
+  }
+ },
+ "defenders": {
+  "s": {
+   "key": "spanish_soldier",
+   "name": "Spanish soldier",
+   "w": 12,
+   "h": 17,
+   "hp": 1.6,
+   "density": 0.002,
+   "pts": 500
+  },
+  "m": {
+   "key": "spanish_musketeer",
+   "name": "Spanish musketeer",
+   "w": 12,
+   "h": 17,
+   "hp": 1.5,
+   "density": 0.002,
+   "pts": 1000,
+   "react": {
+    "type": "shooter",
+    "range": 110,
+    "height": 55,
+    "say": "BANG!",
+    "sound": "shot",
+    "muzzle": {
+     "x": -7,
+     "y": -6
+    }
+   }
+  },
+  "d": {
+   "key": "spanish_captain",
+   "name": "Spanish captain",
+   "w": 12,
+   "h": 17,
+   "hp": 3.5,
+   "density": 0.0025,
+   "pts": 5000
+  },
+  "c": {
+   "key": "ship_cannon",
+   "sprite": "british_cannon",
+   "name": "Cannon",
+   "w": 26,
+   "h": 12,
+   "hp": 3.5,
+   "density": 0.006,
+   "pts": 3000,
+   "cells": 2,
+   "react": {
+    "type": "antitank",
+    "every": 1800,
+    "range": 330,
+    "muzzle": {
+     "x": -17,
+     "y": -4
+    },
+    "vx": -12,
+    "vy": -0.5,
+    "shell": {
+     "sprite": "proj_cannonball",
+     "w": 6,
+     "h": 6,
+     "round": true,
+     "density": 0.01,
+     "enemy": true,
+     "impact": true,
+     "boom": {
+      "r": 16,
+      "p": 2.5
+     }
+    }
+   }
+  },
+  "n": {
+   "key": "sailor",
+   "name": "Navy sailor",
+   "w": 12,
+   "h": 17,
+   "hp": 1.6,
+   "density": 0.002,
+   "pts": 500
+  },
+  "k": {
+   "key": "navy_musket",
+   "name": "Navy marksman",
+   "w": 12,
+   "h": 17,
+   "hp": 1.5,
+   "density": 0.002,
+   "pts": 1000,
+   "react": {
+    "type": "shooter",
+    "range": 110,
+    "height": 55,
+    "say": "BANG!",
+    "sound": "shot",
+    "muzzle": {
+     "x": -7,
+     "y": -6
+    }
+   }
+  },
+  "M": {
+   "key": "maynard",
+   "name": "Lt. Maynard",
+   "w": 12,
+   "h": 17,
+   "hp": 4,
+   "density": 0.0025,
+   "pts": 5000
+  }
+ },
+ "themes": {
+  "caribbean": {
+   "sky": [
+    "#4fb3ec",
+    "#86cef4",
+    "#c6ecfb"
+   ],
+   "sun": "#ffe25a",
+   "clouds": true,
+   "hills": [
+    "#5fae6a",
+    "#3f8f52"
+   ],
+   "trees": "palm",
+   "split": 9999,
+   "water": "#2a9db5",
+   "waterHi": "#9be7f0",
+   "rock": [
+    "#b49a6a",
+    "#8f7a50",
+    "#d2bd8c"
+   ],
+   "left": {
+    "top": "#e3c98e",
+    "hi": "#f1dfb0",
+    "base": "#d6b878",
+    "lo": "#bf9f5f"
+   },
+   "right": {
+    "top": "#e3c98e",
+    "hi": "#f1dfb0",
+    "base": "#d6b878",
+    "lo": "#bf9f5f"
+   }
+  },
+  "lagoon": {
+   "sky": [
+    "#e9a46b",
+    "#f2c38c",
+    "#f8e0b5"
+   ],
+   "sun": "#ffd27a",
+   "clouds": true,
+   "cloud": "#fbe6c8",
+   "hills": [
+    "#6f8f4a",
+    "#557038"
+   ],
+   "trees": "palm",
+   "water": "#2f7fa5",
+   "waterHi": "#f8d9a8",
+   "split": 9999,
+   "left": {
+    "top": "#d9bf84",
+    "hi": "#ead6a6",
+    "base": "#c9ab70",
+    "lo": "#ad9058"
+   },
+   "right": {
+    "top": "#d9bf84",
+    "hi": "#ead6a6",
+    "base": "#c9ab70",
+    "lo": "#ad9058"
+   }
+  },
+  "inlet": {
+   "sky": [
+    "#8fa9bf",
+    "#b3c6d3",
+    "#dfe6e6"
+   ],
+   "clouds": true,
+   "cloud": "#eef0ee",
+   "hills": [
+    "#7f9a6a",
+    "#6a8456"
+   ],
+   "trees": "pine",
+   "treeColor": "#3e5a3a",
+   "water": "#4a7f8f",
+   "waterHi": "#c3dbe0",
+   "split": 9999,
+   "left": {
+    "top": "#d6c79a",
+    "hi": "#e8dcb8",
+    "base": "#c2b07e",
+    "lo": "#a8976a"
+   },
+   "right": {
+    "top": "#d6c79a",
+    "hi": "#e8dcb8",
+    "base": "#c2b07e",
+    "lo": "#a8976a"
+   }
+  }
+ },
+ "levels": [
+  {
+   "id": "portobelo",
+   "name": "Portobelo",
+   "date": "July 1668",
+   "theme": "caribbean",
+   "width": 860,
+   "history": "The buccaneer captain Henry Morgan led about 500 men in a surprise attack on Portobelo, one of the richest Spanish ports in the Caribbean. They captured its forts and held the town until the Spanish paid a huge ransom.",
+   "tip": "The cannon by the water fires at boats. Knock it out with musket shots or a grenado before you row the longboat across.",
+   "fortX": 472,
+   "trenches": [
+    {
+     "x": 360,
+     "w": 80,
+     "d": 24,
+     "water": true
+    }
+   ],
+   "cliff": {
+    "x": 600,
+    "h": 32
+   },
+   "fort": [
+    "....m...Bd...BB",
+    "...~~~..CC...CC",
+    "...W.W..CC...CC",
+    "c-.WsW..CC.s.CC"
+   ],
+   "arsenal": {
+    "pirate": 3,
+    "musket": 1,
+    "grenado": 2,
+    "cannon": 1,
+    "longboat": 1
+   },
+   "wind": 1
+  },
+  {
+   "id": "maracaibo",
+   "name": "Lake Maracaibo",
+   "date": "April 1669",
+   "theme": "lagoon",
+   "width": 1000,
+   "history": "Spanish warships trapped Morgan's pirate fleet inside Lake Maracaibo. So Morgan turned a captured ship into a fire ship (stories say he even propped up logs dressed as pirates to fool the Spanish) and sent it crashing into their flagship, which went up in flames. Then the pirates tricked the fort and slipped out to sea at night.",
+   "tip": "Sail the fire ship right up to the Spanish flagship and tap to set it ablaze. Then deal with the fort on the far shore.",
+   "fortX": 470,
+   "trenches": [
+    {
+     "x": 330,
+     "w": 510,
+     "d": 30,
+     "water": true
+    }
+   ],
+   "fort": [
+    ".....S....m................m.",
+    ".....S...~~~..............===",
+    "..c-.SsKsWdW..............C.C",
+    "..HHHHHHHHHH...........c-.CsC"
+   ],
+   "arsenal": {
+    "pirate": 2,
+    "captain": 1,
+    "musket": 1,
+    "grenado": 1,
+    "cannon": 1,
+    "longboat": 1,
+    "fireship": 1,
+    "broadside": 1
+   },
+   "wind": 2
+  },
+  {
+   "id": "ocracoke",
+   "name": "Ocracoke Inlet",
+   "date": "November 22, 1718",
+   "theme": "inlet",
+   "width": 1000,
+   "history": "The Royal Navy finally cornered Blackbeard, the most feared pirate of all, at Ocracoke Inlet in North Carolina. Lieutenant Robert Maynard hid most of his sailors below deck. When Blackbeard's crew threw grenadoes and climbed aboard, the sailors rushed up to fight. Blackbeard was defeated, and the great age of pirates soon came to an end.",
+   "tip": "Maynard's sloops have no cannons, but their marksmen shoot down pirates flying low. Maynard is hiding in the cabin with his men, so blast it open with grenadoes.",
+   "fortX": 470,
+   "trenches": [
+    {
+     "x": 330,
+     "w": 630,
+     "d": 30,
+     "water": true
+    }
+   ],
+   "fort": [
+    "...S............k..S...",
+    "...S...........~~~.S...",
+    ".WnSnknW......WWMWnSKnW",
+    ".HHHHHHH......HHHHHHHHH"
+   ],
+   "arsenal": {
+    "pirate": 2,
+    "captain": 1,
+    "musket": 1,
+    "grenado": 2,
+    "broadside": 1
+   },
+   "wind": 2
+  }
+ ]
+}

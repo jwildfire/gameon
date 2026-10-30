@@ -1,0 +1,4638 @@
+<title>Angry Dudes WWII</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans:wght@400;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: a war-room arsenal screen. Normandy battlefield banner, then the Allied arsenal (grouped by how you launch it) and the Axis fort. Light = day battle, dark = night battle. */
+:root{
+  --bg:#dfeaf2; --panel:#ffffff; --fg:#1d1a2b; --muted:#4c5668; --edge:#1d1a2b; --shadow:#1d1a2b;
+  --ally:#4a6a1e; --ally-band:#56702c; --ally-soft:#e5edd3;
+  --axis:#4f5d66; --axis-band:#58646c; --axis-soft:#e3e8eb;
+  --logo-a:#cf3b28; --logo-b:#2f6fd0;
+  --on-band:#ffffff; --gold:#8f6400; --pip:#d3dae2; --pip-shade:#b8c1cc; --rule:#cfd8e0;
+  --sky1:#78c4f2; --sky2:#9ad3f8; --sky3:#c3e6fb; --sun:#ffe25a; --cloud:#ffffff; --star:#ffffff; --trail:#ffffff;
+  --hill1:#a9d4a0; --hill2:#82bf7c; --grass:#4fae3f; --grass-hi:#8bd85e; --dirt:#8b5a2b; --dirt-lo:#6b4220;
+  --sand:#e3c98e; --sand-hi:#f1dfb0; --sand-lo:#c4a565;
+  --night:0;
+  --font-display:"Press Start 2P", ui-monospace, monospace;
+  --font-pixel:"Pixelify Sans", ui-monospace, monospace;
+  --font-body:"Rubik", system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1526; --panel:#19202f; --fg:#eef1f7; --muted:#a7b0c2; --edge:#03050a; --shadow:#03050a;
+    --ally:#b4cd78; --ally-band:#3e5420; --ally-soft:#222c17;
+    --axis:#b6c3cb; --axis-band:#3b464d; --axis-soft:#20272c;
+    --logo-a:#e2533e; --logo-b:#4a86e8;
+    --on-band:#ffffff; --gold:#ffd23f; --pip:#2c3547; --pip-shade:#232a3a; --rule:#2c3547;
+    --sky1:#0b1430; --sky2:#121f48; --sky3:#1b2d60; --sun:#f3efd2; --cloud:#33416e; --star:#fff6c8; --trail:#cdd8ff;
+    --hill1:#1f3b46; --hill2:#183236; --grass:#2c6a39; --grass-hi:#3f8c4b; --dirt:#4a301d; --dirt-lo:#342114;
+    --sand:#6e5d3c; --sand-hi:#857149; --sand-lo:#56482e;
+    --night:1; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1526; --panel:#19202f; --fg:#eef1f7; --muted:#a7b0c2; --edge:#03050a; --shadow:#03050a;
+  --ally:#b4cd78; --ally-band:#3e5420; --ally-soft:#222c17;
+  --axis:#b6c3cb; --axis-band:#3b464d; --axis-soft:#20272c;
+  --logo-a:#e2533e; --logo-b:#4a86e8;
+  --on-band:#ffffff; --gold:#ffd23f; --pip:#2c3547; --pip-shade:#232a3a; --rule:#2c3547;
+  --sky1:#0b1430; --sky2:#121f48; --sky3:#1b2d60; --sun:#f3efd2; --cloud:#33416e; --star:#fff6c8; --trail:#cdd8ff;
+  --hill1:#1f3b46; --hill2:#183236; --grass:#2c6a39; --grass-hi:#3f8c4b; --dirt:#4a301d; --dirt-lo:#342114;
+  --sand:#6e5d3c; --sand-hi:#857149; --sand-lo:#56482e;
+  --night:1; color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:400 16px/1.55 var(--font-body);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+h1,h2,h3,h4{text-wrap:balance;margin:0}
+p{margin:0}
+canvas{display:block;image-rendering:pixelated;image-rendering:crisp-edges}
+
+/* ---------- header ---------- */
+.top{padding-block:40px 8px}
+.eyebrow{font-family:var(--font-pixel);font-weight:600;font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.logo{font-family:var(--font-display);font-weight:400;font-size:clamp(30px, 8.4vw, 76px);line-height:1.15;display:flex;flex-wrap:wrap;gap:.1em .42em;margin-block:14px 18px}
+.logo span{text-shadow:-.0625em 0 var(--edge), .0625em 0 var(--edge), 0 -.0625em var(--edge), 0 .0625em var(--edge), .125em .125em 0 var(--edge)}
+.logo .a{color:var(--logo-a)}
+.logo .d{color:var(--logo-b)}
+.lede{font-size:clamp(17px, 2.2vw, 20px);max-width:60ch}
+
+/* battle packs */
+.packs{list-style:none;margin:24px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:10px}
+.pack{display:flex;flex-direction:column;gap:2px;padding:8px 12px;border:2px dashed var(--muted);color:var(--muted);min-width:0}
+.pack b{font-family:var(--font-pixel);font-weight:700;font-size:16px;line-height:1.2}
+.pack span{font-size:13px}
+.pack.on{border:3px solid var(--edge);background:var(--panel);color:var(--fg);box-shadow:4px 4px 0 var(--shadow)}
+.pack.on span{color:var(--ally);font-weight:500}
+
+/* ---------- battlefield ---------- */
+.field{padding-block:28px 0}
+.screen{border:4px solid var(--edge);box-shadow:8px 8px 0 var(--shadow);background:var(--sky2);max-width:100%}
+.screen canvas{width:100%;height:auto}
+.caption{margin-top:16px;font-size:14px;color:var(--muted);max-width:72ch}
+
+/* ---------- steps ---------- */
+section.block{padding-block:56px 0}
+.sec-title{font-family:var(--font-display);font-size:clamp(16px, 2.4vw, 22px);line-height:1.4;margin-bottom:20px}
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4, minmax(0,1fr));gap:20px}
+.step{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:start}
+.step .n{grid-row:span 2;font-family:var(--font-display);font-size:18px;width:44px;height:44px;display:grid;place-items:center;background:var(--panel);border:3px solid var(--edge);box-shadow:3px 3px 0 var(--shadow)}
+.step h3{font-family:var(--font-pixel);font-weight:700;font-size:20px;line-height:1.2;padding-top:2px}
+.step p{font-size:15px;color:var(--muted);line-height:1.5}
+
+/* ---------- army panels ---------- */
+.army{--team:var(--ally);--band:var(--ally-band);--soft:var(--ally-soft)}
+.army--axis{--team:var(--axis);--band:var(--axis-band);--soft:var(--axis-soft)}
+.army-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:8px 24px;background:var(--band);color:var(--on-band);border:4px solid var(--edge);box-shadow:6px 6px 0 var(--shadow);padding:16px 20px}
+.army-head .eyebrow{color:var(--on-band);opacity:.85}
+.army-head h2{font-family:var(--font-display);font-weight:400;font-size:clamp(20px, 3.6vw, 32px);line-height:1.3;margin-top:8px}
+.army-head .count{font-family:var(--font-pixel);font-size:18px;font-weight:600}
+
+.group{margin-top:36px;min-width:0}
+.sub{font-family:var(--font-pixel);font-weight:700;font-size:24px;line-height:1.2;margin-bottom:6px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.how{font-family:var(--font-pixel);font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;background:var(--band);color:var(--on-band);border:2px solid var(--edge)}
+.blurb{font-size:15px;color:var(--muted);margin-bottom:16px;max-width:70ch}
+.pair{display:grid;grid-template-columns:repeat(2, minmax(0,1fr));gap:0 24px}
+
+.cards{display:grid;gap:22px}
+.c4{grid-template-columns:repeat(4, minmax(0,1fr))}
+.c3{grid-template-columns:repeat(3, minmax(0,1fr))}
+.c2{grid-template-columns:repeat(2, minmax(0,1fr))}
+.card{background:var(--panel);border:3px solid var(--edge);box-shadow:5px 5px 0 var(--shadow);display:flex;flex-direction:column;min-width:0;transition:transform .12s steps(2), box-shadow .12s steps(2)}
+.card:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--shadow)}
+.card .stage{width:100%;height:auto;border-bottom:3px solid var(--edge)}
+.card-body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:10px;flex:1}
+.card h3{font-family:var(--font-pixel);font-weight:700;font-size:23px;line-height:1.1}
+.real{font-family:var(--font-pixel);font-size:14px;color:var(--team);margin-top:3px}
+.tap{font-size:15px;line-height:1.45}
+.k{font-family:var(--font-pixel);font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:1px 6px;margin-right:6px;border:2px solid var(--edge);background:var(--bg);color:var(--fg);display:inline-block;transform:translateY(-1px)}
+.stats{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;align-items:center;margin:0}
+.stats dt{font-family:var(--font-pixel);font-weight:600;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.stats dd{margin:0;display:flex;align-items:center}
+.pips{display:flex;gap:3px}
+.pips i{width:13px;height:13px;background:var(--pip);box-shadow:inset -2px -2px 0 var(--pip-shade)}
+.pips i.on{background:var(--team);box-shadow:inset -2px -2px 0 var(--edge)}
+.num{font-family:var(--font-display);font-size:12px;color:var(--gold);font-variant-numeric:tabular-nums}
+.best{display:flex;align-items:center;flex-wrap:wrap;gap:6px;font-size:14px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-pixel);font-weight:600;font-size:15px;padding:3px 8px 3px 5px;background:var(--bg);border:2px solid var(--edge);max-width:100%}
+.chip .ico{flex:none}
+.fact{margin-top:auto;padding-top:10px;border-top:2px dashed var(--rule);font-size:14px;line-height:1.45}
+.fact b{display:block;font-family:var(--font-pixel);font-weight:700;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:2px}
+
+/* fort pieces */
+.tiles{display:grid;grid-template-columns:repeat(3, minmax(0,1fr));gap:20px}
+.tile{display:grid;grid-template-columns:88px 1fr;gap:14px;align-items:start;background:var(--panel);border:3px solid var(--edge);box-shadow:4px 4px 0 var(--shadow);padding:12px;min-width:0}
+.tile canvas{width:88px;height:auto;border:2px solid var(--edge)}
+.tile h4{margin:0 0 4px;font-family:var(--font-pixel);font-weight:700;font-size:19px;line-height:1.15}
+.tile p{font-size:14px;color:var(--muted);line-height:1.4}
+.tile .row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px}
+.tile .lbl{font-family:var(--font-pixel);font-weight:600;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+footer{padding-block:56px 48px;color:var(--muted);font-size:14px}
+footer p + p{margin-top:6px}
+
+@media (max-width: 1000px){
+  .c4{grid-template-columns:repeat(2, minmax(0,1fr))}
+  .c3{grid-template-columns:repeat(2, minmax(0,1fr))}
+  .pair{grid-template-columns:minmax(0,1fr)}
+  .steps{grid-template-columns:repeat(2, minmax(0,1fr))}
+  .tiles{grid-template-columns:repeat(2, minmax(0,1fr))}
+}
+@media (max-width: 600px){
+  .c4, .c3, .c2{grid-template-columns:minmax(0,1fr)}
+  .steps, .tiles{grid-template-columns:minmax(0,1fr)}
+  .screen{box-shadow:5px 5px 0 var(--shadow)}
+}
+@media (prefers-reduced-motion: reduce){
+  .card{transition:none}
+  .card:hover{transform:none}
+}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <p class="eyebrow">Battle pack 1 · World War II · Normandy, June 1944</p>
+    <h1 class="logo" aria-label="Angry Dudes"><span class="a">ANGRY</span><span class="d">DUDES</span></h1>
+    <p class="lede">You command the U.S. Army. The computer holds a German fort on the Normandy coast. Sling troops, fire weapons, drive tanks and call in planes until the fort falls.</p>
+    <ul class="packs" aria-label="Battle packs">
+      <li class="pack on"><b>World War II</b><span>Normandy 1944 · this pack</span></li>
+      <li class="pack"><b>American Revolution</b><span>1776 · later</span></li>
+      <li class="pack"><b>Civil War</b><span>1863 · later</span></li>
+      <li class="pack"><b>Romans vs. Gauls</b><span>52 BC · later</span></li>
+      <li class="pack"><b>Knights &amp; Castles</b><span>1415 · later</span></li>
+      <li class="pack"><b>Napoleon</b><span>1815 · later</span></li>
+    </ul>
+  </div>
+</header>
+
+<div class="wrap field">
+  <div class="screen"><canvas id="hero" role="img" aria-label="Pixel art of Omaha Beach: a Sherman tank, a jeep and U.S. soldiers beside a slingshot on the sand, with a German concrete fort, a Tiger tank and a Flak 88 gun on the right"></canvas></div>
+  <p class="caption">Launch screen mock-up on Omaha Beach. The Allies line up on the sand with the slingshot. The Axis fort sits behind hedgehogs and barbed wire, with a Tiger tank and a Flak 88 guarding its flank.</p>
+</div>
+
+<section class="block wrap" aria-labelledby="how">
+  <h2 class="sec-title" id="how">How a battle works</h2>
+  <ol class="steps">
+    <li class="step"><span class="n">1</span><h3>Check your arsenal</h3><p>Each battle hands you a mix of troops, weapons, vehicles and planes. Each one has a set number of uses, like in Worms.</p></li>
+    <li class="step"><span class="n">2</span><h3>Sling, fire, drive or call in</h3><p>Troops fly from the slingshot. Weapons aim from your bunker. Vehicles drive across. Planes come when you tap a spot.</p></li>
+    <li class="step"><span class="n">3</span><h3>Tap for the special</h3><p>Almost everything has a trick: pop a parachute, fire the tank gun, drop the bombs. Timing is everything.</p></li>
+    <li class="step"><span class="n">4</span><h3>Take the fort</h3><p>Knock out every Axis defender to win. Anything left in your arsenal earns bonus points.</p></li>
+  </ol>
+</section>
+
+<section class="block wrap army" aria-labelledby="allies">
+  <div class="army-head">
+    <div><p class="eyebrow">Player · U.S. Army, 1944</p><h2 id="allies">The Allies</h2></div>
+    <p class="count">12 in the arsenal</p>
+  </div>
+  <div id="allied-groups"></div>
+</section>
+
+<section class="block wrap army army--axis" aria-labelledby="axis">
+  <div class="army-head">
+    <div><p class="eyebrow">Computer · German Army, 1944</p><h2 id="axis">The Axis</h2></div>
+    <p class="count">6 defenders · 6 fort pieces</p>
+  </div>
+  <div class="group">
+    <h3 class="sub">Defenders <span class="how">Guard the fort</span></h3>
+    <p class="blurb">They hold the Atlantic Wall. Some of them fight back.</p>
+    <div class="cards c3" id="defenders"></div>
+  </div>
+  <div class="group">
+    <h3 class="sub">Fort pieces</h3>
+    <p class="blurb">Each piece has one part of your arsenal that wrecks it fastest.</p>
+    <div class="tiles" id="blocks"></div>
+  </div>
+</section>
+
+<footer class="wrap">
+  <p>Angry Dudes · Battle pack 1 concept. Every name, number and ability is a first guess. Change anything.</p>
+  <p>Soldiers are drawn on a 16-pixel grid so they line up with the 16×16 fort pieces. Vehicles and planes are bigger. All sprites live in one data file the HTML prototype and an iPhone app can both use.</p>
+</footer>
+
+<script type="application/json" id="sprite-data">
+{
+  "palette": {"k": "#1d1a2b", "w": "#ffffff", "s": "#f2b386", "S": "#c8805b", "h": "#3d2414", "b": "#a8693a", "B": "#5e3a1d", "g": "#a9b2bf", "G": "#646d7b", "l": "#e3e9f0", "y": "#ffd23f", "o": "#ff8c1a", "r": "#e0412c", "R": "#9e2417", "x": "#3a3546", "c": "#d9bc80", "C": "#a9884f", "p": "#9a9ea3", "P": "#74787e", "i": "#c4c7cb", "a": "#5f6b34", "A": "#414a22", "e": "#808d4c", "d": "#c9b46c", "D": "#9b864b", "E": "#e2d396", "j": "#5e6e3c", "J": "#7b5a36", "v": "#a9dcff", "U": "#2c4f96", "n": "#a39b8b", "N": "#6f685d", "m": "#cbc4b4", "f": "#d9b44a", "F": "#9c7a2c", "z": "#7a5634", "Z": "#553a21", "V": "#c98d3c", "W": "#8c5a22", "1": "#efe9d8", "2": "#dcc58f", "6": "#edcf6a", "7": "#b4532a", "8": "#e8e8e8", "9": "#ff6a00", "X": "#26282e", "q": "#b9533a", "Q": "#7d3424", "u": "#d9c4aa", "3": "#39ff88", "4": "#3ee6ff", "5": "#ff4fd8"},
+  "teams": {"allies": {"T": "#6b7a3a", "t": "#4a5428", "L": "#97a65c"}, "axis": {"T": "#6d7871", "t": "#4a534e", "L": "#9aa49d"}, "romans": {"T": "#b8322a", "t": "#7d1f1a", "L": "#e05a48"}, "gauls": {"T": "#3f7a3c", "t": "#2a5229", "L": "#c9a43c"}, "english": {"T": "#c22a2a", "t": "#861b1b", "L": "#efe9d8"}, "scots": {"T": "#2d5aa8", "t": "#1d3c74", "L": "#efe9d8"}, "continental": {"T": "#2b4a8c", "t": "#1b3264", "L": "#dcc58f"}, "redcoats": {"T": "#c4302b", "t": "#85201c", "L": "#efe9d8"}, "doughboys": {"T": "#7b7a45", "t": "#555530", "L": "#a3a26a"}, "kaiser": {"T": "#7d8270", "t": "#565b4c", "L": "#a3a896"}, "vikings": {"T": "#9a3b2a", "t": "#64261b", "L": "#c96b4a"}, "franks": {"T": "#3d6a8a", "t": "#294a62", "L": "#e6d5a8"}, "tokugawa": {"T": "#2f3f6a", "t": "#1e2a48", "L": "#d9c38a"}, "toyotomi": {"T": "#b0302a", "t": "#7a1f1a", "L": "#e8c45a"}, "french": {"T": "#2b4fa0", "t": "#1b3270", "L": "#efe9d8"}, "greeks": {"T": "#2f5fa8", "t": "#1f3f72", "L": "#e8dcb8"}, "pirates": {"T": "#a3262a", "t": "#6e1a1d", "L": "#efe9d8"}, "spanish": {"T": "#b58a4a", "t": "#7f5f30", "L": "#c4302b"}, "navy": {"T": "#2b3f7a", "t": "#1b2a54", "L": "#efe9d8"}, "marines": {"T": "#e8e8e8", "t": "#a9b2bf", "L": "#ff8c1a"}, "robots": {"T": "#8a94a3", "t": "#5a6270", "L": "#e0412c"}},
+  "sprites": {
+    "slingshot": {"rows": [
+      ".kkkk......kkkk.",
+      ".kbbk......kbbk.",
+      ".kbBk......kbBk.",
+      ".kbbkBBBBBBkbbk.",
+      ".kbBk......kbBk.",
+      ".kbbk......kbbk.",
+      ".kbbbk....kbbbk.",
+      "..kbbbk..kbbbk..",
+      "...kbbbkkbbbk...",
+      "....kbbbbbbk....",
+      ".....kbbbbk.....",
+      ".....kcccck.....",
+      ".....kCCCCk.....",
+      ".....kbBbbk.....",
+      ".....kbbBbk.....",
+      ".....kbBbbk.....",
+      ".....kbbbBk.....",
+      ".....kbBbbk.....",
+      ".....kbbBbk.....",
+      ".....kbBbbk.....",
+      ".....kbbbbk.....",
+      "....kkbbbbkk....",
+      "...kBBBBBBBBk...",
+      "...kkkkkkkkkk..."
+    ]},
+    "sandbag": {"rows": [
+      ".kkkkkk..kkkkkk.",
+      "kcccccckkcccccck",
+      "kccccCckkccccCck",
+      "kCCCCCCkkCCCCCCk",
+      "kkkkkkkkkkkkkkkk",
+      "cccckcccccckcccc",
+      "cccckccccCckcccc",
+      "CCCCkCCCCCCkCCCC",
+      "kkkkkkkkkkkkkkkk",
+      "kcccccckkcccccck",
+      "kccccCckkccccCck",
+      "kCCCCCCkkCCCCCCk",
+      "kkkkkkkkkkkkkkkk",
+      "cccckcccccckcccc",
+      "CCCCkCCCCCCkCCCC",
+      "kkkkkkkkkkkkkkkk"
+    ]},
+    "wood": {"rows": [
+      "kkkkkkkkkkkkkkkk",
+      "kBBBBBBBBBBBBBBk",
+      "kBbbbbbbbbbBBBBk",
+      "kBbbbbbbbbBBbBBk",
+      "kBbbbbbbbBBbbBBk",
+      "kBbbbbbbBBbbbBBk",
+      "kBbbbbbBBbbbbBBk",
+      "kBbbbbBBbbbbbBBk",
+      "kBbbbBBbbbbbbBBk",
+      "kBbbBBbbbbbbbBBk",
+      "kBbBBbbbbbbbbBBk",
+      "kBBBbbbbbbbbbBBk",
+      "kBBbbbbbbbbbbBBk",
+      "kBbbbbbbbbbbbBBk",
+      "kBBBBBBBBBBBBBBk",
+      "kkkkkkkkkkkkkkkk"
+    ]},
+    "paradude": {"team": "allies", "rows": [
+      ".....kkkkkk.....",
+      "...kkTLTTtTkk...",
+      "..kTLLTtTTtTTk..",
+      "..kTLTtTTtTTtk..",
+      ".kTtTTtTTtTTtTk.",
+      ".kkkkkkkkkkkkkk.",
+      "..kskssssssksk..",
+      "..ksskksskkssk..",
+      "..ksswksskwssk..",
+      "..kssssssssssk..",
+      "..kssskkkksssk..",
+      "..kSsskrrkssSk..",
+      "...kkkkkkkkkk...",
+      "...kTTTTTTTTk...",
+      "..kskTTTTTTksk..",
+      "...kcCccccCck...",
+      "...kttkkkkttk...",
+      "..kBBBk..kBBBk.."
+    ]},
+    "proj_grenade": {"team": "allies", "rows": [
+      "...kk..",
+      "..kxgk.",
+      ".kaaak.",
+      ".kaAak.",
+      ".kaaak.",
+      ".kAaAk.",
+      ".kaaak.",
+      "..kkk.."
+    ]},
+    "proj_rocket": {"team": "allies", "rows": [
+      ".kk............",
+      "kxxkkkkkkkkkk..",
+      "kxxeeeeeeeeAAk.",
+      "kxxaaaaaaaaAAAk",
+      "kxxaaaaaaaaAAk.",
+      "kxxkkkkkkkkkk..",
+      ".kk............"
+    ]},
+    "proj_shell": {"team": "allies", "rows": [
+      ".k.........",
+      "kxkkkkkkk..",
+      "kxggggggGk.",
+      "kxGGGGGGGGk",
+      "kxGGGGGGGk.",
+      "kxkkkkkkk..",
+      ".k........."
+    ]},
+    "proj_bomb": {"team": "allies", "rows": [
+      ".kk...........",
+      "kxxkkkkkkkk...",
+      "kxxeeeyeeeak..",
+      "kxxaaayaaaaak.",
+      "kxxaaayaaaaak.",
+      "kxxaaayaaaak..",
+      "kxxkkkkkkkk...",
+      ".kk..........."
+    ]},
+    "proj_tankshell": {"team": "allies", "rows": [
+      ".kkkkk..",
+      "kooooGk.",
+      "kooooGGk",
+      "kooooGk.",
+      ".kkkkk.."
+    ]},
+    "rifleman": {"team": "allies", "rows": [
+      ".....kkkkkk...k.",
+      "...kkTLTTtTkkkxk",
+      "..kTLLTtTTtTTkxk",
+      "..kTLTtTTtTTtkxk",
+      ".kTtTTtTTtTTtTxk",
+      ".kkkkkkkkkkkkkxk",
+      "..ksksssssskskxk",
+      "..ksskksskksskxk",
+      "..ksswksskwsskxk",
+      "..ksssssssssskxk",
+      "..kssskkkkssskxk",
+      "..kSskssssksSkxk",
+      "...kkkkkkkkkkkxk",
+      "...kTTTTTTTTkkbk",
+      "..kskTTTTTTkskbk",
+      "...kcCccccCckkbb",
+      "...kcckkkkcckkbb",
+      "..kBBBk..kBBBkkk"
+    ]},
+    "para": {"team": "allies", "air": true, "rows": [
+      "........kkkkkkkkk.......",
+      "......kkeaaaeeeaakk.....",
+      "....kkeeeaaaeeeaaaekk...",
+      "...kaaeeeaaaeeeaaaeeek..",
+      "..kaaaeeeaaaeeeaaaeeeak.",
+      ".keaaaeeeaaaeeeaaaeeeaak",
+      "keeaaaeeeaaaeeeaaaeeeaaa",
+      "keeaaaeeeaaaeeeaaaeeeaaa",
+      "keeaaaeeeaaaeeeaaaeeeaaa",
+      ".kekkkekkkekkkekkkekkkek",
+      "..kk..k...k...k...k..kk.",
+      "...k................k...",
+      "....k...............k...",
+      "....k...............k...",
+      "....k....kkkkkk.....k...",
+      "....k..kkTLTTtTkk..k....",
+      ".....kkTLLTtTTtTTk.k....",
+      ".....kkTLTtTTtTTtk.k....",
+      ".....kTtTTtTTtTTtTk.....",
+      ".....kkkkkkkkkkkkkk.....",
+      ".....kksksssssskskk.....",
+      "......ksskksskksskk.....",
+      "......ksswksskwssk......",
+      "......kssssssssssk......",
+      "......kssskkkksssk......",
+      "......kSsskrrkssSk......",
+      ".......kkkkkkkkkk.......",
+      ".......kTTTTTTTTk.......",
+      "......kskTTTTTTksk......",
+      ".......kcCccccCck.......",
+      ".......kttkkkkttk.......",
+      "......kBBBk..kBBBk......"
+    ]},
+    "engineer": {"team": "allies", "pal": {"s": "#a86b45", "S": "#7a4a2c"}, "rows": [
+      ".....kkkkkk.....",
+      "...kkTLTTtTkk...",
+      "..kTLLwwwwtTTk..",
+      "..kTLwtTTtwTtk..",
+      ".kTtwTtTTtTwtTk.",
+      ".kkkkkkkkkkkkkk.",
+      "..kskssssssksk..",
+      "..ksskksskkssk..",
+      "..ksswksskwssk..",
+      "..kssssssssssk..",
+      "..kssskkkksssk..",
+      "..kSskssssksSk..",
+      "...kkkkkkkkkk...",
+      "...kTTTTTTTTk...",
+      "..kskcCrrCcksk..",
+      "...kcCccccCck...",
+      "...kcckkkkcck...",
+      "..kBBBk..kBBBk.."
+    ]},
+    "sarge": {"team": "allies", "rows": [
+      "......kkkkkkkk......",
+      "....kkTLTTtTTTkk....",
+      "...kTLLTtTTTtTTTk...",
+      "..kTLTTtTTTtTTTtTk..",
+      ".kTtTTTtTTTtTTTtTTk.",
+      ".kkkkkkkkkkkkkkkkkk.",
+      "...kskssssssssksk...",
+      "...ksskkksskkkssk...",
+      "...kssswksskwsssk...",
+      "...ksssssSSsssssk...",
+      "...ksshhhhhhhhssk...",
+      "...kshhskkkkshhsk...",
+      "...kSssssssssssSk...",
+      "....kkkkkkkkkkkk....",
+      ".kkkTTTTTTTTTTTTkkk.",
+      "kTTTTTTTTTTTTTTTTTTk",
+      "kTsbbbbxxxxxxxxxxxxx",
+      "kTTkTTTTxxTTTTsTkTTk",
+      ".kccCccccccccccCcck.",
+      "..kBBBBkkkkkkBBBBk.."
+    ]},
+    "grenade": {"team": "allies", "rows": [
+      ".....kkkkkk...kk..",
+      "...kkTLTTtTkkkgxk.",
+      "..kTLLTtTTtTTkaAak",
+      "..kTLTtTTtTTtkAaAk",
+      ".kTtTTtTTtTTtTaAak",
+      ".kkkkkkkkkkkkkksk.",
+      "..ksksssssskskkssk",
+      "..ksskksskksskkssk",
+      "..ksswksskwsskssk.",
+      "..ksssssssssskssk.",
+      "..kssskkkkssskssk.",
+      "..kSsskrrkssSkssk.",
+      "...kkkkkkkkkkssk..",
+      "...kTTTTTTTTkssk..",
+      "..kskTTTTTTkskk...",
+      "...kcCccccCck.....",
+      "...kcckkkkcck.....",
+      "..kBBBk..kBBBk...."
+    ]},
+    "bazooka": {"team": "allies", "rows": [
+      "...........kkkkkk...........",
+      ".........kkTLTTtTkk.........",
+      "........kTLLTtTTtTTk........",
+      "........kTLTtTTtTTtk........",
+      ".......kTtTTtTTtTTtTk.......",
+      ".......kkkkkkkkkkkkkk.......",
+      "........kskssssssksk........",
+      "........ksskksskkssk........",
+      "........ksswksskwssk........",
+      "........kssssssssssk........",
+      "kkk.....kssskkkksssk.....kkk",
+      "AAAkkkkkkSskssssksSkkkkkkAAA",
+      "AAAeeeeeeeeeeeeeeeeeeeeeeAAA",
+      "AAAaaaaaaaaaaaaaaaaaaaaaaAAA",
+      "AAAkkkkkkskTTTTTTkskkkkkkAAA",
+      "kkk......kcCccccCck......kkk",
+      ".........kcckkkkcck.........",
+      "........kBBBk..kBBBk........"
+    ]},
+    "mortar": {"team": "allies", "rows": [
+      "..........kAAAk...",
+      "..........kAAAk...",
+      ".........kaaak....",
+      ".........kaak.....",
+      "........kaaak.....",
+      ".......kaaak......",
+      "......kkaaxk......",
+      ".....kGGaxkxk.....",
+      ".....kGGakxxk.....",
+      ".....kaaakxkxk....",
+      "....kaaak.kxkxk...",
+      "....kaak..kxkkxk..",
+      ".kkkaaakkkkkxkxk..",
+      "kAAAaaAAAAAAxkkxk.",
+      "kAAAAAAAAAAAk..k..",
+      ".kkkkkkkkkkk......"
+    ]},
+    "howitzer": {"team": "allies", "rows": [
+      "....................................kkk.",
+      "...................................kAAAk",
+      "..................kkk.............kkAAAk",
+      ".................kaaak.........kkkaaAAAk",
+      ".................kaaak......kkkaaaaaakk.",
+      "................kaaak.....kkaaaaaaakk...",
+      "................kaaak..kkkaaaaaakkk.....",
+      "................kaaakkkaaaaaakkk........",
+      ".........kkkkkkkkaaakaaaaaakk...........",
+      "........kAAAAAAAAaaaaaaakkk.............",
+      "........kAAAAxxxAaaaaakk................",
+      "........kAAxxxxxxxaaAAk.................",
+      ".........kkxxGGGxxaakk..................",
+      ".........kxxGGGGGxxak...................",
+      ".......kkkxxGGgGGxxak...................",
+      "....kkkAAAxxGGGGGxxk....................",
+      "..kkAAAAAAAxxGGGxxk.....................",
+      ".kAAAAAAkkkxxxxxxxk.....................",
+      ".kAAAkkk...kkxxxkk......................",
+      "..kkk........kkk........................"
+    ]},
+    "jeep": {"team": "allies", "rows": [
+      ".................................kGGk.",
+      ".....................k............kGk.",
+      ".............kkkk...kAk...........kGk.",
+      "............kTLTTk..kAk...........kGk.",
+      "...........kTTTTTTk.kAk...........kGk.",
+      "...........kkkkkkkk.kAk...........kGk.",
+      "...........kskssksk.kAk...........kGk.",
+      "..kkk......ksskkssk.kAkkkkkkkkkkkkkGk.",
+      ".kxxxkkkkkkkkkkkkkkkkAeeeeeeeeeeeeAGk.",
+      "kxxxeeeeeeeeeeeeeeeeeeaaaaawaaaaaayk..",
+      "kxxxaaaaaaaaaaaaaaaaaaaaawwwwwaaaaAk..",
+      "kxxxaaaaaxxxaaaaaaaaaaaaaawxxxaaaaAk..",
+      ".kxxaaaxxxxxxxaaaaaaaaaaaxxxxxxxaaAk..",
+      "..kkkkkxxxxxxxkkkkkkkkkkkxxxxxxxkkk...",
+      ".....kxxxxGxxxxk.......kxxxxGxxxxk....",
+      ".....kxxxGGGxxxk.......kxxxGGGxxxk....",
+      ".....kxxxxGxxxxk.......kxxxxGxxxxk....",
+      "......kxxxxxxxk.........kxxxxxxxk.....",
+      "......kxxxxxxxk.........kxxxxxxxk.....",
+      ".......kkxxxkk...........kkxxxkk......"
+    ]},
+    "sherman": {"team": "allies", "rows": [
+      "..............................................",
+      "..................kkkk........................",
+      ".................kTLTTk.......................",
+      "................kTTTTTTk......................",
+      "................kkkkkkkk......................",
+      "................kskssksk......................",
+      "................ksskksskkk....................",
+      "..............kkkkkkkkkeeekkk.................",
+      ".............keeeaaaaaaaaaeeekkkk..........k..",
+      "............keaaaaaaaaaaaaaaaeAAAkkkkkkkkkkxk.",
+      "...........kaaaaaaaaaaaaaaaaaaAAAAAAAAAAAAAxk.",
+      "...........kaaaaaaaaaaaaaaaaaaAAAAAAAAAAAAAxk.",
+      "...........kaaaaaaaaaaaaaaaaaaAAAkkkkkkkkkkxk.",
+      ".....kkkkkkkkaaaaaaaaaaaaaaaaaAAAkkkkk.....k..",
+      "....keeeeeeeeeaaaaaaaaaaaaaaaeeeeeeeeek.......",
+      "....kaaaaaaaaawaaaaaaaaaaaaaaaaaaaaaaaak......",
+      "....kaaaaaaawwwwwaaaaaaaaaaaaaaaaaaaaaaak.....",
+      "....kaaaaaaaawwwaaaaaaaaaaaaaaaaaaaaaaaaak....",
+      "....kaaaaaaaawawaaaaaaaaaaaaaaaaaaaaaaaaaak...",
+      "....kaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaak..",
+      "....kAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAk.",
+      "...kGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGkk..",
+      "..kxxxxGGGxxxGGGxxxGGGxxxGGGxxxGGGxxxGGGxxxk..",
+      "..kxxxGGGGGxGGGGGxGGGGGxGGGGGxGGGGGxGGGGGxxk..",
+      "..kxxxGGgGGxGGgGGxGGgGGxGGgGGxGGgGGxGGgGGxxk..",
+      "..kxxxGGGGGxGGGGGxGGGGGxGGGGGxGGGGGxGGGGGxxk..",
+      "...kxxxGGGxxxGGGxxxGGGxxxGGGxxxGGGxxxGGGxxk...",
+      "....kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk...."
+    ]},
+    "p51": {"team": "allies", "air": true, "rows": [
+      "..kgggk...............................",
+      "..kgggk...........kkkkk.............G.",
+      "..kggglk.........kvvvvvk..............",
+      "..kggggk........kvvwvvvvk...........G.",
+      "..kgggglk..k.kkkkvvvvsvvkk............",
+      "..kgggggkkkwkwlllvvvvvvvllkkkk......G.",
+      "..kggggglwkwkwggggvvvvvgUUUlllkkkk....",
+      ".kkkkggggwkwkwgggggggggUUwUUggllyyk.G.",
+      "kGGGGGGGGGkwkwgggggggggUwwwUggggyyyk..",
+      ".kkkkggggwkwkwgggggggggUwUwUggggyyk.G.",
+      ".....kkggwkwkGGGGGGGGGGGUUUgggkkkk....",
+      ".......kkkkwkwgGGGGGGGggggkkkk......G.",
+      "...........k.kkGGGGGGGkkkk............",
+      "...............kkkkkkk..............G.",
+      "......................................",
+      "....................................G."
+    ]},
+    "b17": {"team": "allies", "air": true, "rows": [
+      "..kgglk.................................................",
+      "..kggglk................................................",
+      "..kgggglk...............................................",
+      "..kggggglk..............................................",
+      "..kgggggglk.............................................",
+      "..kggggggglk.......................kkk..................",
+      "..kgggggggglk.....................Gvvvk....G............",
+      "..kggggggggglkkkkkkkkkkkkkkkkkkkkkvvvvvkkkkkkkkkkkk.....",
+      "..kgggggggggglllllllllllllllllllllGvvvlllllGllllvwvk....",
+      "..kgggggggggxgUUUgxgggggggggggggggggggggggggggggvvvk....",
+      ".kkkkggggggggUUwUUggggggggxxxxxxxgGgxxxxxxgGggggvvvk....",
+      "kGGGGGGGGGGggUwwwUggggggggxxxxxxxgggxxxxxxggggggvvvk....",
+      "kGGGGGGGGGGggUUUUUgGGGGGGGxxxxxxxGGGxxxxxxgGgggggkk.....",
+      ".kkkkkkkkkkkkkUUUkkGGGGGGGxxxxxxxGGGxxxxxxkkkkkkk.......",
+      "..............kkk..kkkkkkkkkvkkkkkGkkkkkkk.G............",
+      "..........................kvvvk.........................",
+      "...........................kvk....G........G............",
+      "............................k...........................",
+      "........................................................",
+      "........................................................",
+      "........................................................",
+      "........................................................"
+    ]},
+    "grenadier": {"team": "axis", "rows": [
+      ".....kkkkkk.....",
+      "...kkTLTTTTkk...",
+      "..kTLLTTTTTTTk..",
+      "..kTLTTTTTTTTk..",
+      ".kTTTTTTTTTTTTk.",
+      "kTTkkkkkkkkkkTTk",
+      "kTksksssssskskTk",
+      "kxksskksskksskk.",
+      "kxksswksskwssk..",
+      "kxkssssssssssk..",
+      "kxkssskkkksssk..",
+      "kxkSskssssksSk..",
+      "kxkkkkkkkkkkk...",
+      "kbkkTTTTTTTTk...",
+      "kbkskTTTTTTksk..",
+      "kbkkxxxggxxxk...",
+      "bbkkttkkkkttk...",
+      "kkkxxxk..kxxxk.."
+    ]},
+    "mg42": {"team": "axis", "rows": [
+      "...............kkkkkk.......",
+      ".............kkTTTTLTkk.....",
+      "............kTTTTTTTLLTk....",
+      "............kTTTTTTTTLTk....",
+      "...........kTTTTTTTTTTTTk...",
+      "..........kTTkkkkkkkkkkTTk..",
+      "..........kTksksssssskskTk..",
+      "kkkkkkkkkkkkksskksskksskk...",
+      "xxGxGxGxGxxxxxswksskwsskkkk.",
+      "ccckkccccxxxxxcsccckkcccccck",
+      "ccckkcccccckkcccccckkcccccck",
+      "CCCkkCCCCCCkkCCCCCCkkCCCCCCk",
+      "kkkkkkkkkkkkkkkkkkkkkkkkkkkk",
+      "kcccccckkcccccckkcccccckkccc",
+      "kcccccckkcccccckkcccccckkccc",
+      "kCCCCCCkkCCCCCCkkCCCCCCkkCCC"
+    ]},
+    "sniper": {"team": "axis", "rows": [
+      "...kjkkkkkkjk.k.",
+      "...kkjLTjTTkkkxk",
+      "..kTjLTTjTTjTkxk",
+      "..kjLTTjTTjTTkxk",
+      ".kTTjTTTjTTTjTxk",
+      "kTjkkkkkkkkkkjxk",
+      "kTksksssssskskxG",
+      ".kksskksskksskxG",
+      "..ksskksskwsskxG",
+      "..ksssssssssskxG",
+      "..kssskkkkssskxk",
+      "..kSskssssksSkxk",
+      "...kkkkkkkkkkkxk",
+      "...kTjTTJTTjkkbk",
+      "..kskJTjTTjkskbk",
+      "...kxxxggxxxkkbk",
+      "...kttkkkkttkkbk",
+      "..kxxxk..kxxxkk."
+    ]},
+    "officer": {"team": "axis", "rows": [
+      "....kkkkkkkk....",
+      "..kkTTTTTTTTkk..",
+      ".kTTLTTTTTTTTTk.",
+      ".kTTTTTllTTTTTk.",
+      "..kttttttttttk..",
+      ".kkkkkkkkkkkkkk.",
+      "..kskssssssksk..",
+      "..ksskksskkssk..",
+      "..ksswksskwssk..",
+      "..ksshhhhhhssk..",
+      "..kssskkkksssk..",
+      "..kSskssssksSk..",
+      "...kkkkkkkkkk...",
+      "...kTTTTTTTTk...",
+      "..kTsxxxxxxsTk..",
+      "..kTTxGxxGxTTk..",
+      "..kxxxxggxxxxk..",
+      "..kTTTTTTTTTTk..",
+      "..kTTTTkkTTTTk..",
+      "..kxxxk..kxxxk.."
+    ]},
+    "flak88": {"team": "axis", "rows": [
+      ".kxxxk..........................................",
+      ".kxxxk..........................................",
+      ".kxxxkk.........................................",
+      ".kxxxddkk...........kk..........................",
+      "..kkdddddkk...kkk..kddk.........................",
+      "....kkdddddkkkDDDkkkddk.....kkkk................",
+      "......kkdddddkDDDDDkddk....kTTLTk...............",
+      "........kkdddddkDDDDDDkk..kTTTTTTk..............",
+      "..........kkdddddkDDDDDDkkkkkkkkkk..............",
+      "............kkdddddddDDDDDkskssksk..............",
+      "..............kkdddddkkDDDksskkssk..............",
+      "................kkdddddkkDDkkkkkkkkk............",
+      ".................kEdddddEEEEEEEEEEEEk...........",
+      ".................kddddddddddddddddddk...........",
+      ".................kddddddddddddddddddk...........",
+      ".................kddddddddddddddddddk...........",
+      ".................kddddddddddddddddddk...........",
+      ".................kddkkDDDDDDDDkkkkkk............",
+      "..................kk.kDDDDDDDDk.................",
+      ".....................kDDDDDDDDk.................",
+      ".....................kDDDDDDDDk.................",
+      "......kkkkkkkkkkkkkkkkDDDDDDDDkkkkkkkkkkkkkk....",
+      ".....kDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDk...",
+      "....kkDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDkk..",
+      "...kDDDDDkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkDDDDDk.",
+      "....kkkkk................................kkkkk.."
+    ]},
+    "tiger": {"team": "axis", "rows": [
+      "....................................kkkk..................",
+      "...................................kTTLTk.................",
+      "..................................kTTTTTTk................",
+      "..................................kkkkkkkk................",
+      "..................................kskssksk................",
+      "..................................ksskkssk................",
+      "...................................kkkkkk.................",
+      "......................kkkkkkkkkkkkkDDDDDkk................",
+      ".................kkkkkEEEEEEEEJEEEEEEEEEEEk...............",
+      ".kkk............kDDDDddddddddJddddddddddjddk..............",
+      "kxxxkkkkkkkkkkkkkDDDDdddddddJddddddddddjdddk..............",
+      "kxxxDDDDDDDDDDDDDDDDDddddddJddddddddddjddddk..............",
+      "kxxxDDDDDDDDDDDDDDDDDddddddJdddddddddjdddddk..............",
+      "kxxxkkkkkkkkkkkkkDDDDdddddJddddddddddjdddddk..............",
+      ".kkk...kEEEEEjk.kDDDDddddJddddddddddjddddddk..............",
+      ".......kddddjdkkkkkkkdddJddddddddddjdddddddkkkkkkkkkkkk...",
+      ".......kdxxdjdEEEEEEEEJEEEEEEEEEEjEEEEEEEEEEEEEEEEEEJEEk..",
+      ".......kdddjdddddddddJddddddddddjdddddddddddwwwddddJdddk..",
+      ".......kddjdddddddddJddddddddddjddddddddddddwkwdddJddddk..",
+      ".......kdjdddddddddJddddddddddjdddddddddddwwwkwwwJdddddk..",
+      ".......kdjdddddddddJdddddddddjddddddddddddwkkkkkwddddddk..",
+      ".......kjdddddddddJdddddddddjdddddddddddddwwwkwwwddddddk..",
+      ".......kdddddddddJdddddddddjddddddddddddddddwkwddddddddk..",
+      ".......kddddddddJdddddddddjdddddddddddddddddwwwddddddddk..",
+      "........kkxxDDDxxxDDDxxxDDDxxxDDDxxxDDDxxxDDDxxxDDDxxxk...",
+      "........kxxDDDDdddDDDdddDDDdddDDDdddDDDdddDDDdddDDDDxxxk..",
+      "........kxDDDDdddddDdddddDdddddDdddddDdddddDdddddDDDDxxk..",
+      "........kxDDDxdddddxdddddxdddddxdddddxdddddxdddddxDDDxxk..",
+      "........kxDDDDdddddDdddddDdddddDdddddDdddddDdddddDDDDxxk..",
+      ".........kxDDDDdddDDDdddDDDdddDDDdddDDDdddDDDdddDDDDxxk..."
+    ]},
+    "concrete": {"rows": [
+      "kkkkkkkkkkkkkkkk",
+      "kiiiiiiiiiiiiiik",
+      "kppppppppPppppPk",
+      "kppPpppppPppppPk",
+      "kpppppppppPpppPk",
+      "kPPpPPPPpPPPPpPk",
+      "kpppppppppPpppPk",
+      "kppppppppppPppPk",
+      "kpppppPppppPppPk",
+      "kpppppppppppppPk",
+      "kPPpPPPPpPPPPpPk",
+      "kpppppppppppppPk",
+      "kpppPpppppppPpPk",
+      "kpppppppppppppPk",
+      "kPPPPPPPPPPPPPPk",
+      "kkkkkkkkkkkkkkkk"
+    ]},
+    "hedgehog": {"rows": [
+      "................",
+      "..kk........kk..",
+      ".kxxk......kGGk.",
+      ".kxgxk....kGGGk.",
+      "..kxgxk..kGGGk..",
+      "...kxgxkkGGGk...",
+      "....kxgxGGGk....",
+      ".....kxgxGk.....",
+      "......kxxk......",
+      ".....kGxxxk.....",
+      "....kGGGxxxk....",
+      ".kkkGGGkkxxxkkk.",
+      "kGGGGGGGGGGGGGGk",
+      "kGGGGGGGGGGGGGGk",
+      ".kGGkkkkkkkkxxk.",
+      "..kk........kk.."
+    ]},
+    "wire": {"rows": [
+      "................",
+      ".b............b.",
+      ".b..l.....l...b.",
+      ".b..G.....G...b.",
+      ".b...G...G.G..bG",
+      "Gb.G....GG....G.",
+      ".lG.G.GlG...GlGG",
+      ".GG....G..G..Gb.",
+      ".G...G........b.",
+      "Gb....G....GG.b.",
+      ".b............b.",
+      ".b............b."
+    ]},
+    "jerrycan": {"rows": [
+      "..kk.kkkkkk.....",
+      ".kGGkxxxxxxk....",
+      ".kGGkxkxkkxkkk..",
+      ".kEEEEEEEEEEEEk.",
+      ".kdddddddddddDk.",
+      ".kdDddddddddDDk.",
+      ".kddDddddddDdDk.",
+      ".kdddDddddDddDk.",
+      ".kddddDddDdddDk.",
+      ".kdddddDDddddDk.",
+      ".kddddDddDdddDk.",
+      ".kdddDddddDddDk.",
+      ".kddDddddddDdDk.",
+      ".kdDddddddddDDk.",
+      ".kdddddddddddDk.",
+      "..kkkkkkkkkkkk.."
+    ]},
+    "doughboy": {"team": "doughboys", "rows": [
+      ".............kgk",
+      ".............kgk",
+      "....kkkkkkkk.kgk",
+      "...kTLTTTTTTkkxk",
+      "kkkTTTTTTTTTTkxk",
+      ".kkkkkkkkkkkkkxk",
+      "..ksksssssskskxk",
+      "..ksskksskksskxk",
+      "..ksswksskwsskxk",
+      "..ksssssssssskxk",
+      "..kssskkkkssskxk",
+      "..kSskssssksSkxk",
+      "...kkkkkkkkkkkxk",
+      "...kTTTTTTTTkkbk",
+      "..kskTTyTTTkskbk",
+      "...kcCccccCckkbb",
+      "...ktakkkkatkkbb",
+      "..kBBBk..kBBBkkk"
+    ]},
+    "marine": {"team": "marines", "rows": [
+      ".....kkkkkk.....",
+      "...kkTTTTTTkk...",
+      "..kTTTTLLTTTTk..",
+      ".kTTTTTTTTTTTTk.",
+      ".kTvvvvvvvvvvTk.",
+      "kTvkkkkkkkkkkvTk",
+      "kTksksssssskskTk",
+      ".kksskksskksskk.",
+      "..ksswksskwssk..",
+      "..kssssssssssk..",
+      "..ksskwwwwkssk..",
+      "..kSsskkkkssSk..",
+      "...kkkkkkkkkkkkk",
+      "..kTTTLLLLTTTxx4",
+      ".kTkTTTyyTTTkxxx",
+      "..kTTTTTTTTTTkkk",
+      "...kTTkkkkTTk...",
+      "..kGGGk..kGGGk.."
+    ]},
+    "bomber": {"team": "doughboys", "rows": [
+      "...............k..",
+      "..............kGk.",
+      "....kkkkkkkk.kGgGk",
+      "...kTLTTTTTTkkGGGk",
+      "kkkTTTTTTTTTTkkGk.",
+      ".kkkkkkkkkkkkkksk.",
+      "..ksksssssskskkssk",
+      "..ksskksskksskkssk",
+      "..ksswksskwsskssk.",
+      "..ksssssssssskssk.",
+      "..kssskkkkssskssk.",
+      "..kSsskrrkssSkssk.",
+      "...kkkkkkkkkkssk..",
+      "...kTTTTTTTTkssk..",
+      "..kskTTyTTTkskk...",
+      "...kcCccccCck.....",
+      "...ktakkkkatk.....",
+      "..kBBBk..kBBBk...."
+    ]},
+    "tunneler": {"team": "doughboys", "rows": [
+      "................",
+      "................",
+      "....kkkkkkkk....",
+      "...kTLTTTTTTk...",
+      "kkkTTTTTTTTTTkkk",
+      ".kkkkkkkkkkkkkk.",
+      "..ksksssssskskbk",
+      "..ksskksskksskbk",
+      "..ksskksskwsskbk",
+      "..ksssssssssskbk",
+      ".kkssskkkkssskbk",
+      "kxkSskssssksSkbk",
+      "kyykkkkkkkkkkkbk",
+      "kyykTTTTTTTTkkbk",
+      "kyyskTTyTTTkskbk",
+      ".kkkcCccccCckggg",
+      "...ktakkkkatkggg",
+      "..kBBBk..kBBBggg"
+    ]},
+    "french75": {"team": "doughboys", "rows": [
+      "........................................",
+      "........................................",
+      "................kkk.....................",
+      "...............kgggk....................",
+      "...............kGGGk....................",
+      "...............kGGGk.................kk.",
+      "...............kGGGk.............kkkkxxk",
+      "...............kGGGk...kkkkkkkkkkxxxxxxx",
+      "..........kkkkkkGGGkkkkxxxxxxxxxxxxxxxxx",
+      ".........kGGBBBBBGxxxxxxxxxxxxxxxxkkkkkk",
+      ".........kGBBBbBBBxxxxxxkkkkkkkkkk......",
+      ".........kbBBBBBBBbGGGkk................",
+      "........kBBBBBBBBBBBkk..................",
+      ".......kBBBBBBBBBBBBBk..................",
+      ".......kBBBBBBXBBBBBBk..................",
+      ".......kBbBBBXXXBBBbBk..................",
+      "......kkBBBBBBXBBBBBBk..................",
+      "....kkbbBBBBBBBBBBBBBk..................",
+      "..kkbbbbbBBBBBBBBBBBk...................",
+      "kkbbbbbkkkbBBBBBBBbk....................",
+      "bbbbbkk...kBBBbBBBk.....................",
+      "bbbkk......kBBBBBk......................"
+    ]},
+    "renault": {"team": "doughboys", "rows": [
+      "..........................................",
+      "................kkkkkkkkk.................",
+      "...............kaaaaaaaaak................",
+      "..............kaeeeeeeeeeak...............",
+      "..............kaaaaaaaaaaak...............",
+      "..............kaaaakkkkkaakkkkkkkk........",
+      "..............kaaaaaaaaaaaxxxxxxxxk.......",
+      "..............kaaaaaaaaaaaxxxxxxxxk.......",
+      "..............kaaaaaaaaaaakkkkkkkk........",
+      "......kkkkkkkkkaaaaaaaaaaakkkkkkk.........",
+      ".....keeeeeeeeeeeeeeeeeeeeeeeeeeak........",
+      ".....kaaaaaaaaaaaaaaaaaaaaaaaaaaaak.......",
+      ".....kaaaaawaaaaaaaaaaaaaaaaaaaaaaakk.....",
+      ".....kaaawwwwwaaaaaaaaaaaaaaaaaakaaaak....",
+      ".....kaaaawwwaaaaaaaaaaaaaaaaaaakxaaaak...",
+      ".....kaaaawawaaaaaaaaaaaaaaaaaaaxxxxaaak..",
+      "....kkaaaaaaaaaaaaaaaaaaaaaaaaaaxGGGxaak..",
+      "...kGAAGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGxxk..",
+      "..kkAAAxxxxxxxxxxxxxxxxxxxxxxxxxGGGGGxxk..",
+      ".kAAAAxxxxxxxxxxxxxxxxxxxxxxxxxxGGGGGxxk..",
+      "kAAAAxxxxGxxxxxGxxxxxGxxxxxGxxxxxGGGxxk...",
+      "AAAkxxxxGGGxxxGGGxxxGGGxxxGGGxxxxxxxxxk...",
+      "AAkkxxxxxGxxxxxGxxxxxGxxxxxGxxxxxxxxkk....",
+      "kk..kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk......",
+      "..........................................",
+      ".........................................."
+    ]},
+    "spad": {"team": "doughboys", "rows": [
+      "........................................",
+      ".....................................G..",
+      ".........kkkkkkkkkkkkkkkkkkkkkk.........",
+      ".kkk....keeeeeeeeeeeeeeeeeeeeeek.....G..",
+      "kUwrk...keeeeeeeeeeeeeeeeeeeeeek........",
+      "kUwrkkk..kkkkBkkkkkkkkkkBsBkkkk......G..",
+      "kUwrccckkkkccBccccccccccBBBkkkk..kk.....",
+      ".kkccccccccccBcccccrrrccccBcccckkxxk.G..",
+      "..kccccccccccBccccrrUrrcccBccccccxxk....",
+      "..kccccccccccBccccrUwUrcccBccccccxxk.G..",
+      "..kccccccccccBccccrrUrrcccBccccccxxk....",
+      "..kccccccccccBcccccrrrccccBcccckkkk..G..",
+      "..kcccckkkkccBccccccccccccBkkkk.........",
+      "...kkkk...keeeeeeeeeeeeeeeeeek.......G..",
+      "..........keeeeeeeeeeeeeeeeeek..........",
+      "...........kkkkkkkkkkkkkkkkkk........G..",
+      "........................................",
+      "........................................"
+    ]},
+    "york": {"team": "doughboys", "rows": [
+      "..............k.",
+      ".............kxk",
+      "....kkkkkkkk.kxk",
+      "...kTLTTTTTTkkxk",
+      "kkkTTTTTTTTTTkxk",
+      ".kkkkkkkkkkkkkxk",
+      "..ksksssssskskxk",
+      "..ksskksskksskxk",
+      "..ksskksskwsskxk",
+      "..kss777777sskxk",
+      "..kssskkkkssskxk",
+      "..kSskssssksSkxk",
+      "...kkkkkkkkkkkxk",
+      "...kTTTTTTTTkkbk",
+      "..kskTTyTTTkskbk",
+      "...kcCccccCckkbb",
+      "...ktakkkkatkkbb",
+      "..kBBBk..kBBBkkk"
+    ]},
+    "rock": {"rows": [
+      "................",
+      "................",
+      "......kkkkk.....",
+      "....kkpppppkk...",
+      "...kpppppppppk..",
+      "..kpiiiiipppppk.",
+      ".kpiiiiiiipppppk",
+      "kppiiiiiiipppppp",
+      "kppiiiiiiippPppp",
+      "kpppiiiiippppppp",
+      "kppppppppppppppp",
+      "kpppppppppPppppp",
+      ".kpppppppppPpppk",
+      ".kppPpppppppppk.",
+      "kPPPPPPPPPPPPPPk",
+      ".kkkkkpppppkkkk."
+    ]},
+    "landser": {"team": "kaiser", "rows": [
+      ".....kkkkkk...k.",
+      "...kkTLTTTTkkkgk",
+      "..kTLLTTTTTTTkgk",
+      ".kkTLTTTTTTTTkgk",
+      "kgTTTTTTTTTTTTxk",
+      "kTTkkkkkkkkkkTxk",
+      "kTksksssssskskxk",
+      ".kksskksskksskxk",
+      "..ksswksskwsskxk",
+      "..ksssssssssskxk",
+      "..kssskkkkssskxk",
+      "..kSskssssksSkxk",
+      "...kkkkkkkkkkkxk",
+      "...kTTTTTTTTkkbk",
+      "..kskTgTTgTkskbk",
+      "...kxxxggxxxkkbk",
+      "...kttkkkkttkkbk",
+      "..kxxxk..kxxxkk."
+    ]},
+    "mg08": {"team": "kaiser", "rows": [
+      ".................kkkkkk.......",
+      "...............kkTTTTLTkk.....",
+      "..............kTTTTTTTLLTk....",
+      "..............kTTTTTTTTLTk....",
+      ".............kTTTTTTTTTTTTk...",
+      "...kkkkkkkk.kTTkkkkkkkkkkTTk..",
+      "kkkggggggggkkTksksssssskskTk..",
+      "xxxGGGGGGGGxxxxxskksskksskk...",
+      "kkkGGGGGGGGxxxxxswksskwsskkkk.",
+      "ccccckkccccxxxxxcsccckkcccccck",
+      "ccccckkcccccckkcccccckkcccccck",
+      "CCCCCkkCCCCCCkkCCCCCCkkCCCCCCk",
+      "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkk",
+      "ckkcccccckkcccccckkcccccckkccc",
+      "ckkcccccckkcccccckkcccccckkccc",
+      "CkkCCCCCCkkCCCCCCkkCCCCCCkkCCC"
+    ]},
+    "balloon": {"team": "kaiser", "rows": [
+      "...........kkkkkkkkkkkk.............",
+      ".......kkkk222222222222kkk..........",
+      "....kkkCccccCccccCccccCccckkk.......",
+      "...kcccCccccCccccCccccCccccCck......",
+      "..kccccCccccCccccCccccCccccCcck.....",
+      ".kcccccCccccCccccCccccCccccCccck....",
+      "kccccccCccccCccccCccccCccccCcccck...",
+      "kccccccCccccCccccCccccCccccCCCCCk...",
+      "kccccccCccccCccccCccccCcccCCCCCCCk..",
+      ".kcccccCccccCccccCccccCccCCCCCCCCCk.",
+      "..kccccCccccCccccCccccCccCCCCCCCCCk.",
+      "...kcccCccccCccccCccccCccCCCCCCCCCk.",
+      "....kkkCccccCccccCccccCcccCCCCCCCk..",
+      ".......kkxkcCcckkkkccckxkkkCCCCCk...",
+      ".........kxkkkkTTLTkkkxk...kkkkk....",
+      ".........kxk.kTTTTTTkkxk............",
+      "..........kxkkkkkkkkkxk.............",
+      "...........kxksksskskk..............",
+      "...........kxksskkssk...............",
+      "............kckkkkkkck..............",
+      "............kbbbbbbbbk..............",
+      "............kbbbbbbbbk..............",
+      "............kbbbbbbbbk..............",
+      "............kbbbbbbbbk..............",
+      ".............kkkkkkkk...............",
+      "...................................."
+    ]},
+    "minenwerfer": {"team": "kaiser", "rows": [
+      ".....kkkkk..............",
+      "....kxxxxxk.............",
+      "....kxxxxxk.............",
+      "....kxxxxxk.............",
+      "....kXXXXXk.......kkkk..",
+      "....kXXXXXk......kTTLTk.",
+      "....kXXXXXXk....kTTTTTTk",
+      ".....kXXXXXXk...kkkkkkkk",
+      ".....kXXXXXXXk..kskssksk",
+      "......kXXXXXXk..ksskkssk",
+      "....kkBBXXXXXXkkBkkkkkk.",
+      "...kbBBBBXXXXXXBBBBBbbk.",
+      "...kBBBBBXXXXXXBBBBBBbk.",
+      "...kBBBBBBXXXXXBBBBBBbk.",
+      "...kBBBBBBBXXXXBBBBBBk..",
+      "....kBBBBBkkkkkBBBBBk..."
+    ]},
+    "kaiser_officer": {"team": "kaiser", "rows": [
+      ".......kk.......",
+      "......kyyk......",
+      ".....kkyykk.....",
+      "...kkxxyyxxkk...",
+      "..kxxxyyyyxxxk..",
+      ".kkkkkkkkkkkkkk.",
+      "..kskssssssksk..",
+      "..ksskksskkssk..",
+      "..khswksskwshk..",
+      "..ksshhhhhhssk..",
+      "..kssskkkksssk..",
+      "..kSskssssksSk..",
+      "...kkkkkkkkkk...",
+      "...kTTTTTTTTk...",
+      "..kTsxxxxxxsTk..",
+      "..kTTxGxxGxTTk..",
+      "..kxxxxggxxxxk..",
+      "..kTTTTTTTTTTk..",
+      "..kTTTTkkTTTTk..",
+      "..kxxxk..kxxxk.."
+    ]},
+    "tin": {"rows": [
+      "kkkkkkkkkkkkkkkk",
+      "kgGglgGglgGglgGk",
+      "kgGglgGglgGglgGk",
+      "kgGglgGglgGglgGk",
+      "kgGglgGglgGglgGk",
+      "kgGglgGglgGglgGk",
+      "kgGglgGglgGglgGk",
+      "kgGglgGglgGglgGk",
+      "kgGglgGglgGglgGk",
+      "kgGglgGglgGglgGk",
+      "kgGglgGglgGglgGk",
+      "kgGglgGglgGglgGk",
+      "kgGglgGglgGglgGk",
+      "kgGglgGglgGglgGk",
+      "kWWWWWWWWWWWWWWk",
+      "kkkkkkkkkkkkkkkk"
+    ]},
+    "shellcrate": {"rows": [
+      "...yy..yy..yy...",
+      "...VV..VV..VV...",
+      "kkkVVkkVVkkVVkkk",
+      "kccVVccVVccVVcck",
+      "kbbVVbbVVbbVVbbk",
+      "kbbbbbbbbbbbbbbk",
+      "kbbbbbbbbbbbbbbk",
+      "kbbbbbbbbbbbbbbk",
+      "kbbbbbbbbbbbbbbk",
+      "kBBBBBBBBBBBBBBk",
+      "kbbbbbbbbbbbbbbk",
+      "kbbbbrrrrrrbbbbk",
+      "kbbbbrrrrrrbbbbk",
+      "kbbbbbbbbbbbbbbk",
+      "kbbbbbbbbbbbbbbk",
+      "kkkkkkkkkkkkkkkk"
+    ]},
+    "legionary": {"team": "romans", "rows": [
+      "......kVVk......",
+      "....kkVyVVkk....",
+      "..kkVyyVVVVVkk..",
+      "..kVyVVVVVVVVk..",
+      ".kWVVVVVVVVVVWk.",
+      "kWWkkkkkkkkkkWWk",
+      "kWksksssssskskWk",
+      ".kksskksskksskk.",
+      "kkksswksskwssk..",
+      "yyyysssssssssk..",
+      "TTTTsskkkksssk..",
+      "TTTTskssssksSk..",
+      "TyyTkkkkkkkkk...",
+      "TyyTgGgGgGgGk...",
+      "TTTTkgGgGgGksk..",
+      "TTTTTkTkTkTkk...",
+      "TTTTssk.kkssk...",
+      "yyyyBBk..kBBBk.."
+    ]},
+    "centurion": {"team": "romans", "rows": [
+      "..kkkkkkkkkkkk..",
+      ".krrrrrrrrrrrrk.",
+      ".kRrRrRrRrRrRrk.",
+      "..kkkVyVVVVkkk..",
+      "..kVyVVVVVVVVk..",
+      ".kWVVVVVVVVVVWk.",
+      "kWWkkkkkkkkkkWWk",
+      "kWksksssssskskWk",
+      ".kksskksskksskk.",
+      "..ksswksskwsskkk",
+      "..ksshhhhhhsskbb",
+      "..kssskkkkssskbk",
+      "..kSskssssksSkbk",
+      "...kkkkkkkkkkkbk",
+      "...kGyGyGyGGkkbk",
+      "..kskGgGgGgkskbk",
+      "...kTkTkTkTkkkbk",
+      "...kssk.kksskkbk",
+      "..kBBBk..kBBBkk."
+    ]},
+    "archer": {"team": "romans", "rows": [
+      ".......kk.........",
+      "......kGgk........",
+      ".....kGgggk.......",
+      "....kGggggGk..k...",
+      "...kGgggggggkkbk..",
+      ".kkkkkkkkkkkkklbk.",
+      "..kskssssssksklkbk",
+      "..ksskksskkssklkbk",
+      "..ksswksskwssklkbk",
+      "..kssssssssssklkbk",
+      "..kssskkkksssklkbk",
+      "..kSskssssksSklkbk",
+      "...kkkkkkkkkkklbk.",
+      "...kTTTTTTTTkkbk..",
+      "..kskTTTTTTkskk...",
+      "...kBBBBBBBBk.....",
+      "...ksskkkkssk.....",
+      "..kBBBk..kBBBk...."
+    ]},
+    "pilum_thrower": {"team": "romans", "rows": [
+      "......kVVk.......kgG",
+      "....kkVyVVkk....kGkk",
+      "..kkVyyVVVVVkk.kbk..",
+      "..kVyVVVVVVVVkkbk...",
+      ".kWVVVVVVVVVVWbk....",
+      "kWWkkkkkkkkkkbWk....",
+      "kWksksssssskbkWsk...",
+      ".kksskksskkbskksk...",
+      "..ksswksskbssksk....",
+      "..kssssssbsssksk....",
+      "..kssskkkksssksk....",
+      "..kSsskrrkssSksk....",
+      "...kkkkkkkkkksk.....",
+      "...kgGgGgGgGksk.....",
+      "..kskgGgGgGksk......",
+      "...kTkTkTkTkk.......",
+      "...kssk.kkssk.......",
+      "..kBBBk..kBBBk......"
+    ]},
+    "onager": {"team": "romans", "rows": [
+      "..................................",
+      "..................................",
+      "..................................",
+      "..................................",
+      "..................................",
+      "..kkk..........kkkkkkkkk..........",
+      ".knnnk........kccccccccck.........",
+      "knmnnnk.......kBBBBBBBBBBk........",
+      "knnnnnk.......kBBBBBBBBBBk........",
+      "knnnnnk........kkkkbbbkkk.........",
+      ".knnnk............kbbbk...........",
+      "..kBBBk...........kbbbk...........",
+      "...kBBBk..........kbbbk...........",
+      "....kBBBk.........kbbbk...........",
+      ".....kBBBkkkkk....kbbbk...........",
+      "......kBBBcccck...kbbbk...........",
+      "......kCBBBCCCk...kbbbk...........",
+      "......kCCBBBCCk...kbbbk...........",
+      ".kkkkkkCCCBBCCkkkkkbbbkkkkkkkkkk..",
+      "kccccccccccccccccccbbbcccccccccck.",
+      "kbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbk.",
+      "kbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbk.",
+      ".kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk..",
+      ".................................."
+    ]},
+    "ballista": {"team": "romans", "rows": [
+      ".....................kkllk....",
+      "...................kkllBk.....",
+      ".................kkllBBk......",
+      "..............kkkllkBkk.......",
+      "............kklllCCBk.........",
+      "..........kkllkkkCCCk.........",
+      "........kkllkk..kCCCk.kkkkkk..",
+      "...kkkkkllkkkkkkkCCCkkGGGGGGk.",
+      "..kbbbllbbbbbbbbbCCCbbbbbbbbGk",
+      "..kbbbllbbbbbbbbbCCCbbbbbbbbk.",
+      "...kkkkkllkkkkbbbCCCkkkkkkkk..",
+      "........kkllkkbbbCCCk.........",
+      "..........kkllbbbCCCk.........",
+      "............kBlllCCBk.........",
+      "...........kBkkkkllkBkk.......",
+      "..........kBk....kkllBBk......",
+      "..........kBk.....kBkllBk.....",
+      ".........kBk.......kBkkllk....",
+      "........kBk.........kBkkk.....",
+      ".......kBk...........kBk......"
+    ]},
+    "ram": {"team": "romans", "rows": [
+      "......kkkkkkkkkkkkkkkkkkkkkkkkkkkk............",
+      ".....kcccccccccccccccccccccccccccck...........",
+      "..kkkkCCCCCCCCCCCCCCCCCCCCCCCCCCCCkkkk........",
+      ".kCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCk.......",
+      ".kCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCk.......",
+      ".kCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCk.......",
+      "..kkbbBbbbbBbbbbBbbbbBbbbbBbbbbBbbbbkk........",
+      "...kbbBbbbbBbbbbBbbbbBbbbbBbbbbBbbbbk.........",
+      "...kbbBbbbbBbbbbBbbbbBbbbbBbbbbBbbbbk.........",
+      "...kbbBbbbbBbbbbBbbbbBbbbbBbbbbBbbbbk..kkkkk..",
+      "...kbbBbbbbBbbbbBbbbbBbbbbBbbbbBbbbbkkkVVVVVk.",
+      "...kbbBbBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBVVVkVk.",
+      "...kbbBbBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBVVVVVk.",
+      "...kbbBbBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBVVVVVk.",
+      "...kbbBbbbbBbbbbBbbbbBbbbbBbbbbBbbbbkkkVVVVVk.",
+      "....kkkkkBBBkkkskskkkkkskskkkkkBBBkk...kkkkk..",
+      ".......kBBBBBkksksk...ksksk..kBBBBBk..........",
+      "......kBBBBBBBkBkBk...kBkBk.kBBBBBBBk.........",
+      "......kBBBcBBBkk.k.....k.k..kBBBcBBBk.........",
+      "......kBBBBBBBk.............kBBBBBBBk.........",
+      ".......kBBBBBk...............kBBBBBk..........",
+      "........kBBBk.................kBBBk..........."
+    ]},
+    "proj_pilum": {"rows": [
+      "................k...",
+      ".kkkkkkkkkkkkkkkGk..",
+      "kbbbbbbbbbbbgggggGk.",
+      ".kkkkkkkkkkkkkkkGk..",
+      "................k..."
+    ]},
+    "proj_boulder": {"rows": [
+      "............",
+      ".....kkk....",
+      "...kknnnkk..",
+      "..knmmmnnnk.",
+      "..kmmmmmnnk.",
+      ".knmmmmmnnnk",
+      ".knmmmmmnnnk",
+      ".knnmmmnnNnk",
+      "..knnnnnNnk.",
+      "..knnnnNnnk.",
+      "...kknnnkk..",
+      ".....kkk...."
+    ]},
+    "proj_bolt": {"rows": [
+      ".kk.........kk...",
+      "kwwkkkkkkkkkGGkk.",
+      "kbbbbbbbbbbbGGGGk",
+      "kwwkkkkkkkkkGGkk.",
+      ".kk.........kk..."
+    ]},
+    "proj_arrow": {"rows": [
+      ".kk..........",
+      "krwkkkkkkkkk.",
+      ".kbbbbbbbbgGk",
+      "krwkkkkkkkkk.",
+      ".kk.........."
+    ]},
+    "gaul": {"team": "gauls", "rows": [
+      "...k..k..k..k...",
+      "..k6kk6kk6kk6k..",
+      "..k6666666666k..",
+      ".k666666666666k.",
+      ".k666666666666k.",
+      ".k66kkkkkkkk66k.",
+      "k6kskssssssksk6k",
+      ".kksskksskksskk.",
+      "..ksswksskwssk..",
+      "..kss666666ssk..",
+      "..k6sskkkkss6kkk",
+      "..kSskssssksSVVV",
+      "...kkkkkkkkkkkgk",
+      "...kTyyyyyyTkkgk",
+      "..kskTLTLTLkskgk",
+      "...kBBBBBBBBkkgk",
+      "...kLTkkkkTLkkgk",
+      "..kBBBk..kBBBkgk"
+    ]},
+    "slinger": {"team": "gauls", "rows": [
+      "...k..k..k..k..knn",
+      "..k7kk7kk7kk7k.knn",
+      "..k7777777777k.kbk",
+      ".k777777777777kkbk",
+      ".k777777777777kkbk",
+      ".k77kkkkkkkk77kbk.",
+      "k7kskssssssksk7bk.",
+      ".kksskksskksskksk.",
+      "..ksswksskwssksk..",
+      "..kss777777ssksk..",
+      "..k7sskkkkss7ksk..",
+      "..kSsskrrkssSksk..",
+      "...kkkkkkkkkksk...",
+      "...kTyyyyyyTksk...",
+      "..kskTLTLTLksk....",
+      "...kBBBBBBBBk.....",
+      "...kLTkkkkTLk.....",
+      "..kBBBk..kBBBk...."
+    ]},
+    "druid": {"team": "gauls", "rows": [
+      ".....kkkkkk.....",
+      "...kk11j111kk...",
+      "..k111jj11111k..",
+      "..k1111111111k..",
+      ".k111111111111k.",
+      ".k11kkkkkkkk11k.",
+      "k1kskssssssksk1k",
+      ".kksskksskksskk.",
+      "..ksswksskwssk..",
+      "..ks88888888skk.",
+      "..k888kkkk888kyk",
+      "..k8888888888kky",
+      "...k88888888k.ky",
+      "...k11888811k.ky",
+      "..ksk111111kyk.k",
+      "...k11111111k...",
+      "...k11111111k...",
+      "..kkBBkkkkBBkk.."
+    ]},
+    "chief": {"team": "gauls", "rows": [
+      "wk...kkkkkk...kw",
+      "wwkkkVyVVVVkkkww",
+      "wwkVyyVVVVVVVkww",
+      "kwkVyVVVVVVVVkwk",
+      ".kVVVVVVVVVVVVk.",
+      ".k66kkkkkkkk66k.",
+      "k6kskssssssksk6k",
+      ".kksskksskksskk.",
+      "..ksswksskwssk..",
+      "..kss666666ssk..",
+      "..k6sskkkkss6k..",
+      "..kSskssssksSk..",
+      "...kkkkkkkkkk...",
+      "..kryyyyyyyyrk..",
+      ".krskTLTLTLksrk.",
+      ".krkBBBBBBBBkrk.",
+      ".krkLTkkkkTLkrk.",
+      "..kBBBk..kBBBk.."
+    ]},
+    "rampart": {"rows": [
+      "kkkkkkkkkkkkkkkk",
+      "kmmnnnNmmnnNmmnk",
+      "knnnnnNnnnnNnnnk",
+      "knnnnnNnnnnNnnnk",
+      "knnnnnNnnnnNnnnk",
+      "kNNNNNNNNNNNNNNk",
+      "knnnnbbbbbnnnnnk",
+      "knnnnbBBBbnnnnnk",
+      "knnnnbBBBbnnnnnk",
+      "knnnnbbbbbnnnnnk",
+      "kNNNNNNNNNNNNNNk",
+      "kmmnNmmnnNmmnNnk",
+      "knnnNnnnnNnnnNnk",
+      "knnnNnnnnNnnnNnk",
+      "knnnNnnnnNnnnNnk",
+      "kkkkkkkkkkkkkkkk"
+    ]},
+    "turf": {"rows": [
+      "kkkkkkkkkkkkkkkk",
+      "keeeeeeeeeeeeeek",
+      "kaaaaaaaaaaaaaak",
+      "kaaaaaaaaaaaaaak",
+      "kaaaaaaaaaaaaaak",
+      "kzzzzzzzzzzzzzzk",
+      "kzzzzzzzzzzzzzzk",
+      "kzzzzzzzzzzzzzzk",
+      "kZZZZZZZZZZZZZZk",
+      "kzzzzzzzzzzzzzzk",
+      "kzzzzzzzzzzzzzzk",
+      "kzzzzzzzzzzzzzzk",
+      "kZZZZZZZZZZZZZZk",
+      "kzzzzzzzzzzzzzzk",
+      "kzzzzzzzzzzzzzzk",
+      "kkkkkkkkkkkkkkkk"
+    ]},
+    "log": {"rows": [
+      "kkkkkkkkkkkkkkkk",
+      "kcccbbbbbbbbbbbk",
+      "kcCcbbbbbbbbbbbk",
+      "kcCcbbbbbbbbbbbk",
+      "kcccBBBBBBBBBBBk",
+      "kkkkkkkkkkkkkkkk",
+      "kcccbbbbbbbbbbbk",
+      "kcCcbbbbbbbbbbbk",
+      "kcCcbbbbbbbbbbbk",
+      "kcccBBBBBBBBBBBk",
+      "kkkkkkkkkkkkkkkk",
+      "kcccbbbbbbbbbbbk",
+      "kcCcbbbbbbbbbbbk",
+      "kcCcbbbbbbbbbbbk",
+      "kcccBBBBBBBBBBBk",
+      "kkkkkkkkkkkkkkkk"
+    ]},
+    "thatch": {"rows": [
+      "kkkkkkkkkkkkkkkk",
+      "kFffFffFffFffFfk",
+      "kFffFffFffFffFfk",
+      "kFffFffFffFffFfk",
+      "kFffFffFffFffFfk",
+      "kfFffFffFffFffFk",
+      "kfFffFffFffFffFk",
+      "kfFffFffFffFffFk",
+      "kfFffFffFffFffFk",
+      "kfFffFffFffFffFk",
+      "kfFffFffFffFffFk",
+      "kffFffFffFffFffF",
+      "kffFffFffFffFffF",
+      "kFFFFFFFFFFFFFFF",
+      "kFFFFFFFFFFFFFFF",
+      "kkkkkkkkkkkkkkkk"
+    ]},
+    "palisade": {"rows": [
+      ".k...k...k...k..",
+      "kck.kck.kck.kck.",
+      "kcckkcckkcckkcck",
+      "kbBkkbBkkbBkkbBk",
+      "kbBkkbBkkbBkkbBk",
+      "kbBkkbBkkbBkkbBk",
+      "kbBkkbBkkbBkkbBk",
+      "kbBkkbBkkbBkkbBk",
+      "kbBkkbBkkbBkkbBk",
+      "kbBkkbBkkbBkkbBk",
+      "kbBkkbBkkbBkkbBk",
+      "kbBkkbBkkbBkkbBk",
+      "kbBkkbBkkbBkkbBk",
+      "kbBkkbBkkbBkkbBk",
+      "kbBkkbBkkbBkkbBk",
+      "kbBkkbBkkbBkkbBk"
+    ]},
+    "pitchpot": {"rows": [
+      "................",
+      ".........k......",
+      "........kyk.....",
+      "......kk9k.k....",
+      ".....kykk.k9k...",
+      "....k9kk.k9k....",
+      "..kkkkkykkkkkk..",
+      ".kGxxxxxxxxxxGk.",
+      ".kGGGGGGGGGGGGk.",
+      "..kXXXXXXXXXXXk.",
+      ".kXXXXXXXXXXXXXk",
+      ".kXXXXXXXXXXXXXk",
+      ".kXXXXXXXXXXXXXk",
+      "..kXXXXXXXXXXXk.",
+      "...kXXXXXXXXXk..",
+      "...kXkXXXXXXk..."
+    ]},
+    "footman": {"team": "english", "rows": [
+      ".....kkkkkk.....",
+      "....kglggggk....",
+      "...kgllggggGk...",
+      "...kgggggggGk...",
+      "kkkGGGGGGGGGGkkk",
+      ".kkkkkkkkkkkkkk.",
+      "kGksksssssskskGk",
+      ".kksskksskksskk.",
+      "..ksswksskwsskk.",
+      "..ksssssssssskgk",
+      "..kssskkkkssskgk",
+      "..kSskssssksSkgk",
+      "...kkkkkkkkkkkgk",
+      "...kLLLTTLLLkBBB",
+      "..kskTTTTTTkskgk",
+      "...kLLLTTLLLkkgk",
+      "...kGGkkkkGGkkgk",
+      "..kBBBk..kBBBkk."
+    ]},
+    "knight": {"team": "english", "rows": [
+      "......krrk............",
+      "....kkkkkkkk..........",
+      "...kgllggggGk.........",
+      "..kglgggggggGk........",
+      "..kglgggggggGk........",
+      "..kgggggggggGk........",
+      "..kGGGGGGGGGGk........",
+      "..kkkwkkkkwkkk........",
+      "..kgggggggggGk........",
+      "..kggkgkgkgkGk........",
+      "..kgggggggggGk........",
+      "..kgggggggggGk........",
+      "...kgggggggGk.........",
+      "...kkkkkkkkkk.........",
+      "...kLLLTTggLkkkkkkkkkk",
+      "..kgkTTTTggbbbbbbbbbgG",
+      "...kLLLTTggLkkkkkkkkkk",
+      "...kGGkkkkGGk.........",
+      "..kBBBk..kBBBk........"
+    ]},
+    "longbowman": {"team": "english", "rows": [
+      ".............kbk..",
+      ".....kkkkkk..klbk.",
+      "....keeeeeek.klkbk",
+      "...keeeeeeeekklkbk",
+      "...keeeeeeeekrlkbk",
+      ".kkkkkkkkkkkkklkbk",
+      "..kskssssssksklkbk",
+      "..ksskksskkssklkbk",
+      "..ksswksskwssklkbk",
+      "..kssssssssssklkbk",
+      "..kssskkkksssklkbk",
+      "..kSskssssksSklkbk",
+      "...kkkkkkkkkkklkbk",
+      "...kbbbTTbbbkklkbk",
+      "..kskTTTTTTksklkbk",
+      "...kbbbTTbbbkklbk.",
+      "...kBBkkkkBBkkbk..",
+      "..kBBBk..kBBBkk..."
+    ]},
+    "warwolf": {"team": "english", "rows": [
+      "....................kBBBBBBBBBk.......",
+      "....................kBBBBBBBBBk.......",
+      "....................kXXXXXXXXXk.......",
+      "....................kBBBBBBBBBk.......",
+      "....................kBBBBBBBBBk.......",
+      "....................kXXXXXXXXXk.......",
+      "..................kkbBBBBBBBBBk.......",
+      "...............kkkbbbBBBBBBBBBk.......",
+      "..............kBXbbbbkkkkkkkkk........",
+      "..............kXXXbkk.................",
+      ".............kBbXbBk..................",
+      ".............kBbbBBk..................",
+      "............kBbbbBBBk.................",
+      "............kBbbkkBBk.................",
+      "............kbbbkkBBk.................",
+      "...........kBbbk.kBBBk................",
+      "...........kbbbk..kBBk................",
+      "..........kbbbk...kBBBk...............",
+      "..........kbbk.....kBBk...............",
+      ".........kbbbkkkkkkkBBBk..............",
+      ".........kbbbbbbbbbbbBBk..............",
+      "........kbbbbbbbbbbbbBBk..............",
+      "........kbbBkkkkkkkkkBBBk.............",
+      ".......kbbbk.........kBBk.............",
+      "......kbbbBk.........kBBBk............",
+      "......kbbBk...........kBBk............",
+      ".....kbbbBk...........kBBk............",
+      ".....kbbBBkk..........kBBBk...........",
+      "....kbbbBnnnk..........kBBk...........",
+      "....kbbBnnnnnk.........kBBBk..........",
+      "...kcccBnnnnnk..........kBBk..........",
+      "kkkkbbBcnnnnnkkkkkkkkkkkkBBBkkkkkkkk..",
+      "cccccBBccnnnccccccccccccccBBcccccccck.",
+      "bbbbbBBbbbbbbbbbbbbbbbbbbbBBbbbbbbbbk.",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbk.",
+      "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk.."
+    ]},
+    "siege_tower": {"team": "english", "rows": [
+      "..............................",
+      "........................kkk...",
+      "...kk..kk..kk..kk..kk..kBBBk..",
+      "..kbbkkbbkkbbkkbbkkbbkkbBbBk..",
+      "..kbbkkbbkkbbkkbbkkbbkkbBbBk..",
+      "..kbbkkbbkkbbkkbbkkbbkkbBbBk..",
+      "..kcccccccccccccccccccccBbBk..",
+      "..kCCCCCCCCCCCCCCCCCCCCCBbBk..",
+      "..kCCCCCCCCCCCCCCCCCCCCCBbBk..",
+      "..kCCCCCCCCCCCCCCCCCCCCCBbBk..",
+      "..kCCCCCCCCCCCCCCCCCCCCCBbBk..",
+      "..kCCCCCCCCCCCCCCCCCCCCCBbBk..",
+      "..kCCCCCCCCCCCCCCCCCCCCCBbBk..",
+      "..kCCCCCCCCCCCCCCCCCCCCCBbBk..",
+      "..kCCCCCCCCCCCCCCCCCCCCCBbBk..",
+      "..kCCCCCCCCCCCCCCCCCCCCCBbBk..",
+      "..kCCCCCCCCCCCCCCCCCCCCCBbBk..",
+      "..kbbbbbbbbbbbbbbbbbbbbbBBBk..",
+      "..kBBBBBBBBBBBBBBBBBBBBBBkk...",
+      "..kbbbbbbbbbbbbbbbbbbbbbbk....",
+      "..kbbbbbbbbbbbbbbbbbbbbbbk....",
+      "..kbbbbbbbbbbbbbbbbbbbbbbk....",
+      "..kbbbbbbxxxxxxxxxxbbbbbbk....",
+      "..kbbbbbbxxxxxxxxxxbbbbbbk....",
+      "..kBBBBBBxxxwxxxwxxBBBBBBk....",
+      "..kbbbbbbxxxxxxxxxxbbbbbbk....",
+      "..kbbbbbbbbbbbbbbbbbbbbbbk....",
+      "..kbbbbbbbbbbbbbbbbbbbbbbk....",
+      "..kbbbbbbbbbbbbbbbbbbbbbbk....",
+      "..kbbbbbbbbbbbbbbbbbbbbbbk....",
+      "..kBBBBBBBBBBBBBBBBBBBBBBk....",
+      "..kbbbbbbbbbbbbbbbbbbbbbbk....",
+      "..kbbbbbbbbbbbbbbbbbbbbbbk....",
+      "..kbbbbbbbbbbbbbbbbbbbbbbk....",
+      "..kbbbbbbbbbbbbbbbbbbbbbbk....",
+      "..kbbbbbbbbbbbbbbbbbbbbbbk....",
+      "..kBBBBBBxxxxxxxxxxBBBBBBk....",
+      "..kbbbbbbxxxxxxxxxxbbbbbbk....",
+      "..kbbbbbbxxxwxxxwxxbbbbbbk....",
+      "..kbbbbbbxxxxxxxxxxbbbbbbk....",
+      "..kbbbbbbbbbbbbbbbbbbbbbbk....",
+      "..kbbbbbbbbbbbbbbbbbbbbbbk....",
+      "..kBBBBBBBBBBBBBBBBBBBBBBk....",
+      "..kbbbbbbbbbbbbbbbbbbbbbbk....",
+      "..kbbbbbbbbbbbbbbbbbbbbbbk....",
+      "..kbbbbbbbbbbbbbbbbbbbbbbk....",
+      "..kbbbbbbbbbbbbbbbbbbbbbbk....",
+      "..kbbbbbbbbbbbbbbbbbbbbbbk....",
+      "..kBBBBBBxxxxxxxxxxBBBBBBk....",
+      "..kbbbbbbxxxxxxxxxxbbbbbbk....",
+      "..kbbbbbbxxxwxxxwxxbbbbbbk....",
+      "..kbbbbbbxxxxxxxxxxbbbbbbk....",
+      "..kbbbbbbbbbbbbbbbbbbbbbbk....",
+      "..kbbbbbbbbbbbbbbbbbbbbbbk....",
+      "..kBBBBBBBBBBBBBBBBBBBBBBk....",
+      "..kbbbbbbbbbbbbbbbbbbbbbbk....",
+      "..kbbbbbbbbbbbbbbbbbbbbbbk....",
+      "..kbbbbbbbbbbbbbbbbbbbbbbk....",
+      "..kbbbbbbbbbbbbbbbbbbbbbbk....",
+      "..kbbbbBBBbbbbbbbbbBBBbbbk....",
+      "..kBBBBBBBBBBBBBBBBBBBBBBk....",
+      "...kkBBBBBBBkkkkkBBBBBBBk.....",
+      "....kBBBcBBBk...kBBBcBBBk.....",
+      "....kBBBBBBBk...kBBBBBBBk.....",
+      ".....kBBBBBk.....kBBBBBk......",
+      "......kBBBk.......kBBBk......."
+    ]},
+    "spearman": {"team": "scots", "rows": [
+      ".....kkkkkk..kgk",
+      "....kglggggkkggg",
+      "...kgllggggGkkbk",
+      "...kgggggggGkkbk",
+      "kkkGGGGGGGGGGkbk",
+      ".kkkkkkkkkkkkkbk",
+      "kGksksssssskskbk",
+      ".kksskksskksskbk",
+      "..ksswksskwsskbk",
+      "..ksssssssssskbk",
+      "..kssskkkkssskbk",
+      "..kSskssssksSkbk",
+      "...kkkkkkkkkkkbk",
+      "...kLTTTTTTLkkbk",
+      "..kskTLTTLTkskbk",
+      "...kTTTLLTTTkkbk",
+      "...kGGkkkkGGkkbk",
+      "..kBBBk..kBBBkk."
+    ]},
+    "crossbowman": {"team": "scots", "rows": [
+      ".......kkkkkk.....",
+      "......kglggggk....",
+      ".....kgllggggGk...",
+      ".....kgggggggGk...",
+      "..kkkGGGGGGGGGGkkk",
+      "...kkkkkkkkkkkkkk.",
+      "..kGksksssssskskGk",
+      "...kksskksskksskk.",
+      "....ksskksskwssk..",
+      "....kssssssssssk..",
+      "....kssskkkksssk..",
+      "kk..kSskssssksSk..",
+      "GGk..kkkkkkkkkk...",
+      "kGkkkkLTTTTTTLk...",
+      "bGbbbbbbLTTLTksk..",
+      "kGkkkkTTTLLTTTk...",
+      "GGk..kGGkkkkGGk...",
+      "kk..kBBBk..kBBBk.."
+    ]},
+    "cauldron": {"team": "scots", "rows": [
+      ".......k..klk.....",
+      "......klkk.k......",
+      "......kkklk.k.....",
+      ".....klkkkkklk....",
+      "...kkkkXXXXXkkk...",
+      "..kGooooooooooGk..",
+      "..kGGGGGGGGGGGGk..",
+      "..kXXXXXXXXXXXXXk.",
+      "..kXXXXXXXXXXXXXk.",
+      "..kXXXXXXXXXXXXXk.",
+      "...kXXXXXXXXXXXk..",
+      "....kXXXXXXXXXk...",
+      "...kXkkXXyXXkXk...",
+      "...kXkk9kkk9kXk...",
+      "..kXk..kyk9k.kXk..",
+      "..kXk...k.k..kXk.."
+    ]},
+    "commander": {"team": "scots", "rows": [
+      "..........kLk...",
+      "....kkkkkkkLk...",
+      "...kTTTTTTTTkk..",
+      "..kTTLTTTTTTTk..",
+      ".kTTTTTTTTTTTTk.",
+      ".kkkkkkkkkkkkkk.",
+      "..kskssssssksk..",
+      "..ksskksskkssk..",
+      "..ksswksskwsskk.",
+      "..ksshhhhhhsskgk",
+      "..kssskkkkssskgk",
+      "..kSskssssksSkgk",
+      "...kkkkkkkkkkkgk",
+      "...kLTTTTTTLkyyy",
+      "..kskTLTTLTkskgk",
+      "...kTTTLLTTTkkgk",
+      "...kGGkkkkGGkkgk",
+      "..kBBBk..kBBBkk."
+    ]},
+    "stone": {"rows": [
+      "kkkkkkkkkkkkkkkk",
+      "kmmmnnnnNmmmnnNk",
+      "knnnnnnnNnnnnnNk",
+      "knnnnnnnNnnnnnNk",
+      "knnnnnnnNnnnnnNk",
+      "kNNNNNNNNNNNNNNk",
+      "kmmmNmmmnnnnNmNm",
+      "knnnNnnnnnnnNnNk",
+      "knnnNnnnnnnnNnNk",
+      "knnnNnnnnnnnNnNk",
+      "kNNNNNNNNNNNNNNk",
+      "kmmmnnnnNmmmnnNk",
+      "knnnnnnnNnnnnnNk",
+      "knnnnnnnNnnnnnNk",
+      "knnnnnnnNnnnnnNk",
+      "kkkkkkkkkkkkkkkk"
+    ]},
+    "merlon": {"rows": [
+      "kkkkk......kkkkk",
+      "kmmmk......knnNk",
+      "knnnk......knnNk",
+      "knnnk......knnNk",
+      "knnnk......knnNk",
+      "kNNNk......kNNNk",
+      "kmmmNkkkkkknNmNm",
+      "knnnNnnnnnnnNnNk",
+      "knnnNnnnnnnnNnNk",
+      "knnnNnnnnnnnNnNk",
+      "kNNNNNNNNNNNNNNk",
+      "kmmmnnnnNmmmnnNk",
+      "knnnnnnnNnnnnnNk",
+      "knnnnnnnNnnnnnNk",
+      "knnnnnnnNnnnnnNk",
+      "kkkkkkkkkkkkkkkk"
+    ]},
+    "door": {"rows": [
+      "kkkkkkkkkkkkkkkk",
+      "kbbbBbbbBbbbBbbk",
+      "kbbbBbbbBbbbBbbk",
+      "kXXGXXXGXXXGXXXk",
+      "kXXXXXXXXXXXXXXk",
+      "kbbbBbbbBbbbBbbk",
+      "kbbbBbbbBbbbBbbk",
+      "kbbbBbbbBbXbBbbk",
+      "kbbbBbbbBbGbBbbk",
+      "kbbbBbbbBbbbBbbk",
+      "kbbbBbbbBbbbBbbk",
+      "kXXGXXXGXXXGXXXk",
+      "kXXXXXXXXXXXXXXk",
+      "kbbbBbbbBbbbBbbk",
+      "kbbbBbbbBbbbBbbk",
+      "kkkkkkkkkkkkkkkk"
+    ]},
+    "portcullis": {"rows": [
+      "GGGGGGGGGGGGGGGG",
+      "kXXkkXXkkXXkkXXk",
+      "XXXXXXXXXXXXXXXX",
+      "XXXXXXXXXXXXXXXX",
+      "kXXkkXXkkXXkkXXk",
+      "kXXkkXXkkXXkkXXk",
+      "kXXkkXXkkXXkkXXk",
+      "XXXXXXXXXXXXXXXX",
+      "XXXXXXXXXXXXXXXX",
+      "kXXkkXXkkXXkkXXk",
+      "kXXkkXXkkXXkkXXk",
+      "kXXkkXXkkXXkkXXk",
+      "XXXXXXXXXXXXXXXX",
+      "XXXXXXXXXXXXXXXX",
+      "kXkkkXkkkXkkkXkk",
+      "kGGkkGGkkGGkkGGk"
+    ]},
+    "barrel": {"rows": [
+      "...kkkkkkkkkk...",
+      "..kcccccccccck..",
+      "..kbbbbbbbbbbk..",
+      ".kXXXXXXXXXXXXk.",
+      ".kbbbbbbbbbbbbk.",
+      ".kbbbbBBBBbbbbk.",
+      ".kbbbbbbbbbbbbk.",
+      ".kXXXXXXXXXXXXk.",
+      ".kbbbbbbbbbbbbk.",
+      ".kbbbbBBBBbbbbk.",
+      ".kbbbbbbbbbbbbk.",
+      ".kbbbbbbbbbbbbk.",
+      ".kXXXXXXXXXXXXk.",
+      "..kbbbbbbbbbbk..",
+      "..kbbbbbbbbbbk..",
+      "...kkkkkkkkkk..."
+    ]},
+    "minuteman": {"team": "continental", "pal": {"T": "#7a5634", "t": "#553a21", "L": "#dcc58f"}, "rows": [
+      "................",
+      "..............k.",
+      "......kkkk...kxk",
+      "..kkkkxxxxkkkkxk",
+      ".kxxxxxxxxxxxxxk",
+      "kxxxkkkkkkkkxxxk",
+      ".kksksssssskskxk",
+      "..ksskksskksskxk",
+      "..ksswksskwsskxk",
+      "..ksssssssssskxk",
+      "..kssskkkkssskxk",
+      "..kSskssssksSkxk",
+      "...kkkkkkkkkkkxk",
+      "...kTL1111LTkkbk",
+      "..kskTL11LTkskbk",
+      "...kT111111Tkkbb",
+      "...k11kkkk11kkbb",
+      "..kxxxk..kxxxkkk"
+    ]},
+    "light_infantry": {"team": "continental", "rows": [
+      "....................",
+      "....................",
+      "......kkkk..........",
+      "..kkkkxxxxkkkk......",
+      ".kxxxxxxxxxxxxk.....",
+      "kxxxkkkkkkkkxxxk....",
+      ".kksksssssskskk....k",
+      "..ksskksskkssk...kkg",
+      "..ksswksskwssk..kggk",
+      "..ksssssssssskkkgkk.",
+      "..kssskkkkssskbbk...",
+      "..kSsskrrkssSbkk....",
+      "...kkkkkkkkkbk......",
+      "...kTL1111bbk.......",
+      "..kskTL11bTksk......",
+      "...kT111b11Tk.......",
+      "...k11kkkk11k.......",
+      "..kxxxk..kxxxk......"
+    ]},
+    "frontiersman": {"team": "continental", "rows": [
+      ".............kxk",
+      ".....kkkkkk..kxk",
+      "....kBBBBBBk.kxk",
+      "..kkkBbBBBBkkkxk",
+      ".kBBBBBBBBBBBBxk",
+      ".kkkkkkkkkkkkkxk",
+      "..ksksssssskskxk",
+      "..ksskksskksskxk",
+      "..ksskksskwsskxk",
+      "..ksssssssssskxk",
+      "..kssskkkkssskxk",
+      "..kSskssssksSkxk",
+      "...kkkkkkkkkkkxk",
+      "...k22222222kkbk",
+      "..ksk212212kskbk",
+      "...k2B2222B2kkbb",
+      "...kBBkkkkBBkkbb",
+      "..kBBBk..kBBBkkk"
+    ]},
+    "cannon": {"team": "continental", "rows": [
+      "................................",
+      "................................",
+      "................................",
+      "............................kk..",
+      "........kkkkkkkkkkkkkkkkkkkkWWk.",
+      "......kkyyyyyyyyyyyyyyyyyyyyWWk.",
+      ".....kWWVVVVVVVVVVVVVVVVVVVVWWk.",
+      ".....kWWVVBBBBBVVVVVVVVVVVVVWWk.",
+      ".....kbbVBBBbBBBVVVVVVVVVVVVWWk.",
+      ".....kbbBbBBBBBbBbbbkkkkkkkkWWk.",
+      ".....kbBBBBBBBBBBBbbk.......kk..",
+      ".....kbBBBBBXBBBBBbbk...........",
+      "......kBbBBXXXBBbBkk............",
+      "......kBBBBBXBBBBBk.............",
+      "....kkkBBBBBBBBBBBk.............",
+      "..kkbbbbBbBBBBBbBk..............",
+      "kkbbbbbbkBBBbBBBk...............",
+      "bbbbbkkk.kBBBBBk................"
+    ]},
+    "british_cannon": {"team": "redcoats", "rows": [
+      "........................kkkk....",
+      ".......................kTTLTk...",
+      "......................kTTTTTTk..",
+      "..kk..................kkkkkkkk..",
+      ".kGGkkkkkkkkkkkkkkkkkkkskssksk..",
+      ".kGGGGGGGGGGGGGGGGGGGGksskkssk..",
+      ".kGGXXXXXXXXXXXXXXXXXXXkkkkkk...",
+      ".kGGXXXXXXXXXXXXXBBBBBXXGGk.....",
+      ".kGGXXXXXXXXXXXXBBBbBBBXbbk.....",
+      ".kGGkkkkkkkkbbbBbBBBBBbBbbk.....",
+      "..kk.......kbbBBBBBBBBBBBbk.....",
+      "...........kbbBBBBBXBBBBBbk.....",
+      "............kkBbBBXXXBBbBk......",
+      ".............kBBBBBXBBBBBk......",
+      ".............kBBBBBBBBBBBkkk....",
+      "..............kBbBBBBBbBbbbbkk..",
+      "...............kBBBbBBBkbbbbbbkk",
+      "................kBBBBBk.kkkbbbbb"
+    ]},
+    "mortar_1781": {"team": "continental", "rows": [
+      "....................",
+      "..........kkkkk.....",
+      ".........kXXXXXk....",
+      ".........kXXXXXk....",
+      ".........kXXXXXk....",
+      ".........kVVVVVk....",
+      "........kVVVVVVk....",
+      ".......kVVVVVVVk...k",
+      ".......kVVVVVVk...k9",
+      ".kkkkkkVVVVVVkkkkkyk",
+      "kcccccVVVVVVccccXXXk",
+      "kbbbbVVVVVVVbbbXXXXX",
+      "kbbbbVVVVVVbbbbXXXXX",
+      "kbbbbVVVVVbbbbbXXXXX",
+      ".kkkkVVVVkkkkkkkXXXk",
+      ".....kkkk.......kkk."
+    ]},
+    "powder_wagon": {"team": "continental", "rows": [
+      "...............ky9k.....................",
+      "...............kck......................",
+      ".....kkkkkkkkk.kckkkkkkk.kkkkkkkkk......",
+      "....kbbbbbbbbbkbbbbbbbbbkbbbbbbbbbk.....",
+      "...kXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXk....",
+      "...kbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbk....",
+      "...kbbbwwwwwbbbbbwwwwwbbbbbwwwwwbbbk....",
+      "...kXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXk....",
+      "...kbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbk....",
+      "...kbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbk....",
+      "...kXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXk....",
+      "....kbbbbbbbbbkbbbbbbbbbkbbbbbbbbbk.....",
+      "..kkkbbbbbbbbbkbbbbbbbbbkbbbbbbbbbkk....",
+      ".kcccccccccccccccccccccccccccccccccck...",
+      ".kbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbkk.",
+      ".kbbbbbbBBBbbbbbbbbbbbbbbbbbBBBbbbbbkbbk",
+      "..kkkkBBBbBBBkkkkkkkkkkkkkBBBbBBBkkk.kkb",
+      ".....kBBBBBBBk...........kBBBBBBBk.....k",
+      "....kBBBBBBBBBk.........kBBBBBBBBBk.....",
+      "....kBbBBXBBbBk.........kBbBBXBBbBk.....",
+      "....kBBBBBBBBBk.........kBBBBBBBBBk.....",
+      ".....kBBBBBBBk...........kBBBBBBBk......",
+      ".....kBBBbBBBk...........kBBBbBBBk......",
+      "......kkBBBkk.............kkBBBkk......."
+    ]},
+    "redcoat": {"team": "redcoats", "rows": [
+      ".............kgk",
+      ".............kgk",
+      "......kkkk...kxk",
+      "..kkkkxxxxkkkkxk",
+      ".kxxxxxxxxxxxxxk",
+      "kxxxkkkkkkkkxxxk",
+      ".kksksssssskskxk",
+      "..ksskksskksskxk",
+      "..ksswksskwsskxk",
+      "..ksssssssssskxk",
+      "..kssskkkkssskxk",
+      "..kSskssssksSkxk",
+      "...kkkkkkkkkkkxk",
+      "...k1TTTTTT1kkbk",
+      "..kskT1TT1Tkskbk",
+      "...kTTT11TTTkkbb",
+      "...k11kkkk11kkbb",
+      "..kxxxk..kxxxkkk"
+    ]},
+    "grenadier_1781": {"team": "redcoats", "rows": [
+      "....kkkkkkkk..k.",
+      "...kxxXxxxXxkkgk",
+      "..kxXxxxXxxxXkgk",
+      "..kxxxXxxxXxxkgk",
+      "..kxxxxyyxxxxkxk",
+      "..kxxxyyyyxxxkxk",
+      "..kxxxxyyxxxxkxk",
+      ".kkkkkkkkkkkkkxk",
+      "..ksksssssskskxk",
+      "..ksskksskksskxk",
+      "..ksswksskwsskxk",
+      "..ksssssssssskxk",
+      "..kssskkkkssskxk",
+      "..kSskssssksSkxk",
+      "...kkkkkkkkkkkxk",
+      "...k1TTTTTT1kkbk",
+      "..kskT1TT1Tkskbk",
+      "...kTTT11TTTkkbk",
+      "...k11kkkk11kkbk",
+      "..kxxxk..kxxxkk."
+    ]},
+    "cornwallis": {"team": "redcoats", "rows": [
+      "................",
+      "................",
+      "......kkkk......",
+      "..kkkkxxxxkkkk..",
+      ".kyyyyyyyyyyyyk.",
+      "kxxykkkkkkkkyxxk",
+      "klkskssssssksklk",
+      ".kksskksskksskk.",
+      "..ksswksskwsskk.",
+      "..ksssssssssskgk",
+      "..kssskkkkssskgk",
+      "..kSskssssksSkgk",
+      ".kkkkkkkkkkkkkgk",
+      "kyyk1TTTTTT1kyyy",
+      ".kkskT1yy1Tkskgk",
+      "...kTTT11TTTkkgk",
+      "...k11kkkk11kkgk",
+      "..kxxxk..kxxxkk."
+    ]},
+    "proj_cannonball": {"rows": [
+      "........",
+      "...kkk..",
+      "..kXXXk.",
+      ".kXGXXXk",
+      ".kXXXXXk",
+      ".kXXXXXk",
+      "..kXXXk.",
+      "...kkk.."
+    ]},
+    "proj_mortarshell": {"rows": [
+      ".....k9k..",
+      "....kyk...",
+      "....kck...",
+      "...kXXXk..",
+      "..kXXXXXk.",
+      ".kXXGXXXXk",
+      ".kXXXXXXXk",
+      ".kXXXXXXXk",
+      "..kXXXXXk.",
+      "...kXXXk.."
+    ]},
+    "proj_rifleball": {"rows": [
+      ".....GG.",
+      "lllllGG.",
+      ".....GG."
+    ]},
+    "earth": {"rows": [
+      "kkkkkkkkkkkkkkkk",
+      "keeeeeeeeeeeeeek",
+      "kaaaaaaaaaaaaaak",
+      "kaaaaaaaaaaaaaak",
+      "kzzzzzzzzzzzzzzk",
+      "kzzzzzzzzzzzzzzk",
+      "kzzzzzzzzZZzzzzk",
+      "kzzZZzzzzzzzzzzk",
+      "kzzzzzzzzzzzzzzk",
+      "kzzzzzzzZZzzzzzk",
+      "kzzzzzzzzzzzZZzk",
+      "kzZZzzzzzzzzzzzk",
+      "kzzzzZZzzzzzzzzk",
+      "kzzzzzzzzzzzzzzk",
+      "kzzzzzzzzzzzzzzk",
+      "kkkkkkkkkkkkkkkk"
+    ]},
+    "gabion": {"rows": [
+      "kkkkkkkkkkkkkkkk",
+      "kzzzzzzzzzzzzzzk",
+      "kzzzzzzzzzzzzzzk",
+      "kbBbbBbbBbbBbbBk",
+      "kBBbBBbBBbBBbBBk",
+      "kbBbbBbbBbbBbbBk",
+      "kbBBbBBbBBbBBbBk",
+      "kbBbbBbbBbbBbbBk",
+      "kbBbbBbbBbbBbbBk",
+      "kbBbbBbbBbbBbbBk",
+      "kBBbBBbBBbBBbBBk",
+      "kbBbbBbbBbbBbbBk",
+      "kbBBbBBbBBbBBbBk",
+      "kbBbbBbbBbbBbbBk",
+      "kbBbbBbbBbbBbbBk",
+      "kkkkkkkkkkkkkkkk"
+    ]},
+    "fascine": {"rows": [
+      "kkkkkkkkkkkkkkkk",
+      "kbbbcbbbbbbcbbbk",
+      "kFFFcFFFFFFcFFFk",
+      "kbbbcbbbbbbcbbbk",
+      "kFFFcFFFFFFcFFFk",
+      "kbbbcbbbbbbcbbbk",
+      "kFFFcFFFFFFcFFFk",
+      "kbbbcbbbbbbcbbbk",
+      "kFFFcFFFFFFcFFFk",
+      "kbbbcbbbbbbcbbbk",
+      "kFFFcFFFFFFcFFFk",
+      "kbbbcbbbbbbcbbbk",
+      "kFFFcFFFFFFcFFFk",
+      "kbbbcbbbbbbcbbbk",
+      "kFFFcFFFFFFcFFFk",
+      "kkkkkkkkkkkkkkkk"
+    ]},
+    "abatis": {"rows": [
+      ".kckk...........",
+      "k.kbbkk.........",
+      "ckkbbbbk........",
+      "kbbkbbbbkk......",
+      "kbbbbkbbbbk.....",
+      ".kbbbbkbbbbkk...",
+      "..kkbbbkkbbbbk..",
+      "....kbbbbkbbbbkk",
+      "....kcbbbbkkbbbb",
+      ".....kBBBbbbkbbb",
+      ".....kBBBBBbbkkb",
+      "......kkBBBBBbkk",
+      "........kkBBBBBb",
+      "..........kkBBBB"
+    ]},
+    "keg": {"rows": [
+      "......k9k.......",
+      "......kck.......",
+      "...kkkkckkkkk...",
+      "..kcccccccccck..",
+      "..kbbbbbbbbbbk..",
+      ".kXXXXXXXXXXXXk.",
+      ".kbbbbbbbbbbbbk.",
+      ".kbbb111111bbbk.",
+      ".kbbb11xx11bbbk.",
+      ".kbbb11xx11bbbk.",
+      ".kbbb111111bbbk.",
+      ".kbbbbbbbbbbbbk.",
+      ".kXXXXXXXXXXXXk.",
+      "..kbbbbbbbbbbk..",
+      "..kbbbbbbbbbbk..",
+      "...kkkkkkkkkk..."
+    ]},
+    "raider": {"team": "vikings", "rows": [
+      ".....kkkkkk.....",
+      "...kkgllggGkk...",
+      "..kglllgggggGk..",
+      "..kgllgggggGGk..",
+      ".kGGGGGGGGGGGGk.",
+      ".kkkkkkgGkkkkkk.",
+      "..kskssGgssksk..",
+      "..ksskkGgkkssk..",
+      "..ksswkGgkwssk..",
+      "..ks66666666sk..",
+      "..k666kkkk666k..",
+      ".kyTy66666666k..",
+      "kyyTyy666666k...",
+      "yyyTyyyTTTTTk...",
+      "TTTgTTTTTTTksk..",
+      "yyyTyyygBBBBk...",
+      "kyyTyykkkkttk...",
+      ".kyTyBk..kBBBk.."
+    ]},
+    "berserker": {"team": "vikings", "rows": [
+      "..kk........kk..",
+      ".kBbk......kbBk.",
+      ".kBbbkkkkkkbbBk.",
+      ".kBbbbbbbbbbbBk.",
+      ".kBwkbbbbbbkwBk.",
+      "kBBkkkkkkkkkkBBk",
+      "kBksksssssskskBk",
+      ".kksskksskkssggg",
+      "..ksswksskwssggg",
+      "..ks77777777sggg",
+      "..k777kkkk777kbg",
+      "..k7777777777kbk",
+      "...k77777777kkbk",
+      "...kBbBbBbBBkkbk",
+      "..kskbBbBbBkskbk",
+      "...kBBBgBBBBkkbk",
+      "...kttkkkkttkkbk",
+      "..kBBBk..kBBBkk."
+    ]},
+    "axe_thrower": {"team": "vikings", "rows": [
+      ".....kkkkkk...kggg",
+      "...kkgllggGkk.kggg",
+      "..kglllgggggGkkggg",
+      "..kgllgggggGGkkbkk",
+      ".kGGGGGGGGGGGGkbk.",
+      ".kkkkkkgGkkkkkkbk.",
+      "..kskssGgsskskkbk.",
+      "..ksskkGgkksskksk.",
+      "..ksswkGgkwssksk..",
+      "..ks66666666sksk..",
+      "..k666kkkk666ksk..",
+      "..k6666666666ksk..",
+      "...k66666666ksk...",
+      "...kTTTTTTTTksk...",
+      "..kskTTTTTTksk....",
+      "...kBBBgBBBBk.....",
+      "...kttkkkkttk.....",
+      "..kBBBk..kBBBk...."
+    ]},
+    "proj_axe": {"rows": [
+      ".....kkkk..",
+      "....kGgggk.",
+      ".....kggggk",
+      ".....kgggGk",
+      ".....kgggk.",
+      "....kbkkk..",
+      "...kbk.....",
+      "..kbk......",
+      ".kbk.......",
+      "kbk........",
+      ".k........."
+    ]},
+    "longship": {"team": "vikings", "rows": [
+      "........................................................",
+      "...........................kk...........................",
+      ".....................kkkkkkBBkkkkkk.....................",
+      "....................kwwwwwwwwwwwwwwk....................",
+      "....................krrrrrrrrrrrrrrk....................",
+      ".....................kkkkkkBBkkkkkk.................kkkk",
+      "..........................kBBk.....................kyyyy",
+      "..........................kBBk.....................kyyyk",
+      "..........................kBBk.....................kyyyy",
+      "..k.......................kBBk.....................kyyyy",
+      ".kyk......................kBBk......................kkbb",
+      ".kbbk.....................kBBk......................kbbb",
+      ".kbbk.....................kBBk......................kbbk",
+      ".kbbbk....kkk...kkk...kkk.kBBkk...kkk...kkk........kbbbk",
+      "..kbbk...kTTTk.kyyyk.kTTTkkBByyk.kTTTk.kyyyk.......kbbk.",
+      "..kbbbk.kTTTTTkyyyyykTTTTTkBByyykTTTTTkyyyyyk.....kbbbk.",
+      "...kbbk.kTTgTTkyygyykTTgTTkyygyykTTgTTkyygyyk.....kbbk..",
+      "...kbbbkkTTTTTkyyyyykTTTTTkyyyyykTTTTTkyyyyykkkkkkbbbk..",
+      "....kbbcccTTTcccyyycccTTTcccyyycccTTTcccyyycccccccbbk...",
+      "....kbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbk...",
+      ".....kbbkbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbkbbk....",
+      "......kkBBBBbbBBBBbbBBBBbbBBBBbbBBBBbbBBBBbbBBBBkkk.....",
+      "........kkkkkbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbkkkk........",
+      "............kbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbk...........",
+      "...........kbbbbbkkkkkkkkkbbbbbkkkkkkkkkbbbbbk..........",
+      "..........kbbbbbbbk.....kbbbbbbbk.....kbbbbbbbk.........",
+      "..........kbbbcbbbk.....kbbbcbbbk.....kbbbcbbbk.........",
+      "..........kbbbbbbbk.....kbbbbbbbk.....kbbbbbbbk.........",
+      "...........kbbbbbk.......kbbbbbk.......kbbbbbk..........",
+      "............kbbbk.........kbbbk.........kbbbk..........."
+    ]},
+    "fireship": {"team": "vikings", "rows": [
+      "........................................................",
+      "...........................kk...........................",
+      ".....................kkkkkkBBkkkkkk.....................",
+      "....................kwwwwwwwwwwwwwwk....................",
+      "....................krrrrrrrrrrrrrrk....................",
+      ".....................kkkkkkBBkkkkkk.................kkkk",
+      "..........................kBBk.....................kyyyy",
+      ".........................kkBBk.....................kyyyk",
+      "........................kykBBk..k..................kyyyy",
+      "..k..............k......k9kBBk.kyk......k..........kyyyy",
+      ".kyk............kyk....k9kkBBk.k9k.....kyk..........kkbb",
+      ".kbbk...........k9k....k9kkBBkk9k...k..k9k..........kbbb",
+      ".kbbk..........k9k..k...k.kBBkk9k..k9k..k9k.k.......kbbk",
+      ".kbbbk....kkk..k9kkk9kkkk.kBBkkk..kk9k..k9kk9k.....kbbbk",
+      "..kbbk...kTTTk.kyyyk9kTTTkkBByyk.kTTTk.kyyyk9k.....kbbk.",
+      "..kbbbk.kTTTTTkyyyyykTTTTTkBByyykTTTTTkyyyyyk.....kbbbk.",
+      "...kbbk.kTTgTTkyygyykTTgTTkyygyykTTgTTkyygyyk.....kbbk..",
+      "...kbbbkkTTTTTkyyyyykTTTTTkyyyyykTTTTTkyyyyykkkkkkbbbk..",
+      "....kbbcccTTTcccyyycccTTTcccyyycccTTTcccyyycccccccbbk...",
+      "....kbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbk...",
+      ".....kbbkbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbkbbk....",
+      "......kkBBBBbbBBBBbbBBBBbbBBBBbbBBBBbbBBBBbbBBBBkkk.....",
+      "........kkkkkbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbkkkk........",
+      "............kbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbk...........",
+      "...........kbbbbbkkkkkkkkkbbbbbkkkkkkkkkbbbbbk..........",
+      "..........kbbbbbbbk.....kbbbbbbbk.....kbbbbbbbk.........",
+      "..........kbbbcbbbk.....kbbbcbbbk.....kbbbcbbbk.........",
+      "..........kbbbbbbbk.....kbbbbbbbk.....kbbbbbbbk.........",
+      "...........kbbbbbk.......kbbbbbk.......kbbbbbk..........",
+      "............kbbbk.........kbbbk.........kbbbk..........."
+    ]},
+    "frank": {"team": "franks", "rows": [
+      ".......kk....kgk",
+      "......kglk..kggg",
+      ".....kgllGk..kbk",
+      "....kgllggGk.kbk",
+      "...kGGGGGGGGkkbk",
+      ".kkkkkkkkkkkkkbk",
+      "..ksksssssskskbk",
+      "..ksskksskksskbk",
+      "..ksswksskwsskbk",
+      "..ksshhhhhhsskbk",
+      "..kssskkkkssskbk",
+      "..kSskssssksSkbk",
+      "...kkkkkkkkkkkbk",
+      "...kGgGgGgGgkkbk",
+      "..kskTTTTTTkskbk",
+      "...kBBByBBBBkkbk",
+      "...kttkkkkttkkbk",
+      "..kBBBk..kBBBkk."
+    ]},
+    "frank_archer": {"team": "franks", "rows": [
+      ".........kk.......",
+      "........klgk......",
+      ".......kGllgk.....",
+      "...k..kGggllgk....",
+      "..kbkkGGGGGGGGk...",
+      ".kblkkkkkkkkkkkkk.",
+      "kbklkskssssssksk..",
+      "kbklksskksskkssk..",
+      "kbklksswksskkssk..",
+      "kbklkssssssssssk..",
+      "kbklkssskkkksssk..",
+      "kbklkSskssssksSk..",
+      ".kblkkkkkkkkkkk...",
+      "..kbkkgGgGgGgGk...",
+      "...kkskTTTTTTksk..",
+      ".....kBBBByBBBk...",
+      ".....kttkkkkttk...",
+      "....kBBBk..kBBBk.."
+    ]},
+    "shieldman": {"team": "franks", "rows": [
+      ".......kk.......",
+      "......kglk......",
+      ".....kgllGk.....",
+      "....kgllggGk....",
+      "...kGGGGGGGGk...",
+      ".kkkkkkkkkkkkkk.",
+      "..ksksTTTTTksk..",
+      "...kkTLLLLLTk...",
+      "...kTLLLLLLLTk..",
+      "..kTLLLTTTLLLTk.",
+      ".kTLLLTTTTTLLLTk",
+      "kkTLLTTTgTTTLLTk",
+      "skTLLTTgggTTLLTs",
+      "kkTLLTTTgTTTLLTk",
+      ".kTLLLTTTTTLLLTk",
+      "..kTLLLTTTLLLTk.",
+      "...kTLLLLLLLTk.."
+    ]},
+    "count_odo": {"team": "franks", "rows": [
+      "................",
+      "................",
+      "...k.k.kk.k.k...",
+      "..kykykyykykyk..",
+      "..kyyyyyyyyyyk..",
+      ".kkkkkkkkkkkkkk.",
+      "..kskssssssksk..",
+      "..ksskksskkssk..",
+      "..ksswksskwsskk.",
+      "..kshhhhhhhhskgk",
+      "..khhhkkkkhhhkgk",
+      "..khhhhhhhhhhkgk",
+      "...khhhhhhhhkkgk",
+      "..krTTTTTTTTryyy",
+      ".krskTyTTyTksrgk",
+      ".krkBBByBBBBkrgk",
+      ".krkttkkkkttkrgk",
+      "..kBBBk..kBBBkk."
+    ]},
+    "townsman": {"team": "franks", "rows": [
+      "............kgkg",
+      "............kgkg",
+      ".....kkkkkk.kggg",
+      "...kkbbbbbbkkkbk",
+      "..kbbbbbbbbbbkbk",
+      ".kkkkkkkkkkkkkbk",
+      "..ksksssssskskbk",
+      "..ksskksskksskbk",
+      "..ksswksskwsskbk",
+      "..ksssssssssskbk",
+      "..kssskkkkssskbk",
+      "..kSsskrrkssSkbk",
+      "...kkkkkkkkkkkbk",
+      "...k22222222kkbk",
+      "..ksk222222kskbk",
+      "...kBBBBBBBBkkbk",
+      "...kbbkkkkbbkkbk",
+      "..kBBBk..kBBBkk."
+    ]},
+    "ashigaru": {"team": "tokugawa", "rows": [
+      ".............kgk",
+      ".......kk....kgk",
+      ".....kkxxkk..kbk",
+      "...kkxxyyxxkkkbk",
+      "kkkxxxxxxxxxxkbk",
+      ".kkkkkkkkkkkkkbk",
+      "..ksksssssskskbk",
+      "..ksskksskksskbk",
+      "..ksswksskwsskbk",
+      "..ksssssssssskbk",
+      "..kssskkkkssskbk",
+      "..kSskssssksSkbk",
+      "...kkkkkkkkkkkbk",
+      "...kTTTTTTTTkkbk",
+      "..kskTTLLTTkskbk",
+      "...kTtTtTtTtkkbk",
+      "...ksskkkksskkbk",
+      "..kBBBk..kBBBkk."
+    ]},
+    "samurai": {"team": "tokugawa", "rows": [
+      ".kyk........kyk.....",
+      "..kyk......kyk......",
+      "...kykkkkkkyk.......",
+      "...kTTTTTTTTk.......",
+      ".kkTLTTTTTTTTkk.....",
+      "kTTkkkkkkkkkkTTk....",
+      ".kksksssssskskk....k",
+      "..ksskksskkssk....kl",
+      "..ksswksskwssk...klk",
+      "..ksshhhhhhssk..klk.",
+      "..kssskkkksssk.klk..",
+      "..kSsskrrkssSkklk...",
+      "...kkkkkkkkkkklk....",
+      "...kTLTTTTLTklk.....",
+      "..kskTTyyTTklxk.....",
+      "...kTtTtTtTtxk......",
+      "...kttkkkkttk.......",
+      "..kBBBk..kBBBk......"
+    ]},
+    "teppo": {"team": "tokugawa", "rows": [
+      "................",
+      ".......kk.....kk",
+      ".....kkxxkk..kx9",
+      "...kkxxyyxxkkkxk",
+      "kkkxxxxxxxxxxkxk",
+      ".kkkkkkkkkkkkkxk",
+      "..ksksssssskskxk",
+      "..ksskksskksskxk",
+      "..ksskksskwsskxk",
+      "..ksssssssssskxk",
+      "..kssskkkkssskxk",
+      "..kSskssssksSkxk",
+      "...kkkkkkkkkkkxk",
+      "...kTTTTTTTTkkbk",
+      "..kskTTLLTTkskbk",
+      "...kTtTtTtTtkkbk",
+      "...ksskkkksskkbk",
+      "..kBBBk..kBBBkk."
+    ]},
+    "bomb_thrower": {"team": "tokugawa", "rows": [
+      "..............kJJ9",
+      ".......kk....kJJJJ",
+      ".....kkxxkk..kJJJJ",
+      "...kkxxyyxxkkkJJJJ",
+      "kkkxxxxxxxxxxkkJJJ",
+      ".kkkkkkkkkkkkkkskk",
+      "..ksksssssskskksk.",
+      "..ksskksskksskksk.",
+      "..ksswksskwssksk..",
+      "..kssssssssssksk..",
+      "..kssskkkksssksk..",
+      "..kSsskrrkssSksk..",
+      "...kkkkkkkkkksk...",
+      "...kTTTTTTTTksk...",
+      "..kskTTLLTTksk....",
+      "...kTtTtTtTtk.....",
+      "...ksskkkkssk.....",
+      "..kBBBk..kBBBk...."
+    ]},
+    "proj_firebomb": {"rows": [
+      "....k9k..",
+      "...kyk...",
+      "...kck...",
+      "..kJJJk..",
+      ".kJJJJJk.",
+      "kJJcJJJJk",
+      "kJJJJJJJk",
+      "kJJJJJJJk",
+      ".kJJJJJk.",
+      "..kJJJk.."
+    ]},
+    "turtle_cart": {"team": "tokugawa", "rows": [
+      "............................................",
+      "............................................",
+      "............................................",
+      "...............kkkkkkkkkkkkk................",
+      "...........kkkkbbbbbbbbbbbbbkkkk............",
+      "........kkkbbbbbbbbbbbbbbbbbbbbbkkkkk.......",
+      "......kkbbBBBbbbBBBbbbBBBbbbBBBbbbBBBk......",
+      ".....kbbbbBBBbbbBBBbbbBBBbbbBBBbbbBBBk......",
+      "....kbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbk.....",
+      "...kbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbk....",
+      "..kbBBBbbbBBBbbbBBBbbbBBBbbbBBBbbbBBBbbbk...",
+      ".kbbBBBbbbBBBbbbBBBbbbBBBbbbBBBbbbBBBbbbbk..",
+      ".kbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbk..",
+      ".kccccccccccccccccccccccccccccccccccccccck..",
+      ".kBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBk..",
+      ".kBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBk..",
+      "..kkkkkBBBkkskkkskkkkkkkkkskkkskkBBBkkkkk...",
+      ".....kBBBBBksk.ksk.......ksk.kskBBBBBk......",
+      "....kBBBBBBBsk.ksk.......ksk.ksBBBBBBBk.....",
+      "....kBBBcBBBBk.kBk.......kBk.kBBBBcBBBk.....",
+      "....kBBBBBBBk...k.........k...kBBBBBBBk.....",
+      ".....kBBBBBk...................kBBBBBk......",
+      "......kBBBk.....................kBBBk.......",
+      ".......kkk.......................kkk........"
+    ]},
+    "red_ashigaru": {"team": "toyotomi", "rows": [
+      ".............kgk",
+      ".......kk....kgk",
+      ".....kkxxkk..kbk",
+      "...kkxxyyxxkkkbk",
+      "kkkxxxxxxxxxxkbk",
+      ".kkkkkkkkkkkkkbk",
+      "..ksksssssskskbk",
+      "..ksskksskksskbk",
+      "..ksswksskwsskbk",
+      "..ksssssssssskbk",
+      "..kssskkkkssskbk",
+      "..kSskssssksSkbk",
+      "...kkkkkkkkkkkbk",
+      "...kTTTTTTTTkkbk",
+      "..kskTTLLTTkskbk",
+      "...kTtTtTtTtkkbk",
+      "...ksskkkksskkbk",
+      "..kBBBk..kBBBkk."
+    ]},
+    "red_teppo": {"team": "toyotomi", "rows": [
+      "................",
+      "kk.....kk.......",
+      "9xk..kkxxkk.....",
+      "kxkkkxxyyxxkk...",
+      "kxkxxxxxxxxxxkkk",
+      "kxkkkkkkkkkkkkk.",
+      "kxkskssssssksk..",
+      "kxksskksskkssk..",
+      "kxksswksskkssk..",
+      "kxkssssssssssk..",
+      "kxkssskkkksssk..",
+      "kxkSskssssksSk..",
+      "kxkkkkkkkkkkk...",
+      "kbkkTTTTTTTTk...",
+      "kbkskTTLLTTksk..",
+      "kbkktTtTtTtTk...",
+      "kbkksskkkkssk...",
+      ".kkBBBk..kBBBk.."
+    ]},
+    "sanada": {"team": "toyotomi", "rows": [
+      "kyk..........kyk",
+      ".kykkk....kkkyk.",
+      "..kyykkkkkkyyk..",
+      "...kTTTyyTTTk...",
+      ".kkTLTTTTTTTTkk.",
+      "kTTkkkkkkkkkkTTk",
+      ".kksksssssskskk.",
+      "..ksskksskkssk..",
+      "..ksswksskwsskk.",
+      "..ksshhhhhhssklk",
+      "..kssskkkksssklk",
+      "..kSskssssksSklk",
+      "...kkkkkkkkkkklk",
+      "...kTyTyTyTTkxxx",
+      "..kskTyTyTyksklk",
+      "...kTtTtTtTtkklk",
+      "...kttkkkkttkklk",
+      "..kBBBk..kBBBkk."
+    ]},
+    "hojo_lord": {"team": "tokugawa", "pal": {"T": "#3b6b4a", "t": "#264a32", "L": "#cfe0c0"}, "rows": [
+      "kyk..........kyk",
+      ".kykkk....kkkyk.",
+      "..kyykkkkkkyyk..",
+      "...kTTTyyTTTk...",
+      ".kkTLTTTTTTTTkk.",
+      "kTTkkkkkkkkkkTTk",
+      ".kksksssssskskk.",
+      "..ksskksskkssk..",
+      "..ksswksskwsskk.",
+      "..ksshhhhhhssklk",
+      "..kssskkkksssklk",
+      "..kSskssssksSklk",
+      "...kkkkkkkkkkklk",
+      "...kTyTyTyTTkxxx",
+      "..kskTyTyTyksklk",
+      "...kTtTtTtTtkklk",
+      "...kttkkkkttkklk",
+      "..kBBBk..kBBBkk."
+    ]},
+    "jp_cannon": {"team": "toyotomi", "rows": [
+      ".........................kkkk...",
+      "........................kTTLTk..",
+      ".......................kTTTTTTk.",
+      "..kk...................kkkkkkkk.",
+      ".kGGkkkkkkkkkkkkkkkkkkkkskssksk.",
+      ".kGGGGGGGGGGGGGGGGGGGGGksskkssk.",
+      ".kGGXXXXXXXXXXXXXXXXXXXXkkkkkk..",
+      ".kGGXXXXXXXXXXXXXBBBBBXXkk......",
+      ".kGGXXXXXXXXXXXXBBBBBBBXbbk.....",
+      ".kGGkkkkkkkkbbbBBBBBBBBBbbk.....",
+      "..kk.......kbbBBBBBBBBBBBbk.....",
+      "...........kbbBBBBBXBBBBBbk.....",
+      "............kkBBBBXXXBBBBk......",
+      ".............kBBBBBXBBBBBk......",
+      ".............kBBBBBBBBBBBkkk....",
+      "..............kBBBBBBBBBbbbbkk..",
+      "...............kBBBBBBBkbbbbbbkk",
+      "................kBBBBBk.kkkbbbbb"
+    ]},
+    "toyo_general": {"team": "toyotomi", "pal": {"T": "#3a3546", "t": "#26282e", "L": "#e8c45a"}, "rows": [
+      "kyk..........kyk",
+      ".kykkk....kkkyk.",
+      "..kyykkkkkkyyk..",
+      "...kTTTyyTTTk...",
+      ".kkTLTTTTTTTTkk.",
+      "kTTkkkkkkkkkkTTk",
+      ".kksksssssskskk.",
+      "..ksskksskkssk..",
+      "..ksswksskwsskk.",
+      "..ksshhhhhhssklk",
+      "..kssskkkksssklk",
+      "..kSskssssksSklk",
+      "...kkkkkkkkkkklk",
+      "...kTyTyTyTTkxxx",
+      "..kskTyTyTyksklk",
+      "...kTtTtTtTtkklk",
+      "...kttkkkkttkklk",
+      "..kBBBk..kBBBkk."
+    ]},
+    "ishigaki": {"rows": [
+      "kkkkkkkkkkkkkkkk",
+      "kiiiiiiPiiiiiiiP",
+      "kppppppPpppppppP",
+      "kppppppPpppppppP",
+      "kppppppPpppppppP",
+      "kPPPPPPPpppppppP",
+      "kiiiiPppPPPPPPPP",
+      "kppppPiiiiiiPiiP",
+      "kppppPppppppPppP",
+      "kppppPppppppPppP",
+      "kPPPPPPPPPPPPppP",
+      "kiiiiiiiPiiiiiiP",
+      "kpppppppPppppppP",
+      "kpppppppPppppppP",
+      "kpppppppPppppppP",
+      "kPPPPPPPPPPPPPPP"
+    ]},
+    "plaster": {"rows": [
+      "kkkkkkkkkkkkkkkk",
+      "k1111111111111ik",
+      "k1111111111111ik",
+      "k1111111111111ik",
+      "k11111xxxx1111ik",
+      "k11111xxxx1111ik",
+      "k11111xxxx1111ik",
+      "k1111111111111ik",
+      "k1111111111111ik",
+      "k1111111111111ik",
+      "kxxxXxxxxXxxxXxk",
+      "kxxxXxxxxXxxxXxk",
+      "kxxxXxxxxXxxxXxk",
+      "kxxxXxxxxXxxxXxk",
+      "kxxxXxxxxXxxxXxk",
+      "kkkkkkkkkkkkkkkk"
+    ]},
+    "roof": {"rows": [
+      "kkkkkkkkkkkkkkkk",
+      "gggggggggggggggg",
+      "XGGXGGXGGXGGXGGX",
+      "XGGXGGXGGXGGXGGX",
+      "XGGXGGXGGXGGXGGX",
+      "XGGXGGXGGXGGXGGX",
+      "XGGXGGXGGXGGXGGX",
+      "kkkkkkkkkkkkkkkk",
+      "................",
+      "................",
+      "................",
+      "................",
+      "................",
+      "................",
+      "................",
+      "................"
+    ]},
+    "bamboo": {"rows": [
+      ".kk..kk..kk..kk.",
+      "kaekkaekkaekkaek",
+      "kaekkaekkaekkaek",
+      "kaekkaekkaekkaek",
+      "kAAkkAAkkAAkkAAk",
+      "kaekkaekkaekkaek",
+      "CCCCCCCCCCCCCCCC",
+      "kaekkaekkaekkaek",
+      "kaekkaekkaekkaek",
+      "kAAkkAAkkAAkkAAk",
+      "kaekkaekkaekkaek",
+      "CCCCCCCCCCCCCCCC",
+      "kaekkaekkaekkaek",
+      "kAAkkAAkkAAkkAAk",
+      "kaekkaekkaekkaek",
+      "kaekkaekkaekkaek"
+    ]},
+    "voltigeur": {"team": "french", "rows": [
+      "......kyyk...kgk",
+      ".....kkkkkk..kgk",
+      "....kxxxxxxk.kxk",
+      "....kxxyyxxk.kxk",
+      "....kxxyyxxk.kxk",
+      "..kkkkkkkkkkkkxk",
+      "..ksksssssskskxk",
+      "..ksskksskksskxk",
+      "..ksswksskwsskxk",
+      "..ksshhhhhhsskxk",
+      "..kssskkkkssskxk",
+      "..kSskssssksSkxk",
+      "...kkkkkkkkkkkxk",
+      "...kTL1111LTkkbk",
+      "..kskTL11LTkskbk",
+      "...kT111111Tkkbk",
+      "...k11kkkk11kkbk",
+      "..kxxxk..kxxxkk."
+    ]},
+    "guard_grenadier": {"team": "french", "rows": [
+      "....kkkkkkkk..k.",
+      "...kxxXxxxXxkkgk",
+      "..kxXxxxXxxxXkgk",
+      "..kxxxXxxxXxxkgk",
+      "..kxxyyyyyyxxkxk",
+      "..kxxyyyyyyxxkxk",
+      "..kxxyyyyyyxxkxk",
+      ".kkkkkkkkkkkkkxk",
+      "..ksksssssskskxk",
+      "..ksskksskksskxk",
+      "..ksswksskwsskxk",
+      "..ksshhhhhhsskxk",
+      "..kssskkkkssskxk",
+      "..kSskssssksSkxk",
+      "...kkkkkkkkkkkxk",
+      "...kTL1111LTkkbk",
+      "..kskTL11LTkskbk",
+      "...kT111111Tkkbk",
+      "...k11kkkk11kkbk",
+      "..kxxxk..kxxxkk."
+    ]},
+    "sapper": {"team": "french", "rows": [
+      "....kkkkkkkk......",
+      "...kxxXxxxXxk.....",
+      "..kxXxxxXxxxXk....",
+      "..kxxxXxxxXxxkkkk.",
+      "..kxxxxyyxxxxggggk",
+      "..kxxxyyyyxxxggggg",
+      "..kxxxxyyxxxxggggk",
+      ".kkkkkkkkkkkkggggk",
+      "..ksksssssskskbkk.",
+      "..ksskksskksskbk..",
+      "..ksswksskwsskbk..",
+      "..kshhhhhhhhskbk..",
+      "..khhhkkkkhhhkbk..",
+      "..khhhhhhhhhhkbk..",
+      "...khhhhhhhhkkbk..",
+      "...kTL1111LTkkbk..",
+      "..kskT1111Tkskbk..",
+      "...kT111111Tkkbk..",
+      "...k11kkkk11kkbk..",
+      "..kxxxk..kxxxkk..."
+    ]},
+    "cuirassier": {"team": "french", "rows": [
+      "................kkkkk...................",
+      "...............kxxxxxkk.................",
+      "................kgggglkk................",
+      "...............kglllgggGk...............",
+      "..............kglggggggGGk..............",
+      ".............kkkkkkkkkkkkkk.......k.....",
+      "..............kskssssssksk.......klk....",
+      "..............ksskksskkssk......klk.....",
+      "..............ksswksskwssk.....klk......",
+      "..............ksshhhhhhssk....klkkkkkkk.",
+      "..............kssskkkksssk...klBbbbbbbbk",
+      "..............kSsskrrkssSk..klBBbbbkbbbk",
+      "...............kkkkkkkkkk..klkBBbbbbbBBk",
+      "..............kllllllllllkklkkBBbbbbbBBk",
+      "..............kggggggggggklk.kBBbbbbbbbk",
+      "..............kggggggggggkk..kBBbbbbkkk.",
+      "..............kggggggggggk...kBBbbbbk...",
+      "...............kkkkkkkkkkk...kBBbbbbk...",
+      ".....kkk...kkkkTTTTTTTTTTbkkkkBBbbbbk...",
+      "....kBBBkkkbbbbTTTTTTTTTTbbbbbkbbbbbk...",
+      "....kBBBkbbbbbbTTTTTTTTTTbbbbbbbbbbbk...",
+      "....kBBBbbbbbbbbbbbbbbbbbbbbbbbbbbbbk...",
+      "....kBBBbbbbbbbbbbbbbbbbbbbbbbbbbbbbk...",
+      "....kBBBbbbbbbbbbbbbbbbbbbbbbbbbbbkk....",
+      "....kBBBbbbbbbbbbbbbbbbbbbbbbbbbbbk.....",
+      "....kBBBbbbbbbbbbbbbbbbbbbbbbbbbbk......",
+      "....kBBBkbbbbbbbbbbbbbbbbbbbbbbbk.......",
+      ".....kkk.kbbbbbbbbbbbbbbbbbbbbbbk.......",
+      ".........kbbkkbbbbbbbbbbbbbbkkbbk.......",
+      ".........kbbkkbbkkkkkkkkkkbbkkbbk.......",
+      ".........kbbkkbbk........kbbkkbbk.......",
+      ".........kbbkkbbk........kbbkkbbk.......",
+      ".........kxxkkxxk........kxxkkxxk.......",
+      "..........kk..kk..........kk..kk........"
+    ]},
+    "guardsman": {"team": "redcoats", "rows": [
+      "....kkkkkkkk..k.",
+      "...kxxxxxxxxkkgk",
+      "...kxxxxxxxxkkgk",
+      "...kxxxyyxxxkkgk",
+      "...kxxxxxxxxkkxk",
+      "..kkkkkkkkkkkkxk",
+      "..ksksssssskskxk",
+      "..ksskksskksskxk",
+      "..ksswksskwsskxk",
+      "..ksssssssssskxk",
+      "..kssskkkkssskxk",
+      "..kSskssssksSkxk",
+      "...kkkkkkkkkkkxk",
+      "...k1TTTTTT1kkbk",
+      "..kskT1TT1Tkskbk",
+      "...kTTT11TTTkkbk",
+      "...kxxkkkkxxkkbk",
+      "..kxxxk..kxxxkk."
+    ]},
+    "green_rifleman": {"team": "redcoats", "pal": {"T": "#2f4a2a", "t": "#1f3320", "1": "#111111"}, "rows": [
+      "....kkkkkkkk....",
+      "...kxxxxxxxxk...",
+      "...kxxxxxxxxk.k.",
+      "...kxxxyyxxxkkxk",
+      "...kxxxxxxxxkkxk",
+      "..kkkkkkkkkkkkxk",
+      "..ksksssssskskxk",
+      "..ksskksskksskxk",
+      "..ksswksskksskxk",
+      "..ksssssssssskxk",
+      "..kssskkkkssskxk",
+      "..kSskssssksSkxk",
+      "...kkkkkkkkkkkxk",
+      "...k1TTTTTT1kkxk",
+      "..kskT1TT1Tkskxk",
+      "...kTTT11TTTkkxk",
+      "...kxxkkkkxxkkxk",
+      "..kxxxk..kxxxkk."
+    ]},
+    "austrian": {"team": "redcoats", "pal": {"T": "#efe9d8", "t": "#c9c3b2", "1": "#b8322a"}, "rows": [
+      "......kkkk....k.",
+      ".....kyyyyk..kgk",
+      "....kxxxxxxk.kgk",
+      "...kxxxyyxxxkkgk",
+      "...kxxxxxxxxkkxk",
+      "..kkkkkkkkkkkkxk",
+      "..ksksssssskskxk",
+      "..ksskksskksskxk",
+      "..ksswksskwsskxk",
+      "..ksssssssssskxk",
+      "..kssskkkkssskxk",
+      "..kSskssssksSkxk",
+      "...kkkkkkkkkkkxk",
+      "...k1TTTTTT1kkbk",
+      "..kskT1TT1Tkskbk",
+      "...kTTT11TTTkkbk",
+      "...kxxkkkkxxkkbk",
+      "..kxxxk..kxxxkk."
+    ]},
+    "officer_1815": {"team": "redcoats", "rows": [
+      "................",
+      "................",
+      "..kk........kk..",
+      ".kxxkkkkkkkkxxk.",
+      ".kxxxxxyyxxxxxk.",
+      "..kkkkkkkkkkkk..",
+      "..kskssssssksk..",
+      "..ksskksskkssk..",
+      "..ksswksskwsskk.",
+      "..ksshhhhhhsskgk",
+      "..kssskkkkssskgk",
+      "..kSskssssksSkgk",
+      ".kkkkkkkkkkkkkgk",
+      "kyyk1TTTTTT1kyyy",
+      ".kkskT1yy1Tkskgk",
+      "...kTTT11TTTkkgk",
+      "...kxxkkkkxxkkgk",
+      "..kxxxk..kxxxkk."
+    ]},
+    "baring": {"team": "redcoats", "pal": {"T": "#2f4a2a", "t": "#1f3320", "1": "#111111"}, "rows": [
+      "................",
+      "................",
+      "..kk........kk..",
+      ".kxxkkkkkkkkxxk.",
+      ".kxxxxxyyxxxxxk.",
+      "..kkkkkkkkkkkk..",
+      "..kskssssssksk..",
+      "..ksskksskkssk..",
+      "..ksswksskwsskk.",
+      "..ksshhhhhhsskgk",
+      "..kssskkkkssskgk",
+      "..kSskssssksSkgk",
+      ".kkkkkkkkkkkkkgk",
+      "kyyk1TTTTTT1kyyy",
+      ".kkskT1yy1Tkskgk",
+      "...kTTT11TTTkkgk",
+      "...kxxkkkkxxkkgk",
+      "..kxxxk..kxxxkk."
+    ]},
+    "austrian_general": {"team": "redcoats", "pal": {"T": "#efe9d8", "t": "#c9c3b2", "1": "#b8322a"}, "rows": [
+      "................",
+      "................",
+      "..kk........kk..",
+      ".kxxkkkkkkkkxxk.",
+      ".kxxxxxyyxxxxxk.",
+      "..kkkkkkkkkkkk..",
+      "..kskssssssksk..",
+      "..ksskksskkssk..",
+      "..ksswksskwsskk.",
+      "..ksshhhhhhsskgk",
+      "..kssskkkkssskgk",
+      "..kSskssssksSkgk",
+      ".kkkkkkkkkkkkkgk",
+      "kyyk1TTTTTT1kyyy",
+      ".kkskT1yy1Tkskgk",
+      "...kTTT11TTTkkgk",
+      "...kxxkkkkxxkkgk",
+      "..kxxxk..kxxxkk."
+    ]},
+    "brick": {"rows": [
+      "kkkkkkkkkkkkkkkk",
+      "kqqqqqquuqqqqqqk",
+      "kqqqqqquuqqqqqqk",
+      "kQQQQQQuuQQQQQQk",
+      "kuuuuuuuuuuuuuuk",
+      "kqquuqqqqqquuqqk",
+      "kqquuqkkkkquuqqk",
+      "kQQuuQkkkkQuuQQk",
+      "kuuuuuuuuuuuuuuk",
+      "kqqqqqquuqqqqqqk",
+      "kqqqqqquuqqqqqqk",
+      "kQQQQQQuuQQQQQQk",
+      "kuuuuuuuuuuuuuuk",
+      "kqquuqqqqqquuqqk",
+      "kqquuqqqqqquuqqk",
+      "kQQkkQQQQQQkkQQk"
+    ]},
+    "hedge": {"rows": [
+      "................",
+      "................",
+      "......kkkkk.....",
+      "....kkjjjjjkk...",
+      "...kjjjejjjjjk..",
+      "..kjjjjjAjjjjjk.",
+      ".kjejjjjjjjejjjk",
+      "kjjjAjjjjjjjAjjj",
+      "kjjjjjjjejjjjjjj",
+      "kjjjjjjjjAjjjejj",
+      "kjjjjejjjjjjjjAj",
+      "kjjjjjAjjjejjjjj",
+      "kjejjjjjjjjAjjjk",
+      "kjjAjjjjjjjjjjjk",
+      "kjjjjjjjjjjjjjjk",
+      ".kkkkkjjjjjkkkk."
+    ]},
+    "tiles": {"rows": [
+      "kkkkkkkkkkkkkkkk",
+      "rrrrrrrrrrrrrrrr",
+      "QqqqQqqqQqqqQqqq",
+      "QqqqQqqqQqqqQqqq",
+      "QqqqQqqqQqqqQqqq",
+      "QqqqQqqqQqqqQqqq",
+      "QqqqQqqqQqqqQqqq",
+      "kkkkkkkkkkkkkkkk",
+      "................",
+      "................",
+      "................",
+      "................",
+      "................",
+      "................",
+      "................",
+      "................"
+    ]},
+    "halftrack": {"team": "allies", "rows": [
+      "................................................",
+      "................................................",
+      "................................................",
+      "................................................",
+      "................................................",
+      "........kkkk.....kkkk...kkkk..kk................",
+      ".......kTLTTk...kTLTTk.kTLTTkkAAk...............",
+      "......kTTTTTTk.kTTTTTTkTTTTTTkAAk...............",
+      "......kkkkkkkk.kkkkkkkkkkkkkkkAAk...............",
+      "......kskssksk.kskssksksksskskAAkkkkkkkkkkkk....",
+      "......ksskkssk.ksskkssksskksskAAaaaaaaaaaaaak...",
+      "....kkkkkkkkkkkkkkkkkkkkkkkkkkAAaaaaaaaaaaaakk..",
+      "...keeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeAAk.",
+      "...kaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaAAk.",
+      "...kaaaaaaaaaaaaaaawaaaaaaaaaaaaaaaaaaaaaaaaAAk.",
+      "...kaaaaaaaaaaaaawwwwwaaaaaaaaaaaaaaaaaaaaaaAAk.",
+      "...kaaaaaaaaaaaaaawwwaaaaaaaaaaaaaaaaaaaaaaaAAk.",
+      "...kaaaaaaaaaaaaaawawaaaaaaaaaaaaaaaaaaaaaaaAAk.",
+      "...kaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaxxxaaaaAAk.",
+      "...kaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaxxxxxxxaakk..",
+      "...kxxxGGGxxxGGGxxxGGGxxxGGGxxkkkkkxxxxxxxkk....",
+      "...kxxGGGGGxGGGGGxGGGGGxGGGGGxk..kxxxxGxxxxk....",
+      "...kxxGGGGGxGGGGGxGGGGGxGGGGGxk..kxxxGGGxxxk....",
+      "...kxxGGGGGxGGGGGxGGGGGxGGGGGxk..kxxxxGxxxxk....",
+      "...kxxxGGGxxxGGGxxxGGGxxxGGGxxk...kxxxxxxxk.....",
+      "....kkkkkkkkkkkkkkkkkkkkkkkkkk....kxxxxxxxk....."
+    ]},
+    "c47": {"team": "allies", "rows": [
+      "..kaaak.....................................................",
+      "..kaaak.....................................................",
+      "..kaaaek....................................................",
+      "..kaaaak....................................................",
+      "..kaaaaek......................................G............",
+      "..kaaaaak...................................................",
+      "..kaaaaaek........kkkkkkkkkkkkkkkkkkkkkkkkk....G............",
+      "..kaaaaaak.kkkkkkkeeeeeeeeeeeeeeeeeeeeeeeeekkkkkkk..........",
+      "..kaaaaaaekeeeeeeeaaaaaaaaaaaaaaaaaaaaaaaaaeeeeGeekkkkkk....",
+      "..kaaaaaaaeaaaaaaaaaaUUUaaaaaaaaaaaaaaaaxxxxxxaaaaeeevvvk...",
+      ".kkkkaaaaaaaaaAAAaaaUUUUUvaaaavaaaavaaaaxxxxxxaGaaaaavvvk...",
+      "kAAAAAAAAAAAaaAAAaaaUwwwUaaaaaaaaaaaaaaaxxxxxxaaaaaaaaaaak..",
+      "kAAAAAAAAAAAaaAAAaaaUUUUUaaaaawwkkwwkkwwxxxxxxaGaaaaaaaak...",
+      ".kkkkkkaaaaaaaAAAaaaaUUUaaaaAAwwkkwwkkwwxxxxxxaaaaaaaakk....",
+      ".......kkkkaaaAAAaaaaaaaaaaaAAwwkkwwkkwwxxxxxxaGaakkkk......",
+      "...........kkkkkkkaaaaaaaaaaAAwwkkwwkkwwAAAAAAkkkk..........",
+      "..................kkkkkkkkkkkkkk..kk..kkkkkkkk.G............",
+      "............................................................",
+      "...............................................G............",
+      "............................................................",
+      "............................................................",
+      "............................................................"
+    ]},
+    "battleship": {"rows": [
+      "......................kGGk..........................",
+      "......................kGGk..........................",
+      ".....................kggggk.........................",
+      ".....................kggggk.........................",
+      ".....................kggggk.........................",
+      ".....................kggggk.........................",
+      "..................kkkkggggkkkk......................",
+      ".................kggggggggggggk.....................",
+      "........kkkkkk...kggggggggggggk...kkkkkk..kkkkkk....",
+      ".......kGGGGGGkkkkggggggggggggk..kGGGGGGkkGGGGGGkkkk",
+      ".......kGGGGGGxxxxxxggggggggggk..kGGGGGGxxGGGGGGxxxx",
+      "..kkkkkkGGGGGGkkkkggggggggggggkkkkGGGGGGkkGGGGGGkGGk",
+      ".kggggggggggggggggggggggggggggggggggggggggggggggGgk.",
+      ".kGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGk.",
+      ".kGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGk.",
+      ".kGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGk.",
+      ".kGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGk.",
+      ".kUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUk.",
+      ".kUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUk.",
+      "..kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk.."
+    ]},
+    "p47": {"team": "allies", "rows": [
+      "...kk.....................................",
+      "..kaak................kkkkk...............",
+      "..kaaak..............kvvvvvk............G.",
+      "..kaaak.............kvvwvvvvk....kkkkk....",
+      "..kaaaek.....kkkkkkkkvvvvvvvk...keeeeek.G.",
+      "..kaaaak.kkkkeeeeeeeevvvvvvvkkkkkaaaaxxk..",
+      "..kaaaaekeeeeaaaaaaaaavvvvvaeeeekaaaaxxkG.",
+      "..kaaaaaeaaUUUaaaaaaaaaaaaaaaaaaeaaaaxxk..",
+      ".kkkkaaaaaUUUUUaaaaaaaaaaaaaaaaaaaaaaxxkG.",
+      "kAAAAAAAAAUwwwUaaaaaaaaaaaaaaaaaaaaaaxxk..",
+      ".kkkkaaaaaUUUUUaaaaaaaaaaaaaaaaaaaaaaxxkG.",
+      ".....kkaaaaUUUAwwkkwwkkwwAAAaaaaaaaaaxxk..",
+      ".......kkaaaaaAwwkkwwkkwwAAAaaaakaaaaxxkG.",
+      ".........kkkkaaaxxxxxxaaaaaakkkkkaaaaak...",
+      ".............kkkxxxxxxkkkkkk.....kkkkk..G.",
+      "................kkkkkk....................",
+      "........................................G.",
+      ".........................................."
+    ]},
+    "b26": {"team": "allies", "rows": [
+      "..kaaek...................................................",
+      "..kaaak...................................................",
+      "..kaaaek..................................................",
+      "..kaaaak..................................................",
+      "..kaaaaek.................................................",
+      "..kaaaaak.....................G.......kkkkG...............",
+      "..kaaaaaek...........................kvvvvvk..............",
+      "..kaaaaaakkkkkkkkkkkkkkkkkkkkkGkkkkkkvvvvvGvkkkkkkkkkkk...",
+      "..kaaaaaaeeeeUUUeeeeeeeeeeeeeeeeeeeeeevvvvveeeeeeeevwvvk..",
+      "..kaaaaaaaaaUUUUUaaaaAAAAAAAAxGaaAAAAAAAAxGaaaaaaaavvvvk..",
+      ".kkkkaaaaaaaUwwwUaaaaAAAAAAAAxaaaAAAAAAAAxaaaaaaaaavvvvk..",
+      "kAAAAAAAAAAaUUUUUaaaaAAAAAAAAxGaaAAAAAAAAxGaaaaaaaavvvvk..",
+      "kAAAAAAAAAAaaUUUaaAAAAAAAAAAAxAAAAAAAAAAAxaaaaaaaaaakkk...",
+      ".kkkkkkkkkkkkkkkkkAAAAAAAAAAAxGAAAAAAAAAAxGkkkkkkkkk......",
+      "..................kkkkkkkkkkkkkkkkkkkkkkkk................",
+      "..............................G...........G...............",
+      "..........................................................",
+      "..............................G...........G...............",
+      "..........................................................",
+      "..........................................................",
+      "..........................................................",
+      ".........................................................."
+    ]},
+    "v1_ramp": {"rows": [
+      "......................................................",
+      "......................................................",
+      "......................................................",
+      ".........................kkkkkkkkkkk..................",
+      "........................kxxxxxxxxxxxkk................",
+      "........................kxxxxxxxxxxx9ok...............",
+      "............kkk..kkkkkkkkkkkkkkGGkkkkk................",
+      "kkkk.......kgggkkgggggggggggggkGGk....................",
+      "GGGGkkkkk.kgggggggggggggggggggGGGk....................",
+      "GGGGGGGGGkkgggggggggggggggggggGGGgk...................",
+      "kkkGGGxxGGGgggggggggggggggggggGGGk....................",
+      "...kkkxxGGGGgggxGgggGGGGGGGGggkkk.....................",
+      ".....kxxkkkkkGxxGGGGGGGGkkkkkk........................",
+      ".....kxxk....kxxkkGGGGxxGGGGGkkkkk....................",
+      ".....kxxk....kxxk.kkkkxxGGGGGGxxGGkkkkk...............",
+      ".....kxxk....kxxk....kxxkkkkGGxxGGGGGGGkkkkk..........",
+      ".....kxxk....kxxk....kxxk...kkxxkGGGGGxxGGGGkkkkk.....",
+      "kkkkkkxxkkkkkkxxkkkkkkxxkkkkkkxxkkkkkkxxGGGGGGGGGkkkkk",
+      "pppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+      "pppppppppppppppppppppppppppppppppppppppppppppppppppppp"
+    ]},
+    "howitzer_de": {"team": "axis", "pal": {"a": "#6d7871", "A": "#4a534e", "e": "#9aa49d"}, "rows": [
+      ".kkk....................................",
+      "kAAAk...................................",
+      "kAAAkk.............kkk..................",
+      "kAAAaakkk.........kaaak.................",
+      ".kkaaaaaakkk......kaaak.................",
+      "...kkaaaaaaakk.....kaaak................",
+      ".....kkkaaaaaakkk..kaaak................",
+      "........kkkaaaaaakkkaaak................",
+      "...........kkaaaaaakaaakkkkkkkk.........",
+      ".............kkkaaaaaaaAAAAAAAAk........",
+      "................kkaaaaaAxxxAAAAk........",
+      ".................kAAaaxxxxxxxAAk........",
+      "..................kkaaxxGGGxxkk.........",
+      "...................kaxxGGGGGxxk.........",
+      "...................kaxxGGgGGxxkkk.......",
+      "....................kxxGGGGGxxAAAkkk....",
+      ".....................kxxGGGxxAAAAAAAkk..",
+      ".....................kxxxxxxxkkkAAAAAAk.",
+      "......................kkxxxkk...kkkAAAk.",
+      "........................kkk........kkk.."
+    ]},
+    "testudo": {"team": "romans", "rows": [
+      "..........................................",
+      "......kkkkkk.kkkkkk.kkkkkk.kkkkkk.kkkkkk..",
+      ".....kyyyyyykyyyyyykyyyyyykyyyyyykyyyyyyk.",
+      ".....kTTTTTTkTTTTTTkTTTTTTkTTTTTTkTTTTTTk.",
+      ".....kTTTTTTkTTTTTTkTTTTTTkTTTTTTkTTTTTTk.",
+      ".....kTTyyTTkTTyyTTkTTyyTTkTTyyTTkTTyyTTk.",
+      ".....kTTTTTTkTTTTTTkTTTTTTkTTTTTTkTTTTTTk.",
+      "...kkkTTTTTTkTTTTTTkTTTTTTkTTTTTTkTTTTTTk.",
+      "..kyyyyyykyyyyyykyyyyyykyyyyyykyyyyyykkk..",
+      "..kTTTTTTkTTTTTTkTTTTTTkTTTTTTkTTTTTTk....",
+      "..kTTTTTTkTTTTTTkTTTTTTkTTTTTTkTTTTTTk....",
+      "..kTTyyTTkTTyyTTkTTyyTTkTTyyTTkTTyyTTk....",
+      "..kTTTTTTkTTTTTTkTTTTTTkTTTTTTkTTTTTTk....",
+      "..kTTTTTTkTTTTTTkTTTTTTkTTTTTTkTTTTTTk....",
+      "..kyyyyyykyyyyyykyyyyyykyyyyyykyyyyyyk....",
+      "..kTTTTTTkTTTTTTkTTTTTTkTTTTTTkTTTTTTk....",
+      "..kTTTTTTkTTTTTTkTTTTTTkTTTTTTkTTTTTTk....",
+      "..kTTyyTTkTTyyTTkTTyyTTkTTyyTTkTTyyTTk....",
+      "..kTTTTTTkTTTTTTkTTTTTTkTTTTTTkTTTTTTk....",
+      "..kTTTTTTkTTTTTTkTTTTTTkTTTTTTkTTTTTTk....",
+      "...kkkkkskskkkkkkskskkk.kksksk.kkkksk.....",
+      ".......ksksk....ksksk....ksksk....ksk.....",
+      ".......ksksk....ksksk....ksksk....ksk.....",
+      ".......kBkBk....kBkBk....kBkBk....kBk....."
+    ]},
+    "hoplite": {"team": "greeks", "rows": [
+      "....kkrrrrkk.kgk",
+      "...krrrrrrrrkkgk",
+      "...kkVVVVVVkkkbk",
+      "..kVyVVVVVVVVkbk",
+      "..kVyVVVVVVVVkbk",
+      ".kVVVVVVVVVVVVbk",
+      "kVksksssssskskbk",
+      ".kksskksskksskbk",
+      "..ksswksskwsskbk",
+      "..ksssssssssskbk",
+      ".kTTTskkkkssskbk",
+      "kTTTTTssssksSkbk",
+      "TTTVTTTkkkkkkkbk",
+      "TTVVVTTVVWVVkkbk",
+      "TTTVTTTVVVVkskbk",
+      "kTTTTTTkTkTkkkbk",
+      ".kTTTsk.kksskkbk",
+      "..kBBBk..kBBBkk."
+    ]},
+    "archimedes": {"team": "greeks", "rows": [
+      "................",
+      "................",
+      ".....kkkkkk.k...",
+      "...kksswsssksk..",
+      "..kssssssssskk..",
+      ".k88kkkkkkkk88k.",
+      "k8kskssssssksk8k",
+      ".kksskksskksskkk",
+      "..ksswksskwssgkg",
+      "..ks88888888sgkg",
+      "..k888kkkk888kgk",
+      "..k8888888888kgk",
+      "...k88888888kgkg",
+      "...kTTTTTTTTkgkg",
+      "..kskTTTTTTkgk.k",
+      "...kTTTTTTTTk...",
+      "...kTTTTTTTTk...",
+      "..kkBBkkkkBBkk.."
+    ]},
+    "claw": {"team": "greeks", "rows": [
+      "................................",
+      "kkk.............................",
+      "bbbkkkk.........................",
+      "bcbbbbbkkk......................",
+      "kcbbbbbbbbkkkk..................",
+      "kckkkkbbbbbbbbkkkk.......kkkk...",
+      "kck...kkkbbbbbbbbbkkk...kbbbck..",
+      "kck......kkkkbbbbbbbbkkkkbbbck..",
+      "kck..........kkkkbbbbbbbbbbbck..",
+      "kck..............kkkbbbbbbbbck..",
+      "kck.................kkkkbbbbck..",
+      "kck.....................kbbbck..",
+      "kck.....................kbbbck..",
+      "kck.................kkkkkbbbck..",
+      "kck................kBBBBBBbbck..",
+      "kck................kBcccBBbbck..",
+      "kck................kcccccBbbck..",
+      "kck................kcccccBbbck..",
+      "kck................kcccccBbbck..",
+      "kckkk..............kBcccBBbbck..",
+      "XXXXXk..............kkkkkbbbck..",
+      "XXXXXk..................kbbbck..",
+      "kkkkXk..................kbbbck..",
+      "...kXk..................kbbbck..",
+      "....k...................kbbbck..",
+      "........................kbbbck..",
+      "........................kbbbck..",
+      "........................kbbbck..",
+      "........................kbbbck..",
+      "......................kkkbbbckkk",
+      ".....................kBBBBBBBBBB",
+      ".....................kBBBBBBBBBB",
+      ".....................kBBBBBBBBBB",
+      ".....................kBBBBBBBBBB"
+    ]},
+    "miner": {"team": "english", "rows": [
+      ".....kkkkkk.....",
+      "....kglggggk....",
+      "...kgllggggGk...",
+      "...kgggggggGk...",
+      "kkkGGGGGGGGGGkkk",
+      ".kkkkkkkkkkggggg",
+      "kGkskssssssgskbk",
+      ".kksskksskksskbk",
+      "..ksskksskwsskbk",
+      "..ksssssssssskbk",
+      "..kssskkkkssskbk",
+      "..kSskssssksSkbk",
+      "...kkkkkkkkkkkbk",
+      "...kLLLTTLLLkkbk",
+      "..kskTTTTTTkskbk",
+      "...kLLLTTLLLkkbk",
+      "...kGGkkkkGGkkbk",
+      "..kBBBk..kBBBkk."
+    ]},
+    "xbow_english": {"team": "english", "rows": [
+      ".....kkkkkk.........",
+      "....kglggggk........",
+      "...kgllggggGk.......",
+      "...kgggggggGk.......",
+      "kkkGGGGGGGGGGkkk....",
+      ".kkkkkkkkkkkkkk.....",
+      "kGksksssssskskGk....",
+      ".kksskksskksskk.....",
+      "..ksskksskwssk......",
+      "..kssssssssssk......",
+      "..kssskkkksssk......",
+      "..kSskssssksSk....kk",
+      "...kkkkkkkkkk....kGG",
+      "...kLLLTTLLLkkkkkkGk",
+      "..kskTTTTTbbbbbbbbGb",
+      "...kLLLTTLLLkkkkkkGk",
+      "...kGGkkkkGGk....kGG",
+      "..kBBBk..kBBBk....kk"
+    ]},
+    "barge": {"team": "english", "rows": [
+      "..................................................",
+      "..................................................",
+      "..................................................",
+      "..................................................",
+      "..................................................",
+      "............kkkk........kkkk........kkkk..........",
+      "...........kglggk......kglggk......kglggk.........",
+      "..........kGGGGGGk....kGGGGGGk....kGGGGGGk........",
+      "..........kkkkkkkk....kkkkkkkk....kkkkkkkk........",
+      "..........kskssksk....kskssksk....kskssksk........",
+      "..........ksskkssk....ksskkssk....ksskkssk........",
+      "....kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk....",
+      "...kcccccccccccccccccccccccccccccccccccccccccck...",
+      "...kbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbk...",
+      "...kbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbk...",
+      "...kbbbbBBBBbbbBBBBbbbBBBBbbbBBBBbbbBBBBbbbBBbBk..",
+      "...kbkkkbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbkkkbk..",
+      "..kbk..kbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbk..kbk.",
+      "..kbk...kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk...kbk.",
+      ".kbk...........................................kbk",
+      "kbk.............................................kb",
+      ".k...............................................k"
+    ]},
+    "mangonel": {"team": "romans", "rows": [
+      "..................................",
+      "..................................",
+      "..................................",
+      "..................................",
+      "..................................",
+      "..........kkkkkkkkk..........kkk..",
+      ".........kccccccccck........knnnk.",
+      "........kBBBBBBBBBBk.......knnnmnk",
+      "........kBBBBBBBBBBk.......knnnnnk",
+      ".........kkkbbbkkkk........knnnnnk",
+      "...........kbbbk............knnnk.",
+      "...........kbbbk...........kBBBk..",
+      "...........kbbbk..........kBBBk...",
+      "...........kbbbk.........kBBBk....",
+      "...........kbbbk....kkkkkBBBk.....",
+      "...........kbbbk...kccccBBBk......",
+      "...........kbbbk...kCCCBBBCk......",
+      "...........kbbbk...kCCBBBCCk......",
+      "..kkkkkkkkkkbbbkkkkkCCBBCCCkkkkkk.",
+      ".kccccccccccbbbcccccccccccccccccck",
+      ".kbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbk",
+      ".kbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbk",
+      "..kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk.",
+      ".................................."
+    ]},
+    "axeman": {"team": "continental", "rows": [
+      "................",
+      "................",
+      "......kkkk......",
+      "..kkkkxxxxkkkkkk",
+      ".kxxxxxxxxxxxggg",
+      "kxxxkkkkkkkkxggg",
+      ".kkskssssssksggg",
+      "..ksskksskkssggg",
+      "..ksswksskwsskbk",
+      "..ksssssssssskbk",
+      "..kssskkkkssskbk",
+      "..kSsskrrkssSkbk",
+      "...kkkkkkkkkkkbk",
+      "...kTL1111LTkkbk",
+      "..kskTL11LTkskbk",
+      "...kT111111Tkkbk",
+      "...k11kkkk11kkbk",
+      "..kxxxk..kxxxkk."
+    ]},
+    "proj_grape": {"rows": [
+      "..k..",
+      ".kXk.",
+      "kXXXk",
+      ".kXk.",
+      "..k.."
+    ]},
+    "brunswicker": {"team": "redcoats", "pal": {"T": "#2b3f7a", "t": "#1b2a54"}, "rows": [
+      ".............kgk",
+      ".............kgk",
+      "......kkkk...kxk",
+      "..kkkkxxxxkkkkxk",
+      ".kxxxxxxxxxxxxxk",
+      "kxxxkkkkkkkkxxxk",
+      ".kksksssssskskxk",
+      "..ksskksskksskxk",
+      "..ksswksskwsskxk",
+      "..ksssssssssskxk",
+      "..kssskkkkssskxk",
+      "..kSskssssksSkxk",
+      "...kkkkkkkkkkkxk",
+      "...k1TTTTTT1kkbk",
+      "..kskT1TT1Tkskbk",
+      "...kTTT11TTTkkbb",
+      "...k11kkkk11kkbb",
+      "..kxxxk..kxxxkkk"
+    ]},
+    "breymann": {"team": "redcoats", "pal": {"T": "#2b3f7a", "t": "#1b2a54"}, "rows": [
+      "................",
+      "................",
+      "......kkkk......",
+      "..kkkkxxxxkkkk..",
+      ".kyyyyyyyyyyyyk.",
+      "kxxykkkkkkkkyxxk",
+      "klkskssssssksklk",
+      ".kksskksskksskk.",
+      "..ksswksskwsskk.",
+      "..ksssssssssskgk",
+      "..kssskkkkssskgk",
+      "..kSskssssksSkgk",
+      ".kkkkkkkkkkkkkgk",
+      "kyyk1TTTTTT1kyyy",
+      ".kkskT1yy1Tkskgk",
+      "...kTTT11TTTkkgk",
+      "...k11kkkk11kkgk",
+      "..kxxxk..kxxxkk."
+    ]},
+    "pirate": {"team": "pirates", "rows": [
+      "................",
+      "................",
+      "....kkkkkkkk....",
+      "...kTTLTTTLTkkk.",
+      "..kTTTTTTTTTkTTk",
+      "..kkkkkkkkkkkkkk",
+      "..kskssssssksk.k",
+      "..ksskksskksskkl",
+      "..ksswksskwsskkl",
+      "..ksshhhhhhssklk",
+      "..ksskwwwwkssklk",
+      "..kSsskkkkssSklk",
+      "...kkkkkkkkkkklk",
+      "...k1T1T1T1Tklk.",
+      "..ksk1T1T1Tkylyk",
+      "...kxxxyxxxxkkk.",
+      "...k22kkkk22k...",
+      "..kBBBk..kBBBk.."
+    ]},
+    "captain": {"team": "pirates", "rows": [
+      ".k............k.",
+      "k9k..........k9k",
+      "ok....kkkk....ko",
+      "k.kkkkxxxxkkkk.k",
+      ".kxxxxxwwxxxxxk.",
+      "kxxxkkkkkkkkxxxk",
+      ".kksksssssskskk.",
+      "..ksskksskkssk..",
+      "..ksswksskwssk..",
+      "..ksxxxxxxxxsk..",
+      "..kxxxkkkkxxxk..",
+      "..kxxxxxxxxxxk..",
+      "...kxxxxxxxxkkkk",
+      "...kTy1111yTkxxx",
+      "..kskT1111TksBkk",
+      "...kTTxyxxTTkk..",
+      "...kTTkkkkTTk...",
+      "..kBBBk..kBBBk.."
+    ]},
+    "buccaneer": {"team": "pirates", "rows": [
+      "................",
+      ".....kkkkkk...k.",
+      "....kBBBBBBk.kxk",
+      "..kkkBbBBBBkkkxk",
+      ".kBBBBBBBBBBBBxk",
+      ".kkkkkkkkkkkkkxk",
+      "..ksksssssskskxk",
+      "..ksskksskksskxk",
+      "..ksskksskwsskxk",
+      "..ksshhhhhhsskxk",
+      "..kssskkkkssskxk",
+      "..kSskssssksSkxk",
+      "...kkkkkkkkkkkxk",
+      "...k1T1T1T1Tkkbk",
+      "..ksk1T1T1Tkskbk",
+      "...kxxxyxxxxkkbb",
+      "...k22kkkk22kkbb",
+      "..kBBBk..kBBBkkk"
+    ]},
+    "grenado_thrower": {"team": "pirates", "rows": [
+      "................k9",
+      "...............kbk",
+      "....kkkkkkkk..kXXX",
+      "...kTTLTTTLTkkXXXX",
+      "..kTTTTTTTTTkTXXXX",
+      "..kkkkkkkkkkkkXXXX",
+      "..ksksssssskskkXXX",
+      "..ksskksskksskkskk",
+      "..ksswksskwssksk..",
+      "..kssssssssssksk..",
+      "..kssskkkksssksk..",
+      "..kSsskrrkssSksk..",
+      "...kkkkkkkkkksk...",
+      "...k1T1T1T1Tksk...",
+      "..ksk1T1T1Tksk....",
+      "...kxxxyxxxxk.....",
+      "...k22kkkk22k.....",
+      "..kBBBk..kBBBk...."
+    ]},
+    "proj_grenado": {"rows": [
+      "...k9k.",
+      "..kbk..",
+      ".kXXXk.",
+      "kXGXXXk",
+      "kXXXXXk",
+      "kXXXXXk",
+      ".kXXXk.",
+      "..kkk.."
+    ]},
+    "longboat": {"team": "pirates", "rows": [
+      "..............................................",
+      "..............................................",
+      "..............................................",
+      "..............................................",
+      "..............................................",
+      "..........kkkk.......kkkk.......kkkk..........",
+      ".........kTLTTk.....kTLTTk.....kTLTTk.........",
+      "........kTTTTTTk...kTTTTTTk...kTTTTTTk........",
+      "........kkkkkkkk...kkkkkkkk...kkkkkkkk........",
+      "........kskssksk...kskssksk...kskssksk........",
+      "........ksskkssk...ksskkssk...ksskkssk........",
+      "...kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk...",
+      "..kcccccccccccccccccccccccccccccccccccccccck..",
+      "..kbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbk..",
+      "...kkkBBBBbbBbBBbbBBBBbbBBBbbbBBBBbbBBBBbkk...",
+      ".....kbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbk....",
+      "......kkkbbbbbbbbbbbbbbbbbbbbbbbbbbbbbkkk.....",
+      "........kbbbbbbbbbbbbbbbbbbbbbbbbbbbbbk.......",
+      "........kbkkkkkkkkkkkkkbkkkkkkkkkkkkkk........",
+      ".......kbk...........kbk......................"
+    ]},
+    "pirate_ship": {"rows": [
+      "........................kxxxxxxxxk..............",
+      ".......................kkxxxwwxxxk..............",
+      "......................kbbxxxwwxxxk..............",
+      "......................kbbxxwxxwxxk..............",
+      "......................kbbxxxxxxxxk..............",
+      ".............kkkkkkkkkkbbkkkkkkkkkk.............",
+      "............kbbbbbbbbbbbbbbbbbbbbbbk............",
+      ".............k11111111111111111111k.............",
+      ".............k11111111111111111111k.............",
+      ".............k11111111111111111111k.............",
+      ".............k11111111111111111111k.............",
+      ".............k11111111111111111111k.............",
+      ".............k11111111111111111111k.............",
+      ".............k11111111111111111111k.............",
+      ".............k11111111111111111111k.............",
+      ".............k22222222222222222222k.............",
+      "..............kbbbbbbbbbbbbbbbbbbk..............",
+      "...............k1111111111111111k...............",
+      "...............k1111111111111111k...............",
+      "...............k1111111111111111k...............",
+      "...............k1111111111111111k...............",
+      "...............k1111111111111111k...............",
+      "...............k1111111111111111k...............",
+      "...............k1111111111111111k..............k",
+      "...............k1111111111111111k.............kb",
+      "...............k1111111111111111k.............kb",
+      "...............k2222222222222222k............kbk",
+      "....kkkkkkkkkkkkkkkkkkkbbkkkkkkkkkkkkkkkkkkkkkbk",
+      "...kcccccccccccccccccccccccccccccccccccccccccbk.",
+      "....kBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBbk.",
+      "...kBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBk.",
+      "...kBByyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyBBk.",
+      "...kBBBBBBBBBBxxxBBBBBxxxBBBBBxxxBBBBBxxxBBBBBk.",
+      "...kBBBBBBBBBBxxxBBBBBxxxBBBBBxxxBBBBBxxxBBBBBk.",
+      "....kkkkkkkBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBkkkk..",
+      "..........kBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBk.....",
+      "...........kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk......",
+      "................................................",
+      "................................................",
+      "................................................"
+    ]},
+    "pirate_fireship": {"rows": [
+      "........................kxxxxxxxxk..............",
+      ".......................kkxxxwwxxxk..............",
+      "......................kbbxxxwwxxxk..............",
+      "......................kbbxxwxxwxxk..............",
+      "......................kbbxxxxxxxxk..............",
+      ".............kkkkkkkkkkbbkkkkkkkkkk.............",
+      "............kbbbbbbbbbbbbbbbbbbbbbbk............",
+      ".............k11191111111111111111k.............",
+      ".............k111yy111111191111111k.............",
+      ".............k191yy111111199111111k.............",
+      ".............k19911111111199191111k.............",
+      ".............k199111911111111yy111k.............",
+      ".............k111111oo1111111yy111k.............",
+      ".............k111111oo111111111911k.............",
+      ".............k11111111111111111991k.............",
+      ".............k22222222222222222992k.............",
+      "..............kbbbbbbbbbbbbbbbbbbk..............",
+      "...............k1111111111111111k...............",
+      "...............k1111111111191111k...............",
+      "...............k11911111111yy111k...............",
+      "...............k11oo1111111yy111k...............",
+      "...............k11oo119111111111k...............",
+      "...............k1111119911111191k...............",
+      "...............k1111119911111199k...k..........k",
+      "............k..k1111111111111199k..k9k........kb",
+      "...........k9k.k1111111111111111k..kook.k.....kb",
+      "...........k99kk2222222222222222k..kookk9k...kbk",
+      "....kkkkkkkk99kkkkkkkkkbbkkkkkkkkkkkkkkk99kkkkbk",
+      "...kcccccccccccccccccccccccccccccccccccc99cccbk.",
+      "....kBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBbk.",
+      "...kBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBk.",
+      "...kBByyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyBBk.",
+      "...kBBBBBBBBBBxxxBBBBBxxxBBBBBxxxBBBBBxxxBBBBBk.",
+      "...kBBBBBBBBBBxxxBBBBBxxxBBBBBxxxBBBBBxxxBBBBBk.",
+      "....kkkkkkkBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBkkkk..",
+      "..........kBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBk.....",
+      "...........kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk......",
+      "................................................",
+      "................................................",
+      "................................................"
+    ]},
+    "spanish_soldier": {"team": "spanish", "rows": [
+      "......kkkk..kggg",
+      ".....kglggkkgggg",
+      "....kglllggkkkbk",
+      "kk..kgggggGk.kbk",
+      "kgkkgggggggGkkbk",
+      ".kggkkkkkkkkggbk",
+      "..ksksssssskskbk",
+      "..ksskksskksskbk",
+      "..ksswksskwsskbk",
+      "..ksshhhhhhsskbk",
+      "..kssskkkkssskbk",
+      "..kSskssssksSkbk",
+      "...kkkkkkkkkkkbk",
+      "...kgllggggGkkbk",
+      "..kskgLLLLgkskbk",
+      "...kTTTTTTTTkkbk",
+      "...kTTkkkkTTkkbk",
+      "..kBBBk..kBBBkk."
+    ]},
+    "spanish_musketeer": {"team": "spanish", "rows": [
+      "......kkkk......",
+      ".....kglggk.....",
+      ".k..kglllggk....",
+      "kxk.kgggggGk..kk",
+      "kxkkgggggggGkkgk",
+      "kxggkkkkkkkkggk.",
+      "kxkskssssssksk..",
+      "kxksskksskkssk..",
+      "kxksskksskwssk..",
+      "kxksshhhhhhssk..",
+      "kxkssskkkksssk..",
+      "kxkSskssssksSk..",
+      "kxkkkkkkkkkkk...",
+      "bbkkgllggggGk...",
+      "bbkskgLLLLgksk..",
+      "bbkkTTTTTTTTk...",
+      "kxkkTTkkkkTTk...",
+      ".kkBBBk..kBBBk.."
+    ]},
+    "spanish_captain": {"team": "spanish", "rows": [
+      ".........krrk...",
+      "....kkkkkrrk....",
+      "...kxxxxxxxk....",
+      "...kxxxxxxxk....",
+      ".kkxxxxxxxxxkkk.",
+      "kxxxxxxxxxxxxxxk",
+      ".kksksssssskskkl",
+      "..ksskksskksskkl",
+      "..ksswksskwsskkl",
+      "..ksshhhhhhssklk",
+      "..khsskkkksshklk",
+      "..kSskssssksSklk",
+      "...kkkkkkkkkkklk",
+      "...kxyxxxxyxklk.",
+      "..kskxLLLLxkyyyk",
+      "...kxyxxxxyxkkk.",
+      "...kxxkkkkxxk...",
+      "..kBBBk..kBBBk.."
+    ]},
+    "sailor": {"team": "navy", "rows": [
+      "................",
+      "................",
+      ".....kkkkkk.....",
+      "....kTTTTTTk....",
+      "...kTTTTTTTTk...",
+      "..kkkkkkkkkkkk..",
+      "..kskssssssksk.k",
+      "..ksskksskksskkl",
+      "..ksswksskwsskkl",
+      "..kssssssssssklk",
+      "..kssskkkksssklk",
+      "..kSskssssksSklk",
+      "...kkkkkkkkkkklk",
+      "...kTT1111TTklk.",
+      "..kskTT11TTkylyk",
+      "...kTTTTTTTTkkk.",
+      "...k11kkkk11k...",
+      "..kxxxk..kxxxk.."
+    ]},
+    "navy_musket": {"team": "navy", "rows": [
+      "................",
+      "................",
+      ".k...kkkkkk.....",
+      "kxk.kTTTTTTk....",
+      "kxkkTTTTTTTTk...",
+      "kxkkkkkkkkkkkk..",
+      "kxkskssssssksk..",
+      "kxksskksskkssk..",
+      "kxksskksskwssk..",
+      "kxkssssssssssk..",
+      "kxkssskkkksssk..",
+      "kxkSskssssksSk..",
+      "kxkkkkkkkkkkk...",
+      "bbkkTT1111TTk...",
+      "bbkskTT11TTksk..",
+      "bbkkTTTTTTTTk...",
+      "kxkk11kkkk11k...",
+      ".kkxxxk..kxxxk.."
+    ]},
+    "maynard": {"team": "navy", "rows": [
+      "................",
+      "................",
+      "......kkkk......",
+      "..kkkkxxxxkkkk..",
+      ".kyyyyyyyyyyyyk.",
+      "kxxykkkkkkkkyxxk",
+      ".kksksssssskskkl",
+      "..ksskksskksskkl",
+      "..ksswksskwsskkl",
+      "..kssssssssssklk",
+      "..kssskkkksssklk",
+      "..kSskssssksSklk",
+      ".kkkkkkkkkkkkklk",
+      "kyyk1TTTTTT1klyk",
+      ".kkskTyTTyTkyyyk",
+      "...kTTTTTTTTkkk.",
+      "...k11kkkk11k...",
+      "..kxxxk..kxxxk.."
+    ]},
+    "hull": {"rows": [
+      "kkkkkkkkkkkkkkkk",
+      "cccccccccccccccc",
+      "bbbbbbbbbbbbbbbb",
+      "bbbbkkkkkkbbbbbb",
+      "bbbbkXXXXkbbbbbb",
+      "bbbbkXXXXkbbbbbb",
+      "BBBBkkkkkkBBBBBB",
+      "yyyyyyyyyyyyyyyy",
+      "BBBBBBBBBBBBBBBB",
+      "bbbbbbbbbbbbbbbb",
+      "BBBBBBBBBBBBBBBB",
+      "bbbbbbbbbbbbbbbb",
+      "BBBBBBBBBBBBBBBB",
+      "bbbbbbbbbbbbbbbb",
+      "BBBBBBBBBBBBBBBB",
+      "kkkkkkkkkkkkkkkk"
+    ]},
+    "hull_bow": {"rows": [
+      "kkkkkkkkkkkkkkkk",
+      "kccccccccccccccc",
+      "kbbbbbbbbbbbbbbb",
+      "kbbbbbbbbbbbbbbb",
+      "kbbbbbbbbbbbbbbb",
+      ".kbbbbbbbbbbbbbb",
+      "..kBBBBBBBBBBBBB",
+      "...kyyyyyyyyyyyy",
+      "...kBBBBBBBBBBBB",
+      "....kbbbbbbbbbbb",
+      ".....kBBBBBBBBBB",
+      "......kbbbbbbbbb",
+      "......kBBBBBBBBB",
+      ".......kbbbbbbbb",
+      "........kBBBBBBB",
+      ".........kkkkkkk"
+    ]},
+    "hull_stern": {"rows": [
+      "kkkkkkkkkkkkkkkk",
+      "ccccccccccccccck",
+      "bbbbbbbbbbbbbbbk",
+      "bbbbbbbbbbbbbbbk",
+      "bbbbbbbbbbbbbbbk",
+      "bbbbbbbbbbbbbbbk",
+      "BBBBBBBBBBBBBBk.",
+      "yyyyyyyyyyyyyyk.",
+      "BBBBBBBBBBBBBk..",
+      "bbbbbbbbbbbbbk..",
+      "BBBBBBBBBBBBk...",
+      "bbbbbbbbbbbbk...",
+      "BBBBBBBBBBBk....",
+      "bbbbbbbbbbbk....",
+      "BBBBBBBBBBBk....",
+      "kkkkkkkkkkk....."
+    ]},
+    "sail": {"rows": [
+      ".kkkkkkcbkkkkkk.",
+      "kbbbbbbcbbbbbbbk",
+      ".k11111cb11111k.",
+      ".k18888cb88881k.",
+      ".k11111cb11111k.",
+      ".k11111cb11111k.",
+      ".k18888cb88881k.",
+      ".k11111cb11111k.",
+      ".k11111cb11111k.",
+      ".k18888cb88881k.",
+      ".k11111cb11111k.",
+      ".k11111cb11111k.",
+      ".k28888cb88882k.",
+      ".k22222cb22222k.",
+      "..kkkkkcbkkkkk..",
+      "......kcbk......"
+    ]},
+    "jetpacker": {"team": "marines", "rows": [
+      "........kkkkkk.....",
+      "......kkTTTTTTkk...",
+      ".....kTTTTLLTTTTk..",
+      "....kTTTTTTTTTTTTk.",
+      "....kTvvvvvvvvvvTk.",
+      "...kTvkkkkkkkkkkvTk",
+      "kkkkTksksssssskskTk",
+      "GGGGkksskksskksskk.",
+      "GgGGkksswksskwssk..",
+      "GgGGkkssssssssssk..",
+      "GgGGkkssskkkksssk..",
+      "GgGGkkSsskrrkssSk..",
+      "GgGGk.kkkkkkkkkk...",
+      "GgGGkkTTTLLLLTTTk..",
+      "GgGGkTkTTTyyTTTkTk.",
+      "GGGGkkTTTTTTTTTTk..",
+      "9k9k..kTTkkkkTTk...",
+      "9k9k.kGGGk..kGGGk..",
+      "okyk..kkk....kkk...",
+      "kok................",
+      ".k................."
+    ]},
+    "power_suit": {"team": "marines", "rows": [
+      "........kkkkkk........",
+      "......kkTTTTTTkk......",
+      ".....kTTTTLLTTTTk.....",
+      "....kTTTTTTTTTTTTk....",
+      "....kTvvvvvvvvvvTk....",
+      "...kTvkkkkkkkkkkvTk...",
+      "...kTksksssssskskTk...",
+      "....kksskksskksskk....",
+      ".....ksswksskwssk.....",
+      ".....kssssssssssk.....",
+      ".....kssskkkksssk.....",
+      "kkkkkkSsskrrkssSkkkkkk",
+      "LLLLLkkkkkkkkkkkkLLLLL",
+      "LLLLLTTTTTTTTTTTTLLLLL",
+      "LLLLLTTT444444TTTLLLLL",
+      "LLLLLTTT444444TTTLLLLL",
+      "LLLLLTTTTTTTTTTTTLLLLL",
+      "GGGTTTTTTTTTTTTTTTTGGG",
+      "GGGTTTTTTTTTTTTTTTTGGG",
+      "GGGkGGGGGkkkkGGGGGkGGG",
+      "kkkkGGGGGk..kGGGGGkkkk",
+      "...kGGGGGk..kGGGGGk..."
+    ]},
+    "laser_gunner": {"team": "marines", "rows": [
+      ".....kkkkkk...............",
+      "...kkTTTTTTkk.............",
+      "..kTTTTLLTTTTk............",
+      ".kTTTTTTTTTTTTk...........",
+      ".kTvvvvvvvvvvTk...........",
+      "kTvkkkkkkkkkkvTk..........",
+      "kTksksssssskskTk..........",
+      ".kksskksskksskk...........",
+      "..ksskksskwssk............",
+      "..kssssssssssk............",
+      "..kssskkkkssskkkk.........",
+      "..kSskssssksxxxxxkkkkkkkk.",
+      "...kkkkkkkGGGGGGGGGGGG44wk",
+      "..kTTTLLLLGGGGGGGGGGGG44k.",
+      ".kTkTTTyyTTTkTkkkkkkkkkk..",
+      "..kTTTTTTTTTTk............",
+      "...kTTkkkkTTk.............",
+      "..kGGGk..kGGGk............"
+    ]},
+    "plasma_gunner": {"team": "marines", "rows": [
+      ".....kkkkkk.......",
+      "...kkTTTTTTkk..kkk",
+      "..kTTTTLLTTTTkk333",
+      ".kTTTTTTTTTTTT3333",
+      ".kTvvvvvvvvvvT33w3",
+      "kTvkkkkkkkkkkv3333",
+      "kTksksssssskskT333",
+      ".kksskksskksskkTkk",
+      "..ksswksskwsskTk..",
+      "..ksssssssssskTk..",
+      "..kssskkkkssskTk..",
+      "..kSsskrrkssSkTk..",
+      "...kkkkkkkkkkTk...",
+      "..kTTTLLLLTTTTk...",
+      ".kTkTTTyyTTTkTk...",
+      "..kTTTTTTTTTTk....",
+      "...kTTkkkkTTk.....",
+      "..kGGGk..kGGGk...."
+    ]},
+    "proj_laser": {"rows": [
+      "..............",
+      "44wwwwwwwwwww4",
+      "44444444444444",
+      ".............."
+    ]},
+    "proj_plasma": {"rows": [
+      "...AAA...",
+      "..A333A..",
+      ".A33333A.",
+      "A333w333A",
+      "A33www33A",
+      "A333w333A",
+      ".A33333A.",
+      "..A333A..",
+      "...AAA..."
+    ]},
+    "rover": {"team": "marines", "rows": [
+      "..k...........................................",
+      ".krk..........................................",
+      ".kGk..........................................",
+      ".kGk..........................................",
+      "..kGk.........................................",
+      "..kGk.........................................",
+      "..kGk........k....kk..........................",
+      "...kGk.....kkvkkkkvvkk....kkkkkkkkkk..........",
+      "...kGk....kvvkTLTTkvvvk..kGGGGGGGGGGkkkkkkkkk.",
+      "....kGk..kvvkTTTTTTkvvvk.kGGGGGGGGGGxxxxxxx44k",
+      "....kGk..kvvkkkkkkkkvvvk.kGGGGGGGGGGxxxxxxx44k",
+      "....kGk.kvvvksksskskvvvvkkGGGGGGGGGGkkkkkkkkk.",
+      "....kkGkkvvvksskksskvvvvkkGGGGGGGGGGkkkkkk....",
+      "...kwwGwwwwwwkkkkkkwwwwwwwwwwwwwwwwwwwwwwwk...",
+      "...kTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTk...",
+      "...kTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTk...",
+      "...kTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTk...",
+      "...kLLLLxxxLLLLLLLLLLLxxxLLLLLLLLLLLxxxLLLk...",
+      "...kLLxxxxxxxLLLLLLLxxxxxxxLLLLLLLxxxxxxxLk...",
+      "....kkxxxxxxxkkkkkkkxxxxxxxkkkkkkkxxxxxxxk....",
+      "....kxxxxGxxxxk...kxxxxGxxxxk...kxxxxGxxxxk...",
+      "....kxxxGGGxxxk...kxxxGGGxxxk...kxxxGGGxxxk...",
+      "....kxxxxGxxxxk...kxxxxGxxxxk...kxxxxGxxxxk...",
+      ".....kxxxxxxxk.....kxxxxxxxk.....kxxxxxxxk....",
+      ".....kxxxxxxxk.....kxxxxxxxk.....kxxxxxxxk....",
+      "......kkxxxkk.......kkxxxkk.......kkxxxkk....."
+    ]},
+    "dropship": {"team": "marines", "rows": [
+      "........................................................",
+      "........................................................",
+      "........................................................",
+      "........................................................",
+      "..................kkkkkkkkkkkkkkkkk.....................",
+      "....kkkkkk..kkkkkkTTTTTTTTTTTTTTTTTkkkkkk...............",
+      "...kTTTTTTkkTTTTTTTTTTTTTTTTTTTTTTTTTTTTTkkkkkk.........",
+      "kkkkTTTTTTTTTTvvvTTTvvvTTTvvvTTTvvvTTTvvvTvvvvvkk.......",
+      "GGGGTTTTTTTTTTvvvTTTvvvTTTvvvTTTvvvTTTvvvvvvvvvvvk......",
+      "9GGGTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTvvvvvvvvvk......",
+      "9GGGTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTvvvvvvvvvk......",
+      "9GGGTTTTTTLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLvvvvvTTk......",
+      "9GGGTTTTTTLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLTTTTTk......",
+      "GGGGTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTk.......",
+      "kkkkTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTkk........",
+      "...kTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTkk..........",
+      "....kkkkkkkkTTTTTTGGGGGGGGGGGGGGTTTTTTTTTkkk............",
+      "............kkkkkkGGGGGGGGGGGGGGTTTkkkkkk...............",
+      ".................kGGGGGGGGGGGGGGkkk.....................",
+      "..................kkkkkkkkkkkkkk........................",
+      "........................................................",
+      "........................................................"
+    ]},
+    "starship": {"rows": [
+      "..kkkk......................................",
+      ".kggggkkkk..................................",
+      ".kggggggggkkkk..............................",
+      ".kggggggggggggkkkkkkkk......................",
+      ".kggggggggggggvvvvvvvvk.....................",
+      ".kggggggggggggvvvvvvvvkkkk..................",
+      "kkggggggggggggggggggggggggkkkk..............",
+      "999gggggggggggggggggggggggggggkkkk..........",
+      "999GGGGGGGGGGGGGGGGGGGGGGGGGGGGGggkkkk......",
+      "999GGGGGGGGGGGGGGGGGGGGGGGGGGG444444ggkkkk..",
+      "999GGGGGGGGGGGGGGGGGGGGGGGGGGG444444ggggggk.",
+      "999GGGGGGGGGGGGGGGGGGGGGGGGGGGGGggggggkkkk..",
+      "999gggggggggggggggggggggggggggggggkkkk......",
+      "kkggggggggggggggggggggggggggggkkkk..........",
+      ".kggggggggggggggggggggggggkkkk..............",
+      ".kggggggggggggggggggggkkkk..................",
+      ".kggggggggggggggggkkkk......................",
+      ".kggggggggggggkkkk..........................",
+      ".kggggggggkkkk..............................",
+      ".kggggkkkk.................................."
+    ]},
+    "robot": {"team": "robots", "rows": [
+      ".......kk.......",
+      "......krrk......",
+      "....kkkkkkkk....",
+      "...kTTTTTTTTk...",
+      "...kTkkkkkkTk...",
+      "...kTkrrrrkTk...",
+      "...kTkkkkkkTk...",
+      "...kTTTTTTTTk...",
+      "...kTtTtTtTTk...",
+      "....kkkkkkkk....",
+      "..kkTTTTTTTTkk..",
+      ".kTkTTLLLLTTkTk.",
+      "GGTkTTTTTTTTkTk.",
+      "GGGkTTTTTTTTkGk.",
+      "GG.kTTk..kTTk...",
+      "...kTTk..kTTk...",
+      "..kGGGk..kGGGk..",
+      "..kkkkk..kkkkk.."
+    ]},
+    "laser_turret": {"team": "robots", "rows": [
+      "........................",
+      "........................",
+      "........................",
+      "..........kkkkkkk.......",
+      "........kkTTTTTTTkk.....",
+      ".......kTTTTTTTTTTTk....",
+      "......kTTTTTTTTTTTTTk...",
+      "kkkkkkkTTTrrrrrTTTTTk...",
+      "xxxxxxxxTTrrrrrTTTTTTk..",
+      "44xxxxxxTTTTTTTTTTTTTk..",
+      "xxxxxxxxTTTTTTTTTTTTTk..",
+      "kkkkkkkTTTTTTTTTTTTTk...",
+      "......kTTTTTTTTTTTTTk...",
+      ".......kTTTTTTTTTTTk....",
+      ".......kGGTTTTTTTGk.....",
+      "......kkGGGGGGGGGGkk....",
+      ".....kxxxxxxxxxxxxxxk...",
+      ".....kxxxxxxxxxxxxxxk..."
+    ]},
+    "repair_bot": {"team": "robots", "rows": [
+      ".......kkkkk....kk",
+      "......kTTTTTk..kgg",
+      ".....kTTTTTTTk.kgg",
+      "....kTTTTTTTTTk.kG",
+      "...kTTTT333TTTTkkG",
+      "..kTTTTT333TTTTTGk",
+      "..kTTT3333333TTTGk",
+      "..kTTT3333333TTTGk",
+      "..kTTTTT333TTTTGk.",
+      "..kTTTTT333TTTTGk.",
+      "...kTTTTTTTTTTTk..",
+      "....kTTTTTTTTTk...",
+      "...kkkTTTTTTTkk...",
+      "..kGGGGGGGGGGGGk..",
+      "..kGGGGGGGGGGGGk..",
+      "...k44kkkkkk44k..."
+    ]},
+    "robot_cannon": {"team": "robots", "rows": [
+      "................................",
+      "................................",
+      "................................",
+      "................................",
+      "................................",
+      "..........kkkkkkkkkkkkkkkk......",
+      "kkkkkkkkkkTTTTTTTTTTTTTTTTk.....",
+      "GGGGGGGGGGGTTTTTTTTTTTTTTTk.....",
+      "33GGGGGGGGGTrrrTTTTTTTTTTTk.....",
+      "33GGGGGGGGGTrrrTTTTTTTTTTTk.....",
+      "GGGGGGGGGGGTTTTTTTTTTTTTTTk.....",
+      "kkkkkkkkkkTTTTTTTTTTTTTTTTk.....",
+      "......kkkkTTTTTTTTTTTTTTTTkk....",
+      ".....kxxxxxxxxxxxxxxxxxxxxxxk...",
+      ".....kxxGGxxGGxxGGxxGGxxGGxxk...",
+      ".....kxxGGxxGGxxGGxxGGxxGGxxk...",
+      ".....kxxGGxxGGxxGGxxGGxxGGxxk...",
+      ".....kxxxxxxxxxxxxxxxxxxxxxxk..."
+    ]},
+    "mega_bot": {"team": "robots", "rows": [
+      "......kTTTTTrrTTTTTk......",
+      "......kTTTTTTTTTTTTk......",
+      "......kTTTTTTTTTTTTk......",
+      "......kTTxxxxxxxxTTk......",
+      "......kTTxxrrrrxxTTk......",
+      "......kTTxxxxxxxxTTk......",
+      "......kTTTTTTTTTTTTk......",
+      "......kTTTTTTTTTTTTk......",
+      "......kTTTTTTTTTTTTk......",
+      "......kTTTTTTTTTTTTk......",
+      "kkkkkkkkkkkkkkkkkkkkkkkkkk",
+      "GGGGTTTTTTTTTTTTTTTTTTGGGG",
+      "GGGGTTTTTTTTTTTTTTTTTTGGGG",
+      "GGGGTTTTTxxxxxxxxTTTTTGGGG",
+      "GGGGTTTTTxrrrrrrxTTTTTGGGG",
+      "GGGGTTTTTxrrrrrrxTTTTTGGGG",
+      "GGGGTTTTTxrrrrrrxTTTTTGGGG",
+      "GGGGTTTTTxxxxxxxxTTTTTGGGG",
+      "GGGGTTTTTTTTTTTTTTTTTTGGGG",
+      "GGGGTTTTTTTTTTTTTTTTTTGGGG",
+      "GGGGTTTTTTTTTTTTTTTTTxxxxx",
+      "GGGGTTTTTTTTTTTTTTTTTxxxxx",
+      "3333kkkkkkkkkkkkkkkkkxxxxx",
+      "3333kkGGGGGk..kGGGGGkkkkkk",
+      "kkkk.kGGGGGk..kGGGGGk.....",
+      ".....kGGGGGk..kGGGGGk.....",
+      ".....kGGGGGk..kGGGGGk.....",
+      ".....kGGGGGk..kGGGGGk.....",
+      ".....kGGGGGk..kGGGGGk.....",
+      "....kkGGGGGk..kGGGGGkk....",
+      "...kxxxxxxxxkkxxxxxxxxk...",
+      "...kxxxxxxxxkkxxxxxxxxk..."
+    ]},
+    "metal": {"rows": [
+      "kkkkkkkkkkkkkkkk",
+      "klllllllllllllGk",
+      "kgggggggggggggGk",
+      "kggxggggggggxgGk",
+      "kgggggggggggggGk",
+      "kgggggggggggggGk",
+      "kgggggggggggggGk",
+      "kggggGGGGGGgggGk",
+      "kggggGGGGGGgggGk",
+      "kgggggggggggggGk",
+      "kgggggggggggggGk",
+      "kgggggggggggggGk",
+      "kggxggggggggxgGk",
+      "kgggggggggggggGk",
+      "kGGGGGGGGGGGGGGk",
+      "kkkkkkkkkkkkkkkk"
+    ]},
+    "glass": {"rows": [
+      "GGGGGGGGGGGGGGGG",
+      "GvvvvvvvvvvvvvvG",
+      "GvvvvvvvvvvvvvvG",
+      "GvvvvvvvvwvvvvvG",
+      "GvvvvvvvwvvvvvvG",
+      "GvvvvvvwvvvwvvvG",
+      "GvvvvvwvvvwvvvvG",
+      "GvvvvvwvvwvvvvvG",
+      "GvvvvwvvwvvvvvvG",
+      "GvvvwvvvwvvvvvvG",
+      "GvvwvvvwvvvvvvvG",
+      "GvvvvvwvvvvvvvvG",
+      "GvvvvwvvvvvvvvvG",
+      "GvvvvvvvvvvvvvvG",
+      "GvvvvvvvvvvvvvvG",
+      "GGGGGGGGGGGGGGGG"
+    ]},
+    "cell": {"rows": [
+      "..kkkkyyyykkkk..",
+      "..kGGGGGGGGGGk..",
+      "..kGGGGGGGGGGk..",
+      "..kG33333333Gk..",
+      "..kG33333333Gk..",
+      "..kGGGGGGGGGGk..",
+      "..kGGGGGGGGGGk..",
+      "..kG33333333Gk..",
+      "..kG33333333Gk..",
+      "..kGGGGGGGGGGk..",
+      "..kGGGGGGGGGGk..",
+      "..kG33333333Gk..",
+      "..kG33333333Gk..",
+      "..kGGGGGGGGGGk..",
+      "..kGGGGGGGGGGk..",
+      "..kkkkkkkkkkkk.."
+    ]},
+    "girder": {"rows": [
+      "kkkkkkkkkkkkkkkk",
+      "gggggggggggggggg",
+      "kkkkkGGkkkkkkkkG",
+      "kkkGGkkGkkkkkGGk",
+      "kkGkkkkkGGkkGkkk",
+      "kGkkkkkkkkGGkkkk",
+      "gggggggggggggggg",
+      "kkkkkkkkkkkkkkkk",
+      "................",
+      "................",
+      "................",
+      "................",
+      "................",
+      "................",
+      "................",
+      "................"
+    ]}
+  }
+}
+</script>
+
+<script>
+(function(){
+  "use strict";
+  var DATA = JSON.parse(document.getElementById("sprite-data").textContent);
+  var PAL = DATA.palette, TEAMS = DATA.teams, SPR = DATA.sprites;
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  /* ---------- content ---------- */
+  var GROUPS = [
+    {title:"Troops", how:"Sling", blurb:"Launched from the giant slingshot.", cols:"c4", stage:[44,38], items:[
+      {id:"rifleman", name:"Rifleman", real:"GI with an M1 Garand", tap:"Nothing fancy. Just angry.", power:2, range:3, uses:5, best:"grenadier",
+       fact:"American soldiers were nicknamed GIs. The M1 Garand made a loud “ping” when it spat out its empty clip."},
+      {id:"para", name:"Paratrooper", real:"101st Airborne", tap:"Pop the chute and float down anywhere.", power:2, range:5, uses:2, best:"officer",
+       fact:"The night before D-Day, about 13,000 American paratroopers jumped into Normandy in the dark."},
+      {id:"engineer", name:"Engineer", real:"Combat engineer with a demolition charge", tap:"Set off his charge on whatever he lands on.", power:4, range:2, uses:2, best:"hedgehog",
+       fact:"On Omaha Beach, engineer teams blew up beach obstacles under fire to clear lanes for landing boats."},
+      {id:"sarge", name:"Big Sarge", real:"Sergeant with a Thompson", tap:"Ground pound. Slams straight down.", power:5, range:1, uses:1, best:"wood",
+       fact:"The Thompson submachine gun was nicknamed the “Tommy gun.”"}
+    ]},
+    {title:"Weapons", how:"Fire", blurb:"Aim and fire from your bunker, Worms-style. Wind pushes rockets and shells.", cols:"c4", stage:[44,38], items:[
+      {id:"grenade", name:"Grenade", real:"Mk 2 hand grenade", tap:"Bounces, then pops after a 3-second fuse.", power:3, range:2, uses:5, best:"sandbag",
+       fact:"Its bumpy iron shell earned the Mk 2 the nickname “pineapple.”"},
+      {id:"bazooka", name:"Bazooka", real:"M1 rocket launcher", tap:"Fires a rocket straight ahead. Wind pushes it.", power:4, range:4, uses:3, best:"tiger",
+       fact:"Soldiers named it after a goofy horn played by the comedian Bob Burns."},
+      {id:"mortar", name:"Mortar", real:"M2 60 mm mortar", tap:"Lobs a shell high so it drops behind walls.", power:3, range:4, uses:3, best:"mg42",
+       fact:"Mortars fire almost straight up, so their shells come down on enemies hiding behind walls."},
+      {id:"howitzer", name:"Howitzer", real:"M2A1 105 mm howitzer", tap:"One huge shell. Aim carefully.", power:5, range:5, uses:1, best:"sniper",
+       fact:"Its crew could hit targets about 7 miles away."}
+    ]},
+    {pair:[
+      {title:"Vehicles", how:"Drive", blurb:"Roll across the battlefield.", cols:"c2", stage:[64,38], items:[
+        {id:"jeep", name:"Jeep", real:"Willys MB", tap:"Hop over a gap or a low wall.", power:2, range:4, uses:2, best:"wire",
+         fact:"Jeeps in Normandy often had a tall metal bar on the front to cut wires stretched across roads."},
+        {id:"sherman", name:"Sherman", real:"M4 Sherman tank", tap:"Fire the main gun.", power:4, range:3, uses:1, best:"concrete",
+         fact:"Almost 50,000 Shermans were built, more than any other American tank."}
+      ]},
+      {title:"Air support", how:"Call in", blurb:"Tap a spot and they fly in.", cols:"c2", stage:[64,38], items:[
+        {id:"p51", name:"Mustang", real:"P-51 fighter", tap:"Swoops down and drops two bombs.", power:3, range:5, uses:1, bestText:"Dudes in the open",
+         fact:"The Mustang could fly about 440 mph, fast enough to guard bombers all the way to Germany."},
+        {id:"b17", name:"Flying Fortress", real:"B-17 heavy bomber", tap:"Drops a line of bombs across the whole fort.", power:5, range:5, uses:1, bestText:"The whole fort",
+         fact:"It was called the Flying Fortress because the B-17G carried 13 machine guns."}
+      ]}
+    ]}
+  ];
+  var DEFENDERS = [
+    {id:"grenadier", name:"Grenadier", real:"Rifleman with a Kar98k", danger:"Stands guard. One solid hit knocks him out.", tough:1, pts:"500", beat:"rifleman",
+     fact:"German soldiers wore a steel helmet called the Stahlhelm. Its flared rim protected the neck and ears."},
+    {id:"mg42", name:"MG 42 Nest", real:"Machine gun team behind sandbags", danger:"Shoots troops out of the air if they fly too low.", tough:2, pts:"1,500", beat:"mortar",
+     fact:"The MG 42 fired about 20 bullets a second. Its crew could swap a hot barrel in seconds."},
+    {id:"sniper", name:"Sniper", real:"Sharpshooter in camouflage", danger:"Picks off Paratroopers before they land.", tough:1, pts:"1,000", beat:"howitzer",
+     fact:"In Normandy's hedgerow country, called the bocage, snipers hid in trees and church steeples."},
+    {id:"officer", name:"Officer", real:"Fort commander with binoculars", danger:"Boss of the fort. Hides up high behind concrete.", tough:3, pts:"5,000", beat:"para",
+     fact:"German officers sent secret messages with Enigma machines. Allied codebreakers cracked the code."},
+    {id:"flak88", name:"Flak 88", real:"88 mm anti-aircraft gun", danger:"Shoots down planes. Knock it out before you call one in.", tough:3, pts:"3,000", beat:"grenade",
+     fact:"The “88” was built to shoot down planes, but it was deadly against tanks too."},
+    {id:"tiger", name:"Tiger", real:"Tiger I heavy tank", danger:"Fires back at your vehicles.", tough:5, pts:"8,000", beat:"bazooka",
+     fact:"The Tiger I's front armor was 100 mm thick. That's about 4 inches of steel."}
+  ];
+  var BLOCKS = [
+    {id:"sandbag",  name:"Sandbags",       str:1, note:"Weakest piece. Bursts into sand.", weak:"grenade"},
+    {id:"wood",     name:"Ammo crate",     str:2, note:"Splinters and tumbles.", weak:"sarge"},
+    {id:"concrete", name:"Concrete",       str:4, note:"Atlantic Wall bunker concrete. The toughest piece.", weak:"sherman"},
+    {id:"hedgehog", name:"Czech hedgehog", str:3, note:"Steel beams welded into a star. Stops jeeps and tanks cold.", weak:"engineer"},
+    {id:"wire",     name:"Barbed wire",    str:1, note:"Troops that land in it get stuck.", weak:"jeep"},
+    {id:"jerrycan", name:"Jerrycan",       str:1, note:"Full of fuel, so it explodes. The Allies copied this German can design.", weakText:"Any hit"}
+  ];
+  var NAMES = {};
+  GROUPS.forEach(function(g){ (g.pair || [g]).forEach(function(h){ h.items.forEach(function(t){ NAMES[t.id] = t.name; }); }); });
+  DEFENDERS.forEach(function(t){ NAMES[t.id] = t.name; });
+  BLOCKS.forEach(function(t){ NAMES[t.id] = t.name; });
+
+  /* ---------- sprites ---------- */
+  function rng(seed){
+    return function(){
+      seed = (seed + 0x6D2B79F5) | 0;
+      var t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  var cache = {};
+  function sprite(name){
+    if (cache[name]) return cache[name];
+    var s = SPR[name], c = document.createElement("canvas");
+    var w = 0; s.rows.forEach(function(r){ w = Math.max(w, r.length); });
+    c.width = w; c.height = s.rows.length;
+    var x = c.getContext("2d"), tp = TEAMS[s.team] || {}, po = s.pal || {};
+    s.rows.forEach(function(row, y){
+      for (var i = 0; i < row.length; i++){
+        var ch = row[i]; if (ch === ".") continue;
+        var col = po[ch] || tp[ch] || PAL[ch]; if (!col) continue;
+        x.fillStyle = col; x.fillRect(i, y, 1, 1);
+      }
+    });
+    cache[name] = c; return c;
+  }
+
+  /* ---------- theme tokens ---------- */
+  var TK = {};
+  function readTokens(){
+    var cs = getComputedStyle(document.documentElement);
+    function g(n){ return cs.getPropertyValue(n).trim(); }
+    TK = {
+      sky1:g("--sky1"), sky2:g("--sky2"), sky3:g("--sky3"), sun:g("--sun"), cloud:g("--cloud"), star:g("--star"), trail:g("--trail"),
+      hill1:g("--hill1"), hill2:g("--hill2"), grass:g("--grass"), grassHi:g("--grass-hi"), dirt:g("--dirt"), dirtLo:g("--dirt-lo"),
+      sand:g("--sand"), sandHi:g("--sand-hi"), sandLo:g("--sand-lo"), night: g("--night") === "1"
+    };
+  }
+
+  /* ---------- pixel scenes: logical W×H, backing store at an integer multiple ---------- */
+  var scenes = [];
+  function scene(canvas, W, H, paint){
+    canvas.width = W; canvas.height = H;
+    var sc = {canvas:canvas, W:W, H:H, paint:paint, S:1};
+    scenes.push(sc);
+    return sc;
+  }
+  function render(sc){
+    var dpr = window.devicePixelRatio || 1;
+    var cssW = sc.canvas.getBoundingClientRect().width || sc.W;
+    var S = Math.max(1, Math.ceil(cssW * dpr / sc.W));
+    if (sc.canvas.width !== sc.W * S){ sc.canvas.width = sc.W * S; sc.canvas.height = sc.H * S; }
+    sc.S = S;
+    var ctx = sc.canvas.getContext("2d");
+    ctx.setTransform(S, 0, 0, S, 0, 0);
+    ctx.imageSmoothingEnabled = false;
+    sc.paint(ctx, sc);
+  }
+  function renderAll(){ readTokens(); scenes.forEach(render); }
+
+  function disc(ctx, cx, cy, r, color){
+    ctx.fillStyle = color;
+    for (var dy = -r; dy <= r; dy++){
+      var w = Math.round(Math.sqrt(r * r - dy * dy));
+      ctx.fillRect(cx - w, cy + dy, w * 2, 1);
+    }
+  }
+  function cloud(ctx, x, y, big){
+    ctx.fillStyle = TK.cloud;
+    if (big){
+      ctx.fillRect(x + 5, y - 2, 5, 1); ctx.fillRect(x + 3, y - 1, 9, 1);
+      ctx.fillRect(x + 1, y, 16, 2); ctx.fillRect(x, y + 2, 20, 2);
+    } else {
+      ctx.fillRect(x + 3, y - 1, 4, 1); ctx.fillRect(x + 1, y, 9, 1); ctx.fillRect(x, y + 1, 12, 2);
+    }
+  }
+  function paintSky(ctx, W, gy, seed, opts){
+    opts = opts || {};
+    var bands = [TK.sky1, TK.sky2, TK.sky3], bh = gy / bands.length, i, x;
+    for (i = 0; i < bands.length; i++){ ctx.fillStyle = bands[i]; ctx.fillRect(0, Math.round(i * bh), W, Math.ceil(bh) + 1); }
+    for (i = 1; i < bands.length; i++){
+      var y = Math.round(i * bh);
+      ctx.fillStyle = bands[i - 1];
+      for (x = 0; x < W; x += 2) ctx.fillRect(x, y, 1, 1);
+      for (x = 1; x < W; x += 4) ctx.fillRect(x, y + 1, 1, 1);
+    }
+    var r = rng(seed);
+    if (TK.night){
+      ctx.fillStyle = TK.star;
+      var n = Math.round(W * gy / (opts.starDensity || 140));
+      for (i = 0; i < n; i++){
+        var sx = Math.floor(r() * W), sy = Math.floor(r() * gy * 0.75);
+        ctx.fillRect(sx, sy, 1, 1);
+        if (r() < 0.12){ ctx.fillRect(sx - 1, sy, 3, 1); ctx.fillRect(sx, sy - 1, 1, 3); }
+      }
+    } else if (opts.clouds !== false){
+      var c = opts.cloudCount || 2;
+      for (i = 0; i < c; i++) cloud(ctx, Math.floor(r() * (W - 10)) - 4, 3 + Math.floor(r() * Math.max(2, gy * 0.35)), r() < 0.4);
+    }
+  }
+  function paintGround(ctx, x0, W, H, gy, seed, top, hi, base, lo){
+    var r = rng(seed), x, i;
+    ctx.fillStyle = base; ctx.fillRect(x0, gy, W, H - gy);
+    ctx.fillStyle = top; ctx.fillRect(x0, gy, W, 3);
+    ctx.fillStyle = hi; ctx.fillRect(x0, gy, W, 1);
+    ctx.fillStyle = top;
+    for (x = x0; x < x0 + W; x += 2 + Math.floor(r() * 5)) ctx.fillRect(x, gy - 1, 1, 1);
+    for (x = x0; x < x0 + W; x += 2) if (r() < 0.55) ctx.fillRect(x, gy + 3, 1, 1);
+    ctx.fillStyle = lo;
+    var n = Math.max(2, Math.round(W * (H - gy) / 22));
+    for (i = 0; i < n; i++) ctx.fillRect(x0 + Math.floor(r() * W), gy + 5 + Math.floor(r() * Math.max(1, H - gy - 5)), 2, 1);
+  }
+  function grass(ctx, x0, W, H, gy, seed){ paintGround(ctx, x0, W, H, gy, seed, TK.grass, TK.grassHi, TK.dirt, TK.dirtLo); }
+  function sand(ctx, x0, W, H, gy, seed){ paintGround(ctx, x0, W, H, gy, seed, TK.sand, TK.sandHi, TK.sand, TK.sandLo); }
+  function hills(ctx, W, gy, color, base, amp, f1, f2, ph){
+    ctx.fillStyle = color;
+    for (var x = 0; x < W; x += 2){
+      var h = Math.round((base + amp * Math.sin(x / f1 + ph) + amp * 0.5 * Math.sin(x / f2 + ph * 2)) / 2) * 2;
+      ctx.fillRect(x, gy - h, 2, h);
+    }
+  }
+  function drawOn(ctx, name, x, bottom){
+    var s = sprite(name);
+    ctx.drawImage(s, x, bottom - s.height);
+  }
+
+  /* ---------- hero: Omaha Beach ---------- */
+  var HERO = {W:440, H:170, gy:146}, FORT_X = 252, BEACH = 238;
+  var START = {x:132, y:113}, TARGET = {x:276, y:72}, ARC = 66;
+  var heroBg = null, heroScene = null;
+
+  function heroStatic(ctx){
+    var W = HERO.W, H = HERO.H, gy = HERO.gy;
+    paintSky(ctx, W, gy, 7, {clouds:false, starDensity:110});
+    disc(ctx, 412, 24, 9, TK.sun);
+    if (TK.night){ ctx.fillStyle = TK.sky2; ctx.fillRect(408, 20, 3, 2); ctx.fillRect(414, 27, 2, 2); }
+    else { cloud(ctx, 30, 24, true); cloud(ctx, 150, 14, false); cloud(ctx, 214, 40, true); cloud(ctx, 340, 50, false); }
+    hills(ctx, W, gy, TK.hill1, 30, 9, 41, 17, 0.4);
+    hills(ctx, W, gy, TK.hill2, 14, 6, 29, 11, 2.1);
+    sand(ctx, 0, BEACH, H, gy, 3);
+    grass(ctx, BEACH, W - BEACH, H, gy, 11);
+    ctx.fillStyle = TK.sand;
+    for (var y = gy; y < H; y++) for (var x = BEACH; x < BEACH + 6; x += 2) if ((x + y) % 4 === 0) ctx.fillRect(x, y, 2, 1);
+
+    drawOn(ctx, "hedgehog", 172, gy);
+    drawOn(ctx, "hedgehog", 202, gy);
+    drawOn(ctx, "wire", 224, gy);
+
+    function B(n, c, row){ ctx.drawImage(sprite(n), FORT_X + c * 16, gy - (row + 1) * 16); }
+    ["concrete","sandbag","wood","wood","sandbag","concrete"].forEach(function(n, c){ B(n, c, 0); });
+    B("concrete", 0, 1); B("jerrycan", 3, 1); B("concrete", 5, 1);
+    for (var c = 0; c < 6; c++) B("concrete", c, 2);
+    B("concrete", 0, 3); B("concrete", 5, 3);
+    B("sandbag", 0, 4); B("sandbag", 5, 4);
+    drawOn(ctx, "mg42", FORT_X + 16, gy - 16);
+    drawOn(ctx, "grenadier", FORT_X + 64, gy - 16);
+    drawOn(ctx, "sniper", FORT_X + 64, gy - 48);
+
+    drawOn(ctx, "flak88", 392, gy);
+    drawOn(ctx, "tiger", 346, gy);
+
+    drawOn(ctx, "sherman", 2, gy);
+    drawOn(ctx, "jeep", 50, gy);
+    drawOn(ctx, "sarge", 90, gy);
+    drawOn(ctx, "engineer", 112, gy);
+    drawOn(ctx, "slingshot", 132, gy);
+  }
+  function arcPos(t){
+    return {
+      x: Math.round(START.x + (TARGET.x - START.x) * t),
+      y: Math.round(START.y + (TARGET.y - START.y) * t - 4 * ARC * t * (1 - t))
+    };
+  }
+  function burst(ctx, cx, cy, k){
+    var dirs = [[1,0],[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1]];
+    var grow = Math.min(1, k * 3);
+    dirs.forEach(function(d, i){
+      var L = Math.round((i % 2 ? 5 : 8) * grow);
+      for (var j = 1; j <= L; j++){
+        ctx.fillStyle = j < 3 ? "#ffffff" : (j < L - 1 ? PAL.y : PAL.o);
+        ctx.fillRect(cx + d[0] * j * 2 - 1, cy + d[1] * j * 2 - 1, 2, 2);
+      }
+    });
+    ctx.fillStyle = "#ffffff"; ctx.fillRect(cx - 2, cy - 2, 4, 4);
+    var r = rng(5);
+    ctx.fillStyle = PAL.p;
+    for (var n = 0; n < 7; n++){
+      var a = r() * Math.PI * 2, dist = 6 + k * 26 * (0.6 + r() * 0.6);
+      ctx.fillRect(Math.round(cx + Math.cos(a) * dist), Math.round(cy + Math.sin(a) * dist + k * k * 14), 2, 1);
+    }
+  }
+  var CYCLE = 4400, PLANE_CYCLE = 6600;
+  function heroFrame(ctx, ms, still){
+    if (!heroBg) return;
+    var gy = HERO.gy, t = ms % CYCLE, flight = null, pow = -1;
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(heroBg, 0, 0, HERO.W, HERO.H);
+
+    var p51 = sprite("p51");
+    var px = still ? 40 : Math.round(-p51.width + ((ms % PLANE_CYCLE) / PLANE_CYCLE) * (HERO.W + p51.width * 2));
+    ctx.drawImage(p51, px, 8 + (still ? 0 : Math.round(Math.sin(ms / 400))));
+
+    var gi = sprite("rifleman");
+    if (still){ flight = 0.62; }
+    else if (t < 1000){
+      var pull = t > 450 ? Math.min(5, Math.floor((t - 450) / 80)) : 0;
+      ctx.drawImage(gi, START.x - pull, START.y + Math.floor(pull / 2));
+    }
+    else if (t < 2400){ flight = (t - 1000) / 1400; }
+    else { flight = 1; pow = (t - 2400) / 900; }
+
+    if (flight !== null){
+      ctx.fillStyle = TK.trail;
+      var i = 0;
+      for (var k = 0.05; k <= Math.min(flight, 0.97); k += 0.045, i++){
+        var p = arcPos(k), sz = i % 3 === 0 ? 2 : 1;
+        ctx.fillRect(p.x + 8, p.y + 9, sz, sz);
+      }
+      if (flight < 1){ var q = arcPos(flight); ctx.drawImage(gi, q.x, q.y); }
+    }
+    var shake = (pow >= 0 && pow < 0.45) ? (Math.floor(t / 60) % 2 ? 1 : -1) : 0;
+    drawOn(ctx, "officer", FORT_X + 40 + shake, gy - 48);
+    if (pow >= 0 && pow < 0.7) burst(ctx, TARGET.x + 12, TARGET.y + 9, pow);
+  }
+  function heroPaint(ctx, sc){
+    heroBg = document.createElement("canvas");
+    heroBg.width = sc.W * sc.S; heroBg.height = sc.H * sc.S;
+    var b = heroBg.getContext("2d");
+    b.setTransform(sc.S, 0, 0, sc.S, 0, 0);
+    b.imageSmoothingEnabled = false;
+    heroStatic(b);
+    heroFrame(ctx, lastMs, !animating());
+  }
+
+  var lastMs = 0, t0 = performance.now(), lastStep = -1, visible = true, raf = 0;
+  function animating(){ return !reduceMotion.matches; }
+  function loop(now){
+    raf = 0;
+    if (!animating() || !visible) return;
+    lastMs = now - t0;
+    var step = Math.floor(lastMs / 50);
+    if (step !== lastStep && heroScene){
+      lastStep = step;
+      var ctx = heroScene.canvas.getContext("2d");
+      ctx.setTransform(heroScene.S, 0, 0, heroScene.S, 0, 0);
+      heroFrame(ctx, lastMs, false);
+    }
+    raf = requestAnimationFrame(loop);
+  }
+  function kick(){ if (!raf && animating() && visible) raf = requestAnimationFrame(loop); }
+
+  /* ---------- cards ---------- */
+  function stagePaint(name, seed){
+    return function(ctx, sc){
+      var gy = sc.H - 5, s = sprite(name), meta = SPR[name];
+      paintSky(ctx, sc.W, gy, seed, {cloudCount:2});
+      grass(ctx, 0, sc.W, sc.H, gy, seed + 3);
+      var x = Math.floor((sc.W - s.width) / 2);
+      var y = meta.air ? Math.max(1, Math.floor((gy - s.height) / 2) - (s.height > 24 ? 0 : 3)) : gy - s.height + 1;
+      ctx.drawImage(s, x, y);
+    };
+  }
+  function blockPaint(name, seed){
+    return function(ctx, sc){
+      var gy = sc.H - 4, s = sprite(name);
+      paintSky(ctx, sc.W, gy, seed, {clouds:false, starDensity:60});
+      grass(ctx, 0, sc.W, sc.H, gy, seed + 3);
+      ctx.drawImage(s, Math.floor((sc.W - s.width) / 2), gy - s.height + 1);
+    };
+  }
+  function icon(name){
+    var s = sprite(name), k = Math.max(1, Math.ceil(window.devicePixelRatio || 1));
+    var c = document.createElement("canvas");
+    c.width = s.width * k; c.height = s.height * k;
+    c.style.width = s.width + "px"; c.style.height = s.height + "px";
+    c.className = "ico"; c.setAttribute("aria-hidden", "true");
+    var x = c.getContext("2d"); x.imageSmoothingEnabled = false; x.drawImage(s, 0, 0, c.width, c.height);
+    return c;
+  }
+  function chip(id, text){
+    var el = document.createElement("span");
+    el.className = "chip";
+    if (id) el.appendChild(icon(id));
+    el.appendChild(document.createTextNode(text || NAMES[id]));
+    return el;
+  }
+  function pips(v){
+    var h = '<span class="pips" role="img" aria-label="' + v + ' out of 5">';
+    for (var i = 1; i <= 5; i++) h += '<i' + (i <= v ? ' class="on"' : '') + '></i>';
+    return h + '</span>';
+  }
+
+  var seed = 20;
+  function alliedCard(t, stage){
+    var el = document.createElement("article");
+    el.className = "card";
+    el.innerHTML =
+      '<canvas class="stage" role="img" aria-label="Pixel art of the ' + t.name + '"></canvas>' +
+      '<div class="card-body">' +
+        '<div><h3>' + t.name + '</h3><p class="real">' + t.real + '</p></div>' +
+        '<p class="tap"><span class="k">Tap</span>' + t.tap + '</p>' +
+        '<dl class="stats"><dt>Power</dt><dd>' + pips(t.power) + '</dd><dt>Range</dt><dd>' + pips(t.range) + '</dd>' +
+        '<dt>Per battle</dt><dd class="num">×' + t.uses + '</dd></dl>' +
+        '<p class="best"><span class="k">Best vs</span></p>' +
+        '<p class="fact"><b>Real history</b>' + t.fact + '</p>' +
+      '</div>';
+    el.querySelector(".best").appendChild(t.best ? chip(t.best) : chip(null, t.bestText));
+    scene(el.querySelector(".stage"), stage[0], stage[1], stagePaint(t.id, seed += 7));
+    return el;
+  }
+  function groupEl(g){
+    var wrap = document.createElement("div");
+    wrap.className = "group";
+    wrap.innerHTML = '<h3 class="sub">' + g.title + ' <span class="how">' + g.how + '</span></h3><p class="blurb">' + g.blurb + '</p>';
+    var cards = document.createElement("div");
+    cards.className = "cards " + g.cols;
+    g.items.forEach(function(t){ cards.appendChild(alliedCard(t, g.stage)); });
+    wrap.appendChild(cards);
+    return wrap;
+  }
+  var alliedEl = document.getElementById("allied-groups");
+  GROUPS.forEach(function(g){
+    if (g.pair){
+      var pair = document.createElement("div");
+      pair.className = "pair";
+      g.pair.forEach(function(h){ pair.appendChild(groupEl(h)); });
+      alliedEl.appendChild(pair);
+    } else alliedEl.appendChild(groupEl(g));
+  });
+
+  var defsEl = document.getElementById("defenders");
+  DEFENDERS.forEach(function(d){
+    var el = document.createElement("article");
+    el.className = "card";
+    el.innerHTML =
+      '<canvas class="stage" role="img" aria-label="Pixel art of the ' + d.name + '"></canvas>' +
+      '<div class="card-body">' +
+        '<div><h3>' + d.name + '</h3><p class="real">' + d.real + '</p></div>' +
+        '<p class="tap"><span class="k">Danger</span>' + d.danger + '</p>' +
+        '<dl class="stats"><dt>Toughness</dt><dd>' + pips(d.tough) + '</dd><dt>Points</dt><dd class="num">' + d.pts + '</dd></dl>' +
+        '<p class="best"><span class="k">Beat with</span></p>' +
+        '<p class="fact"><b>Real history</b>' + d.fact + '</p>' +
+      '</div>';
+    el.querySelector(".best").appendChild(chip(d.beat));
+    defsEl.appendChild(el);
+    scene(el.querySelector(".stage"), 64, 38, stagePaint(d.id, seed += 11));
+  });
+
+  var blocksEl = document.getElementById("blocks");
+  BLOCKS.forEach(function(b, i){
+    var el = document.createElement("div");
+    el.className = "tile";
+    el.innerHTML =
+      '<canvas role="img" aria-label="Pixel art of ' + b.name + '"></canvas>' +
+      '<div><h4>' + b.name + '</h4><p>' + b.note + '</p>' +
+        '<div class="row"><span class="lbl">Strength</span>' + pips(b.str) + '</div>' +
+        '<div class="row weak"><span class="lbl">Weak to</span></div>' +
+      '</div>';
+    el.querySelector(".weak").appendChild(b.weak ? chip(b.weak) : chip(null, b.weakText));
+    blocksEl.appendChild(el);
+    scene(el.querySelector("canvas"), 24, 22, blockPaint(b.id, 300 + i * 13));
+  });
+
+  heroScene = scene(document.getElementById("hero"), HERO.W, HERO.H, heroPaint);
+
+  /* ---------- wiring ---------- */
+  readTokens();
+  var ro = new ResizeObserver(function(entries){
+    entries.forEach(function(e){
+      for (var i = 0; i < scenes.length; i++) if (scenes[i].canvas === e.target){ render(scenes[i]); break; }
+    });
+  });
+  scenes.forEach(function(sc){ ro.observe(sc.canvas); });
+  scenes.forEach(render);
+
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", renderAll);
+  new MutationObserver(renderAll).observe(document.documentElement, {attributes:true, attributeFilter:["data-theme"]});
+  reduceMotion.addEventListener("change", function(){ render(heroScene); kick(); });
+  if ("IntersectionObserver" in window){
+    new IntersectionObserver(function(es){ visible = es[0].isIntersecting; kick(); }).observe(heroScene.canvas);
+  }
+  kick();
+})();
+</script>

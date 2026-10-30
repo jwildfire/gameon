@@ -204,13 +204,14 @@
     "title": "Angry Dudes",
     "tagline": "Sling troops, fire cannons and call in air strikes across 37 real battles from history.",
     "credit": "Made by Jeremy and the kids",
-    "url": "games/angry-dudes/jeremy.v1/",
+    "url": "games/angry-dudes/jeremy.v2/",
     "repo": "https://github.com/jwildfire/angry-dudes",
     "color": "#e8483a",
     "tags": ["History", "Turn sideways"],
-    "default": "jeremy.v1",
+    "default": "jeremy.v2",
     "versions": [
-      { "id": "jeremy.v1", "url": "games/angry-dudes/jeremy.v1/", "made": "2026-10-17", "note": "The first version", "source": {"repo": "jwildfire/angry-dudes", "commit": "f20ad5e267dfeac1f38ebb0392b324bc8f0c45f5"} }
+      { "id": "jeremy.v1", "url": "games/angry-dudes/jeremy.v1/", "made": "2026-10-17", "note": "The first version", "source": {"repo": "jwildfire/angry-dudes", "commit": "f20ad5e267dfeac1f38ebb0392b324bc8f0c45f5"} },
+      { "id": "jeremy.v2", "url": "games/angry-dudes/jeremy.v2/", "made": "2026-10-29", "note": "Launch with the keyboard", "from": "jeremy.v1", "idea": 224 }
     ]
   },
   {

@@ -1,0 +1,583 @@
+{
+ "id": "castle",
+ "name": "Castle Siege",
+ "years": "1224–1304",
+ "side": "English army",
+ "foe": "Castle garrisons",
+ "icon": "knight",
+ "blurb": "Lance-charge with knights, dig mines under towers, row barges across the lake and test the giant Warwolf trebuchet.",
+ "props": {
+  "bunker": "palisade",
+  "pennant": [
+   "#c22a2a",
+   "#efe9d8"
+  ]
+ },
+ "units": {
+  "footman": {
+   "name": "Man-at-arms",
+   "kind": "sling",
+   "sprite": "footman",
+   "w": 12,
+   "h": 16,
+   "density": 0.003,
+   "best": "spearman",
+   "tap": "shout",
+   "shout": "FOR KING EDWARD!",
+   "hint": "Drag back to aim, let go to launch. Tap in the air to shout."
+  },
+  "knight": {
+   "name": "Knight",
+   "kind": "sling",
+   "sprite": "knight",
+   "w": 14,
+   "h": 18,
+   "density": 0.006,
+   "power": 1.6,
+   "best": "crossbowman",
+   "tap": "dash",
+   "dash": 16,
+   "pierce": 1,
+   "pierceDmg": 6,
+   "shout": "LANCE CHARGE!",
+   "hint": "Heavy and armored. Tap mid-flight for a lance charge that bursts through the first thing it hits."
+  },
+  "longbow": {
+   "name": "Longbow",
+   "kind": "fire",
+   "sprite": "proj_arrow",
+   "gunner": "longbowman",
+   "w": 10,
+   "h": 3,
+   "density": 0.002,
+   "best": "commander",
+   "soft": true,
+   "power": 3,
+   "stick": true,
+   "spread": {
+    "n": 3,
+    "deg": 4
+   },
+   "speed": 1.1,
+   "sound": "volley",
+   "hint": "Fires three arrows at once. Great against soldiers, useless against stone."
+  },
+  "crossbow": {
+   "name": "Crossbow",
+   "kind": "fire",
+   "sprite": "proj_arrow",
+   "gunner": "xbow_english",
+   "w": 10,
+   "h": 3,
+   "density": 0.003,
+   "best": "crossbowman",
+   "soft": true,
+   "power": 4,
+   "stick": true,
+   "lift": 0.92,
+   "speed": 1.25,
+   "sound": "thwack",
+   "hint": "Slower to load than a longbow, but the bolt flies flat and hard. Aim straight at a soldier."
+  },
+  "warwolf": {
+   "name": "Warwolf",
+   "kind": "fire",
+   "sprite": "proj_boulder",
+   "gunner": "warwolf",
+   "w": 11,
+   "h": 11,
+   "round": true,
+   "density": 0.03,
+   "best": "stone",
+   "power": 3,
+   "bounce": 0.1,
+   "speed": 1.15,
+   "sound": "whoosh",
+   "hint": "The biggest trebuchet ever built. One giant stone. Make it count!"
+  },
+  "ram": {
+   "name": "Battering ram",
+   "kind": "drive",
+   "sprite": "ram",
+   "w": 36,
+   "h": 12,
+   "ox": -2,
+   "density": 0.006,
+   "best": "door",
+   "speed": 0.9,
+   "push": 0.3,
+   "hp": 8,
+   "tap": "ram",
+   "ramSpeed": 2.8,
+   "shout": "HEAVE!",
+   "hint": "Tap to roll it to the gate, then tap to swing the ram."
+  },
+  "tower": {
+   "name": "Siege tower",
+   "kind": "drive",
+   "sprite": "siege_tower",
+   "w": 22,
+   "h": 60,
+   "ox": -1,
+   "density": 0.002,
+   "best": "merlon",
+   "speed": 1.0,
+   "push": 0.35,
+   "hp": 10,
+   "tap": "unload",
+   "unload": {
+    "unit": "footman",
+    "count": 3,
+    "vx": 2.4,
+    "vy": -9,
+    "spread": 0.9
+   },
+   "shout": "OVER THE WALL!",
+   "hint": "Tap to roll it up to the walls, then tap to send three men over the top."
+  },
+  "barge": {
+   "name": "Barge",
+   "kind": "drive",
+   "sprite": "barge",
+   "w": 44,
+   "h": 10,
+   "density": 0.004,
+   "best": "door",
+   "boat": true,
+   "speed": 1,
+   "push": 0.4,
+   "hp": 8,
+   "tap": "unload",
+   "unload": {
+    "unit": "footman",
+    "count": 3,
+    "vx": 2.6,
+    "vy": -8.5,
+    "spread": 1
+   },
+   "shout": "TO THE WALLS!",
+   "hint": "Tap to row it across the water, then tap again and three men leap onto the walls."
+  },
+  "sappers": {
+   "name": "Miners",
+   "kind": "air",
+   "style": "mine",
+   "icon": "miner",
+   "boom": {
+    "r": 52,
+    "p": 5.5
+   },
+   "say": "DIGGING…",
+   "blast": "CRASH!",
+   "hint": "Tap a tower. Miners tunnel under it, prop it up with wood, then burn the props so it comes crashing down."
+  },
+  "arrowstorm": {
+   "name": "Arrow storm",
+   "kind": "air",
+   "style": "rain",
+   "icon": "longbowman",
+   "count": 18,
+   "gap": 5,
+   "every": 50,
+   "vx": 1.8,
+   "vy": 0.5,
+   "say": "LOOSE!",
+   "proj": {
+    "sprite": "proj_arrow",
+    "w": 10,
+    "h": 3,
+    "density": 0.002,
+    "soft": true,
+    "power": 3,
+    "stick": true
+   },
+   "hint": "Tap a spot and every archer in the army fires at it."
+  }
+ },
+ "order": [
+  "footman",
+  "knight",
+  "longbow",
+  "crossbow",
+  "warwolf",
+  "ram",
+  "tower",
+  "barge",
+  "sappers",
+  "arrowstorm"
+ ],
+ "blocks": {
+  "C": {
+   "key": "stone",
+   "name": "Castle stone",
+   "hp": 6,
+   "density": 0.0045,
+   "pts": 500,
+   "debris": [
+    "#a39b8b",
+    "#cbc4b4"
+   ]
+  },
+  "B": {
+   "key": "merlon",
+   "name": "Battlement",
+   "hp": 5,
+   "density": 0.004,
+   "pts": 400,
+   "debris": [
+    "#a39b8b",
+    "#cbc4b4"
+   ]
+  },
+  "D": {
+   "key": "door",
+   "name": "Gate",
+   "hp": 3,
+   "density": 0.002,
+   "pts": 300,
+   "debris": [
+    "#a8693a",
+    "#26282e"
+   ]
+  },
+  "G": {
+   "key": "portcullis",
+   "name": "Portcullis",
+   "hp": 6,
+   "density": 0.006,
+   "pts": 600,
+   "debris": [
+    "#26282e",
+    "#646d7b"
+   ]
+  },
+  "P": {
+   "key": "palisade",
+   "name": "Palisade",
+   "hp": 3,
+   "density": 0.003,
+   "pts": 300,
+   "debris": [
+    "#a8693a",
+    "#5e3a1d"
+   ]
+  },
+  "J": {
+   "key": "barrel",
+   "name": "Barrel of pitch",
+   "hp": 0.5,
+   "density": 0.002,
+   "pts": 200,
+   "debris": [
+    "#a8693a",
+    "#ff6a00"
+   ],
+   "explodes": {
+    "r": 34,
+    "p": 3.4
+   },
+   "fire": true
+  },
+  "=": {
+   "key": "stone",
+   "sprite": "stone",
+   "slab": true,
+   "hp": 7,
+   "density": 0.0045,
+   "pts": 800,
+   "debris": [
+    "#a39b8b",
+    "#cbc4b4"
+   ]
+  },
+  "~": {
+   "key": "wood",
+   "sprite": "wood",
+   "slab": true,
+   "hp": 3,
+   "density": 0.0015,
+   "pts": 300,
+   "debris": [
+    "#a8693a",
+    "#5e3a1d"
+   ]
+  }
+ },
+ "defenders": {
+  "p": {
+   "key": "spearman",
+   "name": "Spearman",
+   "w": 12,
+   "h": 17,
+   "hp": 1.6,
+   "density": 0.002,
+   "pts": 500
+  },
+  "x": {
+   "key": "crossbowman",
+   "name": "Crossbowman",
+   "w": 12,
+   "h": 17,
+   "hp": 1.5,
+   "density": 0.002,
+   "pts": 1000,
+   "react": {
+    "type": "shooter",
+    "range": 110,
+    "height": 60,
+    "say": "THUNK!",
+    "sound": "thwack",
+    "muzzle": {
+     "x": -8,
+     "y": -4
+    }
+   }
+  },
+  "o": {
+   "key": "cauldron",
+   "name": "Boiling oil",
+   "w": 14,
+   "h": 12,
+   "hp": 2,
+   "density": 0.004,
+   "pts": 1500,
+   "react": {
+    "type": "oil",
+    "range": 44,
+    "every": 1500,
+    "damage": 3,
+    "say": "HOT OIL!"
+   }
+  },
+  "c": {
+   "key": "commander",
+   "name": "Castle commander",
+   "w": 12,
+   "h": 17,
+   "hp": 3.5,
+   "density": 0.0025,
+   "pts": 5000
+  },
+  "m": {
+   "key": "mangonel",
+   "name": "Mangonel",
+   "w": 28,
+   "h": 16,
+   "hp": 3,
+   "density": 0.005,
+   "pts": 2000,
+   "cells": 2,
+   "react": {
+    "type": "antitank",
+    "every": 2200,
+    "range": 360,
+    "muzzle": {
+     "x": -12,
+     "y": -18
+    },
+    "vx": -9,
+    "vy": -6,
+    "shell": {
+     "sprite": "proj_boulder",
+     "w": 10,
+     "h": 10,
+     "round": true,
+     "density": 0.02,
+     "enemy": true
+    }
+   }
+  }
+ },
+ "themes": {
+  "lowlands": {
+   "sky": [
+    "#6db3ea",
+    "#98caf0",
+    "#c4e1f7"
+   ],
+   "sun": "#ffe25a",
+   "clouds": true,
+   "hills": [
+    "#8fc47e",
+    "#6fa860"
+   ],
+   "trees": "oak",
+   "split": 9999,
+   "water": "#3f6f9a",
+   "waterHi": "#9cc4e0",
+   "left": {
+    "top": "#4fae3f",
+    "hi": "#8bd85e",
+    "base": "#7a5634",
+    "lo": "#5a3c22"
+   },
+   "right": {
+    "top": "#4fae3f",
+    "hi": "#8bd85e",
+    "base": "#7a5634",
+    "lo": "#5a3c22"
+   }
+  },
+  "highlands": {
+   "sky": [
+    "#7f95b5",
+    "#a6b6cc",
+    "#cfd8e3"
+   ],
+   "clouds": true,
+   "cloud": "#e8ecf2",
+   "hills": [
+    "#8b779c",
+    "#6b5f83"
+   ],
+   "trees": "pine",
+   "treeColor": "#3e4a52",
+   "split": 9999,
+   "rock": [
+    "#77726b",
+    "#5a5650",
+    "#928d85"
+   ],
+   "left": {
+    "top": "#4f8f45",
+    "hi": "#78b064",
+    "base": "#6b5034",
+    "lo": "#4f3a25"
+   },
+   "right": {
+    "top": "#4f8f45",
+    "hi": "#78b064",
+    "base": "#6b5034",
+    "lo": "#4f3a25"
+   }
+  }
+ },
+ "levels": [
+  {
+   "id": "bedford",
+   "name": "Bedford Castle",
+   "date": "1224",
+   "theme": "lowlands",
+   "width": 860,
+   "history": "In 1224, a rebel knight's men held Bedford Castle and had even locked up one of the king's judges. Young King Henry III brought a huge army with stone-throwing machines and a wooden siege tower, and his miners dug under the walls until part of the keep came crashing down. Afterwards the castle was pulled down so it could never be used again.",
+   "tip": "The mangonel throws stones at your siege machines. Try the miners on a tower: tap right under it.",
+   "fortX": 470,
+   "fort": [
+    "........Bx...cB",
+    "........CC.p.CC",
+    "........CC===CC",
+    "PP......CCCDCCC",
+    "PP.p.m-.CCCDCCC"
+   ],
+   "arsenal": {
+    "footman": 4,
+    "knight": 1,
+    "longbow": 1,
+    "crossbow": 2,
+    "tower": 1,
+    "sappers": 1
+   },
+   "wind": 1
+  },
+  {
+   "id": "kenilworth",
+   "name": "Kenilworth Castle",
+   "date": "1266",
+   "theme": "lowlands",
+   "width": 900,
+   "history": "In 1266, rebels held Kenilworth Castle, which sat behind a huge man-made lake. The king's army brought barges all the way from Chester to cross the water, but the castle held out for about six months, the longest siege in medieval English history. The defenders finally gave up when their food ran out.",
+   "tip": "Only the barge can cross the lake. Watch out for the boiling oil above the gate, and the mangonel on top of the keep.",
+   "fortX": 536,
+   "trenches": [
+    {
+     "x": 330,
+     "w": 190,
+     "d": 30,
+     "water": true
+    }
+   ],
+   "fort": [
+    ".....m-.x.",
+    ".....=====",
+    "xo...C...C",
+    "CCp..C...C",
+    "CC==.C...C",
+    "CCDC.C...C",
+    "CCDC.CpJcC"
+   ],
+   "arsenal": {
+    "footman": 2,
+    "knight": 1,
+    "longbow": 2,
+    "crossbow": 1,
+    "warwolf": 1,
+    "barge": 1,
+    "arrowstorm": 1
+   },
+   "wind": 2
+  },
+  {
+   "id": "caerlaverock",
+   "name": "Caerlaverock Castle",
+   "date": "1300",
+   "theme": "lowlands",
+   "history": "In 1300, King Edward I of England besieged Caerlaverock, a triangle-shaped castle with a moat around it. Only about 60 Scots held it against his whole army for two days.",
+   "tip": "The boiling oil pours on anything at the gate. Knock it out before you send the battering ram.",
+   "fortX": 450,
+   "fort": [
+    "x.......",
+    "BBoc.JBB",
+    "CC====CC",
+    "CC....CC",
+    "CCD..DCC",
+    "CCDp.DCC"
+   ],
+   "arsenal": {
+    "footman": 4,
+    "knight": 1,
+    "longbow": 3,
+    "crossbow": 1,
+    "ram": 1,
+    "tower": 1
+   },
+   "wind": 2,
+   "stars": [
+    15000,
+    22000
+   ]
+  },
+  {
+   "id": "stirling",
+   "name": "Stirling Castle",
+   "date": "1304",
+   "theme": "highlands",
+   "history": "In 1304, Edward I built the biggest trebuchet ever, called the Warwolf, to attack Stirling Castle. When the Scots offered to surrender, Edward made them wait so he could try it out first!",
+   "tip": "Crossbowmen guard both towers. The Warwolf's giant stone can bring a whole tower down.",
+   "cliff": {
+    "x": 430,
+    "h": 48
+   },
+   "fortX": 460,
+   "fort": [
+    "x.......x",
+    "BB.oc..BB",
+    "CC=====CC",
+    "CC.....CC",
+    "CCG...GCC",
+    "CCGp.JGCC"
+   ],
+   "arsenal": {
+    "footman": 3,
+    "knight": 2,
+    "longbow": 2,
+    "warwolf": 1,
+    "arrowstorm": 1
+   },
+   "wind": 2,
+   "stars": [
+    16000,
+    24000
+   ]
+  }
+ ]
+}

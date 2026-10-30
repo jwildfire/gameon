@@ -1,0 +1,17 @@
+{
+  "name": "angry-dudes",
+  "title": "Angry Dudes",
+  "version": "jeremy.v2",
+  "from": "jeremy.v1",
+  "updates": [
+    {
+      "version": "jeremy.v2",
+      "from": "jeremy.v1",
+      "idea": "Make Angry Dudes comfortable on a phone and with a keyboard, so it meets the phone bar from the phone-friendly games task (jwildfire/gameon#187): every button at least 48 x 48 px at 375 px wide, 8 px clear of each other and the screen edges, and both WASD and the arrow keys working. Measured on jeremy.v1 on 2026-10-29:\n\n- No keys at all. WASD, the arrows, Space, Enter, P and Escape do nothing, and aiming and launching work only by dragging.\n- Sideways (812 x 375), the Restart, Menu, Sound and See fort buttons are 32 px tall.\n- Start battle is below the fold sideways, so you have to scroll the panel to find it.\n\nAdd keys: WASD or the arrows set the aim and power, Space or Enter launches, a key picks the next dude, and P or Escape opens the menu. Make the top buttons 48 px tall, and keep Start battle on screen. Keep everything else the same.\n\nThis game also lives in jwildfire/angry-dudes. Making the same fix there too means the next import from that repo won't bring the old controls back.",
+      "by": "Jeremy",
+      "made": "2026-10-29",
+      "built_with": "Claude Opus 5.5",
+      "idea_issue": 224
+    }
+  ]
+}
