@@ -1,0 +1,197 @@
+{
+  "spec": "225-magic-friends-jeremy-v2",
+  "passed": true,
+  "headline": "PASS: 9 of 9 checks pass at desktop and phone widths.",
+  "generatedAt": "2026-10-30T01:20:50.589Z",
+  "target": "local server (python3 -m http.server) on this branch",
+  "commit": "5a1cca8",
+  "playwright": "1.61.1",
+  "specFile": "tests/evidence/225-magic-friends-jeremy-v2.spec.mjs",
+  "checks": [
+    {
+      "check": "jeremy.v2 opens to its title and starts a level, with nothing from the internet but jeremy.v1's fonts",
+      "notes": [
+        "desktop: clicked Play: the witch's intro ran into level 1 and its toast showed; outside requests: fonts.googleapis.com, fonts.gstatic.com (Google Fonts, as jeremy.v1); no sideways scrolling",
+        "phone: tapped Play: the witch's intro ran into level 1 and its toast showed; outside requests: fonts.googleapis.com, fonts.gstatic.com (Google Fonts, as jeremy.v1); no sideways scrolling"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "title-desktop.jpg",
+          "playing-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "title-phone.jpg",
+          "playing-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "every screen, side by side with jeremy.v1 as the player lands on it: nothing jeremy.v1 showed whole is cut off, covered or smaller, with real fonts and with fallback fonts",
+      "notes": [
+        "desktop: 1024x768: 149 words, pictures and buttons checked; 1024x768 fallback fonts: 149 words, pictures and buttons checked; 1280x800: 149 words, pictures and buttons checked; 1280x800 fallback fonts: 149 words, pictures and buttons checked; 1366x768: 149 words, pictures and buttons checked; 1366x768 fallback fonts: 149 words, pictures and buttons checked",
+        "phone: 375x812: 89 words, pictures and buttons checked; 375x812 fallback fonts: 89 words, pictures and buttons checked; 812x375: 115 words, pictures and buttons checked; 812x375 fallback fonts: 115 words, pictures and buttons checked; 667x375: 115 words, pictures and buttons checked; 667x375 fallback fonts: 115 words, pictures and buttons checked"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "world-desktop.jpg",
+          "paused-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "world-phone.jpg",
+          "paused-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "the buttons cover less of the game in play than jeremy.v1's did, and none of its counter or climb meter",
+      "notes": [
+        "desktop: game covered by buttons, jeremy.v1 → jeremy.v2: 1024x768, in play: 0.63% → 0.33% (HUD 0 → 0 px²); 1024x768 with arrow buttons, in play: 4.08% → 3.85% (HUD 0 → 0 px²); 1280x800, in play: 0.68% → 0.23% (HUD 0 → 0 px²); 1280x800 with arrow buttons, in play: 3.79% → 3.34% (HUD 0 → 0 px²); 1366x768, in play: 0.75% → 0.25% (HUD 0 → 0 px²); 1366x768 with arrow buttons, in play: 3.12% → 2.66% (HUD 0 → 0 px²)",
+        "desktop: menu screens (the game is a backdrop there; Sound and Home are bigger where there's no room beside the game): 1024x768 title 0.21% → 0.33%; 1024x768 level complete 0.42% → 0.67%; 1280x800 title 0.23% → 0.23%; 1280x800 level complete 0.45% → 0.45%; 1366x768 title 0.25% → 0.25%; 1366x768 level complete 0.50% → 0.50%",
+        "phone: game covered by buttons, jeremy.v1 → jeremy.v2: 375x812, in play: 1.90% → 0.00% (HUD 76 → 0 px²); 375x812 with arrow buttons, in play: 1.90% → 0.00% (HUD 76 → 0 px²); 812x375, in play: 1.88% → 0.00% (HUD 0 → 0 px²); 812x375 with arrow buttons, in play: 3.68% → 1.80% (HUD 0 → 0 px²); 667x375, in play: 1.88% → 1.00% (HUD 0 → 0 px²); 667x375 with arrow buttons, in play: 7.72% → 6.84% (HUD 0 → 0 px²)",
+        "phone: menu screens (the game is a backdrop there; Sound and Home are bigger where there's no room beside the game): 375x812 title 0.63% → 0.00%; 375x812 level complete 1.26% → 0.00%; 812x375 title 0.63% → 0.00%; 812x375 level complete 1.25% → 0.00%; 667x375 title 0.63% → 1.00%; 667x375 level complete 1.25% → 2.00%"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "playing-arrow-buttons-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "playing-arrow-buttons-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "every screen meets the phone bar: 48 px buttons with 8 px gaps on whole pixels, 8 px from the edges",
+      "notes": [
+        "desktop: 1024x768: title 6 (smallest 48 px), how to play (pick a level) 18 (smallest 48 px), a world's levels 8 (smallest 48 px), the witch's intro 1 (smallest 48 px), playing (sea) 1 (smallest 48 px), playing (island) 1 (smallest 48 px), playing (sky) 1 (smallest 48 px), paused 4 (smallest 56.4375 px), level complete 4 (smallest 48 px), world complete 2 (smallest 48 px), cartoon 2 (smallest 48 px), game won (game over) 4 (smallest 48 px). 1024x768 with arrow buttons: playing (sea) 4 (smallest 48 px), playing (island) 4 (smallest 48 px), playing (sky) 4 (smallest 48 px), paused 4 (smallest 56.4375 px). 1280x800: title 6 (smallest 48 px), how to play (pick a level) 18 (smallest 48 px), a world's levels 8 (smallest 48 px), the witch's intro 1 (smallest 48 px), playing (sea) 1 (smallest 48 px), playing (island) 1 (smallest 48 px), playing (sky) 1 (smallest 48 px), paused 4 (smallest 72.59375 px), level complete 4 (smallest 48 px), world complete 2 (smallest 48 px), cartoon 2 (smallest 48 px), game won (game over) 4 (smallest 48 px). 1280x800 with arrow buttons: playing (sea) 4 (smallest 48 px), playing (island) 4 (smallest 48 px), playing (sky) 4 (smallest 48 px), paused 4 (smallest 72.59375 px). 1366x768: title 6 (smallest 48 px), how to play (pick a level) 18 (smallest 48 px), a world's levels 8 (smallest 48 px), the witch's intro 1 (smallest 48 px), playing (sea) 1 (smallest 48 px), playing (island) 1 (smallest 48 px), playing (sky) 1 (smallest 48 px), paused 4 (smallest 72.59375 px), level complete 4 (smallest 48 px), world complete 2 (smallest 48 px), cartoon 2 (smallest 48 px), game won (game over) 4 (smallest 48 px). 1366x768 with arrow buttons: playing (sea) 4 (smallest 48 px), playing (island) 4 (smallest 48 px), playing (sky) 4 (smallest 48 px), paused 4 (smallest 72.59375 px)",
+        "phone: 375x812: title 6 (smallest 48 px), how to play (pick a level) 8 (smallest 48 px), a world's levels 8 (smallest 48 px), the witch's intro 1 (smallest 48 px), playing (sea) 1 (smallest 48 px), playing (island) 1 (smallest 48 px), playing (sky) 1 (smallest 48 px), paused 4 (smallest 52 px), level complete 4 (smallest 48 px), world complete 2 (smallest 48 px), cartoon 2 (smallest 48 px), game won (game over) 4 (smallest 48 px). 375x812 with arrow buttons: playing (sea) 4 (smallest 48 px), playing (island) 4 (smallest 48 px), playing (sky) 4 (smallest 48 px), paused 4 (smallest 52 px). 812x375: title 6 (smallest 48 px), how to play (pick a level) 14 (smallest 48 px), a world's levels 8 (smallest 48 px), the witch's intro 1 (smallest 48 px), playing (sea) 1 (smallest 48 px), playing (island) 1 (smallest 48 px), playing (sky) 1 (smallest 48 px), paused 4 (smallest 52 px), level complete 4 (smallest 48 px), world complete 2 (smallest 48 px), cartoon 2 (smallest 48 px), game won (game over) 4 (smallest 48 px). 812x375 with arrow buttons: playing (sea) 4 (smallest 48 px), playing (island) 4 (smallest 48 px), playing (sky) 4 (smallest 48 px), paused 4 (smallest 52 px). 667x375: title 6 (smallest 48 px), how to play (pick a level) 14 (smallest 48 px), a world's levels 8 (smallest 48 px), the witch's intro 1 (smallest 48 px), playing (sea) 1 (smallest 48 px), playing (island) 1 (smallest 48 px), playing (sky) 1 (smallest 48 px), paused 4 (smallest 52 px), level complete 4 (smallest 48 px), world complete 2 (smallest 48 px), cartoon 2 (smallest 48 px), game won (game over) 4 (smallest 48 px). 667x375 with arrow buttons: playing (sea) 4 (smallest 48 px), playing (island) 4 (smallest 48 px), playing (sky) 4 (smallest 48 px), paused 4 (smallest 52 px)"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "levels-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "levels-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "by touch: Play, Pause and Keep going, the arrow buttons, Sound, a world's level, and the start screen",
+      "notes": [
+        "phone: Play → the intro → a tap skipped it; Pause stopped the game (tick held at 69); in the pause card, Arrow buttons → on, Sound → \"Sound: off\", Keep going → playing again; held ▶ (x 40 → 81) and ◀ (→ 54); Start screen → Pick a level → Sunken Treasure Ship → level 8 started; Home on the level picker → the start screen"
+      ],
+      "desktop": {
+        "status": "skipped",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "paused-touch-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "by keyboard: WASD and the arrows both move and jump, P or Escape pauses, M is Sound, H is Home, B the arrow buttons, and the arrows walk the menus",
+      "notes": [
+        "desktop: menus: ArrowDown focused \"Play\", D moved to \"Pick a level\"; play: D 28, → 30, A -15, ← -30 px; W rose 28, ↑ 31 px; P paused, Escape kept going, Escape paused, P kept going; M switched Sound, B showed and hid the arrow buttons, H went to the start screen; Pick a level → → Enter opened Sunken Treasure Ship, Escape closed it, Enter and → Enter started one of its levels"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "paused-keys-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "skipped",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "saves from jeremy.v1 load under the same keys: progress, Normal, Sound off and the arrow buttons",
+      "notes": [
+        "desktop: seeded jeremy.v1's mfuwg2 (12 levels done, Normal, arrow buttons on), mfuwg-muted=1 and mfuwg {crown} → Normal and Harder shown, Sound off, 12 green squares and level 13 gold, the arrow buttons on in play; after a short play the keys are still mfuwg, mfuwg-muted, mfuwg2 (no new ones)",
+        "phone: seeded jeremy.v1's mfuwg2 (12 levels done, Normal, arrow buttons on), mfuwg-muted=1 and mfuwg {crown} → Normal and Harder shown, Sound off, 12 green squares and level 13 gold, the arrow buttons on in play; after a short play the keys are still mfuwg, mfuwg-muted, mfuwg2 (no new ones)"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "save-loaded-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "save-loaded-phone.jpg"
+        ],
+        "error": null
+      }
+    },
+    {
+      "check": "jeremy.v1 still plays from its folder, and games.json keeps it while jeremy.v2 becomes the default",
+      "notes": [
+        "desktop: games.json: default jeremy.v2, url games/magic-friends/jeremy.v2/; jeremy.v1 at games/magic-friends/jeremy.v1/ opened and started",
+        "phone: games.json: default jeremy.v2, url games/magic-friends/jeremy.v2/; jeremy.v1 at games/magic-friends/jeremy.v1/ opened and started"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [],
+        "error": null
+      }
+    },
+    {
+      "check": "in the arcade, Magic Friends offers both versions and plays jeremy.v2 by default; #magic-friends@jeremy.v1 still opens jeremy.v1",
+      "notes": [
+        "desktop: card (2 versions) → picker: jeremy.v2 first, \"Bigger buttons and a pause\" → jeremy.v2 plays in the frame; #magic-friends@jeremy.v1 still opens jeremy.v1",
+        "phone: card (2 versions) → picker: jeremy.v2 first, \"Bigger buttons and a pause\" → jeremy.v2 plays in the frame; #magic-friends@jeremy.v1 still opens jeremy.v1"
+      ],
+      "desktop": {
+        "status": "pass",
+        "screenshots": [
+          "arcade-desktop.jpg"
+        ],
+        "error": null
+      },
+      "phone": {
+        "status": "pass",
+        "screenshots": [
+          "arcade-phone.jpg"
+        ],
+        "error": null
+      }
+    }
+  ]
+}
