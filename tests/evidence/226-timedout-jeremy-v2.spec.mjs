@@ -28,6 +28,11 @@ const seedSave = (page, save) => page.addInitScript(save => {
   sessionStorage.setItem("seeded", "1");
 }, save);
 const fallbackFonts = page => page.route(FONTS, route => route.fulfill({ status: 200, contentType: "text/css", body: "" }));
+// The real fonts when they can be reached, with the same quick fallback either way.
+const realFonts = page => page.route(/^https:\/\/fonts\.(googleapis|gstatic)\.com\//, async route => {
+  try { await route.fulfill({ response: await route.fetch({ timeout: 10_000 }) }); }
+  catch { await route.fulfill({ status: 200, contentType: route.request().url().includes("gstatic") ? "font/woff2" : "text/css", body: "" }); }
+});
 const state = page => page.evaluate(() => window.timedOut.state());
 
 function outsideHosts(page) {
@@ -369,7 +374,7 @@ function compare(a1, a2) {
 // Each screen as the player lands on it, in the same game: title, play, a card placed (the toast between turns),
 // the next card, and game over after three wrong guesses. v2 also records its touch targets on each screen and in
 // the pause menu (which jeremy.v1 doesn't have).
-async function record(page, url, { targets } = {}) {
+async function record(page, url, { targets, topic = "space" } = {}) {
   const out = {}, bar = [];
   const tt = async label => { if (!targets) return; const { problems } = await touchTargets(page); bar.push(...problems.map(p => `${label}: ${p}`)); };
   await page.goto(url);
@@ -377,7 +382,7 @@ async function record(page, url, { targets } = {}) {
   await page.evaluate(async () => { await Promise.allSettled([...document.fonts].map(f => f.load())); await document.fonts.ready; });
   await page.waitForTimeout(450);
   out.title = await page.evaluate(snap); await tt("title");
-  await page.locator(".btn-category[data-category=space]").dispatchEvent("click");
+  await page.locator(`.btn-category[data-category=${topic}]`).dispatchEvent("click");
   await page.waitForTimeout(500);
   out.play = await page.evaluate(snap); await tt("play");
   for (let i = 0; i < 2; i++) {
@@ -407,8 +412,8 @@ async function record(page, url, { targets } = {}) {
 
 const SIZES = { phone: [[375, 812], [812, 375], [667, 375], [740, 360]], desktop: [[1024, 768], [1280, 800], [1366, 768]] };
 
-test("every screen shows everything jeremy.v1 showed, line by line, at seven sizes, with fallback, wide and real fonts, and the play area is no smaller", async ({ page, shot, note, browserErrors }, testInfo) => {
-  test.setTimeout(900_000);
+test("every screen shows everything jeremy.v1 showed, line by line, at seven sizes, with fallback, wide and real fonts, Dad Mode on and off, and the play area is no smaller", async ({ page, shot, note, browserErrors }, testInfo) => {
+  test.setTimeout(1_800_000);
   await page.emulateMedia({ reducedMotion: "reduce" });
   await seeded(page);
   // The wide pass: a wider stand-in font in both versions, the way another machine's fallback fonts can be
@@ -422,21 +427,18 @@ test("every screen shows everything jeremy.v1 showed, line by line, at seven siz
   });
   const lost = [], bar = [], lines = [], grew = new Set();
   let compared = 0, lineCount = 0;
-  const passes = [["fallback", {}], ["fallback", { dadMode: "true" }], ["wide", {}], ["real", {}]];
+  const passes = ["fallback", "wide", "real"].flatMap(fonts => [[fonts, {}], [fonts, { dadMode: "true" }]]);
   for (const [w, h] of SIZES[testInfo.project.name]) {
     await page.setViewportSize({ width: w, height: h });
     for (const [fonts, save] of passes) {
       await page.unrouteAll({ behavior: "ignoreErrors" });
-      if (fonts === "real") {
-        await page.route(/^https:\/\/fonts\.(googleapis|gstatic)\.com\//, async route => {
-          try { await route.fulfill({ response: await route.fetch({ timeout: 10_000 }) }); }
-          catch { await route.fulfill({ status: 200, contentType: route.request().url().includes("gstatic") ? "font/woff2" : "text/css", body: "" }); }
-        });
-      } else await fallbackFonts(page);
+      if (fonts === "real") await realFonts(page);
+      else await fallbackFonts(page);
       const runOne = async url => {
         await page.goto(V1); // same origin, so the save can be set before the game reads it
         await page.evaluate(save => { localStorage.clear(); for (const [k, v] of Object.entries(save)) localStorage.setItem(k, v); }, save);
-        return record(page, url + (fonts === "wide" ? "?wide" : ""), { targets: url === V2 && fonts !== "real" });
+        // Dad Mode's bigger clue text runs to two lines with the Presidents cards, the tightest the timeline gets
+        return record(page, url + (fonts === "wide" ? "?wide" : ""), { targets: url === V2, topic: save.dadMode ? "presidents" : "space" });
       };
       const a = await runOne(V1), b = await runOne(V2);
       const r = compare(a.out, b.out);
@@ -452,13 +454,200 @@ test("every screen shows everything jeremy.v1 showed, line by line, at seven siz
     }
     if ((w === 375 || w === 1280)) await shot(`compare-${w}`);
   }
-  note(`${compared} boxes and ${lineCount} lines of text that jeremy.v1 showed whole and uncovered as the player lands (title, play, a card placed with its toast, the next card, game over; fallback fonts, Dad Mode, a wider stand-in font and the real fonts) are whole, uncovered and no smaller in jeremy.v2; nothing scrolls sideways`);
+  note(`${compared} boxes and ${lineCount} lines of text that jeremy.v1 showed whole and uncovered as the player lands (title, play, a card placed with its toast, the next card, game over; fallback fonts, a wider stand-in font and the real fonts, each with Dad Mode on and off, the Dad Mode games on the two-line Presidents cards) are whole, uncovered and no smaller in jeremy.v2; nothing scrolls sideways`);
   note(`bigger in jeremy.v2: ${[...grew].join(", ") || "nothing"}`);
   for (const l of lines) note(l);
   note(`touch targets in jeremy.v2 on every screen, the pause menu included: ${bar.length} problems`);
   expect(compared).toBeGreaterThan(100);
   expect(lost).toEqual([]);
   expect(bar).toEqual([]);
+  expect(browserErrors).toEqual([]);
+});
+
+// Whether every drop zone is whole inside the timeline and how the clue wrapped, for the card on show.
+const zoneFit = page => page.evaluate(() => {
+  const wrap = document.querySelector(".timeline-wrapper").getBoundingClientRect();
+  const text = document.getElementById("current-event-text");
+  const lines = Math.round(text.getBoundingClientRect().height / parseFloat(getComputedStyle(text).lineHeight));
+  const zones = [...document.querySelectorAll("#timeline .drop-zone")].map(z => z.getBoundingClientRect());
+  return {
+    lines, wrapTop: wrap.top, wrapBottom: wrap.bottom,
+    top: Math.min(...zones.map(z => z.top)), bottom: Math.max(...zones.map(z => z.bottom)), height: Math.min(...zones.map(z => z.height)),
+    screenBottom: innerHeight,
+  };
+});
+
+test("the phone bar holds with Dad Mode on and off, at all seven sizes, on every screen and state, with cards that wrap to two lines", async ({ page, shot, note, browserErrors }, testInfo) => {
+  test.setTimeout(1_800_000);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await seeded(page);
+  const bar = [], cut = [];
+  let checks = 0, twoLine = 0;
+  for (const [w, h] of SIZES[testInfo.project.name]) {
+    await page.setViewportSize({ width: w, height: h });
+    for (const fonts of ["fallback", "real"]) for (const dad of [true, false]) {
+      await page.unrouteAll({ behavior: "ignoreErrors" });
+      await (fonts === "real" ? realFonts(page) : fallbackFonts(page));
+      const tag = `${w}x${h}, ${fonts} fonts, Dad Mode ${dad ? "on" : "off"}`;
+      const check = async label => {
+        checks++;
+        const { problems } = await touchTargets(page);
+        bar.push(...problems.map(p => `${tag}, ${label}: ${p}`));
+      };
+      const fits = async label => {
+        const f = await zoneFit(page);
+        if (f.lines >= 2) twoLine++;
+        if (f.height < 48 || f.top < f.wrapTop - 0.5 || f.bottom > f.wrapBottom + 0.5) cut.push(`${tag}, ${label}: zones ${f.top.toFixed(1)} to ${f.bottom.toFixed(1)} in a timeline ${f.wrapTop.toFixed(1)} to ${f.wrapBottom.toFixed(1)}`);
+        return f;
+      };
+      await page.goto(V1);
+      await page.evaluate(dad => localStorage.setItem("dadMode", String(dad)), dad);
+      await page.goto(V2);
+      await expect(page.locator("#screen-start .title")).toBeVisible();
+      await page.evaluate(async () => { await Promise.allSettled([...document.fonts].map(f => f.load())); await document.fonts.ready; });
+      await page.waitForTimeout(450);
+      await check("title");
+      await page.evaluate(() => document.getElementById("screen-start").scrollTo(0, 1e6));
+      await page.waitForTimeout(50);
+      await check("title, scrolled to the end");
+
+      await page.locator(".btn-category[data-category=presidents]").dispatchEvent("click");
+      await page.waitForTimeout(600);
+      await check("play");
+      await page.locator("#btn-menu-game").dispatchEvent("click");
+      await page.waitForTimeout(150);
+      await check("pause");
+      await page.locator("#btn-resume").dispatchEvent("click");
+      await page.waitForTimeout(150);
+      let tightest = await fits("first card");
+      for (let i = 0; i < 4; i++) { // with the three wrong guesses below, seven cards in all
+        await page.locator("#timeline .drop-zone").nth(await slotFor(page)).dispatchEvent("click");
+        await page.waitForTimeout(700);
+        await check(`card ${i + 1} placed, toast`);
+        await page.waitForTimeout(1600);
+        await check(`card ${i + 2}`);
+        const f = await fits(`card ${i + 2}`);
+        if (f.bottom > tightest.bottom) tightest = f;
+        if (w === 740 && dad && fonts === "real" && i === 1) await shot("dad-mode-740-two-line-cards");
+      }
+      if (w === 740 && dad) note(`Dad Mode on, 740x360, Presidents, ${fonts} fonts: timeline ${tightest.wrapTop.toFixed(0)}–${tightest.wrapBottom.toFixed(0)}, zones ${tightest.top.toFixed(0)}–${tightest.bottom.toFixed(0)}, ${tightest.height.toFixed(0)} px tall, ${(tightest.screenBottom - tightest.bottom).toFixed(0)} px from the bottom edge, ${tightest.lines} lines of clue`);
+      for (let i = 0; i < 3; i++) {
+        await page.locator("#timeline .drop-zone").nth(await slotFor(page, true)).dispatchEvent("click");
+        await page.waitForTimeout(700);
+        await check(`wrong guess ${i + 1}, toast`);
+        await page.waitForTimeout(1100);
+      }
+      await expect(page.locator("#screen-gameover")).toHaveClass(/active/, { timeout: 5000 });
+      await page.waitForTimeout(500);
+      await check("game over");
+      await page.locator("#btn-menu-gameover").dispatchEvent("click");
+      await page.waitForTimeout(450);
+      await page.locator("#btn-endless").dispatchEvent("click");
+      await page.waitForTimeout(600);
+      await check("Endless");
+      await fits("Endless");
+      await page.locator("#timeline .drop-zone").nth(await slotFor(page)).dispatchEvent("click");
+      await page.waitForTimeout(2300);
+      await check("Endless, card placed");
+      // What the game does when an Endless deck runs out
+      await page.evaluate(() => {
+        document.getElementById("current-card").classList.add("hidden");
+        document.getElementById("btn-reset-events").classList.remove("hidden");
+      });
+      await page.waitForTimeout(100);
+      await check("Endless, deck ran out");
+    }
+  }
+  note(`${checks} touchTargets() runs on Dad Mode on and off, fallback and real fonts, ${SIZES[testInfo.project.name].length} sizes: title, title scrolled to the end, play, pause, each card placed with its toast, the next card, wrong guesses, game over, Endless and its Reset Events: ${bar.length} problems`);
+  note(`${twoLine} of the cards dealt ran to two lines or more; every drop zone stayed at least 48 px tall and whole inside the timeline`);
+  expect(twoLine).toBeGreaterThan(0);
+  expect(cut).toEqual([]);
+  expect(bar).toEqual([]);
+  expect(browserErrors).toEqual([]);
+});
+
+// Medium and Hard games deal Wikipedia cards up to 199 characters, far longer than any curated card. Each one
+// starts with its year so the spec can tell them apart, and they're the length the game lets through.
+const FILLER = "a long account of a very old event told in full with every place and person named along the way, so that the clue runs on for line after line and takes up most of the card on the screen of a phone";
+const WIKI = Array.from({ length: 40 }, (_, i) => {
+  const year = 1000 + i * 20;
+  return { year, text: `In ${year}, ${FILLER.slice(0, 150 + (i % 6) * 8)}`, pages: [] };
+});
+
+test("the longest Wikipedia cards on a sideways phone: the timeline keeps room for whole zones, and a real tap reaches them", async ({ page, isMobile, shot, note, browserErrors }) => {
+  test.skip(!isMobile, "sideways phones only");
+  test.setTimeout(600_000);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await seeded(page);
+  await fallbackFonts(page);
+  await page.route("https://en.wikipedia.org/api/rest_v1/feed/onthisday/**", route => route.fulfill({ json: { events: WIKI } }));
+  const bar = [], lost = [];
+  let longest = 0;
+  for (const [w, h] of SIZES.phone.filter(([w]) => w > 600)) {
+    await page.setViewportSize({ width: w, height: h });
+    for (const dad of [true, false]) {
+      const tag = `${w}x${h}, Dad Mode ${dad ? "on" : "off"}`;
+      const start = async url => {
+        await page.goto(V1);
+        await page.evaluate(dad => localStorage.setItem("dadMode", String(dad)), dad);
+        await open(page, url);
+        await page.locator(".btn-difficulty.hard").dispatchEvent("click");
+        await expect(page.locator("#screen-game")).toHaveClass(/active/, { timeout: 15_000 });
+        await page.waitForTimeout(700);
+      };
+      await start(V1);
+      const wrap1 = await page.evaluate(() => document.querySelector(".timeline-wrapper").getBoundingClientRect().height);
+      await start(V2);
+      const wrap2 = await page.evaluate(() => document.querySelector(".timeline-wrapper").getBoundingClientRect().height);
+      if (wrap2 < wrap1 - 0.5) lost.push(`${tag}: the timeline shrank from ${wrap1.toFixed(1)} to ${wrap2.toFixed(1)} px`);
+      for (let i = 0; i < 2; i++) {
+        const f = await zoneFit(page);
+        longest = Math.max(longest, f.lines);
+        const { problems } = await touchTargets(page);
+        bar.push(...problems.map(p => `${tag}, card ${i + 1}: ${p}`));
+        if (f.height < 48 || f.top < f.wrapTop - 0.5 || f.bottom > f.wrapBottom + 0.5) lost.push(`${tag}, card ${i + 1}: zones ${f.top.toFixed(1)} to ${f.bottom.toFixed(1)} in a timeline ${f.wrapTop.toFixed(1)} to ${f.wrapBottom.toFixed(1)}`);
+        const end = await page.evaluate(() => { const s = document.getElementById("screen-game"); return s.scrollHeight - s.scrollTop - s.clientHeight; });
+        if (f.wrapBottom + end - f.bottom < 8 - 0.5) lost.push(`${tag}, card ${i + 1}: zones under 8 px from the end of the page`);
+        // A real tap on the screen as it stands, with nothing scrolled for the player
+        const spot = await page.evaluate(() => {
+          for (const z of document.querySelectorAll("#timeline .drop-zone")) {
+            const b = z.getBoundingClientRect(), x = b.left + b.width / 2, y = (Math.max(0, b.top) + Math.min(innerHeight, b.bottom)) / 2;
+            if (x > 8 && x < innerWidth - 8 && b.top + b.height / 2 < innerHeight && z.contains(document.elementFromPoint(x, y))) return { x, y };
+          }
+          return null;
+        });
+        if (!spot) { lost.push(`${tag}, card ${i + 1}: no drop zone on screen to tap`); break; }
+        const before = await page.locator("#timeline .timeline-card").count();
+        await page.touchscreen.tap(spot.x, spot.y);
+        await expect(page.locator("#timeline .timeline-card")).toHaveCount(before + 1);
+        if (i === 0 && dad && w === 740) await shot("long-wikipedia-card-740");
+        await page.waitForTimeout(1800);
+      }
+      note(`${tag}, the same first card of over 150 characters: timeline ${wrap1.toFixed(0)} px tall in jeremy.v1, ${wrap2.toFixed(0)} px in jeremy.v2`);
+    }
+  }
+  note(`the longest card ran to ${longest} lines`);
+  expect(longest).toBeGreaterThanOrEqual(4);
+  expect(lost).toEqual([]);
+  expect(bar).toEqual([]);
+  expect(browserErrors).toEqual([]);
+});
+
+test("pausing right after the last wrong guess leaves the game over screen clear", async ({ page, note, browserErrors }) => {
+  await seeded(page);
+  await open(page);
+  await page.locator(".btn-category[data-category=presidents]").dispatchEvent("click");
+  await page.waitForTimeout(600);
+  for (let i = 0; i < 3; i++) {
+    await page.locator("#timeline .drop-zone").nth(await slotFor(page, true)).dispatchEvent("click");
+    if (i < 2) await page.waitForTimeout(1700);
+  }
+  await page.locator("#btn-menu-game").dispatchEvent("click");
+  await page.keyboard.press("Escape");
+  await expect(page.locator("#screen-gameover")).toHaveClass(/active/, { timeout: 5000 });
+  await expect(page.locator("#pause-menu")).toBeHidden();
+  expect((await state(page)).paused).toBe(false);
+  note("the X and Escape during the last wrong guess's 1.5 s do nothing; the game over screen comes up clear");
   expect(browserErrors).toEqual([]);
 });
 

@@ -1261,9 +1261,16 @@ body.dad-mode .card-label {
 
 /* Drop zones: 48 px wide on a phone (jeremy.v1: 44). On a short screen they're
    fitted to the timeline (see fitZones in app.js) so they stay 8 px clear of
-   the bottom edge instead of running off it. */
+   the bottom edge instead of running off it. A long clue can leave jeremy.v1's
+   timeline with no height at all; here it keeps room for a whole zone and the
+   gap under it, and the page scrolls. */
+.timeline-wrapper {
+    min-height: 56px;
+}
+
 .drop-zone {
     height: var(--zone-h, 140px);
+    top: calc(-1 * var(--zone-lift, 0px));
 }
 
 @media (max-width: 600px) {

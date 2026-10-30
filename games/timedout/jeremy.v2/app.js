@@ -929,7 +929,7 @@ class GameUI {
 
     // ============ Pause menu (the X, Escape or P) ============
     openPause() {
-        if (this.screen !== 'game' || this.paused) return;
+        if (this.screen !== 'game' || this.paused || this.game.isGameOver) return;
         this.paused = true;
         this.stopSpeech();
         this.pauseEl.classList.remove('hidden');
@@ -1168,10 +1168,25 @@ class GameUI {
         const wrap = this.timelineWrap;
         if (!wrap || !wrap.clientHeight) return;
         const natural = window.matchMedia('(max-width: 600px)').matches ? 120 : 140;
-        const bottomGap = window.innerHeight - wrap.getBoundingClientRect().bottom;
-        const room = Math.floor(wrap.clientHeight - 2 * Math.max(0, 8 - bottomGap));
+        const box = wrap.getBoundingClientRect();
+        const edge = Math.max(0, 8 - Math.max(0, window.innerHeight - box.bottom));
+        const room = Math.floor(box.height - 2 * edge);
         if (room >= natural) this.timelineEl.style.removeProperty('--zone-h');
         else this.timelineEl.style.setProperty('--zone-h', `${Math.max(48, room)}px`);
+        // Too short to centre 48 px clear of the edge: move the zones up instead of cutting them.
+        // The wrapper is never under 56 px (style.css), so they stay whole inside it.
+        const lift = Math.ceil(24 + edge - box.height / 2);
+        if (room >= 48 || lift <= 0) this.timelineEl.style.removeProperty('--zone-lift');
+        else this.timelineEl.style.setProperty('--zone-lift', `${lift}px`);
+    }
+
+    // A very long clue on a sideways phone can push the timeline right off the bottom of the
+    // screen, so jump to it. Anywhere the zones are still in reach the page stays at the top.
+    revealZones() {
+        const screen = this.timelineWrap && this.timelineWrap.closest('.screen');
+        if (!screen) return;
+        const top = this.timelineWrap.getBoundingClientRect().top + screen.scrollTop;
+        screen.scrollTo({ top: top + 24 > window.innerHeight ? screen.scrollHeight : 0 });
     }
 
     state() {
@@ -1353,6 +1368,7 @@ class GameUI {
         this.currentCardEl.style.animation = 'none';
         this.currentCardEl.offsetHeight; // reflow
         this.currentCardEl.style.animation = 'fadeInUp 0.4s ease';
+        this.revealZones();
     }
 
     renderTimeline() {
