@@ -2,9 +2,9 @@
   "spec": "225-magic-friends-jeremy-v2",
   "passed": true,
   "headline": "PASS: 9 of 9 checks pass at desktop and phone widths.",
-  "generatedAt": "2026-10-30T01:20:50.589Z",
+  "generatedAt": "2026-10-30T01:58:54.860Z",
   "target": "local server (python3 -m http.server) on this branch",
-  "commit": "5a1cca8",
+  "commit": "578b77d",
   "playwright": "1.61.1",
   "specFile": "tests/evidence/225-magic-friends-jeremy-v2.spec.mjs",
   "checks": [
@@ -101,7 +101,7 @@
     {
       "check": "by touch: Play, Pause and Keep going, the arrow buttons, Sound, a world's level, and the start screen",
       "notes": [
-        "phone: Play → the intro → a tap skipped it; Pause stopped the game (tick held at 69); in the pause card, Arrow buttons → on, Sound → \"Sound: off\", Keep going → playing again; held ▶ (x 40 → 81) and ◀ (→ 54); Start screen → Pick a level → Sunken Treasure Ship → level 8 started; Home on the level picker → the start screen"
+        "phone: Play → the intro → a tap skipped it; Pause stopped the game (tick held at 64); in the pause card, Arrow buttons → on, Sound → \"Sound: off\", Keep going → playing again; held ▶ (x 40 → 81) and ◀ (→ 53); Start screen → Pick a level → Sunken Treasure Ship → level 8 started; Home on the level picker → the start screen"
       ],
       "desktop": {
         "status": "skipped",
@@ -119,7 +119,7 @@
     {
       "check": "by keyboard: WASD and the arrows both move and jump, P or Escape pauses, M is Sound, H is Home, B the arrow buttons, and the arrows walk the menus",
       "notes": [
-        "desktop: menus: ArrowDown focused \"Play\", D moved to \"Pick a level\"; play: D 28, → 30, A -15, ← -30 px; W rose 28, ↑ 31 px; P paused, Escape kept going, Escape paused, P kept going; M switched Sound, B showed and hid the arrow buttons, H went to the start screen; Pick a level → → Enter opened Sunken Treasure Ship, Escape closed it, Enter and → Enter started one of its levels"
+        "desktop: menus: ArrowDown focused \"Play\", D moved to \"Pick a level\"; play: D 28, → 31, A -17, ← -32 px; W rose 28, ↑ 37 px; P paused, Escape kept going, Escape paused, P kept going; M switched Sound, B showed and hid the arrow buttons, H went to the start screen; Pick a level → → Enter opened Sunken Treasure Ship, Escape closed it, Enter and → Enter started one of its levels"
       ],
       "desktop": {
         "status": "pass",

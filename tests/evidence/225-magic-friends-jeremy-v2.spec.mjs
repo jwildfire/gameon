@@ -49,13 +49,31 @@ const SCREENS = [
   { name: "game won (game over)", js: "g.startLevel(59); g.skipIntro(); g.setMode('win'); g.step(245)" }
 ];
 
-async function open(page, url, js) {
-  await page.goto(url + "?test");
-  await expect(page.locator("#game")).toBeVisible();
-  await page.waitForTimeout(300);
-  await page.evaluate(() => document.fonts.ready);
+// Waits (up to 6 s) for the game's three Google Fonts, in every weight it uses, and says whether they all loaded.
+const FACES = ['700 20px "Pixelify Sans"', '500 20px "Pixelify Sans"', '500 16px Fredoka', '600 16px Fredoka', '16px Silkscreen'];
+const fontsLoaded = page => page.evaluate(async faces => {
+  try { await Promise.race([Promise.all(faces.map(f => document.fonts.load(f))), new Promise(r => setTimeout(r, 6000))]); } catch (e) {}
+  await document.fonts.ready;
+  return faces.every(f => document.fonts.check(f));
+}, FACES);
+
+// Opens a screen. With `fonts`, reloads (up to 3 tries) until the real fonts have loaded, so both versions are measured
+// with the same fonts on a busy machine; returns whether they loaded. Once they've failed three times on a page
+// (no internet, as on some CI machines), it stops waiting for them on that page.
+const noFonts = new WeakSet();
+async function open(page, url, js, { fonts = false } = {}) {
+  let loaded = false;
+  const tries = fonts && !noFonts.has(page) ? 3 : 1;
+  for (let t = 0; t < tries && !loaded; t++) {
+    await page.goto(url + "?test");
+    await expect(page.locator("#game")).toBeVisible();
+    await page.waitForTimeout(300);
+    loaded = tries > 1 ? await fontsLoaded(page) : await page.evaluate(() => document.fonts.ready.then(() => false));
+  }
+  if (fonts && !loaded) noFonts.add(page);
   if (js) await page.evaluate(`(() => { const g = window.__game; ${js}; g.render(); })()`);
   await page.waitForTimeout(150);
+  return loaded;
 }
 
 // Everything with words or a tap on it: where it is, its font size, whether all of it can be seen without scrolling,
@@ -165,13 +183,16 @@ test("every screen, side by side with jeremy.v1 as the player lands on it: nothi
         const errors = []; p.on("pageerror", e => errors.push(e.message));
         for (const s of SCREENS) {
           if (s.v2only && url === V1) continue;
-          await open(p, url, s.js);
-          results[url + s.name] = await p.evaluate(measure);
+          const loaded = await open(p, url, s.js, { fonts: !fallback });
+          results[url + s.name] = { ...(await p.evaluate(measure)), loaded };
         }
         expect(errors, `${url} at ${w}x${h}`).toEqual([]);
         await ctx.close();
       }
       let checked = 0;
+      // the real-fonts pass compares like with like: if Google Fonts didn't load on this machine, the fallback pass covers it
+      const unloaded = fallback ? [] : SCREENS.filter(s => Object.keys(results).some(k => k.endsWith(s.name) && !results[k].loaded)).map(s => s.name);
+      if (unloaded.length) { lines.push(`${w}x${h}: Google Fonts didn't load (${unloaded.length} screens), so only the fallback pass counts there`); continue; }
       for (const s of SCREENS) {
         const where = `${w}x${h}${fallback ? " (fallback fonts)" : ""} ${s.name}`;
         const v2 = results[V2 + s.name];
