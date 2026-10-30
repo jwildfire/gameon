@@ -527,7 +527,7 @@ test("the phone bar holds with Dad Mode on and off, at all seven sizes, on every
         await page.waitForTimeout(1600);
         await check(`card ${i + 2}`);
         const f = await fits(`card ${i + 2}`);
-        if (f.bottom > tightest.bottom) tightest = f;
+        if (f.wrapTop > tightest.wrapTop) tightest = f;
         if (w === 740 && dad && fonts === "real" && i === 1) await shot("dad-mode-740-two-line-cards");
       }
       if (w === 740 && dad) note(`Dad Mode on, 740x360, Presidents, ${fonts} fonts: timeline ${tightest.wrapTop.toFixed(0)}–${tightest.wrapBottom.toFixed(0)}, zones ${tightest.top.toFixed(0)}–${tightest.bottom.toFixed(0)}, ${tightest.height.toFixed(0)} px tall, ${(tightest.screenBottom - tightest.bottom).toFixed(0)} px from the bottom edge, ${tightest.lines} lines of clue`);
