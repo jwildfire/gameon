@@ -234,13 +234,14 @@
     "title": "Timed Out",
     "tagline": "Put real events from Wikipedia in order. Three wrong guesses and you're timed out.",
     "credit": "Made by Jeremy",
-    "url": "games/timedout/jeremy.v1/",
+    "url": "games/timedout/jeremy.v2/",
     "repo": "https://github.com/jwildfire/timedout",
     "color": "#f59e0b",
     "tags": ["History", "Needs internet"],
-    "default": "jeremy.v1",
+    "default": "jeremy.v2",
     "versions": [
-      { "id": "jeremy.v1", "url": "games/timedout/jeremy.v1/", "made": "2026-03-02", "note": "The first version", "source": {"repo": "jwildfire/timedout", "commit": "3326116b3a06e919a878133cff958e9692dd7a4b"} }
+      { "id": "jeremy.v1", "url": "games/timedout/jeremy.v1/", "made": "2026-03-02", "note": "The first version", "source": {"repo": "jwildfire/timedout", "commit": "3326116b3a06e919a878133cff958e9692dd7a4b"} },
+      { "id": "jeremy.v2", "url": "games/timedout/jeremy.v2/", "made": "2026-10-29", "note": "Play it with keys", "from": "jeremy.v1", "idea": 226 }
     ]
   }
 ]
