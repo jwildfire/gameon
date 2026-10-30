@@ -728,9 +728,14 @@ class GameUI {
     constructor() {
         this.game = new Game();
         this.isAnimating = false;
-        this.dadMode = localStorage.getItem('dadMode') === 'true';
+        this.dadMode = loadDadMode();
+        this.paused = false;
+        this.picked = 0;       // the drop zone the arrow keys (or A and D) have picked
+        this.reads = 0;        // how many times the clue was read aloud (for the evidence)
         this.bindElements();
         this.bindEvents();
+        this.bindKeys();
+        this.watchTimeline();
         if (this.dadMode) document.body.classList.add('dad-mode');
     }
 
@@ -757,6 +762,7 @@ class GameUI {
         this.gameoverMsgEl = document.getElementById('gameover-message');
         this.dadTooltipEl = document.getElementById('dad-tooltip');
         this.readClueBtn = document.getElementById('btn-read-clue');
+        this.pauseEl = document.getElementById('pause-menu');
     }
 
     bindEvents() {
@@ -788,10 +794,20 @@ class GameUI {
             this.startEndlessGame();
         });
 
-        // Main menu buttons (game screen and game over screen)
+        // The X opens the pause menu (Escape and P do too); Main Menu is in there
         document.getElementById('btn-menu-game').addEventListener('click', () => {
+            this.openPause();
+        });
+        document.getElementById('btn-resume').addEventListener('click', () => {
+            this.closePause();
+        });
+        document.getElementById('btn-menu-pause').addEventListener('click', () => {
+            this.closePause();
+            this.stopSpeech();
             this.showScreen('start');
         });
+        // Game over screen
+
         document.getElementById('btn-menu-gameover').addEventListener('click', () => {
             this.showScreen('start');
         });
@@ -810,7 +826,7 @@ class GameUI {
         dadToggle.checked = this.dadMode;
         dadToggle.addEventListener('change', () => {
             this.dadMode = dadToggle.checked;
-            localStorage.setItem('dadMode', this.dadMode);
+            saveDadMode(this.dadMode);
             document.body.classList.toggle('dad-mode', this.dadMode);
             if (!this.dadMode) this.hideDadTooltip();
         });
@@ -875,6 +891,7 @@ class GameUI {
     }
 
     readClue() {
+        this.reads++;
         if (!window.speechSynthesis) return;
 
         // If already speaking, stop and reset button
@@ -904,6 +921,275 @@ class GameUI {
         for (const [key, el] of Object.entries(this.screens)) {
             el.classList.toggle('active', key === name);
         }
+        this.screen = name;
+        // Leave nothing focused on the old screen, so Enter or Space can't press a hidden button
+        if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur();
+        if (name === 'game') requestAnimationFrame(() => this.fitZones());
+    }
+
+    // ============ Pause menu (the X, Escape or P) ============
+    openPause() {
+        if (this.screen !== 'game' || this.paused) return;
+        this.paused = true;
+        this.stopSpeech();
+        this.pauseEl.classList.remove('hidden');
+        if (document.body.classList.contains('keys')) document.getElementById('btn-resume').focus();
+        else if (document.activeElement) document.activeElement.blur();
+    }
+
+    closePause() {
+        if (!this.paused) return;
+        this.paused = false;
+        this.pauseEl.classList.add('hidden');
+        if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur();
+    }
+
+    // ============ Keys ============
+    // Title, game over and the pause menu: WASD or the arrows move the focus between the
+    // buttons, Enter or Space presses it. In play: A/D or Left/Right pick a drop zone,
+    // Enter, Space, S or Down place the card there, W or Up reads the clue aloud, and
+    // Escape or P pause.
+    bindKeys() {
+        const DIRS = {
+            ArrowLeft: 'left', a: 'left', A: 'left',
+            ArrowRight: 'right', d: 'right', D: 'right',
+            ArrowUp: 'up', w: 'up', W: 'up',
+            ArrowDown: 'down', s: 'down', S: 'down',
+        };
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey || e.altKey) return;
+            const key = e.key;
+            const dir = DIRS[key];
+            const go = key === 'Enter' || key === ' ' || key === 'Spacebar';
+            const pause = key === 'Escape' || key === 'p' || key === 'P';
+            if (!dir && !go && !pause) return;
+            document.body.classList.add('keys');
+
+            if (this.paused) {
+                e.preventDefault();
+                if (pause) this.closePause();
+                else if (dir) this.moveFocus(this.pauseEl, dir);
+                else if (go) this.press(this.pauseEl, 'btn-resume');
+                return;
+            }
+
+            if (this.screen === 'game') {
+                e.preventDefault();
+                if (e.repeat && !dir) return;
+                if (pause) this.openPause();
+                else if (dir === 'left' || dir === 'right') this.pickZone(dir === 'left' ? -1 : 1);
+                else if (dir === 'up') this.readClue();
+                else if (dir === 'down' || go) this.placePicked();
+                return;
+            }
+
+            const screen = this.screens[this.screen || 'start'];
+            if (this.screen === 'gameover') {
+                if (dir) { e.preventDefault(); this.moveFocus(screen, dir); }
+                else if (go) { e.preventDefault(); this.press(screen, 'btn-replay'); }
+                return;
+            }
+
+            if (!this.screen || this.screen === 'start') {
+                const slider = document.getElementById('event-count');
+                if (dir && document.activeElement === slider && (dir === 'left' || dir === 'right')) {
+                    e.preventDefault();
+                    this.nudgeSlider(slider, dir === 'left' ? -1 : 1);
+                } else if (dir) {
+                    e.preventDefault();
+                    this.moveFocus(screen, dir);
+                } else if (go) {
+                    e.preventDefault();
+                    // Nothing picked yet: Enter or Space starts an Easy game, like tapping Easy
+                    this.press(screen, null, '.btn-difficulty.easy');
+                }
+            }
+        });
+    }
+
+    // The buttons a key can move between on a screen, with where each one sits.
+    navTargets(root) {
+        const els = [...root.querySelectorAll('button, input[type=range], input[type=checkbox]')];
+        return els.map(el => {
+            const box = (el.type === 'checkbox' ? el.closest('label') || el : el).getBoundingClientRect();
+            return { el, box };
+        }).filter(t => t.box.width > 0 && t.box.height > 0 && !t.el.closest('.hidden'));
+    }
+
+    moveFocus(root, dir) {
+        const targets = this.navTargets(root);
+        if (!targets.length) return;
+        const cur = targets.find(t => t.el === document.activeElement);
+        if (!cur) { targets[0].el.focus(); return; }
+        const c = cur.box, cx = c.left + c.width / 2, cy = c.top + c.height / 2;
+        let best = null, bestScore = Infinity;
+        for (const t of targets) {
+            if (t === cur) continue;
+            const b = t.box, x = b.left + b.width / 2, y = b.top + b.height / 2;
+            const dx = x - cx, dy = y - cy;
+            let along, across;
+            if (dir === 'left') { along = -dx; across = Math.abs(dy); if (b.right > c.left + 1) continue; }
+            else if (dir === 'right') { along = dx; across = Math.abs(dy); if (b.left < c.right - 1) continue; }
+            else if (dir === 'up') { along = -dy; across = Math.abs(dx); if (b.bottom > c.top + 1) continue; }
+            else { along = dy; across = Math.abs(dx); if (b.top < c.bottom - 1) continue; }
+            const score = along + across * 2;
+            if (score < bestScore) { bestScore = score; best = t; }
+        }
+        if (best) best.el.focus();
+    }
+
+    // Enter or Space: press the focused button, or `fallback` if nothing on this screen is focused.
+    press(root, fallbackId, fallbackSel) {
+        const el = document.activeElement;
+        if (el && el !== document.body && root.contains(el)) {
+            if (el.type === 'checkbox') { el.checked = !el.checked; el.dispatchEvent(new Event('change')); }
+            else if (el.type !== 'range') el.click();
+            return;
+        }
+        const fb = fallbackId ? document.getElementById(fallbackId) : root.querySelector(fallbackSel);
+        if (fb) fb.click();
+    }
+
+    nudgeSlider(slider, step) {
+        const v = Math.min(+slider.max, Math.max(+slider.min, +slider.value + step * +slider.step));
+        if (v === +slider.value) return;
+        slider.value = v;
+        slider.dispatchEvent(new Event('input'));
+    }
+
+    // ============ Picking a drop zone with keys ============
+    zones() {
+        return [...this.timelineEl.querySelectorAll('.drop-zone')];
+    }
+
+    showPicked(scroll) {
+        const zones = this.zones();
+        if (!zones.length) return;
+        if (this.picked < 0) this.picked = this.middleZone();
+        this.picked = Math.max(0, Math.min(this.picked, zones.length - 1));
+        zones.forEach((z, i) => z.classList.toggle('picked', i === this.picked));
+        if (scroll) this.centerOn(zones[this.picked]);
+    }
+
+    // ============ Scrolling the timeline ============
+    // Smoothly scroll the timeline so `el` is in the middle, like jeremy.v1's scrollIntoView.
+    centerOn(el) {
+        const scroller = this.timelineEl.closest('.timeline-scroll');
+        const r = el.getBoundingClientRect(), sr = scroller.getBoundingClientRect();
+        const left = scroller.scrollLeft + (r.left + r.width / 2) - (sr.left + sr.width / 2);
+        scroller.scrollTo({ left: this.safeLeft(left), behavior: 'smooth' });
+    }
+
+    // The nearest scroll position to `want` where no drop zone you can tap sits closer than
+    // 8 px to the side of the screen: each one is either clear of the edge or scrolled far
+    // enough out of view that a tap can't reach it.
+    safeLeft(want) {
+        const scroller = this.timelineEl.closest('.timeline-scroll');
+        if (!scroller) return want;
+        const max = scroller.scrollWidth - scroller.clientWidth;
+        const clamp = v => Math.max(0, Math.min(max, Math.round(v)));
+        const now = scroller.scrollLeft;
+        const sr = scroller.getBoundingClientRect();
+        const clipL = sr.left + scroller.clientLeft, clipR = clipL + scroller.clientWidth;
+        const boxes = this.zones().map(z => z.getBoundingClientRect());
+        const ok = left => boxes.every(r => {
+            const x = r.left - (left - now), cx = x + r.width / 2;
+            if (cx < clipL - 2 || cx > clipR + 2) return true;
+            return x >= 8 && x + r.width <= window.innerWidth - 8;
+        });
+        for (let d = 0; d <= 120; d++) {
+            for (const v of d ? [clamp(want + d), clamp(want - d)] : [clamp(want)]) if (ok(v)) return v;
+        }
+        return clamp(want);
+    }
+
+    // After a swipe, ease the timeline to the nearest such position.
+    settleScroll() {
+        const scroller = this.timelineEl.closest('.timeline-scroll');
+        if (this.screen !== 'game') return;
+        const left = this.safeLeft(scroller.scrollLeft);
+        if (Math.abs(left - scroller.scrollLeft) >= 1) scroller.scrollTo({ left, behavior: 'smooth' });
+    }
+
+    pickZone(step) {
+        const n = this.zones().length;
+        if (!n) return;
+        if (!document.body.classList.contains('picking')) {
+            // The first key press starts from the slot nearest the middle of the timeline
+            document.body.classList.add('picking');
+            this.picked = this.middleZone();
+        }
+        this.picked = (this.picked + step + n) % n; // wraps around at the ends
+        this.showPicked(true);
+    }
+
+    middleZone() {
+        const zones = this.zones();
+        const scroller = this.timelineEl.closest('.timeline-scroll');
+        const sr = scroller.getBoundingClientRect(), mid = sr.left + sr.width / 2;
+        let best = 0, bestD = Infinity;
+        zones.forEach((z, i) => {
+            const r = z.getBoundingClientRect(), d = Math.abs(r.left + r.width / 2 - mid);
+            if (d < bestD) { bestD = d; best = i; }
+        });
+        return best;
+    }
+
+    placePicked() {
+        if (this.isAnimating || this.game.isGameOver || !this.game.currentCard) return;
+        if (!document.body.classList.contains('picking')) {
+            // Nothing picked yet: the first press shows the pick instead of guessing for you
+            document.body.classList.add('picking');
+            this.picked = this.middleZone();
+            this.showPicked(true);
+            return;
+        }
+        this.handlePlace(this.picked);
+    }
+
+    // ============ Fitting the drop zones to a short screen ============
+    // A phone held sideways leaves the timeline about 110-130 px tall; jeremy.v1's 140 px
+    // zones ran off the bottom of the screen. Fit them, 8 px clear of it.
+    watchTimeline() {
+        this.timelineWrap = this.timelineEl.closest('.timeline-wrapper');
+        const fit = () => { this.fitZones(); this.settleScroll(); };
+        if (window.ResizeObserver) new ResizeObserver(fit).observe(this.timelineWrap);
+        window.addEventListener('resize', fit);
+        const scroller = this.timelineEl.closest('.timeline-scroll');
+        if ('onscrollend' in window) {
+            scroller.addEventListener('scrollend', () => this.settleScroll());
+        } else {
+            let t = 0;
+            scroller.addEventListener('scroll', () => { clearTimeout(t); t = setTimeout(() => this.settleScroll(), 200); });
+        }
+    }
+
+    fitZones() {
+        const wrap = this.timelineWrap;
+        if (!wrap || !wrap.clientHeight) return;
+        const natural = window.matchMedia('(max-width: 600px)').matches ? 120 : 140;
+        const bottomGap = window.innerHeight - wrap.getBoundingClientRect().bottom;
+        const room = Math.floor(wrap.clientHeight - 2 * Math.max(0, 8 - bottomGap));
+        if (room >= natural) this.timelineEl.style.removeProperty('--zone-h');
+        else this.timelineEl.style.setProperty('--zone-h', `${Math.max(48, room)}px`);
+    }
+
+    state() {
+        return {
+            screen: this.screen || 'start',
+            paused: this.paused,
+            picked: document.body.classList.contains('picking') ? this.picked : null,
+            score: this.game.score,
+            lives: this.game.lives,
+            remaining: this.game.deck.length,
+            placed: this.game.timeline.length,
+            card: this.game.currentCard ? this.game.currentCard.text : null,
+            reads: this.reads,
+            dadMode: this.dadMode,
+            focus: document.activeElement && document.activeElement !== document.body
+                ? (document.activeElement.id || document.activeElement.dataset.difficulty || document.activeElement.dataset.category || document.activeElement.className)
+                : null,
+        };
     }
 
     getEventCount() {
@@ -911,6 +1197,7 @@ class GameUI {
     }
 
     async startGame(difficulty) {
+        this.newRound();
         const count = this.getEventCount();
         this.showScreen('loading');
 
@@ -952,7 +1239,15 @@ class GameUI {
         this.renderAll();
     }
 
+    newRound() {
+        this.closePause();
+        // A player who got here with keys sees the picked slot straight away
+        this.picked = -1;
+        document.body.classList.toggle('picking', document.body.classList.contains('keys'));
+    }
+
     startCategoryGame(categoryKey) {
+        this.newRound();
         const count = this.getEventCount();
         const category = CATEGORY_POOLS[categoryKey];
         if (!category) return;
@@ -965,6 +1260,7 @@ class GameUI {
     }
 
     startEndlessGame() {
+        this.newRound();
         // Collect ALL events from every pool
         const all = [
             ...EASY_EVENTS,
@@ -1088,12 +1384,14 @@ class GameUI {
                 this.timelineEl.appendChild(card);
             }
         }
+        if (document.body.classList.contains('picking')) this.showPicked(false);
+        this.fitZones();
 
         // Scroll to center
         requestAnimationFrame(() => {
             const scroll = this.timelineEl.closest('.timeline-scroll');
             if (scroll) {
-                scroll.scrollLeft = (scroll.scrollWidth - scroll.clientWidth) / 2;
+                scroll.scrollLeft = this.safeLeft((scroll.scrollWidth - scroll.clientWidth) / 2);
             }
         });
     }
@@ -1105,6 +1403,7 @@ class GameUI {
         const result = this.game.placeCard(position);
 
         // Re-render timeline with the new card highlighted
+        this.picked = result.insertedAt + 1;
         this.renderTimeline();
 
         const insertedCard = document.getElementById(`tcard-${result.insertedAt}`);
@@ -1112,9 +1411,7 @@ class GameUI {
             insertedCard.classList.add('just-placed');
             insertedCard.classList.add(result.correct ? 'correct' : 'wrong');
 
-            requestAnimationFrame(() => {
-                insertedCard.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-            });
+            requestAnimationFrame(() => this.centerOn(insertedCard));
         }
 
         this.showToast(result);
@@ -1220,7 +1517,21 @@ class GameUI {
     }
 }
 
+// ============ Saves ============
+// jeremy.v1 saved Dad Mode as 'dadMode' ("true" or "false"). jeremy.v2 reads and writes the
+// same key, the same way, so either version picks up the other's setting.
+function loadDadMode() {
+    try { return localStorage.getItem('dadMode') === 'true'; } catch { return false; }
+}
+
+function saveDadMode(on) {
+    try { localStorage.setItem('dadMode', on); } catch { /* storage blocked: the toggle still works for this visit */ }
+}
+
 // ============ Initialize ============
 document.addEventListener('DOMContentLoaded', () => {
-    new GameUI();
+    const ui = new GameUI();
+    ui.screen = 'start';
+    // Read-only peek for the evidence specs
+    window.timedOut = { state: () => ui.state() };
 });

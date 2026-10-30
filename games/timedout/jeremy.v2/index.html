@@ -37,8 +37,8 @@
                     </button>
                 </div>
                 <div class="event-count-picker">
-                    <label class="event-count-label"># of Events: <span id="event-count-display">20</span></label>
-                    <input type="range" id="event-count" class="event-count-slider" min="10" max="30" value="20" step="5" />
+                    <div class="event-count-label" id="event-count-label"># of Events: <span id="event-count-display">20</span></div>
+                    <input type="range" id="event-count" class="event-count-slider" min="10" max="30" value="20" step="5" aria-labelledby="event-count-label" />
                     <div class="event-count-range"><span>10</span><span>30</span></div>
                 </div>
                 <div class="custom-divider"><span>or</span></div>
@@ -90,7 +90,7 @@
             <div class="header-title">TIMED OUT</div>
             <div class="header-right">
                 <div class="header-lives" id="lives"></div>
-                <button class="btn-menu" id="btn-menu-game" title="Main Menu">✕</button>
+                <button class="btn-menu" id="btn-menu-game" title="Menu (Esc or P)" aria-label="Menu">✕</button>
             </div>
         </header>
 
@@ -111,6 +111,18 @@
                 <div class="timeline-line"></div>
                 <div class="timeline-content" id="timeline"></div>
             </div>
+        </div>
+    </div>
+
+    <!-- Pause Menu (X, Escape or P) -->
+    <div id="pause-menu" class="pause-menu hidden" role="dialog" aria-modal="true" aria-labelledby="pause-title">
+        <div class="pause-panel">
+            <h2 class="pause-title" id="pause-title">Paused</h2>
+            <div class="pause-buttons">
+                <button id="btn-resume" class="pause-btn pause-btn-main">Keep playing</button>
+                <button id="btn-menu-pause" class="pause-btn">Main Menu</button>
+            </div>
+            <p class="pause-keys">Keys: ← → or A D pick a slot. Enter, Space or ↓ places the card. ↑ reads it aloud. Esc or P pauses.</p>
         </div>
     </div>
 

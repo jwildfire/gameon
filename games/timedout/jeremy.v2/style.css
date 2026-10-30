@@ -1131,3 +1131,249 @@ body.dad-mode .card-label {
         font-size: 3.5rem;
     }
 }
+
+/* ============ jeremy.v2: the phone bar (#187) ============ */
+/* Every button is at least 48 x 48 px and 8 px clear of the others and the
+   screen edges. Where a bigger button would push jeremy.v1's layout around, the
+   hit box grows and negative margins keep the old slot, so nothing else moves. */
+
+/* The menu X: a 48 px hit box in the 28 px slot, drawn as a 36 px square. */
+.btn-menu {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    margin: -8px -10px -12px;
+    padding: 0 0 4px;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    font-size: 1rem;
+}
+
+.btn-menu::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    right: 6px;
+    top: 4px;
+    bottom: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    transition: border-color 0.2s ease;
+}
+
+.btn-menu:hover {
+    border: none;
+}
+
+.btn-menu:hover::before {
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Read clue: a 48 px hit box in the card's bottom corner, below the event text. */
+.btn-read-clue {
+    width: 48px;
+    height: 48px;
+    bottom: 2px;
+    right: 2px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    font-size: 1.15rem;
+}
+
+/* The number-of-events slider: a 48 px tall hit box around the same 6 px
+   track, with a bigger thumb. It sits between "# of Events" and "10 ... 30"
+   without touching either. The room comes out of the gaps above it, so the
+   Endless and topic buttons stay where jeremy.v1 had them. */
+.description {
+    margin-bottom: 1rem;
+}
+
+.event-count-picker {
+    margin-top: 0.75rem;
+}
+
+.event-count-slider {
+    display: block;
+    height: 48px;
+    margin: 1px 0;
+    background: transparent;
+    cursor: pointer;
+}
+
+.event-count-slider::-webkit-slider-runnable-track {
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.event-count-slider::-moz-range-track {
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.event-count-slider::-webkit-slider-thumb {
+    width: 32px;
+    height: 32px;
+    margin-top: -13px;
+}
+
+.event-count-slider::-moz-range-thumb {
+    width: 32px;
+    height: 32px;
+}
+
+/* Topic buttons: 48 px tall. */
+.btn-category {
+    min-height: 48px;
+}
+
+/* Dad Mode: a 48 px tall hit box around the switch, in jeremy.v1's slot,
+   stopping where the hint below it starts. */
+.dad-toggle-label {
+    padding: 15px 6px 5px;
+    margin: -15px 0 -5px;
+}
+
+/* Main Menu after a game, and Reset Events in Endless: 48 px tall. The gap
+   under Play Again shrinks by what Main Menu grows, so nothing moves down. */
+.btn-secondary,
+.btn-reset-events {
+    min-height: 48px;
+}
+
+.btn-reset-events {
+    margin-top: calc(1rem - 3.2px);
+}
+
+.gameover-buttons {
+    gap: 0.6rem;
+}
+
+/* Drop zones: 48 px wide on a phone (jeremy.v1: 44). On a short screen they're
+   fitted to the timeline (see fitZones in app.js) so they stay 8 px clear of
+   the bottom edge instead of running off it. */
+.drop-zone {
+    height: var(--zone-h, 140px);
+}
+
+@media (max-width: 600px) {
+    .drop-zone {
+        width: 48px;
+        min-width: 48px;
+        height: var(--zone-h, 120px);
+    }
+}
+
+/* ============ jeremy.v2: keys ============ */
+/* The slot the arrow keys (or A and D) have picked. */
+body.keys .drop-zone.picked {
+    border: 2px solid var(--accent);
+    background: rgba(255, 137, 6, 0.14);
+    box-shadow: 0 0 20px var(--accent-glow);
+}
+
+body.keys .drop-zone.picked .drop-icon,
+body.keys .drop-zone.picked::before {
+    opacity: 1;
+}
+
+.btn-difficulty:focus-visible,
+.btn-category:focus-visible,
+.btn-endless:focus-visible,
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+.btn-reset-events:focus-visible,
+.btn-menu:focus-visible,
+.btn-read-clue:focus-visible,
+.pause-btn:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.drop-zone:focus-visible {
+    outline: none;
+}
+
+.event-count-slider:focus-visible {
+    outline: none;
+}
+
+.event-count-slider:focus-visible::-webkit-slider-thumb {
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.85), 0 2px 8px rgba(255, 137, 6, 0.4);
+}
+
+.dad-toggle-input:focus-visible + .dad-toggle-switch {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* ============ jeremy.v2: the pause menu ============ */
+.pause-menu {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+    background: rgba(15, 14, 23, 0.82);
+    overflow-y: auto;
+}
+
+.pause-panel {
+    width: 100%;
+    max-width: 340px;
+    margin: auto;
+    padding: 20px;
+    border-radius: 16px;
+    background: var(--bg-secondary);
+    border: 2px solid rgba(255, 137, 6, 0.4);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+    text-align: center;
+}
+
+.pause-title {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--accent);
+    margin-bottom: 14px;
+}
+
+.pause-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.pause-btn {
+    min-height: 48px;
+    padding: 0 16px;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    border-radius: 50px;
+    background: transparent;
+    color: var(--text-heading);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.pause-btn-main {
+    border: none;
+    background: linear-gradient(135deg, var(--accent), #e07800);
+    color: #fff;
+}
+
+.pause-keys {
+    margin-top: 14px;
+    font-size: 0.8rem;
+    line-height: 1.45;
+    color: var(--text-body);
+}
