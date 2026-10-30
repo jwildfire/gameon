@@ -20,7 +20,7 @@ The kid's own words are in the private idea jwildfire/gameon-ideas#7. Designed b
 - **Resting.** After every floor the whole squad levels up and heals some. A hero who was knocked down gets back up with a little health.
 - **The end.** When all three heroes are down in the same floor, the run is over. The deepest floor you reach is saved, and you can go again with the same squad or pick a new one.
 
-**Controls:** touch or mouse everywhere. Keyboard: on the squad screen **1–4** add a class, **Backspace** removes one, **R** picks a random squad and **Enter** starts; at the campfire **← →** (or Tab) choose a hero, **1–7** give them a card (press it again to put it back) and **Enter** delves; in a fight **Space** or **F** changes speed; **P** or **Esc** pauses (Keep going, Start over, Sound, Title screen); **M** turns the sound off. On a tall phone screen the rooms turn tall too, so the squad marches up the screen. Plays upright or sideways.
+**Controls:** touch or mouse everywhere. Keyboard: on the squad screen **1–4** add a class (or move to one with **WASD** or the arrows and press **Space**), **Backspace** removes one, **R** picks a random squad and **Enter** starts; at the campfire **A D** or **← →** (or Tab) choose a hero, **W S** or **↑ ↓** move through the loot and **Space** gives that card, **1–7** give a card straight away (press it again to put it back) and **Enter** delves; in a fight **Space** or **F** changes speed; **P** or **Esc** pauses (Keep going, Start over, Sound, Title screen); **M** turns the sound off. On a tall phone screen the rooms turn tall too, so the squad marches up the screen. Plays upright or sideways.
 
 ## Notes for builders
 
@@ -30,3 +30,17 @@ The kid's own words are in the private idea jwildfire/gameon-ideas#7. Designed b
 - `game.js` has the screens, the torch-light darkness, the hit numbers and sparks, the controls and the saves.
 - Saves live under `gameon.delve-squad.` in the browser: `best` (the deepest floor), `runs` (how many delves) and `sound`.
 - `window.__ds` is a small window used only by the evidence tests (seed the dice, hold and step the clock, play quickly to a floor, read the state).
+
+## jeremy.v2: Bigger buttons, and WASD at the campfire
+
+Update idea from Jeremy (game idea #231), word for word:
+
+> Make Delve Squad comfortable on a phone and with a keyboard, so it meets the phone bar from the phone-friendly games task (jwildfire/gameon#187): every button at least 48 x 48 px at 375 px wide, 8 px clear of each other and the screen edges, and both WASD and the arrow keys working. Measured on jeremy.v1 on 2026-10-29:
+>
+> - Sound (title screen) and the pause buttons are 42 x 42. In the delve, the speed button is 52 x 42 and only 6 px from the pause button.
+> - At the campfire, the hero cards and the loot cards are 7 px apart.
+> - A and D do nothing. Only ArrowLeft and ArrowRight pick a hero at the campfire, and no key moves between the loot cards (only 1-7).
+>
+> Make Sound, Pause and speed 48 x 48 with 8 px between them, space the hero and loot cards 8 px apart, and let A/D pick a hero like the arrows (with W/S or Up/Down moving through the loot). Keep everything else the same.
+
+Started from jeremy.v1. Sound, Pause, the back button and the speed button are 48 x 48, 8 px apart and 8 px from the screen's edges, every other button is at least 48 px tall, and the hero, loot and squad cards sit 8 px apart. A/D pick a hero like the arrows, W/S or Up/Down move through the loot and Space takes a card. Held sideways on a phone, the bottom bar's buttons sit beside the title and the pause and game-over boxes put their buttons beside the words, so every button fits on screen. The heroes, halls, bosses, loot, balance and saves are jeremy.v1's.
