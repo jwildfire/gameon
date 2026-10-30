@@ -57,24 +57,37 @@ test("jeremy.v2 opens to its title screen and starts, with nothing loaded from t
 
 // ---------- the change: buttons a finger can hit ----------
 
-// touchTargets() measures a card's whole box, even the part its scrolling list hides. When a long loot list runs
-// under the bottom bar (only with wider fonts or a long list), that hidden part "touches" the Delve button though no
-// finger can reach it. Those pairs are allowed only if the card really is cut off by its list and the list's visible
-// edge is 8 px clear of the button.
-async function phoneBar(page, label) {
+// touchTargets() measures a card's whole box, even the part its scrolling list hides. A card cut off by the list's
+// bottom edge "touches" the bottom bar's button, and one scrolled past the top edge "touches" the top bar's buttons,
+// though no finger can reach the hidden part. Only such a pair is excused, and only if that card really is cut off
+// on that side and the list's edge is itself at least 8 px clear of that button. barCheck measures that edge at
+// every call, so a list that comes too close fails rather than being excused.
+const CLEAR = 7.99;
+async function barCheck(page) {
   const { targets, problems } = await touchTargets(page);
-  const clipped = await page.evaluate(() => [...document.querySelectorAll(".scroll")].filter(s => s.checkVisibility()).map(s => {
-    const r = s.getBoundingClientRect();
-    const foot = s.parentElement.querySelector(".foot");
-    const btns = foot && foot.checkVisibility() ? [...foot.querySelectorAll("button")].map(b => { const q = b.getBoundingClientRect(); return { name: (b.innerText || "").trim(), top: q.top }; }) : [];
-    const cut = [...s.querySelectorAll("button")].filter(b => b.getBoundingClientRect().bottom > r.bottom + 0.5).map(b => (b.getAttribute("aria-label") || b.innerText || "").trim().replace(/\s+/g, " ").slice(0, 24));
-    return { bottom: r.bottom, btns, cut };
+  const lists = await page.evaluate(() => [...document.querySelectorAll(".scroll")].filter(s => s.checkVisibility()).map(s => {
+    const r = s.getBoundingClientRect(), sec = s.parentElement;
+    const name = b => (b.getAttribute("aria-label") || b.innerText || b.value || b.id || b.tagName).trim().replace(/\s+/g, " ").slice(0, 24);
+    const fixed = sel => { const bar = sec.querySelector(sel); return bar && bar.checkVisibility() ? [...bar.querySelectorAll("button")].map(b => { const q = b.getBoundingClientRect(); return { name: name(b), top: q.top, bottom: q.bottom }; }) : []; };
+    const cards = [...s.querySelectorAll("button")].map(b => ({ name: name(b), r: b.getBoundingClientRect() }));
+    return { top: r.top, bottom: r.bottom, above: fixed(".top"), below: fixed(".foot"),
+      cutTop: cards.filter(c => c.r.top < r.top - 0.5).map(c => c.name), cutBottom: cards.filter(c => c.r.bottom > r.bottom + 0.5).map(c => c.name) };
   }));
-  const hidden = problems.filter(p => {
-    const m = p.match(/^"(.+)" and "(.+)" are \d+ px apart/);
-    return m && clipped.some(c => c.cut.includes(m[1]) && c.btns.some(b => b.name === m[2] && b.top - c.bottom >= 8));
-  });
-  expect(problems.filter(p => !hidden.includes(p)), `${label}: every button 48 x 48, 8 px apart and from the edges`).toEqual([]);
+  const excused = (card, btn) => lists.some(l =>
+    (l.cutBottom.includes(card) && l.below.some(b => b.name === btn && b.top - l.bottom >= CLEAR)) ||
+    (l.cutTop.includes(card) && l.above.some(b => b.name === btn && l.top - b.bottom >= CLEAR)));
+  const hidden = problems.filter(p => { const m = p.match(/^"(.+)" and "(.+)" are \d+ px apart/); return m && (excused(m[1], m[2]) || excused(m[2], m[1])); });
+  const left = problems.filter(p => !hidden.includes(p));
+  // the list's own edges against every button pinned above and below it, whatever the cards are doing
+  for (const l of lists) {
+    for (const b of l.above) if (l.top - b.bottom < CLEAR) left.push(`list top ${l.top} is ${(l.top - b.bottom).toFixed(1)} px below "${b.name}"`);
+    for (const b of l.below) if (b.top - l.bottom < CLEAR) left.push(`list bottom ${l.bottom} is ${(b.top - l.bottom).toFixed(1)} px above "${b.name}"`);
+  }
+  return { targets, hidden, left };
+}
+async function phoneBar(page, label) {
+  const { targets, hidden, left } = await barCheck(page);
+  expect(left, `${label}: every button 48 x 48, 8 px apart and from the edges`).toEqual([]);
   return { targets, hidden };
 }
 
@@ -312,9 +325,13 @@ const PHONE_SIZES = [[375, 812], [812, 375], [667, 375], [740, 360]];
 const DESKTOP_SIZES = [[1024, 768], [1280, 800], [1366, 768]];
 
 // Walk one version through every screen with the same save and seed, measuring each as the player lands on it.
-async function walk(browser, baseURL, url, [w, h], font, phone, pictures) {
+// With { bars: true } it also runs barCheck on each screen with the list at its top, middle and end.
+// With { insets } it emulates a notched phone's safe area, and checks no button a finger can reach is inside it.
+async function walk(browser, baseURL, url, [w, h], font, phone, pictures, { bars = false, insets = null } = {}) {
   const ctx = await browser.newContext({ baseURL, viewport: { width: w, height: h }, deviceScaleFactor: phone ? 2 : 1, isMobile: phone, hasTouch: phone });
   const page = await ctx.newPage();
+  if (insets) await (await ctx.newCDPSession(page)).send("Emulation.setSafeAreaInsetsOverride", { insets });
+  const bar = { fails: [], states: 0, hidden: 0, scrolled: 0, lists: {} };
   const errors = [];
   page.on("pageerror", e => errors.push(e.message));
   page.on("console", m => { if (m.type() === "error") errors.push(m.text()); });
@@ -329,6 +346,26 @@ async function walk(browser, baseURL, url, [w, h], font, phone, pictures) {
     await page.waitForTimeout(60);
     out[name] = await page.evaluate(`(${measure})()`);
     if (pictures && pictures.includes(name)) out[name].png = (await page.screenshot({ type: "jpeg", quality: 70 })).toString("base64");
+    bar.lists[name] = await page.evaluate(() => { const l = [...document.querySelectorAll(".scroll")].find(e => e.checkVisibility()); return l ? l.clientHeight : null; });
+    if (insets) for (const f of await page.evaluate(in_ => [...document.querySelectorAll("button")].flatMap(b => {
+      const r = b.getBoundingClientRect(), at = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+      if (!r.width || !at || !(b === at || b.contains(at))) return [];
+      const inList = !!b.closest(".scroll"), hit = [];
+      if (r.left < in_.left - 0.5) hit.push("left"); if (innerWidth - r.right < in_.right - 0.5) hit.push("right");
+      if (!inList && r.top < in_.top - 0.5) hit.push("top"); if (!inList && innerHeight - r.bottom < in_.bottom - 0.5) hit.push("bottom");
+      return hit.length ? [`"${(b.innerText || b.getAttribute("aria-label") || b.id).trim().slice(0, 24)}" is inside the ${hit.join(" and ")} safe area`] : [];
+    }), insets)) bar.fails.push(`${name}: ${f}`);
+    if (!bars) return;
+    for (const pos of [0, 0.5, 1]) {
+      const moved = await page.evaluate(p => { const l = [...document.querySelectorAll(".scroll")].find(e => e.checkVisibility()); if (!l) return null; l.scrollTop = Math.round((l.scrollHeight - l.clientHeight) * p); return l.scrollTop; }, pos);
+      if (pos && !moved) continue;                                               // this list has nothing to scroll
+      await page.waitForTimeout(30);
+      const c = await barCheck(page);
+      bar.states++; bar.hidden += c.hidden.length; if (pos) bar.scrolled++;
+      bar.fails.push(...c.left.map(p => `${name}, list ${pos * 100}% scrolled: ${p}`));
+      if (pos === 1 && await page.evaluate(() => { const l = [...document.querySelectorAll(".scroll")].find(e => e.checkVisibility()), bs = [...l.querySelectorAll("button")].filter(b => b.checkVisibility()); return !!bs.length && bs.at(-1).getBoundingClientRect().bottom > l.getBoundingClientRect().bottom + 0.5; })) bar.fails.push(`${name}: the last card can't be scrolled fully into view`);
+    }
+    await page.evaluate(() => document.querySelectorAll(".scroll").forEach(e => { e.scrollTop = 0; }));
   };
   const click = sel => page.locator(sel).first().click();
   await snap("title");
@@ -351,7 +388,7 @@ async function walk(browser, baseURL, url, [w, h], font, phone, pictures) {
   await click("#gear-go"); await page.evaluate(() => { __ds.step(2); __ds.wipe(); __ds.step(0.1); __ds.step(2.6); });
   await snap("game over");
   await ctx.close();
-  return { screens: out, errors };
+  return { screens: out, errors, bar };
 }
 
 // What v1 showed whole stays whole, uncovered and the same size in v2; what v1 showed in part, v2 shows at least as
@@ -402,15 +439,16 @@ for (const size of [...PHONE_SIZES, ...DESKTOP_SIZES]) {
     for (const font of Object.keys(FONTS)) {
       const want = pics && font === "real" ? ["campfire", "game over"] : null;
       const a = await walk(browser, baseURL, V1, size, font, isMobile, want);
-      const b = await walk(browser, baseURL, V2, size, font, isMobile, want);
+      const b = await walk(browser, baseURL, V2, size, font, isMobile, want, { bars: true });
       expect(b.errors, "no console errors in jeremy.v2").toEqual([]);
+      fails.push(...b.bar.fails.map(f => `${size.join("x")} ${font} ${f}`));
       let whole = 0;
       for (const name of Object.keys(a.screens)) {
         const r = compare(a.screens[name], b.screens[name], `${size.join("x")} ${font} ${name}`);
         fails.push(...r.fails); whole += r.whole;
       }
       const A = a.screens.delve.arena, B = b.screens.delve.arena;
-      note(`${font} fonts: all ${whole} lines jeremy.v1 showed whole on its ${Object.keys(a.screens).length} screens (${Object.keys(a.screens).join(", ")}) are whole, uncovered and as big in jeremy.v2; arena ${A.w}x${A.h} -> ${B.w}x${B.h}, top bar ends at ${A.hudBottom} -> ${B.hudBottom}, squad bar starts at ${A.squadTop} -> ${B.squadTop}, uncovered ${A.free * 100}% -> ${B.free * 100}%`);
+      note(`${font} fonts: all ${whole} lines jeremy.v1 showed whole on its ${Object.keys(a.screens).length} screens (${Object.keys(a.screens).join(", ")}) are whole, uncovered and as big in jeremy.v2; arena ${A.w}x${A.h} -> ${B.w}x${B.h}, top bar ends at ${A.hudBottom} -> ${B.hudBottom}, squad bar starts at ${A.squadTop} -> ${B.squadTop}, uncovered ${A.free * 100}% -> ${B.free * 100}%; touchTargets on ${b.bar.states} states (${b.bar.scrolled} with the list scrolled to its middle or end): nothing short of the bar, ${b.bar.hidden} hidden-card pairs excused`);
       if (want) pair = { a: a.screens, b: b.screens };
     }
     expect(fails).toEqual([]);
@@ -423,6 +461,34 @@ for (const size of [...PHONE_SIZES, ...DESKTOP_SIZES]) {
       <style>figure{margin:0}img{width:100%;display:block;border:1px solid #555}</style>`);
     await shot("side-by-side");
   });
+  });
+}
+
+// A notched phone, upright and sideways: no button a finger can reach sits inside the safe area, top bars stay
+// jeremy.v1's height, bottom bars no taller, lists within 2 px. Upright, everything jeremy.v1 showed still shows. Sideways the cards come in from under
+// the side notches (jeremy.v1's sat at 12 px, inside the 47 px inset), so they are narrower and their words can wrap;
+// the list stays its height and scrolls, so that one comparison is replaced by "the last card scrolls fully into view".
+for (const [size, insets, how, strict] of [[[390, 844], { top: 47, bottom: 34, left: 0, right: 0 }, "upright", true], [[844, 390], { top: 0, bottom: 21, left: 47, right: 47 }, "sideways", false]]) {
+  test.describe(() => {
+    test.skip(({ isMobile }) => !isMobile, "a phone check");
+    test(`on a notched phone held ${how}, no button sits inside the safe area and the bars stay jeremy.v1's height`, async ({ browser, note }, testInfo) => {
+      test.setTimeout(300_000);
+      const baseURL = testInfo.project.use.baseURL;
+      const a = await walk(browser, baseURL, V1, size, "real", true, null, { insets });
+      const b = await walk(browser, baseURL, V2, size, "real", true, null, { bars: true, insets });
+      expect(b.errors).toEqual([]);
+      if (!strict) expect(a.bar.fails.length, "jeremy.v1's cards sit under the side notch, so this check can fail").toBeGreaterThan(0);
+      const fails = [...b.bar.fails], lists = [];
+      for (const name of Object.keys(a.screens)) {
+        const m1 = a.screens[name], m2 = b.screens[name];
+        for (const bar of m1.bars) { const t = m2.bars.find(x => x.key === bar.key); if (!t || (/foot/.test(bar.key) ? t.h > bar.h : t.h !== bar.h)) fails.push(`${name}: ${bar.key} bar ${bar.h} -> ${t ? t.h : "gone"}`); }
+        const h1 = a.bar.lists[name], h2 = b.bar.lists[name];
+        if (h1 !== null) { lists.push(`${name} ${h1}->${h2}`); if (h2 === null || h2 < h1 - 2) fails.push(`${name}: list ${h1} -> ${h2}`); }
+        if (strict) fails.push(...compare(m1, m2, name).fails);
+      }
+      note(`${size.join("x")}, insets ${JSON.stringify(insets)}: top bars match jeremy.v1 and bottom bars are no taller on all ${Object.keys(b.screens).length} screens; lists ${lists.join(", ")}; no reachable button in the safe area (jeremy.v1 had ${a.bar.fails.length}); touchTargets on ${b.bar.states} states, ${b.bar.scrolled} scrolled${strict ? "" : "; last card scrolls fully into view on every list"}`);
+      expect(fails).toEqual([]);
+    });
   });
 }
 

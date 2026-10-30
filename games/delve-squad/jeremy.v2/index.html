@@ -25,6 +25,8 @@
   --legendary: #ffbf2e;
   --serif: "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
   --sans: ui-rounded, "Trebuchet MS", system-ui, sans-serif;
+  /* how far a bar's 48 px button reaches above the bar's padding: 2 px on a plain screen, none under a notch, so it stays out of the notch */
+  --reach: calc(max(8px, env(safe-area-inset-top)) - max(10px, env(safe-area-inset-top)));
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; overflow: hidden; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
@@ -57,13 +59,15 @@ button:focus-visible { outline: 3px solid var(--torch); outline-offset: 2px; }
 
 /* shared headers */
 .top { display: flex; align-items: center; gap: 8px; padding: 10px 12px; padding-top: max(10px, env(safe-area-inset-top)); padding-left: max(8px, env(safe-area-inset-left)); padding-right: max(8px, env(safe-area-inset-right)); background: linear-gradient(#000a, #0000); flex: none; }
-/* 48 px to tap, but only 42 px of the bar's height (jeremy.v1's), so the bar doesn't grow: 8 px from the top, 2 px into the padding below */
-.top > .icon-btn { margin: -2px 0 -4px; align-self: flex-start; }
+/* 48 px to tap, but only 42 px of the bar's height (jeremy.v1's), so the bar doesn't grow: 8 px from the top, or at the notch's edge */
+.top > .icon-btn { margin: var(--reach) 0 calc(-6px - var(--reach)); align-self: flex-start; }
+/* the scrolling lists start 8 px below those buttons, so a card scrolled up to the edge never gets closer */
+#party > .scroll, #gear > .scroll { margin-top: calc(4px + var(--reach)); }
 .top h2 { margin: 0; font-family: var(--serif); font-size: 22px; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ffd28a; }
 .top .sub { font-size: 13px; color: var(--dim); font-weight: 700; }
 .foot { flex: none; display: flex; gap: 10px; justify-content: center; align-items: center; padding: 8px 12px; padding-left: max(8px, env(safe-area-inset-left)); padding-right: max(8px, env(safe-area-inset-right)); padding-bottom: max(8px, env(safe-area-inset-bottom)); background: linear-gradient(#0000, #000c); flex-wrap: wrap; }
 .hint { font-size: 13px; color: var(--dim); text-align: center; margin: 0 12px 6px; }
-.wrap { width: min(980px, 100%); margin: 0 auto; padding: 0 12px 12px; }
+.wrap { width: min(980px, 100%); margin: 0 auto; padding: 0 12px 12px; padding-left: max(12px, env(safe-area-inset-left)); padding-right: max(12px, env(safe-area-inset-right)); }
 
 /* party pick */
 .slots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 4px 0 12px; }
@@ -144,7 +148,7 @@ button:focus-visible { outline: 3px solid var(--torch); outline-offset: 2px; }
 #speed { width: 48px; padding: 0; }
 
 /* overlays */
-.overlay { position: fixed; inset: 0; background: rgba(5,3,6,0.78); display: grid; place-items: center; z-index: 10; padding: 16px; }
+.overlay { position: fixed; inset: 0; background: rgba(5,3,6,0.78); display: grid; place-items: center; z-index: 10; padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
 .box { width: min(420px, 100%); background: linear-gradient(var(--panel2), var(--panel)); border: 2px solid #000; border-radius: 18px; padding: 20px; text-align: center; display: grid; gap: 12px; box-shadow: 0 0 0 2px var(--edge), 0 20px 60px #000; }
 .box h2 { margin: 0; font-family: var(--serif); font-size: 30px; color: #ffd28a; }
 .box p { margin: 0; color: var(--dim); font-weight: 700; }
@@ -176,15 +180,9 @@ button:focus-visible { outline: 3px solid var(--torch); outline-offset: 2px; }
   .cls .ab { font-size: 12px; }
   .top h2 { font-size: 19px; }
 }
-/* A phone held sideways: the bottom bar's buttons move up beside the title, so the cards scroll in the whole
-   height below it, and the pause and game-over boxes put their buttons in a column beside the words. */
+/* A phone held sideways: the pause and game-over boxes put their buttons in a column beside the words, so they all fit on screen. */
 @media (max-height: 500px) and (min-width: 560px) {
-  #party, #gear { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto minmax(0, 1fr); }
-  #party > .top, #gear > .top { grid-area: 1 / 1; padding-right: 0; }
-  #party > .scroll, #gear > .scroll { grid-area: 2 / 1 / 3 / 3; }
-  #party > .foot, #gear > .foot { grid-area: 1 / 2; align-items: flex-start; flex-wrap: nowrap; gap: 9px; padding: 10px 8px; padding-top: max(10px, env(safe-area-inset-top)); padding-right: max(8px, env(safe-area-inset-right)); background: linear-gradient(#000a, #0000); }
-  .foot .btn { margin: -2px 0 -4px; padding-top: 0; padding-bottom: 0; }
-  .overlay { padding: 8px 16px; }
+  .overlay { padding-top: max(8px, env(safe-area-inset-top)); padding-bottom: max(8px, env(safe-area-inset-bottom)); }
   .box { width: min(720px, 100%); grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 20px; align-items: center; }
   .box > :not(.btns) { grid-column: 1; }
   .box > .btns { grid-column: 2; grid-row: 1 / -1; }
