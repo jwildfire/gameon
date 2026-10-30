@@ -22,7 +22,7 @@ const DESKTOPS = [[1024, 768], [1280, 800], [1366, 768]];
 const FONTS = ["fonts.googleapis.com", "fonts.gstatic.com"]; // jeremy.v1 loads these too
 const FONT_HOSTS = /fonts\.(googleapis|gstatic)\.com/;
 
-test.describe.configure({ timeout: 900_000 }); // the side-by-side checks open every screen many times; slow on a busy machine
+test.describe.configure({ timeout: 600_000 }); // the side-by-side checks open every screen many times; slow on a busy machine
 
 // A save part way up the climb (worlds 1 to 4 done, level 24 next, Harder unlocked, Normal picked), the same in both versions.
 const SAVE = { reached: 23, done: Array.from({ length: 23 }, () => true), hardUnlocked: true, crown: false, diff: 1, pad: false, ver: 4 };
@@ -80,7 +80,7 @@ async function open(page, url, js, { fonts = false } = {}) {
 
 // Everything with words or a tap on it: where it is, its font size, whether all of it can be seen without scrolling,
 // and whether a button sits on top of any of it. Level squares and world pictures are named by their place.
-function measure() {
+function measure(withWords = true) {
   const vw = innerWidth, vh = innerHeight;
   const shown = el => { const cs = getComputedStyle(el), r = el.getBoundingClientRect(); return cs.display !== "none" && cs.visibility !== "hidden" && +cs.opacity !== 0 && r.width > 0 && r.height > 0 && !el.closest("[hidden]"); };
   const ctrls = [...document.querySelectorAll("button")].filter(shown);
@@ -122,7 +122,7 @@ function measure() {
   const cards = [...document.querySelectorAll(".env")], words = [];
   const shownAll = el => { for (let e = el; e; e = e.parentElement) { const cs = getComputedStyle(e); if (cs.display === "none" || cs.visibility === "hidden" || +cs.opacity === 0) return false; } return true; };
   const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-  for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+  for (let n = withWords ? walk.nextNode() : null; n; n = walk.nextNode()) {
     const el = n.parentElement;
     if (!el || el.closest("script, style, title, [hidden]") || !shownAll(el)) continue;
     const env = el.closest(".env"), box = el.closest("h1, h2, p, .crown, #toast, #caption, #skip, button");
@@ -221,70 +221,75 @@ test("jeremy.v2 opens to its title and starts a level, with nothing from the int
   expect(browserErrors).toEqual([]);
 });
 
-test("every screen, side by side with jeremy.v1 as the player lands on it: nothing jeremy.v1 showed whole is cut off, covered or smaller, with real fonts and with fallback fonts", async ({ browser, page, isMobile, shot, note }) => {
-  const lines = [], problems = [];
-  for (const [w, h] of isMobile ? PHONES : DESKTOPS) {
-    for (const fallback of [false, true]) {
-      const results = {};
-      for (const url of [V1, V2]) {
-        const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: isMobile ? 2 : 1, isMobile, hasTouch: isMobile });
-        await seed(ctx, { fallback });
-        const p = await ctx.newPage();
-        const errors = []; p.on("pageerror", e => errors.push(e.message));
-        for (const s of SCREENS) {
-          if (s.v2only && url === V1) continue;
-          const loaded = await open(p, url, s.js, { fonts: !fallback });
-          results[url + s.name] = { ...(await p.evaluate(measure)), loaded };
-        }
-        expect(errors, `${url} at ${w}x${h}`).toEqual([]);
-        await ctx.close();
-      }
-      let checked = 0, words = 0;
-      // the real-fonts pass compares like with like: if Google Fonts didn't load on this machine, the fallback pass covers it
-      const unloaded = fallback ? [] : SCREENS.filter(s => Object.keys(results).some(k => k.endsWith(s.name) && !results[k].loaded)).map(s => s.name);
-      if (unloaded.length) { lines.push(`${w}x${h}: Google Fonts didn't load (${unloaded.length} screens), so only the fallback pass counts there`); continue; }
-      for (const s of SCREENS) {
-        const where = `${w}x${h}${fallback ? " (fallback fonts)" : ""} ${s.name}`;
-        const v2 = results[V2 + s.name];
-        if (s.v2only) {
-          // screens jeremy.v1 doesn't have: everything on them shows whole with no scrolling, nothing covered
-          const panel = v2.items.filter(i => s.name === "paused" ? /^(h2 "Paused"|p "P or Esc|#pz|#btnPad)/.test(i.name) : /^(#worldTitle|p "Gold is next · Green is done"$|level button|#worldBack)/.test(i.name));
-          expect(panel.length, where).toBe(s.name === "paused" ? 6 : 8);
-          for (const i of panel) if (!i.whole || i.covered) problems.push(`${where}: ${i.name} isn't whole`);
-          checked += panel.length;
-          continue;
-        }
-        const r = compare(results[V1 + s.name], v2, where, s.play || s.name === "the witch's intro");
-        problems.push(...r.problems);
-        checked += r.checked;
-        words += r.words;
-      }
-      lines.push(`${w}x${h}${fallback ? " fallback fonts" : ""}: ${checked} pictures, buttons and blocks of words, and ${words} words one by one`);
-    }
-  }
-  expect(problems).toEqual([]);
-  note(lines.join("; "));
-  // pictures of the two new screens, held sideways on the phone
-  await page.setViewportSize(isMobile ? { width: 812, height: 375 } : { width: 1280, height: 800 });
-  await seed(page.context());
-  await open(page, V2, "g.setMode('levels'); g.openWorld(4)");
-  await expect(page.locator("#wlv button")).toHaveCount(5);
-  await shot("world");
-  await open(page, V2, "g.startLevel(0); g.skipIntro(); g.step(5); g.pause(true)");
-  await expect(page.locator("#pzGo")).toBeVisible();
-  await shot("paused");
-});
+// One check per size (and per set of fonts), so each stays short on a busy machine. Phone sizes run in the phone row,
+// desktop sizes in the desktop row; the other row skips them.
+const SIZES = [...PHONES.map(([w, h]) => ({ w, h, phone: true })), ...DESKTOPS.map(([w, h]) => ({ w, h, phone: false }))];
+const ctxAt = (browser, w, h, isMobile) => browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: isMobile ? 2 : 1, isMobile, hasTouch: isMobile });
 
-test("Pick a level, word by word: every world card's words show as much as in jeremy.v1, with real fonts and with fallback fonts, with and without the arrow buttons", async ({ browser, page, isMobile, shot, note }) => {
-  const lines = [], problems = [];
-  const card = o => o.startsWith("world card ");
-  for (const [w, h] of isMobile ? PHONES : DESKTOPS) {
+for (const { w, h, phone } of SIZES) for (const fallback of [false, true]) {
+  test(`every screen at ${w}x${h} with ${fallback ? "fallback" : "real"} fonts, side by side with jeremy.v1 as the player lands on it: no word jeremy.v1 showed is cut off more or covered, and nothing it showed whole is cut off, covered or smaller`, async ({ browser, page, isMobile, shot, note }) => {
+    test.skip(isMobile !== phone, `${w}x${h} runs in the ${phone ? "phone" : "desktop"} row`);
+    const problems = [], results = {};
+    for (const url of [V1, V2]) {
+      const ctx = await ctxAt(browser, w, h, isMobile);
+      await seed(ctx, { fallback });
+      const p = await ctx.newPage();
+      const errors = []; p.on("pageerror", e => errors.push(e.message));
+      for (const s of SCREENS) {
+        if (s.v2only && url === V1) continue;
+        const loaded = await open(p, url, s.js, { fonts: !fallback });
+        results[url + s.name] = { ...(await p.evaluate(measure)), loaded };
+      }
+      expect(errors, `${url} at ${w}x${h}`).toEqual([]);
+      await ctx.close();
+    }
+    let checked = 0, words = 0;
+    // the real-fonts pass compares like with like: if Google Fonts didn't load on this machine, the fallback pass covers it
+    const unloaded = fallback ? [] : SCREENS.filter(s => Object.keys(results).some(k => k.endsWith(s.name) && !results[k].loaded)).map(s => s.name);
+    if (unloaded.length) { note(`${w}x${h}: Google Fonts didn't load (${unloaded.length} screens), so only the fallback pass counts here`); return; }
+    for (const s of SCREENS) {
+      const where = `${w}x${h}${fallback ? " (fallback fonts)" : ""} ${s.name}`;
+      const v2 = results[V2 + s.name];
+      if (s.v2only) {
+        // screens jeremy.v1 doesn't have: everything on them shows whole with no scrolling, nothing covered
+        const panel = v2.items.filter(i => s.name === "paused" ? /^(h2 "Paused"|p "P or Esc|#pz|#btnPad)/.test(i.name) : /^(#worldTitle|p "Gold is next · Green is done"$|level button|#worldBack)/.test(i.name));
+        expect(panel.length, where).toBe(s.name === "paused" ? 6 : 8);
+        for (const i of panel) if (!i.whole || i.covered) problems.push(`${where}: ${i.name} isn't whole`);
+        for (const x of v2.words) if (x.shows < 0.999 || x.covered) if (panel.some(i => x.owner === i.name)) problems.push(`${where}: "${x.t}" in ${x.owner} isn't whole`);
+        checked += panel.length;
+        continue;
+      }
+      const r = compare(results[V1 + s.name], v2, where, s.play || s.name === "the witch's intro");
+      problems.push(...r.problems);
+      checked += r.checked;
+      words += r.words;
+    }
+    expect(problems).toEqual([]);
+    note(`${w}x${h}${fallback ? " fallback fonts" : ""}: ${SCREENS.length} screens; ${checked} pictures, buttons and blocks of words, and ${words} words one by one`);
+    if (fallback || w !== (phone ? 812 : 1280)) return;
+    // pictures of the two new screens, held sideways on the phone
+    await page.setViewportSize({ width: w, height: h });
+    await seed(page.context());
+    await open(page, V2, "g.setMode('levels'); g.openWorld(4)");
+    await expect(page.locator("#wlv button")).toHaveCount(5);
+    await shot("world");
+    await open(page, V2, "g.startLevel(0); g.skipIntro(); g.step(5); g.pause(true)");
+    await expect(page.locator("#pzGo")).toBeVisible();
+    await shot("paused");
+  });
+}
+
+for (const { w, h, phone } of SIZES) {
+  test(`Pick a level at ${w}x${h}, word by word: every world card's words show as much as in jeremy.v1, with real fonts and with fallback fonts, with and without the arrow buttons`, async ({ browser, page, isMobile, shot, note }) => {
+    test.skip(isMobile !== phone, `${w}x${h} runs in the ${phone ? "phone" : "desktop"} row`);
+    const lines = [], problems = [];
+    const card = o => o.startsWith("world card ");
     for (const fallback of [false, true]) {
       for (const pad of [false, true]) {
         const got = {};
         let loaded = true;
         for (const url of [V1, V2]) {
-          const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: isMobile ? 2 : 1, isMobile, hasTouch: isMobile });
+          const ctx = await ctxAt(browser, w, h, isMobile);
           await seed(ctx, { pad, fallback });
           const p = await ctx.newPage();
           loaded = (await open(p, url, "g.setMode('levels')", { fonts: !fallback })) && loaded;
@@ -292,43 +297,47 @@ test("Pick a level, word by word: every world card's words show as much as in je
           got[url] = await p.evaluate(measure);
           await ctx.close();
         }
-        const where = `${w}x${h}${fallback ? " fallback fonts" : ""}${pad ? " with arrow buttons" : ""}`;
+        const where = `${w}x${h}${fallback ? " fallback fonts" : " real fonts"}${pad ? ", arrow buttons on" : ""}`;
         if (!fallback && !loaded) { lines.push(`${where}: Google Fonts didn't load, so only the fallback pass counts`); continue; }
         const r = compareWords(got[V1], got[V2], `Pick a level ${where}`, card);
         problems.push(...r.problems);
         expect(r.checked, where).toBeGreaterThan(20);
         // the lowest line of card names that shows, in each version: where it runs and where the screen stops
-        const low = m => { const ws = m.words.filter(x => card(x.owner) && x.shows > 0 && /[a-z]/i.test(x.t)); const y = Math.max(...ws.map(x => x.y)); const l = ws.filter(x => x.y === y); return `${l.map(x => x.t).join(" ")} ${y.toFixed(1)}..${l[0].y1.toFixed(1)} of ${l[0].bottom.toFixed(1)}, ${(100 * Math.min(...l.map(x => x.shows))).toFixed(0)}% showing`; };
+        const low = m => { const ws = m.words.filter(x => card(x.owner) && x.shows > 0 && /[a-z]/i.test(x.t)); const y = Math.max(...ws.map(x => x.y)); const l = ws.filter(x => x.y === y); return `"${l.map(x => x.t).join(" ")}" ${y.toFixed(1)}..${l[0].y1.toFixed(1)} of ${l[0].bottom.toFixed(1)} (${(100 * Math.min(...l.map(x => x.shows))).toFixed(0)}% showing)`; };
         lines.push(`${where}: ${r.checked} words; lowest names jeremy.v1 ${low(got[V1])}, jeremy.v2 ${low(got[V2])}`);
       }
     }
-  }
-  expect(problems).toEqual([]);
-  note(lines.join("; "));
-  await page.setViewportSize(isMobile ? { width: 375, height: 812 } : { width: 1024, height: 768 });
-  await seed(page.context(), { fallback: true });
-  await open(page, V2, "g.setMode('levels')");
-  await expect(page.locator("#lvgrid .env")).toHaveCount(12);
-  await shot("levels-fallback-fonts");
-});
+    expect(problems).toEqual([]);
+    note(lines.join("; "));
+    if (w !== (phone ? 375 : 1024)) return;
+    await page.setViewportSize({ width: w, height: h });
+    await seed(page.context(), { fallback: true });
+    await open(page, V2, "g.setMode('levels')");
+    await expect(page.locator("#lvgrid .env")).toHaveCount(12);
+    await shot("levels-fallback-fonts");
+  });
+}
 
-test("the buttons cover less of the game in play than jeremy.v1's did, and none of its counter or climb meter", async ({ browser, page, isMobile, shot, note }) => {
-  const lines = [], menus = [];
-  for (const [w, h] of isMobile ? PHONES : DESKTOPS) {
+// The screens the coverage check reports on: the game in play (and the intro that leads into it), and two menu screens.
+const COVER = SCREENS.filter(s => s.play || ["the witch's intro", "title", "level complete"].includes(s.name));
+for (const { w, h, phone } of SIZES) {
+  test(`at ${w}x${h} the buttons cover less of the game in play than jeremy.v1's did, and none of its counter or climb meter`, async ({ browser, page, isMobile, shot, note }) => {
+    test.skip(isMobile !== phone, `${w}x${h} runs in the ${phone ? "phone" : "desktop"} row`);
+    const lines = [], menus = [];
     for (const pad of [false, true]) {
       const got = {};
       for (const url of [V1, V2]) {
-        const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: isMobile ? 2 : 1, isMobile, hasTouch: isMobile });
+        const ctx = await ctxAt(browser, w, h, isMobile);
         await seed(ctx, { pad });
         const p = await ctx.newPage();
-        for (const s of SCREENS.filter(s => !s.v2only)) {
+        for (const s of COVER) {
           await open(p, url, s.js);
-          got[url + s.name] = await p.evaluate(measure);
+          got[url + s.name] = await p.evaluate(measure, false);
         }
         await ctx.close();
       }
       const play = [];
-      for (const s of SCREENS.filter(s => !s.v2only)) {
+      for (const s of COVER) {
         const a = got[V1 + s.name], b = got[V2 + s.name];
         expect(b.canvas.w, `${w}x${h} ${s.name}: the game is the same size`).toBeCloseTo(a.canvas.w, 1);
         expect(b.canvas.h).toBeCloseTo(a.canvas.h, 1);
@@ -337,18 +346,20 @@ test("the buttons cover less of the game in play than jeremy.v1's did, and none 
           expect(b.hudCovered, `${w}x${h} pad ${pad} ${s.name}: counter and climb meter covered`).toBeLessThanOrEqual(a.hudCovered);
           expect(b.hudCovered).toBe(0);
           if (s.name === "playing (sea)") play.push(`${(100 * a.covered / a.canvas.area).toFixed(2)}% → ${(100 * b.covered / b.canvas.area).toFixed(2)}% (HUD ${a.hudCovered} → ${b.hudCovered} px²)`);
-        } else if (!pad && ["title", "level complete"].includes(s.name)) menus.push(`${w}x${h} ${s.name} ${(100 * a.covered / a.canvas.area).toFixed(2)}% → ${(100 * b.covered / b.canvas.area).toFixed(2)}%`);
+        } else if (!pad) menus.push(`${s.name} ${(100 * a.covered / a.canvas.area).toFixed(2)}% → ${(100 * b.covered / b.canvas.area).toFixed(2)}%`);
       }
-      lines.push(`${w}x${h}${pad ? " with arrow buttons" : ""}, in play: ${play.join("")}`);
+      lines.push(`${pad ? "with arrow buttons" : "no arrow buttons"}, in play: ${play.join("")}`);
     }
-  }
-  note(`game covered by buttons, jeremy.v1 → jeremy.v2: ${lines.join("; ")}`);
-  note(`menu screens (the game is a backdrop there; Sound and Home are bigger where there's no room beside the game): ${menus.join("; ")}`);
-  await seed(page.context(), { pad: true });
-  await open(page, V2, "g.startLevel(0); g.skipIntro(); g.step(5)");
-  await expect(page.locator("#btnPause")).toBeVisible();
-  await shot("playing-arrow-buttons");
-});
+    note(`${w}x${h}, game covered by buttons, jeremy.v1 → jeremy.v2: ${lines.join("; ")}`);
+    note(`${w}x${h} menu screens (the game is a backdrop there; Sound and Home are bigger where there's no room beside the game): ${menus.join("; ")}`);
+    if (w !== (phone ? 375 : 1024)) return;
+    await page.setViewportSize({ width: w, height: h });
+    await seed(page.context(), { pad: true });
+    await open(page, V2, "g.startLevel(0); g.skipIntro(); g.step(5)");
+    await expect(page.locator("#btnPause")).toBeVisible();
+    await shot("playing-arrow-buttons");
+  });
+}
 
 // The phone bar, measured strictly: no rounding up, so a 47.6 px button or a 7.5 px gap fails.
 async function bar(page, where) {
