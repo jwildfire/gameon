@@ -2,9 +2,9 @@
   "spec": "231-delve-squad-jeremy-v2",
   "passed": true,
   "headline": "PASS: 16 of 16 checks pass at desktop and phone widths.",
-  "generatedAt": "2026-10-30T09:47:47.676Z",
+  "generatedAt": "2026-10-30T09:57:32.035Z",
   "target": "local server (python3 -m http.server) on this branch",
-  "commit": "5a03f08",
+  "commit": "46adf46",
   "playwright": "1.61.1",
   "specFile": "tests/evidence/231-delve-squad-jeremy-v2.spec.mjs",
   "checks": [
@@ -210,9 +210,11 @@
       }
     },
     {
-      "check": "on a notched phone held upright, no button sits inside the safe area and the bars stay jeremy.v1's height",
+      "check": "on a notched phone held upright, no button sits inside the safe area and the bars stay jeremy.v1's height, with real, fallback and wide fonts",
       "notes": [
-        "phone: 390x844, insets {\"top\":47,\"bottom\":34,\"left\":0,\"right\":0}: top bars match jeremy.v1 and bottom bars are no taller on all 12 screens; lists squad 650->648, squad, three picked 650->648, campfire 650->648, campfire, a card taken 650->648, paused at the campfire 650->648, boss-floor campfire 650->648, campfire after the boss 650->648; no reachable button in the safe area (jeremy.v1 had 0); touchTargets on 18 states, 6 scrolled"
+        "phone: real fonts, 390x844, insets {\"top\":47,\"bottom\":34,\"left\":0,\"right\":0}: top bars match jeremy.v1 and bottom bars are no taller on all 12 screens; lists 650->648; no reachable button in the safe area (jeremy.v1 had 0); touchTargets on 18 states, 6 scrolled",
+        "phone: fallback fonts, 390x844, insets {\"top\":47,\"bottom\":34,\"left\":0,\"right\":0}: top bars match jeremy.v1 and bottom bars are no taller on all 12 screens; lists 650->648; no reachable button in the safe area (jeremy.v1 had 0); touchTargets on 18 states, 6 scrolled",
+        "phone: wide fonts, 390x844, insets {\"top\":47,\"bottom\":34,\"left\":0,\"right\":0}: top bars match jeremy.v1 and bottom bars are no taller on all 12 screens; lists 649->647; no reachable button in the safe area (jeremy.v1 had 0); touchTargets on 26 states, 14 scrolled"
       ],
       "desktop": {
         "status": "skipped",
@@ -226,9 +228,11 @@
       }
     },
     {
-      "check": "on a notched phone held sideways, no button sits inside the safe area and the bars stay jeremy.v1's height",
+      "check": "on a notched phone held sideways, no button sits inside the safe area and the bars stay jeremy.v1's height, with real, fallback and wide fonts",
       "notes": [
-        "phone: 844x390, insets {\"top\":0,\"bottom\":21,\"left\":47,\"right\":47}: top bars match jeremy.v1 and bottom bars are no taller on all 12 screens; lists squad 246->246, squad, three picked 246->246, campfire 246->246, campfire, a card taken 246->246, paused at the campfire 246->246, boss-floor campfire 246->246, campfire after the boss 246->246; no reachable button in the safe area (jeremy.v1 had 20); touchTargets on 26 states, 14 scrolled; last card scrolls fully into view on every list"
+        "phone: real fonts, 844x390, insets {\"top\":0,\"bottom\":21,\"left\":47,\"right\":47}: top bars match jeremy.v1 and bottom bars are no taller on all 12 screens; lists 246->246; no reachable button in the safe area (jeremy.v1 had 20); touchTargets on 26 states, 14 scrolled; last card scrolls fully into view on every list",
+        "phone: fallback fonts, 844x390, insets {\"top\":0,\"bottom\":21,\"left\":47,\"right\":47}: top bars match jeremy.v1 and bottom bars are no taller on all 12 screens; lists 246->246; no reachable button in the safe area (jeremy.v1 had 20); touchTargets on 26 states, 14 scrolled; last card scrolls fully into view on every list",
+        "phone: wide fonts, 844x390, insets {\"top\":0,\"bottom\":21,\"left\":47,\"right\":47}: top bars match jeremy.v1 and bottom bars are no taller on all 12 screens; lists 245->245, 244->244; no reachable button in the safe area (jeremy.v1 had 20); touchTargets on 26 states, 14 scrolled; last card scrolls fully into view on every list"
       ],
       "desktop": {
         "status": "skipped",
