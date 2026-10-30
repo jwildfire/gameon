@@ -80,7 +80,7 @@ function markClassCursor() {
 function moveClassCursor(dx, dy) {
   var n = DS.CLASS_KEYS.length, cols = getComputedStyle($("classes")).gridTemplateColumns.split(" ").filter(Boolean).length || n;
   if (S.pcur < 0) S.pcur = 0;
-  else S.pcur = dy ? (S.pcur + dy * cols + n) % n : (S.pcur + dx + n) % n;
+  else S.pcur = dy && cols < n ? (S.pcur + dy * cols + n) % n : (S.pcur + (dx || dy) + n) % n;   // one row: up and down step along it
   markClassCursor(); SND.play("click");
   var b = $("classes").children[S.pcur]; if (b && b.scrollIntoView) b.scrollIntoView({ block: "nearest" });
 }
