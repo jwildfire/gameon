@@ -1187,17 +1187,17 @@ body.dad-mode .card-label {
 /* The number-of-events slider: a 48 px tall hit box around the same 6 px
    track, with a bigger thumb. It sits between "# of Events" and "10 ... 30"
    without touching either. The room comes out of the gaps above it, so the
-   Endless and topic buttons stay where jeremy.v1 had them. */
+   Endless and topic buttons sit a few px higher than in jeremy.v1, never lower
+   (the first row of topics grows 4 px and still ends where it did). */
 .description {
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
 }
 
 .event-count-picker {
-    margin-top: 0.75rem;
+    margin-top: 0.5rem;
 }
 
 .event-count-slider {
-    display: block;
     height: 48px;
     margin: 1px 0;
     background: transparent;
