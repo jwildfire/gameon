@@ -5,10 +5,15 @@
     "title": "Delve Squad",
     "tagline": "Torch-lit halls, glowing loot cards, and the Rat King waiting for your heroes.",
     "credit": "Made by Jeremy",
-    "url": "games/delve-squad/",
+    "url": "games/delve-squad/jeremy.v2/",
     "repo": "https://github.com/jwildfire/gameon",
     "color": "#ff9d3c",
-    "tags": ["New", "Dungeon", "1 player"]
+    "tags": ["New", "Dungeon", "1 player"],
+    "default": "jeremy.v2",
+    "versions": [
+      { "id": "jeremy.v1", "url": "games/delve-squad/", "made": "2026-10-29", "note": "The first version" },
+      { "id": "jeremy.v2", "url": "games/delve-squad/jeremy.v2/", "made": "2026-10-30", "note": "Bigger buttons, and WASD at the campfire", "from": "jeremy.v1", "idea": 231 }
+    ]
   },
   {
     "slug": "claw-of-cool",
@@ -82,16 +87,17 @@
     "title": "Pet Wash Payback",
     "tagline": "More silly animals, and now they all chase you with squirt guns, sprinklers and more!",
     "credit": "Made by Jeremy",
-    "url": "games/pet-wash-payback/jeremy.v3/",
+    "url": "games/pet-wash-payback/jeremy.v4/",
     "repo": "https://github.com/jwildfire/gameon",
     "color": "#57c4ff",
     "tags": ["New", "Pets", "1 player"],
-    "default": "jeremy.v3",
+    "default": "jeremy.v4",
     "versions": [
       { "id": "jeremy.v1", "url": "games/pet-wash-payback/", "made": "2026-10-24", "note": "The first version" },
       { "id": "jeremy.v2", "url": "games/pet-wash-payback/jeremy.v2/", "made": "2026-10-24", "note": "More animals, and they all want payback", "from": "jeremy.v1", "idea": 163 },
       { "id": "jeremy.v3", "url": "games/pet-wash-payback/jeremy.v3/", "made": "2026-10-25", "note": "Survival mode: more and more pets join the chase", "from": "jeremy.v2", "idea": 3, "idea_repo": "jwildfire/gameon-ideas" },
-      { "id": "kiki.v1", "url": "games/pet-wash-payback/kiki.v1/", "made": "2026-10-25", "note": "Leo the Lion and a new place to run", "from": "jeremy.v2", "idea": 6, "idea_repo": "jwildfire/gameon-ideas" }
+      { "id": "kiki.v1", "url": "games/pet-wash-payback/kiki.v1/", "made": "2026-10-25", "note": "Leo the Lion and a new place to run", "from": "jeremy.v2", "idea": 6, "idea_repo": "jwildfire/gameon-ideas" },
+      { "id": "jeremy.v4", "url": "games/pet-wash-payback/jeremy.v4/", "made": "2026-10-29", "note": "Wash pets with the keyboard", "from": "jeremy.v3", "idea": 216 }
     ]
   },
   {
@@ -100,10 +106,15 @@
     "title": "Big Weird Dig",
     "tagline": "Drive a bulldozer underground and dig up the weirdest stuff ever buried.",
     "credit": "Made by Jeremy",
-    "url": "games/big-weird-dig/",
+    "url": "games/big-weird-dig/jeremy.v2/",
     "repo": "https://github.com/jwildfire/gameon",
     "color": "#9b4dff",
-    "tags": ["New", "Digging adventure", "1 player"]
+    "tags": ["New", "Digging adventure", "1 player"],
+    "default": "jeremy.v2",
+    "versions": [
+      { "id": "jeremy.v1", "url": "games/big-weird-dig/", "made": "2026-10-24", "note": "The first version" },
+      { "id": "jeremy.v2", "url": "games/big-weird-dig/jeremy.v2/", "made": "2026-10-29", "note": "Bigger buttons, Enter to go", "from": "jeremy.v1", "idea": 217 }
+    ]
   },
   {
     "slug": "super-sauce-boy",
@@ -122,10 +133,15 @@
     "title": "Fancy Food Fight",
     "tagline": "Splat the fanciest party in town with pies and spaghetti. Messiest wins!",
     "credit": "Made by Jeremy",
-    "url": "games/fancy-food-fight/",
+    "url": "games/fancy-food-fight/jeremy.v2/",
     "repo": "https://github.com/jwildfire/gameon",
     "color": "#ff6f9c",
-    "tags": ["New", "1 player", "Turn sideways"]
+    "tags": ["New", "1 player", "Turn sideways"],
+    "default": "jeremy.v2",
+    "versions": [
+      { "id": "jeremy.v1", "url": "games/fancy-food-fight/", "made": "2026-10-23", "note": "The first version" },
+      { "id": "jeremy.v2", "url": "games/fancy-food-fight/jeremy.v2/", "made": "2026-10-29", "note": "Buttons that stay big on a phone", "from": "jeremy.v1", "idea": 219 }
+    ]
   },
   {
     "slug": "mazeathon",
@@ -161,14 +177,15 @@
     "title": "Princess Lady Drive",
     "tagline": "Drive Queen Rosie around a town where everything is free.",
     "credit": "Made by Jeremy and the kids",
-    "url": "games/princess-lady-drive/jeremy.v2/",
+    "url": "games/princess-lady-drive/jeremy.v3/",
     "repo": "https://github.com/jwildfire/princess-lady-drive",
     "color": "#ef5da8",
     "tags": ["New", "Little kids"],
-    "default": "jeremy.v2",
+    "default": "jeremy.v3",
     "versions": [
       { "id": "jeremy.v1", "url": "games/princess-lady-drive/jeremy.v1/", "made": "2026-10-22", "note": "The first version", "source": {"repo": "jwildfire/princess-lady-drive", "commit": "43a82925beec0487375c6c0b144ce5a68330bb54"} },
-      { "id": "jeremy.v2", "url": "games/princess-lady-drive/jeremy.v2/", "made": "2026-10-23", "note": "More rooms in the castle!", "from": "jeremy.v1", "idea": 122 }
+      { "id": "jeremy.v2", "url": "games/princess-lady-drive/jeremy.v2/", "made": "2026-10-23", "note": "More rooms in the castle!", "from": "jeremy.v1", "idea": 122 },
+      { "id": "jeremy.v3", "url": "games/princess-lady-drive/jeremy.v3/", "made": "2026-10-29", "note": "Enter to start, keys for Map and Help", "from": "jeremy.v2", "idea": 222 }
     ]
   },
   {

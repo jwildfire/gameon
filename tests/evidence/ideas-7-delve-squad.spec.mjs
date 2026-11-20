@@ -255,6 +255,8 @@ test("Delve Squad has a card right after the Editor's Choice games and plays in 
   await expect(card.locator(".cover img")).toHaveJSProperty("complete", true);
   expect(await card.locator(".cover img").evaluate(img => img.naturalWidth)).toBe(800);
   await card.click();
+  // since jeremy.v2 (game idea #231) the card has two versions and opens the version picker first; this checks jeremy.v1
+  await page.locator('#ver-list .ver-item[data-version="jeremy.v1"]').click();
   await expect(page.locator("#bar-title")).toHaveText("Delve Squad");
   await expect(page.locator("#gh-btn")).toHaveAttribute("href", "https://github.com/jwildfire/gameon/tree/main/games/delve-squad");
   const frame = page.frameLocator("#frame");

@@ -1,0 +1,46 @@
+{
+  "name": "pet-wash-payback",
+  "title": "Pet Wash Payback",
+  "tagline": "More silly animals, and now they all chase you with squirt guns, sprinklers and more!",
+  "credit": "Designed by Jeremy",
+  "idea": "game where you're trying to wash pets (dog, cat, etc) as fast as possible in round 1 and then the pet is trying to wash you with a hose in round 2 and you're trying to escape and stay dry.",
+  "made": "2026-10-24",
+  "built_with": "Claude Opus 5.5",
+  "players": "1",
+  "sideways": false,
+  "needs_internet": false,
+  "idea_issue": 157,
+  "path": "games/pet-wash-payback/jeremy.v4/",
+  "version": "jeremy.v4",
+  "from": "jeremy.v3",
+  "updates": [
+    {
+      "version": "jeremy.v2",
+      "from": "jeremy.v1",
+      "idea": "Fun! Make it so there are more and funnier types of animals. 10 squirrels. a bird flying around etc. Then make it so you have to escape from all the animals in future rounds. give them all different ways to get you wet. only 1 with hose. waterguns. etc.",
+      "by": "Jeremy",
+      "made": "2026-10-24",
+      "built_with": "Claude Opus 5.5",
+      "idea_issue": 163
+    },
+    {
+      "version": "jeremy.v3",
+      "from": "jeremy.v2",
+      "idea": "A brand-new endless chase mode where the pet pack keeps on growing!",
+      "by": "Jeremy",
+      "made": "2026-10-25",
+      "built_with": "Claude Opus 5.5",
+      "idea_issue": 3,
+      "idea_repo": "jwildfire/gameon-ideas"
+    },
+    {
+      "version": "jeremy.v4",
+      "from": "jeremy.v3",
+      "idea": "Make Pet Wash Payback comfortable on a phone and with a keyboard, so it meets the phone bar from the phone-friendly games task (jwildfire/gameon#187): every button at least 48 x 48 px at 375 px wide, 8 px clear of each other and the screen edges, and both WASD and the arrow keys working. Measured on jeremy.v3 on 2026-10-29:\n\n- In the wash round (the first round Play! starts), no key scrubs, rinses or dries the pet or catches the parrot. WASD, the arrows, Space and Enter all do nothing there, so only touch or a mouse works.\n- Pause and Mute are 32 x 32 and only 4 px apart.\n- Back and the pause screen's Title screen and Sound buttons are 38 px tall. The main buttons are 46 px.\n\nIn the wash round, let WASD or the arrows move a scrub brush, with Space held to scrub and Enter or Space to catch the parrot. Make Pause and Mute 48 x 48 with 8 px between them, and make every button at least 48 px tall. The running round and Survival already pass. Keep everything else the same.",
+      "by": "Jeremy",
+      "made": "2026-10-29",
+      "built_with": "Claude Opus 5.5",
+      "idea_issue": 216
+    }
+  ]
+}

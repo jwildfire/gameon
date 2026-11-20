@@ -1,0 +1,28 @@
+{
+  "name": "delve-squad",
+  "title": "Delve Squad",
+  "tagline": "Torch-lit halls, glowing loot cards, and the Rat King waiting for your heroes.",
+  "credit": "Designed by Jeremy",
+  "idea": "Torch-lit halls, glowing loot cards, and the Rat King waiting for your heroes.",
+  "made": "2026-10-29",
+  "built_with": "Claude Opus 5.5",
+  "players": "1",
+  "sideways": false,
+  "needs_internet": false,
+  "idea_issue": 7,
+  "idea_repo": "jwildfire/gameon-ideas",
+  "path": "games/delve-squad/jeremy.v2/",
+  "version": "jeremy.v2",
+  "from": "jeremy.v1",
+  "updates": [
+    {
+      "version": "jeremy.v2",
+      "from": "jeremy.v1",
+      "idea": "Make Delve Squad comfortable on a phone and with a keyboard, so it meets the phone bar from the phone-friendly games task (jwildfire/gameon#187): every button at least 48 x 48 px at 375 px wide, 8 px clear of each other and the screen edges, and both WASD and the arrow keys working. Measured on jeremy.v1 on 2026-10-29:\n\n- Sound (title screen) and the pause buttons are 42 x 42. In the delve, the speed button is 52 x 42 and only 6 px from the pause button.\n- At the campfire, the hero cards and the loot cards are 7 px apart.\n- A and D do nothing. Only ArrowLeft and ArrowRight pick a hero at the campfire, and no key moves between the loot cards (only 1-7).\n\nMake Sound, Pause and speed 48 x 48 with 8 px between them, space the hero and loot cards 8 px apart, and let A/D pick a hero like the arrows (with W/S or Up/Down moving through the loot). Keep everything else the same.",
+      "by": "Jeremy",
+      "made": "2026-10-30",
+      "built_with": "Claude Opus 5.5",
+      "idea_issue": 231
+    }
+  ]
+}

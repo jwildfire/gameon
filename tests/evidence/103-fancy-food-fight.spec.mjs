@@ -117,6 +117,8 @@ test("Fancy Food Fight has a card in the arcade and plays in its frame", async (
   await card.scrollIntoViewIfNeeded();   // its cover loads lazily, and newer cards push it down the page
   await expect(card.locator(".cover img")).toHaveJSProperty("complete", true);
   await card.click();
+  // since jeremy.v2 (game idea #219) the card has two versions and opens the version picker first; this checks jeremy.v1
+  await page.locator('#ver-list .ver-item[data-version="jeremy.v1"]').click();
   await expect(page.locator("#bar-title")).toHaveText("Fancy Food Fight");
   await expect(page.locator("#gh-btn")).toHaveAttribute("href", "https://github.com/jwildfire/gameon/tree/main/games/fancy-food-fight");
   const frame = page.frameLocator("#frame");

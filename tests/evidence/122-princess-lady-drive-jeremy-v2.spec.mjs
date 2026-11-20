@@ -237,8 +237,8 @@ test("a jeremy.v1 save loads: Rosie keeps her balloons, pets and castle decorati
 test("games.json makes jeremy.v2 the default and still offers jeremy.v1", async ({ note }) => {
   const g = games.find(x => x.slug === SLUG);
   expect(g.creator).toBe("jeremy");
-  expect(g.default).toBe("jeremy.v2");
-  expect(g.url).toBe(V2);
+  // since jeremy.v3 (game idea #222) is the default, this checks that jeremy.v2 and jeremy.v1 are still offered
+  expect(g.versions.map(v => v.id).slice(0, 2)).toEqual(["jeremy.v1", "jeremy.v2"]);
   const v1 = g.versions.find(v => v.id === "jeremy.v1"), v2 = g.versions.find(v => v.id === "jeremy.v2");
   expect(v1.url).toBe(V1_URL);
   expect(v2).toMatchObject({ url: V2, from: "jeremy.v1", idea: 122, note: "More rooms in the castle!" });
@@ -249,12 +249,12 @@ test("the arcade plays jeremy.v2 by default, and the version picker offers jerem
   await page.goto("./");
   await page.locator(`#shelf .cart[href="#${SLUG}"]`).click();
   await expect(page.locator("#chooser")).toBeVisible();
-  const items = page.locator("#ver-list .ver-item");
-  await expect(items).toHaveCount(2);
-  await expect(items.nth(0)).toContainText("jeremy.v2");
-  await expect(items.nth(0)).toContainText("Latest");
-  await expect(items.nth(1)).toContainText("jeremy.v1");
-  await items.nth(0).click();
+  // since jeremy.v3 (game idea #222) is the default, this checks that jeremy.v2 and jeremy.v1 are still in the
+  // picker and that jeremy.v2 plays from it
+  const v2item = page.locator('#ver-list .ver-item[data-version="jeremy.v2"]');
+  await expect(v2item).toContainText("jeremy.v2");
+  await expect(page.locator('#ver-list .ver-item[data-version="jeremy.v1"]')).toBeVisible();
+  await v2item.click();
   await expect(page).toHaveURL(new RegExp(`#${SLUG}@jeremy\\.v2$`));
   await expect(page.locator("#frame")).toHaveAttribute("src", V2);
   const game = page.frameLocator("#frame");
